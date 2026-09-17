@@ -143,6 +143,9 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.browser } },
     rules: {
       ...reactHooks.configs['recommended-latest'].rules,
+      // `onClick={() => dispatch(cmd)}` is the idiomatic React handler; the void return is the
+      // point, not a mistake (ADR-0017).
+      '@typescript-eslint/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
     },
   },
   {
