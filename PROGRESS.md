@@ -1,6 +1,6 @@
 # Progress
 
-Current milestone: M4 complete (classic playable); M3 (M3.3–M3.4) still open
+Current milestone: M4 complete and tagged (classic playable); M3 (M3.3–M3.4) still open
 Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
@@ -56,7 +56,7 @@ Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 - [x] M4.6 Phone layout (UX 7.2) and keyboard map (UX 7.7) — note: `useIsPhone` picks the layout (mini ring + `PhoneLocationList` + bottom sheet), `useKeyboard` covers the whole 7.7 map, `DebugPanel` + `debug/useDebugBoot` behind `?debug=1` and the `debugTools` flag.
 - [x] M4.7 i18n wiring; no hardcoded strings (lint rule `i18next/no-literal-string`) — note: `startGame` calls `loadPackStrings`, so every content name resolves from the `pack` namespace; rule active on `apps/web/src/**/*.tsx` and passing.
 - [x] M4.8 End screen with goal-over-time chart (SVG, no chart lib) — note: `ui/screens/EndScreen.tsx` + `ui/game/GoalChart.tsx` (polyline per player per goal, dash patterns so colour is not the only signal), key stats table, rematch/new game/replay export (ADR-0023).
-- [ ] M4 gate: `pnpm verify` green in CI, e2e AC on 3 viewports, tag `m4` — note:
+- [x] M4 gate: `pnpm verify` green in CI, e2e AC on 3 viewports, tag `m4` — note: `pnpm verify` green locally (52 test files, 487 tests, bundle 144.7 kB gzip of 350, e2e 21 passed on 3 viewports with 0 serious/critical axe violations, `sim:gate` 18 assertions / 0 failed / 2 pending); CI confirmation on push. Tag `m4` created locally (KI-001).
 
 ## Gate log
 
