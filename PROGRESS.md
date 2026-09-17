@@ -1,7 +1,7 @@
 # Progress
 
-Current milestone: M3
-Last updated: 2026-09-17 by CC
+Current milestone: M3 (M3.3–M3.4 open) + M4 (M4.1–M4.2 done, M4.3–M4.8 open)
+Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
 
@@ -42,9 +42,21 @@ Last updated: 2026-09-17 by CC
 
 - [x] M3.1 `packages/sim` CLI, worker threads, metrics, reports — note: `packages/sim/src/{spec,runner,metrics,report,gates,pool,worker}.ts`, `cli.ts`; deterministic summary test in `sim.test.ts`. ADR-0015.
 - [x] M3.2 Strategy bots (BALANCE 9.4, classic-applicable ones) — note: `bots.ts` StudyFirst + NoRelax via `PlanOptions.forbid`; modern bots at M5.9.
-- [ ] M3.3 Run stage-1 suite; tune [ASSUMED] classic values until 9.3 gates pass — note:
-- [ ] M3.4 `sim:gate` config for classic sanity gates wired into CI — note:
-- [ ] M3 gate: `pnpm verify` green in CI, tag `m3` — note:
+- [ ] M3.3 Run stage-1 suite; tune [ASSUMED] classic values until 9.3 gates pass — note: suite started (`sim/stage1.json`, 24 configs, reduced counts per ADR-0016); 15 of 24 configs written to `reports/stage1/` when this session ended. Re-run to completion, then write `BASELINE_REPORT.md` + `reports/baseline.json`.
+- [ ] M3.4 `sim:gate` config for classic sanity gates wired into CI — note: `sim/gates.json` + `ci.yml` wired and running (8 configs, 18 assertions, ≈ 2 min); 16 pass. Two are marked `pending` against KI-005 (ADR-0019) until M3.3 tunes them.
+- [ ] M3 gate: `pnpm verify` green in CI **and `pnpm sim:gate --strict` clean** (no pending assertions), tag `m3` — note:
+
+## M4 — Web UI, classic playable
+
+- [x] M4.1 Zustand store + dispatch + EventQueue + AI worker — note: `apps/web/src/store/gameStore.ts` is the sole mutation path (engine `applyCommand`); `ai/aiClient.ts` runs planning in a Web Worker with a main-thread fallback after two failures; 12 store tests + 4 client tests.
+- [x] M4.2 Title, Setup (all GDD 4.1 options + City picker from `world.json`), Settings, Stats screens — note: plus Help and Pass-device; `ui/screens/*.tsx`, `store/settings.ts` (localStorage, no cookies), `assets/AssetRegistry.tsx` placeholders, full `i18n/en.json` key set; 20 screen/router tests.
+- [ ] M4.3 SVG ring board, AssetRegistry placeholders, token animation, reduced motion — note: gated by app flag `gameBoard` (ADR-0017); registry + tokens + theme tokens already built.
+- [ ] M4.4 HUD, standings, location panel with previews and disabled reasons, travel sheet — note: engine side ready (`legalCommands`, `candidateCommands` with error codes, `previewCommand`); i18n keys for every panel section, preview line and error code already written.
+- [ ] M4.5 Event modals, event log, AI ticker, pass-device screen — note: pass-device screen done; store already collects `cards`, `pendingCards`, `log` (capped 400) and `ticker`.
+- [ ] M4.6 Phone layout (UX 7.2) and keyboard map (UX 7.7) — note: also lands `debug/useDebugBoot` behind the `debugTools` flag (`?debug=1`, UX 7.9).
+- [ ] M4.7 i18n wiring; no hardcoded strings (lint rule `i18next/no-literal-string`) — note: rule active on `apps/web/src/**/*.tsx` and passing; pack strings load into the `pack` namespace via `loadPackStrings`.
+- [ ] M4.8 End screen with goal-over-time chart (SVG, no chart lib) — note: gated by app flag `endScreen`; `PlayerState.history` already records per-week goals.
+- [ ] M4 gate: `pnpm verify` green in CI, e2e AC on 3 viewports, tag `m4` — note:
 
 ## Gate log
 
