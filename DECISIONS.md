@@ -71,3 +71,61 @@
 - Options: 1) side-car flag files; 2) allow `{ "_replace": true, "entries": [...] }` as an alternate array-file shape; for weights, 1) bespoke modifier fields, 2) reuse the JSON-logic subset for `weight`.
 - Decision: alternate shape (2) and JSON-logic weights (2), evaluated over the same whitelisted view as conditions with integer floor division.
 - Consequences: one evaluator (`packages/content/src/logic.ts`) is shared by validator and engine.
+
+## ADR-0009: Copy-on-write state cloning instead of Immer
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: ARCHITECTURE 5.3 allows Immer for structural sharing. AI beam search calls `applyCommand` hundreds of times per turn; a full deep clone cost ~15 µs and Immer proxies cost more, threatening the < 200 ms/game sim budget (BALANCE 9.3).
+- Options: 1) Immer; 2) full deep clone per apply; 3) shallow top-level clone + per-player deep clone on first access through `Ctx.playerAt` (copy-on-write).
+- Decision: option 3 (`cloneState` + `Ctx(cow=true)`). The command log is copied as a reference list. Rule: engine code never mutates `state.players[i]` directly; it goes through `ctx.playerAt(seat)`. Read-only contexts (validate, legal, preview) skip cloning entirely.
+- Consequences: ~10 µs per apply at M1; input state is provably unmutated (test `replay.test.ts`). No Immer dependency.
+
+## ADR-0010: Turn-start conventions the spec leaves open
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: GDD 4.2 / ORIGINAL_REFERENCE 3.1 fix the pipeline order but not several edge details.
+- Decisions (each is the simplest reading consistent with the GDD):
+  1. Economy tick runs at the start of every week except week 1, so the opening state is exactly the pack's starting prices.
+  2. Each turn starts with the player inside their home (no Enter cost); `Move` from inside performs an implicit `Exit` (theft exposure applies).
+  3. Turn ends automatically when `hoursLeft` hits 0 and the player is outside a location; zero-time commands stay legal inside.
+  4. Week 1 has no stat decay, no starvation and no rent due; a player with nothing to eat starves from week 2.
+  5. Partial moves (not enough hours) walk the shorter ring direction as far as affordable and end the turn; on graph boards the move is refused instead.
+  6. Random start events, formula events (burglary, breakdown, doctor, theft) are disabled entirely with Chaos Off; weekend events still run but only those tagged `neutral`.
+- Consequences: golden replays encode these; changing any requires regenerating them with an ADR note.
+
+## ADR-0011: Command semantics the spec leaves open (classic set)
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: GDD 4.6–4.12 and SEED_DATA 14.x leave several mechanics under-specified.
+- Decisions:
+  1. All purchases, fees and rent are paid from cash only (bank money must be withdrawn first); doctor bills, weekend costs and spoilage cascade cash → bank → rent debt.
+  2. Engine hour fields on commands (`Work.hours`) are half-hours like `hoursLeft`; the UI converts.
+  3. Rent model: `paidThroughWeek` + `rentWeeks` is the due week; missing it converts one period into debt, blocks extensions forever (any past debt), and after `evictionWeeks` of continuous debt the player is evicted (low tier, newest 2 durables kept, debt written off). `PayRent{months}` clears debt first; `MoveHome` covers one period at the new locked rent.
+  4. Raises: `AskRaise` needs dependability > requirement + 5 × raises and lifts the wage by max(listed wage × econ, +5% of listed) so raises stay meaningful after hiring during a boom.
+  5. Unqualified applications are validation errors (`ERR_REQ_*`) so the UI can grey them out; only the luck roll produces the `Refused` event and the −1 happiness.
+  6. Investments are held in milli-units (1000 = one unit at the cent price) so small dollar amounts buy fractional units; the 1% fee applies to classic instruments too.
+  7. Pawn shop: seller redeems at 110% of the price paid while `week < listedWeek + 2`; from then on any player (seller included) buys at 70% of depreciated value.
+  8. One of each durable per player; consumables (tickets, junk, drinks, newspaper) apply on purchase; the newspaper and `ReadNews` both set the week's news hint.
+  9. `Relax` is legal at any location with the `relax` service; comfort bonuses apply only at home (the Park gives the base +2).
+  10. Discount-store rotation is drawn from the `shop:<seat>` stream at turn start and stored in `turn.shopRotation`.
+- Consequences: documented in handler files; each has valid/invalid/edge tests.
+
+## ADR-0012: Formula events live in core modules, content events in `events.json`
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: GDD 4.13 makes events content-defined, but several classic chances are formulas over player state (doctor 500 − 5 × relaxation, burglary, theft, breakdown per item) that the JSON-logic subset could express only clumsily.
+- Options: 1) encode formulas as JSON-logic weights; 2) implement formula events in `core-events`/`core-turn` with rule constants from `rules.json`, keep discrete events (weekend, boom/recession, crash) in content.
+- Decision: option 2. Formula events emit `EventFired` with ids `core:street-theft`, `core:burglary`, `core:doctor`, `core:spoiled`; the market crash is three content events (severity 1–3) whose `loseJob` effect carries `chanceBp`.
+- Consequences: modern families (layoffs, scams, viral, gadget) use JSON-logic weights in content per ADR-0008.
+
+## ADR-0013: M1.3–M1.10 committed as one engine-core commit
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: CLAUDE.md 1.6 asks for one commit per task. The engine tasks share one type graph (Ctx, modules, commands) and the lint-staged pre-commit type-checks staged files, so intermediate per-task commits would not lint or compile.
+- Decision: one commit `feat(engine): M1.3–M1.10 engine core`, with the per-task test files named in PROGRESS.md. Later milestones return to one commit per task.
+- Consequences: none for CI; history is coarser for M1.

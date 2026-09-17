@@ -19,14 +19,14 @@ Last updated: 2026-09-17 by CC
 
 - [x] M1.1 Shared types, `ErrorCode` enum, `DomainEvent` union — note: `packages/shared/src/{ids,errors,events}.ts`; 46 codes, 56 event types, count-tested.
 - [x] M1.2 Seeded RNG with named streams — note: `core/rng.ts` xoshiro128** + cyrb128, lazy named streams in `RngState`; golden vectors + fast-check independence; `core/math.ts` mulDiv/Irwin–Hall.
-- [ ] M1.3 `GameState`, `createGame`, `stateHash` — note:
-- [ ] M1.4 `SequentialScheduler`, `AllGoalsRace`, `SimultaneousScheduler` stub — note:
-- [ ] M1.5 Start-of-turn pipeline in exact GDD order — note:
-- [ ] M1.6 Movement + enter/exit + hour accounting (walk only) — note:
-- [ ] M1.7 `RuleModule` pipeline + `CommandHandler` registry + `applyCommand` for classic commands — note:
-- [ ] M1.8 Goal formulas + hidden stats + decay — note:
-- [ ] M1.9 Economy tick + classic events runtime + effect DSL interpreter — note:
-- [ ] M1.10 Replay determinism — note:
+- [x] M1.3 `GameState`, `createGame`, `stateHash` — note: `core/{state,create,hash,clone,state-schema}.ts`; `create.test.ts` (key-order/JSON round-trip hash, GDD 4.1.6 start state, AI goal ranges).
+- [x] M1.4 `SequentialScheduler`, `AllGoalsRace`, `SimultaneousScheduler` stub — note: `core/scheduler.ts`; `scheduler.test.ts` (turn order, week wrap, win at turn start, 16.6 `test.todo` list, golden module order).
+- [x] M1.5 Start-of-turn pipeline in exact GDD order — note: modules `core-setup(0) → core-econ(10) → core-pending(20) → core-events(30) → core-decay(40)`; spy-module ordered test in `scheduler.test.ts`.
+- [x] M1.6 Movement + enter/exit + hour accounting (walk only) — note: `commands/turn.ts`; `turn.test.ts` (shortest direction, ceil to 0.5h, partial move ends turn, theft on exit, rent-week open rule).
+- [x] M1.7 `RuleModule` pipeline + `CommandHandler` registry + `applyCommand` for classic commands — note: 25 handlers in `commands/*.ts`, `gen:types` → `commands.generated.ts`; ≥3 tests each in `jobs/education/home/shop.test.ts`; fast-check property in `replay.test.ts` with `GameStateSchema`. ADR-0009/0011.
+- [x] M1.8 Goal formulas + hidden stats + decay — note: `core/goals.ts`, `modules/core-decay.ts`; table-driven `goals.test.ts`.
+- [x] M1.9 Economy tick + classic events runtime + effect DSL interpreter — note: `modules/core-econ.ts`, `core/{effects,events}.ts`; every op + 10k-week bounds in `effects.test.ts`; formula events in `pending.test.ts`. ADR-0012.
+- [x] M1.10 Replay determinism — note: 200 seeds × random legal logs in `replay.test.ts`; 20 golden replays per playable pack in `test/golden/` (regen `UPDATE_GOLDEN=1`).
 - [ ] M1 gate: `pnpm verify` green in CI, tag `m1` — note:
 
 ## Gate log
