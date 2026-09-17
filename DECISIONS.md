@@ -129,3 +129,12 @@
 - Context: CLAUDE.md 1.6 asks for one commit per task. The engine tasks share one type graph (Ctx, modules, commands) and the lint-staged pre-commit type-checks staged files, so intermediate per-task commits would not lint or compile.
 - Decision: one commit `feat(engine): M1.3–M1.10 engine core`, with the per-task test files named in PROGRESS.md. Later milestones return to one commit per task.
 - Consequences: none for CI; history is coarser for M1.
+
+## ADR-0014: AI planner — sanitized private state, K-pruned beam search, potential-based utility
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: GDD 4.14 specifies beam search (W × D per difficulty), utility = Σ goal weights × gap closed + wellbeing + risk − time, and the CLAUDE.md invariant that the AI never reads hidden information. Simulating on the real `GameState` would consume the real RNG streams (future draws) and expose rivals' hidden stats.
+- Options: 1) plan on the real state and accept information leakage; 2) plan on a sanitized copy: own PlayerState intact, rivals reduced to public fields with hidden stats zeroed, `config.seed` replaced by `<seed>:ai:<seat>:<week>:<log length>` so every stream (existing or lazily created) is AI-owned and deterministic per turn.
+- Decision: option 2 (`packages/ai/src/view.ts`). Search details (`planner.ts`): candidates come from `legalCommands`, are pruned by difficulty/personality (`filterCandidates`), pre-ranked by a cheap `previewCommand`-based heuristic that includes goal gaps and survival needs, and only the top `branch` (3/4/5) are simulated; `Move` is a macro step (Move + Enter) so depth is spent on decisions; `EndTurn` is terminal and never simulated, so ending a turn is neutral rather than penalised by the next turn's decay. Utility is a potential difference V(after) − V(before) minus 0.002 per command; scorers (EXTENSIBILITY 12.6) are registered functions of the state so modules can add their own. Noise σ is expressed in units of a typical action (0.05 goal).
+- Consequences: M2.5 holds by construction (test mutates rivals' hidden stats and RNG streams; plans are identical). Normal turns ≈ 10 ms, Hard ≈ 25 ms (GDD 4.14 budgets 250/1000 ms). `runAiTurn` executes the plan and re-plans on surprises (refusal, firing, events, rejections). Easy is deliberately weak and often stalls in solo play; Hard finishes goals-30 games in ~25 weeks.

@@ -36,7 +36,17 @@ export const depositHandler: CommandHandler<DepositCommand> = {
     ctx.addMoney(ctx.seat, 'bank', cmd.amount, 'deposit');
     ctx.emit({ type: 'Deposited', seat: ctx.seat, amount: cmd.amount });
   },
-  candidates: (ctx) => (ctx.player.cash > 0 ? [{ type: 'Deposit', amount: ctx.player.cash }] : []),
+  preview: (_ctx, cmd) => ({ money: -cmd.amount, notes: ['bank.deposit'] }),
+  candidates: (ctx) => {
+    const p = ctx.player;
+    const out: DepositCommand[] = [];
+    if (p.cash <= 0) return out;
+    // Keep a cash reserve for rent + a week of costs; also offer depositing everything.
+    const reserve = p.home.rentLocked + 100;
+    if (p.cash > reserve) out.push({ type: 'Deposit', amount: p.cash - reserve });
+    out.push({ type: 'Deposit', amount: p.cash });
+    return out;
+  },
   zeroTime: true,
   ai: { category: 'finance' },
 };
@@ -52,9 +62,13 @@ export const withdrawHandler: CommandHandler<WithdrawCommand> = {
     ctx.addMoney(ctx.seat, 'cash', cmd.amount, 'withdraw');
     ctx.emit({ type: 'Withdrawn', seat: ctx.seat, amount: cmd.amount });
   },
+  preview: (_ctx, cmd) => ({ money: cmd.amount, notes: ['bank.withdraw'] }),
   candidates: (ctx) => {
     const b = ctx.player.bank;
     const out: WithdrawCommand[] = [];
+    const rent = ctx.player.home.rentLocked + ctx.player.home.debt;
+    if (rent > 0 && rent !== 100 && rent !== 500 && rent !== b && b >= rent)
+      out.push({ type: 'Withdraw', amount: rent });
     if (b >= 100) out.push({ type: 'Withdraw', amount: 100 });
     if (b >= 500) out.push({ type: 'Withdraw', amount: 500 });
     if (b > 0) out.push({ type: 'Withdraw', amount: b });

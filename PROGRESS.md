@@ -31,11 +31,11 @@ Last updated: 2026-09-17 by CC
 
 ## M2 — Classic content and AI
 
-- [ ] M2.1 Zod schemas for all pack files + `world.json` + board topology + `_template` validation + cross-file validators — note:
-- [ ] M2.2 `classic` pack from SEED_DATA 14.1–14.6 — note:
-- [ ] M2.3 `legalCommands` + `previewCommand` — note:
-- [ ] M2.4 AI planner + difficulty configs + 4 personalities — note:
-- [ ] M2.5 AI uses only public/own state — note:
+- [x] M2.1 Zod schemas for all pack files + `world.json` + board topology + `_template` validation + cross-file validators — note: built in M1 (ADR-0006); `packages/content/src/resolve.test.ts` invalid-fixture tests with path-specific messages.
+- [x] M2.2 `classic` pack from SEED_DATA 14.1–14.6 — note: built in M1; anchors in `packages/content/src/classic.test.ts` (Professor, GM, cook, degree DAG).
+- [x] M2.3 `legalCommands` + `previewCommand` — note: engine `core/apply.ts`; preview ≡ apply property test `core/preview.test.ts`.
+- [x] M2.4 AI planner + difficulty configs + 4 personalities — note: `packages/ai/src/{config,view,scorers,planner}.ts` (ADR-0014); 1,000-game legality, turn-time benchmark, Hard≥70% vs Easy (24 games goals 30) in `planner.test.ts`.
+- [x] M2.5 AI uses only public/own state — note: `sanitizeForAi`; `view.test.ts` mutates rivals' hidden stats + RNG streams → identical plans.
 - [ ] M2 gate: `pnpm verify` green in CI, tag `m2` — note:
 
 ## Gate log
