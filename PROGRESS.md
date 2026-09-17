@@ -21,6 +21,6 @@ Last updated: 2026-09-17 by hand-off (pre-CC)
 
 ## Gate log
 
-| Milestone | Date | Commit | verify | CI  | Notes |
-| --------- | ---- | ------ | ------ | --- | ----- |
-| M0 | 2026-09-17 | bb197bf | green | green | tag m0 |
+| Milestone | Date       | Commit  | verify | CI    | Notes  |
+| --------- | ---------- | ------- | ------ | ----- | ------ |
+| M0        | 2026-09-17 | bb197bf | green  | green | tag m0 |
