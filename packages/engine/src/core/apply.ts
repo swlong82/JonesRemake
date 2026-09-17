@@ -148,6 +148,30 @@ export function cloneState(state: GameState): GameState {
   };
 }
 
+/** Every handler candidate for `seat` (legal or not) with its validation code — for UI disabled reasons. */
+export function candidateCommands(
+  engine: Engine,
+  state: GameState,
+  seat: number,
+): { cmd: BaseCommand; code: ErrorCode | null }[] {
+  const out: { cmd: BaseCommand; code: ErrorCode | null }[] = [];
+  const ctx = makeCtx(state, engine, seat);
+  const { scheduler } = createScheduler(engine);
+  const turn = scheduler.canAct(state, seat);
+  const p = ctx.playerAt(seat);
+  for (const handler of engine.handlers.values()) {
+    if (!handler.candidates) continue;
+    for (const c of handler.candidates(ctx)) {
+      let code: ErrorCode | null = turn;
+      if (code === null && p.hoursLeft <= 0 && !handler.zeroTime && handler.type !== 'EndTurn')
+        code = 'ERR_NOT_ENOUGH_HOURS';
+      code ??= handler.validate(ctx, c);
+      out.push({ cmd: c, code });
+    }
+  }
+  return out;
+}
+
 export function legalCommands(engine: Engine, state: GameState, seat: number): BaseCommand[] {
   const out: BaseCommand[] = [];
   const { scheduler } = createScheduler(engine);

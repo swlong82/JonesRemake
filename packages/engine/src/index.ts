@@ -5,8 +5,10 @@
  * All mutation goes through applyCommand(state, seat, cmd, pack) → { state, events }.
  */
 import type { CityPack } from '@hustle-ring/content';
+import type { ErrorCode } from '@hustle-ring/shared';
 import {
   applyCommand as applyWithEngine,
+  candidateCommands as candidatesWithEngine,
   legalCommands as legalWithEngine,
   previewCommand as previewWithEngine,
   validate as validateWithEngine,
@@ -96,6 +98,17 @@ export function applyCommand(
   pack: CityPack,
 ): ApplyResult {
   return applyWithEngine(engineFor(pack), state, seat, cmd);
+}
+
+export function candidateCommands(
+  state: GameState,
+  seat: number,
+  pack: CityPack,
+): { cmd: Command; code: ErrorCode | null }[] {
+  return candidatesWithEngine(engineFor(pack), state, seat) as {
+    cmd: Command;
+    code: ErrorCode | null;
+  }[];
 }
 
 export function legalCommands(state: GameState, seat: number, pack: CityPack): Command[] {

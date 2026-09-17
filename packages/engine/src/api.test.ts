@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   activeModuleIds,
+  candidateCommands,
   allModules,
   commandSchema,
   commandTypes,
@@ -33,6 +34,19 @@ import { classic, goInside, newGame, patch } from './testing.js';
 const pack = classic();
 
 describe('engine public API', () => {
+  it('candidateCommands lists every candidate with its validation code', () => {
+    const s = goInside(newGame('cands'), 0, 'bank');
+    const all = candidateCommands(s, 0, pack);
+    expect(all.some((c) => c.cmd.type === 'Deposit' && c.code === null)).toBe(true);
+    expect(all.some((c) => c.cmd.type === 'ApplyJob' && c.code === 'ERR_NOT_AT_LOCATION')).toBe(
+      true,
+    );
+    expect(candidateCommands(s, 1, pack).every((c) => c.code === 'ERR_NOT_YOUR_TURN')).toBe(true);
+    const tired = patch(s, 0, (p) => (p.hoursLeft = 0));
+    expect(candidateCommands(tired, 0, pack).find((c) => c.cmd.type === 'Move')!.code).toBe(
+      'ERR_NOT_ENOUGH_HOURS',
+    );
+  });
   it('validate returns ok + preview for legal commands and a code otherwise', () => {
     const s = newGame('api');
     const ok = validate(s, 0, { type: 'Move', to: 'bank', mode: 'walk' }, pack);
