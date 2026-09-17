@@ -46,7 +46,10 @@ export class Ctx {
     const p = this.state.players[seat];
     if (!p) throw new Error(`no player at seat ${seat}`);
     if (this.cow && !this.owned.has(seat)) {
-      const copy = cloneJson(p);
+      // history is append-only with immutable entries: copy the array, share the entries.
+      const { history, ...rest } = p;
+      const copy = cloneJson(rest) as PlayerState;
+      copy.history = history.slice();
       this.state.players[seat] = copy;
       this.owned.add(seat);
       return copy;

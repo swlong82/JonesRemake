@@ -40,8 +40,8 @@ Last updated: 2026-09-17 by CC
 
 ## M3 — Sim and baseline
 
-- [ ] M3.1 `packages/sim` CLI, worker threads, metrics, reports — note:
-- [ ] M3.2 Strategy bots (BALANCE 9.4, classic-applicable ones) — note:
+- [x] M3.1 `packages/sim` CLI, worker threads, metrics, reports — note: `packages/sim/src/{spec,runner,metrics,report,gates,pool,worker}.ts`, `cli.ts`; deterministic summary test in `sim.test.ts`. ADR-0015.
+- [x] M3.2 Strategy bots (BALANCE 9.4, classic-applicable ones) — note: `bots.ts` StudyFirst + NoRelax via `PlanOptions.forbid`; modern bots at M5.9.
 - [ ] M3.3 Run stage-1 suite; tune [ASSUMED] classic values until 9.3 gates pass — note:
 - [ ] M3.4 `sim:gate` config for classic sanity gates wired into CI — note:
 - [ ] M3 gate: `pnpm verify` green in CI, tag `m3` — note:

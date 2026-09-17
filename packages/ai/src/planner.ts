@@ -7,7 +7,6 @@
 import type { CityPack } from '@hustle-ring/content';
 import {
   applyCommand,
-  cloneState,
   computeGoals,
   legalCommands,
   previewCommand,
@@ -23,6 +22,8 @@ import { aiSeed, sanitizeForAi } from './view.js';
 export interface PlanOptions {
   difficulty: Difficulty;
   personality: string;
+  /** Strategy bots (BALANCE 9.4): commands for which this returns true are never considered. */
+  forbid?: (cmd: Command, state: GameState, seat: number) => boolean;
   /** Debug hook: called once per depth with the ranked candidates and surviving beam. */
   trace?: (
     depth: number,
@@ -254,7 +255,7 @@ export function planTurn(
         finished.push(node);
         continue;
       }
-      const legal = filterCandidates(
+      let legal = filterCandidates(
         node.state,
         seat,
         pack,
@@ -262,6 +263,10 @@ export function planTurn(
         cfg,
         ctx,
       );
+      if (opts.forbid) {
+        const forbid = opts.forbid;
+        legal = legal.filter((c) => c.type === 'EndTurn' || !forbid(c, node.state, seat));
+      }
       const ranked = legal
         .map((c) => ({ c, q: quickScore(node.state, seat, pack, c, ctx) }))
         .filter((x) => x.q !== Number.NEGATIVE_INFINITY)
@@ -286,7 +291,7 @@ export function planTurn(
         }
         // Never simulate an action that would run the clock out and auto-end the turn.
         if (q === Number.NEGATIVE_INFINITY) continue;
-        let r = applyCommand(cloneState(node.state), seat, c, pack);
+        let r = applyCommand(node.state, seat, c, pack);
         expanded++;
         if (r.events.some((e) => e.type === 'CommandRejected')) continue;
         if (r.state.activeSeat !== seat || r.state.phase === 'over') continue;

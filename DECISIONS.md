@@ -138,3 +138,20 @@
 - Options: 1) plan on the real state and accept information leakage; 2) plan on a sanitized copy: own PlayerState intact, rivals reduced to public fields with hidden stats zeroed, `config.seed` replaced by `<seed>:ai:<seat>:<week>:<log length>` so every stream (existing or lazily created) is AI-owned and deterministic per turn.
 - Decision: option 2 (`packages/ai/src/view.ts`). Search details (`planner.ts`): candidates come from `legalCommands`, are pruned by difficulty/personality (`filterCandidates`), pre-ranked by a cheap `previewCommand`-based heuristic that includes goal gaps and survival needs, and only the top `branch` (3/4/5) are simulated; `Move` is a macro step (Move + Enter) so depth is spent on decisions; `EndTurn` is terminal and never simulated, so ending a turn is neutral rather than penalised by the next turn's decay. Utility is a potential difference V(after) − V(before) minus 0.002 per command; scorers (EXTENSIBILITY 12.6) are registered functions of the state so modules can add their own. Noise σ is expressed in units of a typical action (0.05 goal).
 - Consequences: M2.5 holds by construction (test mutates rivals' hidden stats and RNG streams; plans are identical). Normal turns ≈ 10 ms, Hard ≈ 25 ms (GDD 4.14 budgets 250/1000 ms). `runAiTurn` executes the plan and re-plans on surprises (refusal, firing, events, rejections). Easy is deliberately weak and often stalls in solo play; Hard finishes goals-30 games in ~25 weeks.
+
+## ADR-0015: Sim harness shape — RunSpec/GameSpec, tsx-bootstrapped worker threads, bots as planner filters
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: BALANCE_SPEC 9.1 asks for a Node worker-thread runner with byte-identical `summary.json`, and 9.4 for scripted strategy bots.
+- Decisions: 1) a `RunSpec` (pack, seats, goals, chaos, seedBase, games) expands to `GameSpec`s seeded `<seedBase>-<i>`; 2) workers are started with an `eval` bootstrap that registers `tsx/esm/api` so `.ts` sources load without a build step (Node's `--import tsx` execArgv did not resolve sibling `.js` specifiers inside workers); results are merged in seed order so scheduling never changes output; 3) timing metrics live in `perf.json`, keeping `summary.json` deterministic; 4) bots are the Normal planner plus a `forbid(cmd)` filter (`PlanOptions.forbid`) and a forced personality, registered in `packages/sim/src/bots.ts` — classic-applicable `StudyFirst` and `NoRelax` now, modern bots at M5.9; 5) gate files (`sim/gates.json`) assert dotted summary metrics with min/max plus cross-config `compare` rows.
+- Consequences: `pnpm sim`, `pnpm sim:smoke`, `pnpm sim:gate` are real; adding a bot is one `registerBot` call.
+
+## ADR-0016: Reduced game counts for the stage-1 suite and the CI sim gate
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: BALANCE 9.1/9.3 call for 10,000 games per config (24 configs) and 9.7 for 8 × 500 games in ≤ 8 CI minutes. Measured speed with the spec'd Normal beam (6 × 5) is ≈ 0.9 s per 2-seat game (≈ 1,200 commands, 1.5 plans per turn at ~6 ms), so the full suite would take ~60 CPU-hours and the CI gate ~17 minutes on 4 cores. GDD 4.14's per-turn budgets (Normal < 250 ms, Hard < 1000 ms) are met with large margin; the 9.3 "< 200 ms/game" sim-speed gate is not.
+- Options: 1) shrink the AI beam below spec to hit 200 ms/game; 2) keep the spec'd AI and reduce sample sizes, widening gate tolerances for sampling noise; 3) drop the CI sim gate.
+- Decision: option 2. `sim/stage1.json` runs 200 games per Normal config and 100 per Easy/Hard config; `sim/gates.json` runs 120 games per Normal config (40–60 for Hard/Easy, 4-seat and bot configs) with tolerances widened beyond the ±3 pp of 9.7 (documented per assertion in its `note`). Achieved ms/game is recorded in BASELINE_REPORT.md per the stuck policy (CLAUDE.md 1.5). Sample sizes go back up if a later milestone makes the planner materially faster.
+- Consequences: baseline numbers carry sampling error of roughly ±3–5 pp on rates and ±2 weeks on medians; the gate file states its widened targets explicitly.

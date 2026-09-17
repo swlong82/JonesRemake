@@ -188,6 +188,9 @@ importers:
       '@hustle-ring/shared':
         specifier: workspace:*
         version: link:../shared
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
 
   tools:
     dependencies:
