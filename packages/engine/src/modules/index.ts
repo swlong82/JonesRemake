@@ -15,8 +15,10 @@ import { coreEcon } from './core-econ.js';
 import { coreEvents } from './core-events.js';
 import { corePending } from './core-pending.js';
 import { coreSetup } from './core-setup.js';
+import { delivery } from './delivery.js';
 import { gig } from './gig.js';
 import { onlineStudy, registerOnlineStudyHooks } from './online-study.js';
+import { rentHikes } from './rent-hikes.js';
 import { subscriptions } from './subscriptions.js';
 import { registerTransportHooks, transport } from './transport.js';
 import { registerWellbeingHooks, wellbeing } from './wellbeing.js';
@@ -46,6 +48,8 @@ export const MODERN_MODULES: readonly RuleModule[] = [
   transport,
   subscriptions,
   onlineStudy,
+  delivery,
+  rentHikes,
   gig,
 ];
 

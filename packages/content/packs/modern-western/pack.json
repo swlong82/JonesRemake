@@ -10,7 +10,9 @@
     "gig": true,
     "subscriptions": true,
     "onlineStudy": true,
-    "wellbeing": true
+    "wellbeing": true,
+    "delivery": true,
+    "rentHikes": true
   },
   "wealthPointValue": 100,
   "extends": "classic",
