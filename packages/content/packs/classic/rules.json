@@ -63,13 +63,13 @@
     "relaxBase": 2,
     "relaxPerComfort": 1,
     "relaxMax": 6,
-    "decayPerWeek": 3,
+    "decayPerWeek": 4,
     "theft": -4,
     "starvation": -5,
     "moveSecure": 5,
     "subscriptionLapsed": -2,
     "min": 0,
-    "max": 100
+    "max": 104
   },
   "jobs": {
     "luckBase": 30,
@@ -180,7 +180,7 @@
     "studyDelta": -2,
     "onlineStudyDelta": -1,
     "relaxBase": 8,
-    "relaxPerComfort": 2,
+    "relaxPerComfort": 1,
     "relaxMax": 16,
     "unspentHoursThreshold": 12,
     "unspentBonus": 5,

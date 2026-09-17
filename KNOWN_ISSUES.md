@@ -45,9 +45,9 @@
 - Severity: minor (accepted; happiness half fixed)
 - Area: balance
 - Found in: M3.4 (`pnpm sim:gate`)
-- Repro: `pnpm sim:gate` → `classic-50-normal-2 lastGoalPct.career: 0.84`, against BALANCE 9.3's "each goal last-completed ≥ 10%".
-- Measured (120 games, `classic-50-normal-2`, after the M3.3 tuning): last goal completed is education 63.0%, wealth 25.2%, happiness 10.9%, career 0.84%. Full numbers per config in `BASELINE_REPORT.md`.
-- Attempts: 1) happiness — fixed: `rules.happiness.decayPerWeek` 3 plus `oncePerTurn` on both tickets took happiness from 0% to 10.9% (ADR-0025). 2) career — `stats.workDependabilityGain` 2 → 1, the only [ASSUMED] value with leverage: 0.00%, worse. 3) career — proved structural: education 50 needs six degrees, six degrees grant +30 dependability and career is `dependability × 1.25`, all three [SRC], so career 50 is met long before the sixth degree (ADR-0026).
+- Repro: `pnpm sim:gate` → `classic-50-normal-2 lastGoalPct.career` under 1%, against BALANCE 9.3's "each goal last-completed ≥ 10%".
+- Measured (120 games, `classic-50-normal-2`, after the M3.3 tuning): last goal completed is education 42.5%, wealth 40.8%, happiness 16.7%, career 0%. Full numbers per config in `BASELINE_REPORT.md`.
+- Attempts: 1) happiness — fixed: `rules.happiness.decayPerWeek` 4, headroom above the goal ceiling and `oncePerTurn` on both tickets took happiness from 0% to 16.7% (ADR-0025, ADR-0027). 2) career — `stats.workDependabilityGain` 2 → 1, the only [ASSUMED] value with leverage: 0.00%, worse. 3) career — proved structural: education 50 needs six degrees, six degrees grant +30 dependability and career is `dependability × 1.25`, all three [SRC], so career 50 is met long before the sixth degree (ADR-0026).
 - Mitigation: the career assertion stays asserted and `pending: { issue: KI-005, until: M6.3 }` in `sim/gates.json` (ADR-0019), so every gate run prints it and `pnpm sim:gate --strict` fails on it; the M3 gate records it per CLAUDE.md 1.5 instead of meeting it (ADR-0026). Only `careerDependabilityBp` 12500 → 10000 would meet it, at the cost of an ORIGINAL_REFERENCE [SRC] anchor.
 - Status: open, accepted — revisited for `modern-western` at M6.3. Not degenerate at every goal level: at goals 100 all four goals are last-completed between 18% and 42%.
 

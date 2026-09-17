@@ -13,6 +13,7 @@ import {
   Rng,
   type Command,
   type GameState,
+  type PlayerState,
 } from '@hustle-ring/engine';
 import type { Difficulty } from '@hustle-ring/shared';
 import { ASSET_TIER, DIFFICULTY, type DifficultyConfig } from './config.js';
@@ -194,6 +195,9 @@ function quickScore(
         s += 0.5;
       if (loc?.kind === 'home' && gap('happiness') > 0 && !p.turn.relaxed)
         s += 0.3 * gap('happiness');
+      // Where happiness decays, a shopping trip for a comfort durable is the only lasting fix.
+      if (gap('happiness') > 0 && relaxNet(pack, p) < 1 && sellsUnownedComfort(pack, p, cmd.to))
+        s += 0.3 * gap('happiness');
       if (svc.includes('meals') && p.food.mealPending === null && p.food.fridgeUnits === 0)
         s += 0.3;
       if (svc.includes('grocery') && p.food.fridgeUnits === 0) s += 0.1;
@@ -207,6 +211,11 @@ function quickScore(
       const cl = pack.clothingById[cmd.itemId];
       if (cl && needClothes && pack.uniformRank[cl.tier] >= pack.uniformRank[curJob.uniformTier])
         s += 0.8;
+      const spec = pack.itemById[cmd.itemId];
+      // A comfort durable raises every future relax; without one, a decaying happiness goal is
+      // unreachable, so it outranks the immediate happinessOnBuy the base score already counts.
+      if (spec?.comfort && gap('happiness') > 0 && relaxNet(pack, p) < 1)
+        s += 0.4 * gap('happiness');
       break;
     }
     case 'EatMeal':
@@ -231,6 +240,30 @@ function quickScore(
       break;
   }
   return s;
+}
+
+/**
+ * Happiness a relax session nets per week after the pack's decay (ADR-0025). Non-positive means
+ * relaxing alone cannot close the happiness goal and comfort durables are the only way up.
+ */
+function relaxNet(pack: CityPack, p: PlayerState): number {
+  const h = pack.rules.happiness;
+  let comfort = 0;
+  for (const it of p.items)
+    if (pack.itemById[it.itemId]?.comfort && it.condition === 'ok') comfort++;
+  return Math.min(h.relaxMax, h.relaxBase + h.relaxPerComfort * comfort) - h.decayPerWeek;
+}
+
+/** True when this location sells an affordable comfort durable the player does not own yet. */
+function sellsUnownedComfort(pack: CityPack, p: PlayerState, locId: string): boolean {
+  const spare = p.cash - p.home.rentLocked;
+  return pack.items.some(
+    (i) =>
+      i.comfort &&
+      i.price <= spare &&
+      i.storeIds.includes(locId) &&
+      !p.items.some((it) => it.itemId === i.id),
+  );
 }
 
 export function planTurn(

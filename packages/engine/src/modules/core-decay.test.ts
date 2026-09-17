@@ -57,20 +57,14 @@ describe('core-decay: happiness', () => {
     expect(relaxedWeek).toBeGreaterThan(idleWeek);
     // Comfort durables are what make happiness climb rather than merely hold (ADR-0025).
     const comfy = patch(start, 0, (p) => {
-      p.items.push({
-        uid: 'tv',
-        itemId: 'television',
-        condition: 'ok',
-        boughtWeek: 1,
-        boughtAt: 'low-housing',
-      });
-      p.items.push({
-        uid: 'st',
-        itemId: 'stereo',
-        condition: 'ok',
-        boughtWeek: 1,
-        boughtAt: 'low-housing',
-      });
+      for (const itemId of ['television', 'stereo', 'media-player', 'computer'])
+        p.items.push({
+          uid: itemId,
+          itemId,
+          condition: 'ok',
+          boughtWeek: 1,
+          boughtAt: 'low-housing',
+        });
     });
     const comfyRelax = run(comfy, 0, [{ type: 'Relax' }]).players[0]!.happiness;
     expect(comfyRelax - base).toBeGreaterThan(pack.rules.happiness.decayPerWeek);
