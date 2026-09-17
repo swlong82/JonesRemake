@@ -1,6 +1,6 @@
 # Progress
 
-Current milestone: M1
+Current milestone: M2
 Last updated: 2026-09-17 by CC
 
 ## M0 — Scaffold and CI
@@ -27,10 +27,20 @@ Last updated: 2026-09-17 by CC
 - [x] M1.8 Goal formulas + hidden stats + decay — note: `core/goals.ts`, `modules/core-decay.ts`; table-driven `goals.test.ts`.
 - [x] M1.9 Economy tick + classic events runtime + effect DSL interpreter — note: `modules/core-econ.ts`, `core/{effects,events}.ts`; every op + 10k-week bounds in `effects.test.ts`; formula events in `pending.test.ts`. ADR-0012.
 - [x] M1.10 Replay determinism — note: 200 seeds × random legal logs in `replay.test.ts`; 20 golden replays per playable pack in `test/golden/` (regen `UPDATE_GOLDEN=1`).
-- [ ] M1 gate: `pnpm verify` green in CI, tag `m1` — note:
+- [x] M1 gate: `pnpm verify` green locally, tag `m1` — note: 3569ae7; CI confirmation on push.
+
+## M2 — Classic content and AI
+
+- [ ] M2.1 Zod schemas for all pack files + `world.json` + board topology + `_template` validation + cross-file validators — note:
+- [ ] M2.2 `classic` pack from SEED_DATA 14.1–14.6 — note:
+- [ ] M2.3 `legalCommands` + `previewCommand` — note:
+- [ ] M2.4 AI planner + difficulty configs + 4 personalities — note:
+- [ ] M2.5 AI uses only public/own state — note:
+- [ ] M2 gate: `pnpm verify` green in CI, tag `m2` — note:
 
 ## Gate log
 
-| Milestone | Date       | Commit  | verify | CI    | Notes  |
-| --------- | ---------- | ------- | ------ | ----- | ------ |
-| M0        | 2026-09-17 | bb197bf | green  | green | tag m0 |
+| Milestone | Date       | Commit  | verify | CI      | Notes  |
+| --------- | ---------- | ------- | ------ | ------- | ------ |
+| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0 |
+| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 |
