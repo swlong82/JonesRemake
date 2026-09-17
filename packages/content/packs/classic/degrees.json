@@ -1,0 +1,79 @@
+[
+  {
+    "id": "trade-school",
+    "nameKey": "degree.trade-school.name",
+    "prereqs": [],
+    "lessons": 10,
+    "feeBase": 50
+  },
+  {
+    "id": "junior-college",
+    "nameKey": "degree.junior-college.name",
+    "prereqs": [],
+    "lessons": 10,
+    "feeBase": 50
+  },
+  {
+    "id": "electronics",
+    "nameKey": "degree.electronics.name",
+    "prereqs": ["trade-school"],
+    "lessons": 10,
+    "feeBase": 50
+  },
+  {
+    "id": "pre-engineering",
+    "nameKey": "degree.pre-engineering.name",
+    "prereqs": ["trade-school"],
+    "lessons": 10,
+    "feeBase": 50
+  },
+  {
+    "id": "engineering",
+    "nameKey": "degree.engineering.name",
+    "prereqs": ["pre-engineering"],
+    "lessons": 10,
+    "feeBase": 50
+  },
+  {
+    "id": "business-admin",
+    "nameKey": "degree.business-admin.name",
+    "prereqs": ["junior-college"],
+    "lessons": 10,
+    "feeBase": 50
+  },
+  {
+    "id": "academic",
+    "nameKey": "degree.academic.name",
+    "prereqs": ["junior-college"],
+    "lessons": 10,
+    "feeBase": 50
+  },
+  {
+    "id": "graduate-school",
+    "nameKey": "degree.graduate-school.name",
+    "prereqs": ["academic"],
+    "lessons": 10,
+    "feeBase": 50
+  },
+  {
+    "id": "post-doctoral",
+    "nameKey": "degree.post-doctoral.name",
+    "prereqs": ["graduate-school"],
+    "lessons": 10,
+    "feeBase": 50
+  },
+  {
+    "id": "research",
+    "nameKey": "degree.research.name",
+    "prereqs": ["post-doctoral"],
+    "lessons": 10,
+    "feeBase": 50
+  },
+  {
+    "id": "publishing",
+    "nameKey": "degree.publishing.name",
+    "prereqs": ["research"],
+    "lessons": 10,
+    "feeBase": 50
+  }
+]

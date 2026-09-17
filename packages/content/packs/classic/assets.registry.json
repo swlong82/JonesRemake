@@ -1,0 +1,167 @@
+{
+  "location:low-housing": {
+    "shape": "rounded-rect",
+    "color": "cat-home",
+    "icon": "home"
+  },
+  "location:rent-office": {
+    "shape": "rounded-rect",
+    "color": "cat-service",
+    "icon": "building"
+  },
+  "location:pawn-shop": {
+    "shape": "rounded-rect",
+    "color": "cat-retail",
+    "icon": "shopping-bag"
+  },
+  "location:discount-store": {
+    "shape": "rounded-rect",
+    "color": "cat-retail",
+    "icon": "shopping-bag"
+  },
+  "location:burger-joint": {
+    "shape": "rounded-rect",
+    "color": "cat-retail",
+    "icon": "shopping-bag"
+  },
+  "location:clothing-boutique": {
+    "shape": "rounded-rect",
+    "color": "cat-retail",
+    "icon": "shopping-bag"
+  },
+  "location:electronics-store": {
+    "shape": "rounded-rect",
+    "color": "cat-retail",
+    "icon": "shopping-bag"
+  },
+  "location:university": {
+    "shape": "rounded-rect",
+    "color": "cat-education",
+    "icon": "graduation-cap"
+  },
+  "location:employment-office": {
+    "shape": "rounded-rect",
+    "color": "cat-service",
+    "icon": "building"
+  },
+  "location:factory": {
+    "shape": "rounded-rect",
+    "color": "cat-work",
+    "icon": "factory"
+  },
+  "location:bank": {
+    "shape": "rounded-rect",
+    "color": "cat-finance",
+    "icon": "landmark"
+  },
+  "location:grocery": {
+    "shape": "rounded-rect",
+    "color": "cat-retail",
+    "icon": "shopping-bag"
+  },
+  "location:secure-apartments": {
+    "shape": "rounded-rect",
+    "color": "cat-home",
+    "icon": "home"
+  },
+  "location:appliance-depot": {
+    "shape": "rounded-rect",
+    "color": "cat-retail",
+    "icon": "shopping-bag"
+  },
+  "location:clinic": {
+    "shape": "rounded-rect",
+    "color": "cat-service",
+    "icon": "building"
+  },
+  "location:park": {
+    "shape": "rounded-rect",
+    "color": "cat-service",
+    "icon": "building"
+  },
+  "item:refrigerator": {
+    "shape": "badge",
+    "color": "item-appliance",
+    "icon": "refrigerator"
+  },
+  "item:freezer": {
+    "shape": "badge",
+    "color": "item-appliance",
+    "icon": "refrigerator"
+  },
+  "item:microwave": {
+    "shape": "badge",
+    "color": "item-appliance",
+    "icon": "refrigerator"
+  },
+  "item:television": {
+    "shape": "badge",
+    "color": "item-electronics",
+    "icon": "tv"
+  },
+  "item:stereo": {
+    "shape": "badge",
+    "color": "item-electronics",
+    "icon": "tv"
+  },
+  "item:media-player": {
+    "shape": "badge",
+    "color": "item-electronics",
+    "icon": "tv"
+  },
+  "item:computer": {
+    "shape": "badge",
+    "color": "item-electronics",
+    "icon": "tv"
+  },
+  "item:hot-tub": {
+    "shape": "badge",
+    "color": "item-appliance",
+    "icon": "refrigerator"
+  },
+  "item:encyclopedia": {
+    "shape": "badge",
+    "color": "item-book",
+    "icon": "book"
+  },
+  "item:dictionary": {
+    "shape": "badge",
+    "color": "item-book",
+    "icon": "book"
+  },
+  "item:atlas": {
+    "shape": "badge",
+    "color": "item-book",
+    "icon": "book"
+  },
+  "item:concert-ticket": {
+    "shape": "badge",
+    "color": "item-ticket",
+    "icon": "ticket"
+  },
+  "item:theatre-ticket": {
+    "shape": "badge",
+    "color": "item-ticket",
+    "icon": "ticket"
+  },
+  "item:dog-food": {
+    "shape": "badge",
+    "color": "item-junk",
+    "icon": "trash"
+  },
+  "item:bad-novel": {
+    "shape": "badge",
+    "color": "item-junk",
+    "icon": "trash"
+  },
+  "item:soft-drink": {
+    "shape": "badge",
+    "color": "item-drink",
+    "icon": "cup-soda"
+  },
+  "item:newspaper": {
+    "shape": "badge",
+    "color": "item-misc",
+    "icon": "newspaper"
+  }
+}

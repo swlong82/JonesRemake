@@ -44,3 +44,30 @@
 - Options: 1) pin the deprecated 9.x; 2) use 10.x.
 - Decision: 10.x. The intent of 5.2 is "flat config"; that is unchanged.
 - Consequences: none for config shape. Toolchain majors elsewhere follow 5.2 as written (Vite 6, React 18, Zod 3, Tailwind 3, Vitest 3); bumping any of them needs an ADR.
+
+## ADR-0006: Content schemas and the classic pack are built during M1 (pulled forward from M2.1/M2.2)
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: MILESTONES orders content (M2.1–M2.2) after the engine (M1), but CLAUDE.md 1.3 forbids hardcoding rules or numbers in the engine, so every M1 engine test needs a real validated pack.
+- Options: 1) build M1 against an ad-hoc test fixture pack and rewrite it in M2; 2) build the Zod schemas, overlay resolver and the classic pack first, then the engine on top.
+- Decision: option 2. `packages/content` ships schemas, resolver, cross-file + i18n validators and the classic pack now; the M2.1/M2.2 acceptance tests (invalid fixtures, anchors) are committed with it and ticked when M2 is reached.
+- Consequences: `modern-western` exists as a placeholder overlay (`extends: classic`, flags off) so `_template` resolves; it is filled in at M5/M6.
+
+## ADR-0007: Content units and conversions
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: STATE_MODEL 13.1 fixes engine units (half-hours, cents, bp, per-mille) while GDD/SEED_DATA author hours, percents and dollars; BUILD_READINESS 15.6.4 says the loader converts.
+- Options: 1) author in engine units; 2) author in human units, convert once in the resolver.
+- Decision: option 2. `rules.json` hours → half-hours (must be multiples of 0.5), transport `hoursPerStep` → `stepHalfHoursMilli` (trip = ceil(steps × milli / 1000)), item `breakdownPerWeek` % → bp, job `automationRisk` 0..1 → bp, `priceScale` (per-mille) applied to items/meals/clothing/subscriptions. Event `weight` for `turnStart` is the per-turn chance in bp; for `weekend` it is a relative weight. Ranges on `econ`/`asset` multiply effects are per-mille.
+- Consequences: floats exist only inside `packages/content/src/resolve.ts`; the engine sees integers only.
+
+## ADR-0008: Overlay array files and event weight expressions
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: EXTENSIBILITY 12.3 needs a file-level `_replace: true` for array files (JSON arrays cannot carry a flag); GDD 4.13 event chances such as scams (`× (1 − 0.08 × degrees)`) need formulas.
+- Options: 1) side-car flag files; 2) allow `{ "_replace": true, "entries": [...] }` as an alternate array-file shape; for weights, 1) bespoke modifier fields, 2) reuse the JSON-logic subset for `weight`.
+- Decision: alternate shape (2) and JSON-logic weights (2), evaluated over the same whitelisted view as conditions with integer floor division.
+- Consequences: one evaluator (`packages/content/src/logic.ts`) is shared by validator and engine.

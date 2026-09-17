@@ -1,0 +1,236 @@
+{
+  "scheduler": "sequential",
+  "win": "all-goals-race",
+  "time": {
+    "weekHours": 60,
+    "enterHours": 2,
+    "workSessionHours": 6,
+    "lessonHours": 6,
+    "relaxHours": 6,
+    "applyHours": 4,
+    "raiseHours": 4,
+    "extensionHours": 1,
+    "starvationHours": 20,
+    "doctorHours": 10,
+    "deliveryHours": 0.5,
+    "gigSignupHours": 1,
+    "gigShiftHours": [3, 6],
+    "stallWeek": 300
+  },
+  "start": {
+    "cash": 200,
+    "bank": 0,
+    "happiness": 10,
+    "dependability": 20,
+    "experience": 10,
+    "relaxation": 10,
+    "wellbeing": 70,
+    "clothingTier": "casual",
+    "clothingWeeks": 4,
+    "homeTier": "low"
+  },
+  "goals": {
+    "sliderMin": 10,
+    "sliderMax": 100,
+    "sliderStep": 10,
+    "sliderDefault": 50,
+    "aiGoalRanges": { "easy": [20, 60], "normal": [30, 80], "hard": [50, 100] },
+    "educationBase": 1,
+    "educationPerDegree": 9,
+    "careerDependabilityBp": 12500
+  },
+  "stats": {
+    "dependabilityDecay": 3,
+    "relaxationDecay": 1,
+    "relaxationMin": 10,
+    "relaxationMax": 50,
+    "relaxGain": 3,
+    "workExperienceGain": 1,
+    "workDependabilityGain": 2,
+    "maxStatBase": 20,
+    "maxStatPerDegree": 5,
+    "degreeDependabilityBonus": 5,
+    "hireDependabilityFloor": 10,
+    "firingDependabilityMargin": 10,
+    "statMin": 0,
+    "statMax": 100
+  },
+  "happiness": {
+    "hired": 3,
+    "refused": -1,
+    "fired": -5,
+    "graduation": 5,
+    "relaxBase": 2,
+    "relaxPerComfort": 1,
+    "relaxMax": 6,
+    "theft": -4,
+    "starvation": -5,
+    "moveSecure": 5,
+    "subscriptionLapsed": -2,
+    "min": 0,
+    "max": 100
+  },
+  "jobs": {
+    "luckBase": 30,
+    "luckAdd": 10,
+    "luckDegreeWeight": 8,
+    "luckDivisor": 3,
+    "payPerSession": 8,
+    "raiseStep": 5,
+    "garnishBp": 5000,
+    "garnishFee": 2,
+    "crashJobLossBpBySeverity": [1000, 4000, 10000]
+  },
+  "education": {
+    "lessons": 10,
+    "minLessons": 8,
+    "maxConcurrent": 4,
+    "extraCreditCap": 2,
+    "enrollFee": 50
+  },
+  "housing": {
+    "rentWeeks": 4,
+    "extensionApproveBp": 6000,
+    "evictionWeeks": 8,
+    "evictionKeepDurables": 2,
+    "burglary": {
+      "baseBp": 200,
+      "perDurableBp": 100,
+      "perRelaxationBp": 8,
+      "minBp": 50,
+      "maxBp": 1500
+    },
+    "tiers": {
+      "low": { "rent": 325, "burglary": true, "locationId": "low-housing", "rentHikeBp": 2500 },
+      "high": {
+        "rent": 475,
+        "burglary": false,
+        "locationId": "secure-apartments",
+        "rentHikeBp": 1000
+      }
+    },
+    "rentHike": { "minBp": 500, "maxBp": 1500 },
+    "roommateFoodBp": 500
+  },
+  "food": {
+    "unitPrice": 15,
+    "fridgeCap": 6,
+    "freezerCap": 12,
+    "deliveryPriceBp": 22000,
+    "deliveryLostBp": 500,
+    "deliveryRefundBp": 5000,
+    "foodClubDiscountBp": 3000
+  },
+  "items": {
+    "resaleMinBp": 2000,
+    "resaleDecayPerWeekBp": 200,
+    "discountPriceBp": 7000,
+    "discountBreakMultBp": 25000,
+    "discountRotation": 6,
+    "discountStoreId": "discount-store"
+  },
+  "pawn": {
+    "sellBp": 5000,
+    "redeemBp": 11000,
+    "othersBuyBp": 7000,
+    "redeemRounds": 2,
+    "locationId": "pawn-shop"
+  },
+  "theft": {
+    "baseBp": 300,
+    "perHundredBp": 100,
+    "threshold": 200,
+    "capBp": 1200,
+    "locationIds": ["bank", "grocery"]
+  },
+  "doctor": {
+    "baseBp": 500,
+    "perRelaxationBp": 5,
+    "minBp": 100,
+    "costMin": 30,
+    "costMax": 60
+  },
+  "lottery": {
+    "ticketPrice": 10,
+    "prizes": [
+      { "amount": 200, "bp": 800 },
+      { "amount": 1000, "bp": 150 },
+      { "amount": 5000, "bp": 20 }
+    ],
+    "locationId": "grocery"
+  },
+  "econ": {
+    "start": 1000,
+    "min": 500,
+    "max": 1600,
+    "drift": { "boom": 4, "stable": 0, "recession": -6 },
+    "noiseSigma": 12,
+    "phaseTransitionBp": 400,
+    "crash": { "minPm": 750, "maxPm": 900 },
+    "newsAccuracyBp": 7000,
+    "newsPrice": 1,
+    "newsLocationId": "grocery"
+  },
+  "market": { "locationId": "bank", "crashMultiplierPm": 700 },
+  "chaos": { "off": 0, "classic": 1000, "modern": 1300, "chaotic": 2000 },
+  "wellbeing": {
+    "workDelta": -3,
+    "gigDelta": -4,
+    "studyDelta": -2,
+    "onlineStudyDelta": -1,
+    "relaxBase": 8,
+    "relaxPerComfort": 2,
+    "relaxMax": 16,
+    "unspentHoursThreshold": 12,
+    "unspentBonus": 5,
+    "walkTripSteps": 4,
+    "walkTripBonus": 1,
+    "starvation": -10,
+    "loanMissed": -5,
+    "driftTarget": 60,
+    "driftStep": 2,
+    "bands": { "thrive": 70, "burnout": 25, "collapse": 10 },
+    "thriveHappiness": 1,
+    "burnoutHours": 10,
+    "burnoutPayPenaltyBp": 1000,
+    "burnoutLessonWasteBp": 2000,
+    "collapseReset": 40,
+    "collapseDependability": -10,
+    "collapseJobLossBp": 2500
+  },
+  "gig": { "demandMinPm": 600, "demandMaxPm": 1600, "carWearBp": 100 },
+  "onlineStudy": { "wasteBp": 1500, "focusWasteBp": 500 },
+  "subscriptions": {
+    "driftEveryWeeks": 8,
+    "driftChanceBp": 3000,
+    "driftMinBp": 1000,
+    "driftMaxBp": 2000
+  },
+  "cars": {
+    "usedMin": 2500,
+    "usedMax": 4500,
+    "newPrice": 12000,
+    "sellUsedBp": 5000,
+    "sellNewBp": 6000,
+    "sellNewWeeks": 26,
+    "depreciationBp": 100,
+    "upkeep": 40,
+    "usedBreakdownBp": 500,
+    "newBreakdownBp": 200,
+    "repairCost": 250,
+    "usedLocationId": "pawn-shop",
+    "newLocationId": "discount-store"
+  },
+  "scoring": {
+    "version": 1,
+    "base": 10000,
+    "perWeek": 10,
+    "netWorthDivisor": 100,
+    "perDegree": 5,
+    "perHappinessCareer": 2,
+    "goalTotalDivisor": 200,
+    "hardSeatBp": 300,
+    "easySeatBp": -300
+  },
+  "layoff": { "baseBp": 150, "severanceWeeks": 2 }
+}

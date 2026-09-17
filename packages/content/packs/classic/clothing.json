@@ -1,0 +1,50 @@
+[
+  {
+    "id": "casual",
+    "nameKey": "clothing.casual.name",
+    "tier": "casual",
+    "storeId": "clothing-boutique",
+    "price": 60,
+    "weeks": 8
+  },
+  {
+    "id": "dress",
+    "nameKey": "clothing.dress.name",
+    "tier": "dress",
+    "storeId": "clothing-boutique",
+    "price": 150,
+    "weeks": 10
+  },
+  {
+    "id": "business",
+    "nameKey": "clothing.business.name",
+    "tier": "business",
+    "storeId": "clothing-boutique",
+    "price": 300,
+    "weeks": 12
+  },
+  {
+    "id": "casual-discount",
+    "nameKey": "clothing.casual-discount.name",
+    "tier": "casual",
+    "storeId": "discount-store",
+    "price": 30,
+    "weeks": 5
+  },
+  {
+    "id": "dress-discount",
+    "nameKey": "clothing.dress-discount.name",
+    "tier": "dress",
+    "storeId": "discount-store",
+    "price": 75,
+    "weeks": 6
+  },
+  {
+    "id": "business-discount",
+    "nameKey": "clothing.business-discount.name",
+    "tier": "business",
+    "storeId": "discount-store",
+    "price": 150,
+    "weeks": 7
+  }
+]

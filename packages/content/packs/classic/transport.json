@@ -1,0 +1,12 @@
+[
+  {
+    "id": "walk",
+    "nameKey": "transport.walk.name",
+    "hoursPerStep": 0.625,
+    "fixedHours": 0,
+    "cost": {
+      "type": "free"
+    },
+    "unlock": "always"
+  }
+]

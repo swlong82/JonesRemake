@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FEATURE_FLAG_IDS, validatePackManifest } from './index.js';
+import { FEATURE_FLAG_IDS, SERVICE_IDS, UNLOCK_KEYS, validatePackManifest } from './index.js';
 
 const good = {
   id: 'classic',
@@ -10,12 +10,18 @@ const good = {
 };
 
 describe('validatePackManifest', () => {
-  it('accepts a valid manifest', () => {
+  it('accepts a valid manifest and applies defaults', () => {
     const r = validatePackManifest(good);
     expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.manifest.priceScale).toBe(1000);
+      expect(r.manifest.schemaVersion).toBe(1);
+    }
   });
   it('lists all 12 feature flags from EXTENSIBILITY 12.4', () => {
     expect(FEATURE_FLAG_IDS).toHaveLength(12);
+    expect(SERVICE_IDS.length).toBeGreaterThan(15);
+    expect(UNLOCK_KEYS).toContain('rideHail');
   });
   it('rejects unknown feature flags', () => {
     const r = validatePackManifest({ ...good, featureFlags: { jetpacks: true } });

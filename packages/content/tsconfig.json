@@ -6,7 +6,7 @@
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
     "types": ["node"]
   },
-  "include": ["src", "cli", "vitest.config.ts"],
+  "include": ["src", "cli", "vitest.config.ts", "packs/**/*.json", "world/*.json"],
   "references": [
     {
       "path": "../shared"

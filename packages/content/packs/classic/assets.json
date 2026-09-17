@@ -1,0 +1,80 @@
+[
+  {
+    "id": "t-bills",
+    "nameKey": "asset.t-bills.name",
+    "model": "bounded",
+    "startCents": 10000,
+    "minCents": 9500,
+    "maxCents": 10800,
+    "maxMoveBp": 100,
+    "econCorrBp": 0,
+    "feeBp": 100,
+    "crashImmune": true,
+    "set": "classic"
+  },
+  {
+    "id": "gold",
+    "nameKey": "asset.gold.name",
+    "model": "bounded",
+    "startCents": 10000,
+    "minCents": 8000,
+    "maxCents": 14000,
+    "maxMoveBp": 400,
+    "econCorrBp": -5000,
+    "feeBp": 100,
+    "crashImmune": true,
+    "set": "classic"
+  },
+  {
+    "id": "silver",
+    "nameKey": "asset.silver.name",
+    "model": "bounded",
+    "startCents": 10000,
+    "minCents": 7000,
+    "maxCents": 15000,
+    "maxMoveBp": 600,
+    "econCorrBp": -3000,
+    "feeBp": 100,
+    "crashImmune": false,
+    "set": "classic"
+  },
+  {
+    "id": "commodities",
+    "nameKey": "asset.commodities.name",
+    "model": "bounded",
+    "startCents": 10000,
+    "minCents": 5000,
+    "maxCents": 20000,
+    "maxMoveBp": 900,
+    "econCorrBp": 2000,
+    "feeBp": 100,
+    "crashImmune": false,
+    "set": "classic"
+  },
+  {
+    "id": "blue-chip",
+    "nameKey": "asset.blue-chip.name",
+    "model": "bounded",
+    "startCents": 10000,
+    "minCents": 8000,
+    "maxCents": 13000,
+    "maxMoveBp": 300,
+    "econCorrBp": 7000,
+    "feeBp": 100,
+    "crashImmune": false,
+    "set": "classic"
+  },
+  {
+    "id": "penny-stocks",
+    "nameKey": "asset.penny-stocks.name",
+    "model": "bounded",
+    "startCents": 10000,
+    "minCents": 2000,
+    "maxCents": 30000,
+    "maxMoveBp": 1500,
+    "econCorrBp": 3000,
+    "feeBp": 100,
+    "crashImmune": false,
+    "set": "classic"
+  }
+]

@@ -1,0 +1,400 @@
+[
+  {
+    "id": "quiet-weekend",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 20,
+    "effects": [
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": -20,
+        "scaleEcon": true,
+        "cascade": true
+      },
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": 1
+      }
+    ],
+    "textKey": "event.quiet-weekend",
+    "neutral": true,
+    "tone": "neutral"
+  },
+  {
+    "id": "laundromat",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 10,
+    "effects": [
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": -15,
+        "scaleEcon": true,
+        "cascade": true
+      }
+    ],
+    "textKey": "event.laundromat",
+    "neutral": true,
+    "tone": "neutral"
+  },
+  {
+    "id": "friends-visit",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 12,
+    "effects": [
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": -60,
+        "scaleEcon": true,
+        "cascade": true
+      },
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": 2
+      }
+    ],
+    "textKey": "event.friends-visit",
+    "neutral": true,
+    "tone": "good"
+  },
+  {
+    "id": "night-out",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 10,
+    "effects": [
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": -120,
+        "scaleEcon": true,
+        "cascade": true
+      },
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": 3
+      }
+    ],
+    "textKey": "event.night-out",
+    "neutral": true,
+    "tone": "good"
+  },
+  {
+    "id": "road-trip",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 6,
+    "effects": [
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": -200,
+        "scaleEcon": true,
+        "cascade": true
+      },
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": 4
+      }
+    ],
+    "textKey": "event.road-trip",
+    "neutral": true,
+    "tone": "good"
+  },
+  {
+    "id": "minor-illness",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 6,
+    "effects": [
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": -40,
+        "scaleEcon": true,
+        "cascade": true
+      },
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": -1
+      },
+      {
+        "op": "hours",
+        "delta": -4
+      }
+    ],
+    "textKey": "event.minor-illness",
+    "neutral": false,
+    "tone": "bad"
+  },
+  {
+    "id": "freelance",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 10,
+    "effects": [
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": {
+          "min": 50,
+          "max": 150,
+          "int": true
+        },
+        "scaleEcon": true
+      }
+    ],
+    "textKey": "event.freelance",
+    "neutral": false,
+    "tone": "good",
+    "conditions": {
+      "in": [
+        "computer",
+        {
+          "var": "player.itemIds"
+        }
+      ]
+    }
+  },
+  {
+    "id": "found-cash",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 3,
+    "effects": [
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": {
+          "min": 20,
+          "max": 80,
+          "int": true
+        },
+        "scaleEcon": true
+      },
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": 1
+      }
+    ],
+    "textKey": "event.found-cash",
+    "neutral": false,
+    "tone": "good"
+  },
+  {
+    "id": "parking-fine",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 5,
+    "effects": [
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": -50,
+        "scaleEcon": true,
+        "cascade": true
+      },
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": -1
+      }
+    ],
+    "textKey": "event.parking-fine",
+    "neutral": false,
+    "tone": "bad"
+  },
+  {
+    "id": "family-calls",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 8,
+    "effects": [
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": 1
+      }
+    ],
+    "textKey": "event.family-calls",
+    "neutral": true,
+    "tone": "good"
+  },
+  {
+    "id": "binge-weekend",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 6,
+    "effects": [
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": -30,
+        "scaleEcon": true,
+        "cascade": true
+      },
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": 2
+      },
+      {
+        "op": "relaxation",
+        "delta": -2
+      }
+    ],
+    "textKey": "event.binge-weekend",
+    "neutral": false,
+    "tone": "neutral"
+  },
+  {
+    "id": "neighbour-noise",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 4,
+    "effects": [
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": -1
+      }
+    ],
+    "textKey": "event.neighbour-noise",
+    "neutral": false,
+    "tone": "bad"
+  },
+  {
+    "id": "boom-news",
+    "family": "economy",
+    "trigger": "turnStart",
+    "weight": 400,
+    "effects": [
+      {
+        "op": "econ",
+        "multiply": {
+          "min": 1030,
+          "max": 1060
+        }
+      }
+    ],
+    "textKey": "event.boom-news",
+    "tone": "good"
+  },
+  {
+    "id": "recession-news",
+    "family": "economy",
+    "trigger": "turnStart",
+    "weight": 400,
+    "effects": [
+      {
+        "op": "econ",
+        "multiply": {
+          "min": 940,
+          "max": 970
+        }
+      }
+    ],
+    "textKey": "event.recession-news",
+    "tone": "bad"
+  },
+  {
+    "id": "market-crash-1",
+    "family": "economy",
+    "trigger": "turnStart",
+    "weight": 27,
+    "effects": [
+      {
+        "op": "econ",
+        "multiply": {
+          "min": 870,
+          "max": 900
+        }
+      },
+      {
+        "op": "asset",
+        "assetId": "*",
+        "multiply": {
+          "min": 700,
+          "max": 700
+        },
+        "exceptImmune": true
+      },
+      {
+        "op": "loseJob",
+        "chanceBp": 1000
+      }
+    ],
+    "textKey": "event.market-crash-1",
+    "tone": "bad"
+  },
+  {
+    "id": "market-crash-2",
+    "family": "economy",
+    "trigger": "turnStart",
+    "weight": 27,
+    "effects": [
+      {
+        "op": "econ",
+        "multiply": {
+          "min": 800,
+          "max": 870
+        }
+      },
+      {
+        "op": "asset",
+        "assetId": "*",
+        "multiply": {
+          "min": 700,
+          "max": 700
+        },
+        "exceptImmune": true
+      },
+      {
+        "op": "loseJob",
+        "chanceBp": 4000
+      }
+    ],
+    "textKey": "event.market-crash-2",
+    "tone": "bad"
+  },
+  {
+    "id": "market-crash-3",
+    "family": "economy",
+    "trigger": "turnStart",
+    "weight": 26,
+    "effects": [
+      {
+        "op": "econ",
+        "multiply": {
+          "min": 750,
+          "max": 800
+        }
+      },
+      {
+        "op": "asset",
+        "assetId": "*",
+        "multiply": {
+          "min": 700,
+          "max": 700
+        },
+        "exceptImmune": true
+      },
+      {
+        "op": "loseJob",
+        "chanceBp": 10000
+      }
+    ],
+    "textKey": "event.market-crash-3",
+    "tone": "bad"
+  }
+]
