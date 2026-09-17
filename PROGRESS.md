@@ -1,7 +1,7 @@
 # Progress
 
 Current milestone: M1
-Last updated: 2026-09-17 by hand-off (pre-CC)
+Last updated: 2026-09-17 by CC
 
 ## M0 — Scaffold and CI
 
@@ -17,7 +17,17 @@ Last updated: 2026-09-17 by hand-off (pre-CC)
 
 ## M1 — Engine core
 
-(CC copies every task from docs/MILESTONES.md when starting the milestone.)
+- [x] M1.1 Shared types, `ErrorCode` enum, `DomainEvent` union — note: `packages/shared/src/{ids,errors,events}.ts`; 46 codes, 56 event types, count-tested.
+- [ ] M1.2 Seeded RNG with named streams — note:
+- [ ] M1.3 `GameState`, `createGame`, `stateHash` — note:
+- [ ] M1.4 `SequentialScheduler`, `AllGoalsRace`, `SimultaneousScheduler` stub — note:
+- [ ] M1.5 Start-of-turn pipeline in exact GDD order — note:
+- [ ] M1.6 Movement + enter/exit + hour accounting (walk only) — note:
+- [ ] M1.7 `RuleModule` pipeline + `CommandHandler` registry + `applyCommand` for classic commands — note:
+- [ ] M1.8 Goal formulas + hidden stats + decay — note:
+- [ ] M1.9 Economy tick + classic events runtime + effect DSL interpreter — note:
+- [ ] M1.10 Replay determinism — note:
+- [ ] M1 gate: `pnpm verify` green in CI, tag `m1` — note:
 
 ## Gate log
 

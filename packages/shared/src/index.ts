@@ -3,6 +3,10 @@
  * Dependency rule: nothing in this package imports from any other workspace package.
  */
 
+export * from './ids.js';
+export * from './errors.js';
+export * from './events.js';
+
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
@@ -27,10 +31,10 @@ export function err<E>(error: E): Err<E> {
   return { ok: false, error };
 }
 
-/** i18n keys are plain strings at the type level until M1 generates the key union. */
+/** i18n keys are plain strings at the type level. */
 export type I18nKey = string;
 
 /** Semver string as used by pack.json and save records. */
 export type SemVer = `${number}.${number}.${number}`;
 
-export const SHARED_VERSION = '0.0.0';
+export const SHARED_VERSION = '0.1.0';
