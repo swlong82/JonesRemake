@@ -1,6 +1,6 @@
 # Progress
 
-Current milestone: M2
+Current milestone: M3
 Last updated: 2026-09-17 by CC
 
 ## M0 — Scaffold and CI
@@ -36,11 +36,20 @@ Last updated: 2026-09-17 by CC
 - [x] M2.3 `legalCommands` + `previewCommand` — note: engine `core/apply.ts`; preview ≡ apply property test `core/preview.test.ts`.
 - [x] M2.4 AI planner + difficulty configs + 4 personalities — note: `packages/ai/src/{config,view,scorers,planner}.ts` (ADR-0014); 1,000-game legality, turn-time benchmark, Hard≥70% vs Easy (24 games goals 30) in `planner.test.ts`.
 - [x] M2.5 AI uses only public/own state — note: `sanitizeForAi`; `view.test.ts` mutates rivals' hidden stats + RNG streams → identical plans.
-- [ ] M2 gate: `pnpm verify` green in CI, tag `m2` — note:
+- [x] M2 gate: `pnpm verify` green locally, tag `m2` (local; see KI-001) — note: fe54f7e.
+
+## M3 — Sim and baseline
+
+- [ ] M3.1 `packages/sim` CLI, worker threads, metrics, reports — note:
+- [ ] M3.2 Strategy bots (BALANCE 9.4, classic-applicable ones) — note:
+- [ ] M3.3 Run stage-1 suite; tune [ASSUMED] classic values until 9.3 gates pass — note:
+- [ ] M3.4 `sim:gate` config for classic sanity gates wired into CI — note:
+- [ ] M3 gate: `pnpm verify` green in CI, tag `m3` — note:
 
 ## Gate log
 
-| Milestone | Date       | Commit  | verify | CI      | Notes  |
-| --------- | ---------- | ------- | ------ | ------- | ------ |
-| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0 |
-| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 |
+| Milestone | Date       | Commit  | verify | CI      | Notes                  |
+| --------- | ---------- | ------- | ------ | ------- | ---------------------- |
+| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0                 |
+| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 (local, KI-001) |
+| M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001) |
