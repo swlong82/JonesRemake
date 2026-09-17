@@ -60,8 +60,9 @@ Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 
 ## Gate log
 
-| Milestone | Date       | Commit  | verify | CI      | Notes                  |
-| --------- | ---------- | ------- | ------ | ------- | ---------------------- |
-| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0                 |
-| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 (local, KI-001) |
-| M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001) |
+| Milestone | Date       | Commit  | verify | CI      | Notes                                      |
+| --------- | ---------- | ------- | ------ | ------- | ------------------------------------------ |
+| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0                                     |
+| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 (local, KI-001)                     |
+| M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001)                     |
+| M4        | 2026-09-17 | c2ecf4e | green  | pending | tag m4 (local, KI-001); M3 gate still open |
