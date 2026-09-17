@@ -8,8 +8,21 @@ import type { RunSpec } from './spec.js';
 import { parseSeats } from './spec.js';
 import { metric, type Summary } from './metrics.js';
 
+/**
+ * A target the game is known not to meet yet, carried openly rather than deleted (CLAUDE.md 1.5,
+ * ADR-0019). `issue` names the KNOWN_ISSUES.md entry and `until` the milestone that must clear it.
+ * A pending assertion is still measured and printed, but does not fail `--assert`; it does fail
+ * `--assert --strict`, which the milestone gate uses, so a pending target can never be forgotten.
+ */
+const pendingSchema = z.object({ issue: z.string().min(1), until: z.string().min(1) }).strict();
+
 const assertSchema = z
-  .object({ min: z.number().optional(), max: z.number().optional(), note: z.string().optional() })
+  .object({
+    min: z.number().optional(),
+    max: z.number().optional(),
+    note: z.string().optional(),
+    pending: pendingSchema.optional(),
+  })
   .strict();
 
 export const gateConfigSchema = z
@@ -35,6 +48,7 @@ export const compareSchema = z
     right: z.string().min(1),
     op: z.enum(['<', '<=', '>', '>=']),
     note: z.string().optional(),
+    pending: pendingSchema.optional(),
   })
   .strict();
 
@@ -83,6 +97,18 @@ export interface GateOutcome {
   achieved: number | undefined;
   pass: boolean;
   note?: string;
+  /** Set when the target is a known-unmet one (see `pendingSchema`). */
+  pending?: z.infer<typeof pendingSchema>;
+}
+
+/** Assertions that must be met now: every failing outcome that is not marked pending. */
+export function blockingFailures(outcomes: GateOutcome[]): GateOutcome[] {
+  return outcomes.filter((o) => !o.pass && !o.pending);
+}
+
+/** Every failing outcome, pending ones included — what a milestone gate must clear. */
+export function allFailures(outcomes: GateOutcome[]): GateOutcome[] {
+  return outcomes.filter((o) => !o.pass);
 }
 
 export function evaluateGates(file: GatesFile, summaries: Record<string, Summary>): GateOutcome[] {
@@ -108,6 +134,7 @@ export function evaluateGates(file: GatesFile, summaries: Record<string, Summary
         achieved: v,
         pass,
         ...(a.note ? { note: a.note } : {}),
+        ...(a.pending ? { pending: a.pending } : {}),
       });
     }
   }
@@ -127,6 +154,7 @@ export function evaluateGates(file: GatesFile, summaries: Record<string, Summary
       achieved: lv,
       pass,
       ...(c.note ? { note: c.note } : {}),
+      ...(c.pending ? { pending: c.pending } : {}),
     });
   }
   return out;

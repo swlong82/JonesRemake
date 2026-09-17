@@ -8,7 +8,12 @@
       "seats": 2,
       "ai": "normal,normal",
       "goals": 30,
-      "asserts": { "stallRate": { "max": 2, "note": "9.3 stall < 0.5% widened for sample size" } }
+      "asserts": {
+        "stallRate": {
+          "max": 2,
+          "note": "9.3 stall < 0.5% widened for sample size"
+        }
+      }
     },
     {
       "id": "classic-50-normal-2",
@@ -17,12 +22,39 @@
       "ai": "normal,normal",
       "goals": 50,
       "asserts": {
-        "stallRate": { "max": 2, "note": "9.3 stall < 0.5% widened for sample size" },
-        "firstSeatWinPct": { "min": 38, "max": 62, "note": "9.3 seat bias 45–55% ± sampling" },
-        "lastGoalPct.wealth": { "min": 5, "note": "9.3 each goal last ≥ 10% (widened)" },
-        "lastGoalPct.education": { "min": 5, "note": "9.3 each goal last ≥ 10% (widened)" },
-        "lastGoalPct.career": { "min": 5, "note": "9.3 each goal last ≥ 10% (widened)" },
-        "lastGoalPct.happiness": { "min": 5, "note": "9.3 each goal last ≥ 10% (widened)" }
+        "stallRate": {
+          "max": 2,
+          "note": "9.3 stall < 0.5% widened for sample size"
+        },
+        "firstSeatWinPct": {
+          "min": 38,
+          "max": 62,
+          "note": "9.3 seat bias 45–55% ± sampling"
+        },
+        "lastGoalPct.wealth": {
+          "min": 5,
+          "note": "9.3 each goal last ≥ 10% (widened)"
+        },
+        "lastGoalPct.education": {
+          "min": 5,
+          "note": "9.3 each goal last ≥ 10% (widened)"
+        },
+        "lastGoalPct.career": {
+          "min": 5,
+          "note": "9.3 each goal last ≥ 10% (widened)",
+          "pending": {
+            "issue": "KI-005",
+            "until": "M3.3"
+          }
+        },
+        "lastGoalPct.happiness": {
+          "min": 5,
+          "note": "9.3 each goal last ≥ 10% (widened)",
+          "pending": {
+            "issue": "KI-005",
+            "until": "M3.3"
+          }
+        }
       }
     },
     {
@@ -31,7 +63,11 @@
       "seats": 2,
       "ai": "normal,normal",
       "goals": 80,
-      "asserts": { "stallRate": { "max": 5 } }
+      "asserts": {
+        "stallRate": {
+          "max": 5
+        }
+      }
     },
     {
       "id": "classic-100-normal-2",
@@ -40,7 +76,9 @@
       "ai": "normal,normal",
       "goals": 100,
       "asserts": {
-        "stallRate": { "max": 10 },
+        "stallRate": {
+          "max": 10
+        },
         "winnerAllDegreesPct": {
           "min": 99,
           "note": "9.3 education-only path completes in stall-free games"
@@ -55,7 +93,10 @@
       "goals": 50,
       "games": 40,
       "asserts": {
-        "winnerDifficulty.hard": { "min": 32, "note": "9.3 Hard wins ≥ 80% of 40 games" }
+        "winnerDifficulty.hard": {
+          "min": 32,
+          "note": "9.3 Hard wins ≥ 80% of 40 games"
+        }
       }
     },
     {
@@ -80,8 +121,14 @@
       "goals": 50,
       "games": 60,
       "asserts": {
-        "stallRate": { "max": 5 },
-        "firstSeatWinPct": { "min": 12, "max": 38, "note": "4 seats: 25% ± sampling" }
+        "stallRate": {
+          "max": 5
+        },
+        "firstSeatWinPct": {
+          "min": 12,
+          "max": 38,
+          "note": "4 seats: 25% ± sampling"
+        }
       }
     },
     {
@@ -92,7 +139,10 @@
       "goals": 50,
       "games": 60,
       "asserts": {
-        "botWinPct.StudyFirst": { "max": 60, "note": "9.5 no bot beats Normal Balanced > 60%" }
+        "botWinPct.StudyFirst": {
+          "max": 60,
+          "note": "9.5 no bot beats Normal Balanced > 60%"
+        }
       }
     }
   ],

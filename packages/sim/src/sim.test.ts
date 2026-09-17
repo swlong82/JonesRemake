@@ -4,6 +4,8 @@ import { loadPack } from '@hustle-ring/content';
 import {
   botIds,
   botPlanOptions,
+  allFailures,
+  blockingFailures,
   evaluateGates,
   gameSpecs,
   gamesCsv,
@@ -272,6 +274,55 @@ describe('gates (9.7)', () => {
       'a.length.median < b.length.median',
     ]);
   });
+  it('separates pending targets from blocking failures', () => {
+    const pendingFile = parseGatesFile({
+      gamesPerConfig: 10,
+      configs: [
+        {
+          id: 'a',
+          pack: 'classic',
+          seats: 2,
+          ai: 'normal,normal',
+          goals: 50,
+          asserts: {
+            stallRate: { max: 1 },
+            'lastGoalPct.career': { min: 10, pending: { issue: 'KI-005', until: 'M3.3' } },
+          },
+        },
+      ],
+    });
+    const base = summarize('a', [], 11).summary;
+    const outcomes = evaluateGates(pendingFile, { a: { ...base, stallRate: 0.5 } });
+    expect(outcomes.map((o) => [o.metric, o.pass])).toEqual([
+      ['stallRate', true],
+      ['lastGoalPct.career', false],
+    ]);
+    // The unmet target is reported and attributed, but only --strict treats it as a failure.
+    expect(blockingFailures(outcomes)).toEqual([]);
+    expect(allFailures(outcomes).map((o) => o.pending?.issue)).toEqual(['KI-005']);
+    // A non-pending miss in the same file still blocks.
+    const withBlocker = evaluateGates(pendingFile, { a: { ...base, stallRate: 9 } });
+    expect(blockingFailures(withBlocker).map((o) => o.metric)).toEqual(['stallRate']);
+  });
+
+  it('every pending target in the committed gate file names an issue and a milestone', async () => {
+    const { readFileSync } = await import('node:fs');
+    const parsed = parseGatesFile(
+      JSON.parse(
+        readFileSync(new URL('../../../sim/gates.json', import.meta.url), 'utf8'),
+      ) as unknown,
+    );
+    const pending = parsed.configs.flatMap((c) =>
+      Object.entries(c.asserts)
+        .filter(([, a]) => a.pending)
+        .map(([metric, a]) => ({ metric, ...a.pending! })),
+    );
+    for (const p of pending) {
+      expect(p.issue).toMatch(/^KI-\d+$/);
+      expect(p.until).toMatch(/^M\d/);
+    }
+  });
+
   it('the committed sim/gates.json and sim/stage1.json parse', async () => {
     const { readFileSync } = await import('node:fs');
     for (const f of ['../../../sim/gates.json', '../../../sim/stage1.json']) {

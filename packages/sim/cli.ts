@@ -3,7 +3,7 @@
  * Sim CLI (BALANCE_SPEC 9.1, BUILD_READINESS 15.2).
  *
  *   pnpm sim -- --pack classic --games 10000 --seats 2 --ai normal,normal --goals 50 --seed-base baseline --out reports/classic-50
- *   pnpm sim -- --config sim/gates.json [--games 500] [--assert] [--out reports/gates]
+ *   pnpm sim -- --config sim/gates.json [--games 500] [--assert] [--strict] [--out reports/gates]
  *   pnpm sim:smoke  (200 games, 2 seats Normal, goals 50)
  *
  * Writes `summary.json` (deterministic), `perf.json`, `games.csv`, `report.md` per run.
@@ -16,6 +16,8 @@ import {
   gameSpecs,
   gamesCsv,
   gateRunSpec,
+  allFailures,
+  blockingFailures,
   parseGatesFile,
   parseSeats,
   reportMd,
@@ -93,10 +95,17 @@ async function main(): Promise<number> {
       summaries[cfg.id] = await runOne(run, outDir ? join(outDir, cfg.id) : undefined);
     }
     const outcomes = evaluateGates(file, summaries);
-    const failed = outcomes.filter((o) => !o.pass);
+    const blocking = blockingFailures(outcomes);
+    const pending = allFailures(outcomes).filter((o) => o.pending);
     for (const o of outcomes) {
+      const mark = o.pass ? '✓' : o.pending ? '⚠' : '✗';
+      const tail = o.pending
+        ? ` — PENDING ${o.pending.issue}, due ${o.pending.until}${o.note ? `: ${o.note}` : ''}`
+        : o.note
+          ? ` — ${o.note}`
+          : '';
       console.log(
-        `  ${o.pass ? '✓' : '✗'} ${o.id} ${o.metric}: ${o.achieved ?? 'n/a'} (target ${o.target})${o.note ? ` — ${o.note}` : ''}`,
+        `  ${mark} ${o.id} ${o.metric}: ${o.achieved ?? 'n/a'} (target ${o.target})${tail}`,
       );
     }
     if (outDir) {
@@ -107,9 +116,12 @@ async function main(): Promise<number> {
       );
     }
     console.log(
-      `sim:gate — ${file.configs.length} config(s), ${outcomes.length} assertion(s), ${failed.length} failed`,
+      `sim:gate — ${file.configs.length} config(s), ${outcomes.length} assertion(s), ` +
+        `${blocking.length} failed, ${pending.length} pending`,
     );
-    if (has('assert') && failed.length > 0) return 1;
+    // --strict also fails on pending targets; milestone gates run strict (ADR-0019).
+    if (has('assert') && blocking.length > 0) return 1;
+    if (has('assert') && has('strict') && pending.length > 0) return 1;
     return 0;
   }
   const packId = flag('pack') ?? 'classic';
