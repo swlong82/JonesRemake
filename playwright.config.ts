@@ -35,7 +35,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `pnpm --filter web build && pnpm --filter web exec vite preview --host 127.0.0.1 --port ${port} --strictPort`,
+    // Debug switches are allowed in the e2e build only (UX_SPEC 7.9); deploy.yml never sets this.
+    command: `VITE_DEBUG_ALLOWED=true pnpm --filter web build && pnpm --filter web exec vite preview --host 127.0.0.1 --port ${port} --strictPort`,
     url: `http://127.0.0.1:${port}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

@@ -64,24 +64,22 @@ describe('title screen', () => {
     expect(useGame.getState().screen).toBe('setup');
   });
 
-  it('hides Continue while the board is gated', () => {
+  it('hides Continue until a game is running', () => {
     render(<TitleScreen />);
     expect(screen.queryByTestId('continue')).toBeNull();
   });
 });
 
 describe('setup screen', () => {
-  it('blocks Start while the board flag is off and explains why', () => {
-    render(<SetupScreen />);
-    expect(screen.getByTestId<HTMLButtonElement>('start-game').disabled).toBe(true);
-    expect(screen.getByTestId('board-gated').textContent).toContain('M4.3');
-  });
-
-  it('enables Start once the board flag is on', () => {
-    useFlags.getState().set('gameBoard', true);
+  it('enables Start on a valid draft', () => {
     render(<SetupScreen />);
     expect(screen.getByTestId<HTMLButtonElement>('start-game').disabled).toBe(false);
-    expect(screen.queryByTestId('board-gated')).toBeNull();
+  });
+
+  it('disables Start while the draft is invalid', () => {
+    render(<SetupScreen />);
+    fireEvent.change(screen.getByTestId('seed'), { target: { value: '' } });
+    expect(screen.getByTestId<HTMLButtonElement>('start-game').disabled).toBe(true);
   });
 
   it('adds and removes seats up to four', () => {
@@ -131,7 +129,6 @@ describe('help screen', () => {
 
 describe('pass-device screen', () => {
   it('names the next player and hands the device over on Ready', () => {
-    useFlags.getState().set('gameBoard', true);
     useGame
       .getState()
       .startGame(
@@ -153,8 +150,8 @@ describe('pass-device screen', () => {
 
 describe('unavailable screen', () => {
   it('names the feature and the milestone that lands it', () => {
-    render(<UnavailableScreen flag="endScreen" />);
-    expect(screen.getByTestId('unavailable-milestone').textContent).toContain('M4.8');
+    render(<UnavailableScreen flag="saves" />);
+    expect(screen.getByTestId('unavailable-milestone').textContent).toContain('M7.2');
     fireEvent.click(screen.getByTestId('unavailable-back'));
     expect(useGame.getState().screen).toBe('title');
   });

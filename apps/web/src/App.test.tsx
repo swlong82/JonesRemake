@@ -29,26 +29,31 @@ describe('<App /> router', () => {
     }
   });
 
-  it('shows the Unavailable screen for a gated screen that is not built yet', () => {
-    useGame.getState().go('game');
-    render(<App />);
-    expect(screen.getByTestId('unavailable')).toBeDefined();
-    expect(screen.getByTestId('unavailable-milestone').textContent).toContain('M4.3');
+  it('falls back to the Unavailable screen while a registered screen is gated off', () => {
+    const original = SCREENS.stats;
+    SCREENS.stats = { flag: 'saves', ...original };
+    try {
+      useGame.getState().go('stats');
+      render(<App />);
+      expect(screen.getByTestId('unavailable')).toBeDefined();
+      expect(screen.getByTestId('unavailable-milestone').textContent).toContain('M7.2');
+    } finally {
+      SCREENS.stats = original;
+    }
   });
 
-  it('still shows Unavailable for the board when the flag is on but no component is registered', () => {
-    useFlags.getState().set('gameBoard', true);
-    useGame.getState().go('game');
-    render(<App />);
-    expect(screen.getByTestId('unavailable')).toBeDefined();
-  });
-
-  it('renders a gated screen that is built once its flag is on', () => {
-    useFlags.getState().set('gameBoard', true);
-    useGame.getState().go('pass');
-    render(<App />);
-    expect(screen.queryByTestId('unavailable')).toBeNull();
-    expect(screen.getByTestId('ready')).toBeDefined();
+  it('renders a gated screen once its flag is on', () => {
+    const original = SCREENS.stats;
+    SCREENS.stats = { flag: 'saves', ...original };
+    try {
+      useFlags.getState().set('saves', true);
+      useGame.getState().go('stats');
+      render(<App />);
+      expect(screen.queryByTestId('unavailable')).toBeNull();
+      expect(screen.getByTestId('games-played')).toBeDefined();
+    } finally {
+      SCREENS.stats = original;
+    }
   });
 
   it('offers a skip link to the main landmark', () => {
@@ -59,12 +64,12 @@ describe('<App /> router', () => {
 });
 
 describe('screen registry', () => {
-  it('gates exactly the screens that are still unfinished', () => {
+  it('has a component for every screen and gates none of them (M4 complete)', () => {
+    for (const [name, entry] of Object.entries(SCREENS)) {
+      expect(entry.component, name).toBeDefined();
+      expect(entry.flag, name).toBeUndefined();
+    }
     expect(flagForScreen('title')).toBeNull();
-    expect(flagForScreen('game')).toBe('gameBoard');
-    expect(flagForScreen('end')).toBe('endScreen');
-    expect(SCREENS.game.component).toBeUndefined();
-    expect(SCREENS.end.component).toBeUndefined();
-    expect(SCREENS.title.component).toBeDefined();
+    expect(flagForScreen('game')).toBeNull();
   });
 });

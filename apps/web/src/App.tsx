@@ -32,7 +32,7 @@ export function App() {
         {t('app.skipToContent')}
       </a>
       <main id="main" className="min-h-screen">
-        {Component ? <Component /> : <UnavailableScreen flag={gate ?? 'gameBoard'} />}
+        {Component ? <Component /> : <UnavailableScreen flag={gate ?? 'saves'} />}
       </main>
     </div>
   );
