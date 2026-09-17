@@ -6,7 +6,7 @@ Balance is proven by simulation, never by feel. Stage 1 measures the classic bas
 
 ```bash
 pnpm sim -- --pack classic --games 10000 --seats 2 --ai normal,normal --goals 50 --seed-base baseline --out reports/classic-50
-pnpm sim -- --config sim/gates.json --games 1000   # used by sim:gate
+pnpm sim -- --config sim/gates.json --games 500    # used by sim:gate
 ```
 
 - Runs in Node worker threads (parallel = CPU count). Each game: seeds `"<seedBase>-<i>"`, AI for all seats, stop at winner or week 300 (stall).
@@ -69,4 +69,4 @@ Before tuning, CC writes `reports/modern-targets.json` derived from baseline and
 
 ## 9.7 CI gate (`sim:gate`)
 
-`sim/gates.json` lists 8 configs × 1,000 games covering all stage-2 gates with tolerances widened by ±3 percentage points for sampling noise. Runtime budget in CI ≤ 6 minutes.
+`sim/gates.json` lists 8 configs × 500 games (Normal AI only) covering all stage-2 gates with tolerances widened by ±3 percentage points for sampling noise. Runtime budget in CI ≤ 8 minutes.

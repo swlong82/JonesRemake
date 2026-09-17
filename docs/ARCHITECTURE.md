@@ -11,7 +11,8 @@
 │  ├─ content/   # Zod schemas + packs: classic/, modern-western/ ; loader + validator CLI
 │  ├─ ai/        # utility planner, personalities, difficulty configs
 │  ├─ sim/       # headless runner CLI, stats aggregation, report writers
-│  └─ shared/    # types, i18n key types, result/error types
+│  ├─ shared/    # types, i18n key types, result/error types
+│  └─ platform/  # provider-agnostic contracts + Local*/Null* defaults (identity, transport, saves, leaderboard, telemetry)
 ├─ apps/web/     # React app
 │  ├─ src/store/  (Zustand)  src/ui/  src/board/  src/audio/  src/save/  src/i18n/  src/assets/
 │  └─ e2e/        # Playwright specs
@@ -19,7 +20,7 @@
 └─ .github/workflows/ci.yml, deploy.yml
 ```
 
-Dependency rule: `shared` ← `content` ← `engine` ← `ai` ← `sim`; `apps/web` depends on all but `sim`. Enforced by `eslint-plugin-boundaries`.
+Dependency rule: `shared` ← `content` ← `engine` ← `ai` ← `sim`; `shared` ← `platform`; `apps/web` depends on all but `sim`. Enforced by `eslint-plugin-boundaries`.
 
 ## 5.2 Toolchain (pin exact versions in lockfile)
 
@@ -28,7 +29,8 @@ Node 22 LTS, pnpm 9, TypeScript 5.x strict, Vite 6, React 18, Zustand 5, Tailwin
 ## 5.3 Engine API
 
 ```ts
-export interface GameConfig { rulesetId: 'classic' | 'modern-western'; seats: SeatConfig[]; seed: string; chaos: Chaos; classicOpacity: boolean; }
+export interface GameConfig { packId: string; // validated against loaded packs
+   seats: SeatConfig[]; seed: string; chaos: Chaos; classicOpacity: boolean; }
 export interface GameState { schemaVersion: number; config: GameConfig; week: number; activeSeat: number; econ: EconState; market: MarketState; players: PlayerState[]; pawnShop: PawnEntry[]; rng: RngState; log: LoggedCommand[]; winner: number | null; flags: FeatureFlags; }
 export type Command = { type: 'Move'; to: LocationId; mode: TransportModeId } | { type: 'Work'; hours: number } | /* ...all of GDD 4.15 */ ;
 export interface ApplyResult { state: GameState; events: DomainEvent[]; }

@@ -62,12 +62,12 @@
 - Corrupt IndexedDB record: quarantine key `corrupt:<ts>`, continue with empty store.
 - Worker crash: retry AI turn once, then fall back to main-thread AI with a notice.
 
-## 15.6 Amendments to earlier sections (apply as written)
+## 15.6 Amendments to earlier sections (already applied in this file; listed for traceability)
 
-1. 5.3 `GameConfig.rulesetId` becomes `packId: string` (validated against loaded packs), not a literal union.
-2. 4.6 "11 workplaces" becomes 10 workplaces per 14.1; Clinic offers no jobs in v1.
-3. 9.7 CI gate: 500 games per config, ≤ 8 minutes (was 1,000 / 6 minutes).
+1. 5.3 `GameConfig.rulesetId` is `packId: string` (validated against loaded packs), not a literal union.
+2. 4.6 "11 workplaces" is 10 workplaces per 14.1; Clinic offers no jobs in v1.
+3. 9.7 CI gate: 500 games per config, ≤ 8 minutes.
 4. GDD hour values are authored in hours; engine stores half-hours per 13.1. Content loader converts.
-5. 3.4 / 3.7 / 3.9 [ASSUMED] tables are now provided in section 14; CC uses them instead of constructing its own.
-6. MILESTONES: M0.8 also creates `docs/INDEX.md`, `LICENSE`, `CHANGELOG.md`; M1.7 implements commands as `CommandHandler`s via the registry (12.2) and the turn pipeline as `RuleModule` hooks (12.1); M2.2 loads 14.1–14.6; M5.x modern systems are each a `RuleModule` gated by 12.4 flags; M8.2 includes `docs/EXTENDING.md` with executable recipes (12.9).
-7. File map (section 0) gains rows: 12 → `docs/EXTENSIBILITY.md`, 13 → `docs/STATE_MODEL.md`, 14 → `docs/SEED_DATA.md`, 15 → `docs/BUILD_READINESS.md`. Precedence: STATE_MODEL sits between GDD and BALANCE_SPEC; SEED_DATA sits after ORIGINAL_REFERENCE.
+5. 3.4 / 3.7 / 3.9 [ASSUMED] tables are provided in section 14; CC uses them instead of constructing its own.
+6. MILESTONES M0.8, M1.7, M2.2, M5.1, M8.2 reference sections 12–15.
+7. File map and precedence in section 0 include sections 12–15.

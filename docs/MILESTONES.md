@@ -4,32 +4,32 @@ Each milestone ends with `pnpm verify` green, CI green, `PROGRESS.md` updated, t
 
 ## M0 — Scaffold and CI
 
-- [ ] M0.1 pnpm monorepo, packages + app skeletons, TS project refs, strict configs. AC: `pnpm typecheck` passes on empty packages.
+- [ ] M0.1 pnpm monorepo, packages + app skeletons incl. `packages/platform` with all 16.4 interfaces and `createLocalServices()`, TS project refs, strict configs. AC: `pnpm typecheck` passes on empty packages.
 - [ ] M0.2 ESLint flat config + boundaries rule + Prettier. AC: importing `apps/web` from `engine` fails lint (fixture test).
 - [ ] M0.3 Vitest per package with coverage thresholds (CLAUDE.md 1.7). AC: threshold failure breaks `pnpm test`.
 - [ ] M0.4 Playwright with 3 viewport projects + axe helper; placeholder Title page. AC: e2e smoke passes on all 3.
 - [ ] M0.5 `tools/check-banned.ts` with word-boundary regex + exclusions. AC: fixture containing a banned term fails; `pineapple` passes.
 - [ ] M0.6 Bundle budget script (350 kB gzip initial). AC: fails on oversized fixture.
 - [ ] M0.7 GitHub Actions `ci.yml`, `deploy.yml`, Pages base path + 404 fallback. AC: workflow YAML validated by `actionlint` in CI.
-- [ ] M0.8 Templates: PROGRESS, DECISIONS, KNOWN_ISSUES, NAMING, README. AC: files exist with section headers (script check).
+- [ ] M0.8 Templates: PROGRESS, DECISIONS, KNOWN_ISSUES, NAMING, README, plus `docs/INDEX.md`, `LICENSE`, `CHANGELOG.md` and the root toolchain files in 15.1; `pnpm scaffold:check` (16). AC: files exist with section headers (script check); scaffold check passes.
 
 ## M1 — Engine core
 
 - [ ] M1.1 Shared types, `ErrorCode` enum, `DomainEvent` union.
 - [ ] M1.2 Seeded RNG with named streams. AC: known-seed vectors; stream independence property test.
 - [ ] M1.3 `GameState`, `createGame`, `stateHash`. AC: hash stable across key order; JSON round-trip equal.
-- [ ] M1.4 `SequentialScheduler`, `AllGoalsRace`, `SimultaneousScheduler` stub. AC: turn order, week increment, win check timing per GDD 4.2.
+- [ ] M1.4 `SequentialScheduler`, `AllGoalsRace`, `SimultaneousScheduler` stub with the 16.6 `test.todo` checklist. AC: turn order, week increment, win check timing per GDD 4.2.
 - [ ] M1.5 Start-of-turn pipeline in exact GDD order. AC: ordered-steps test with spy events.
 - [ ] M1.6 Movement + enter/exit + hour accounting (walk only). AC: shortest direction; hour rounding; turn ends on leaving with 0h.
-- [ ] M1.7 Command validators + `applyCommand` for classic commands (jobs, work, raise, education, relax, food, clothing, items, pawn, rent, bank, classic stocks, lottery, news, end turn). AC: each command ≥ 3 tests (valid, invalid code, edge); property test: random legal command sequences never produce negative hours, NaN, or invalid state (Zod-validated state schema).
+- [ ] M1.7 `RuleModule` pipeline (12.1) + `CommandHandler` registry (12.2) + `applyCommand` for classic commands (jobs, work, raise, education, relax, food, clothing, items, pawn, rent, bank, classic stocks, lottery, news, end turn). AC: each command ≥ 3 tests (valid, invalid code, edge); property test: random legal command sequences never produce negative hours, NaN, or invalid state (Zod-validated state schema).
 - [ ] M1.8 Goal formulas + hidden stats + decay. AC: table-driven tests for GDD 4.4, 4.8, section 3.3 formulas.
 - [ ] M1.9 Economy tick + classic events runtime + effect DSL interpreter. AC: every Effect op tested; econ bounds held over 10k weeks.
 - [ ] M1.10 Replay determinism. AC: 200 random seeds × random legal command logs replay to identical hash.
 
 ## M2 — Classic content and AI
 
-- [ ] M2.1 Zod schemas for all pack files + cross-file validators. AC: invalid fixtures rejected with path-specific messages.
-- [ ] M2.2 `classic` pack: board, 16 locations, 11 degrees, full job table satisfying section 3.4 anchors, items, clothing, meals, events, rules, i18n EN. AC: validator passes; anchor tests (Professor wage/reqs, GM highest wage, cook always hires, degree DAG shape).
+- [ ] M2.1 Zod schemas for all pack files + `world.json` + board topology (ring/graph) + `_template` pack validation + cross-file validators. AC: invalid fixtures rejected with path-specific messages.
+- [ ] M2.2 `classic` pack from SEED_DATA 14.1–14.6: board, 16 locations, 11 degrees, job table, items, clothing, meals, weekend events, market bounds, rules, i18n EN. AC: validator passes; anchor tests (Professor wage/reqs, GM highest wage, cook always hires, degree DAG shape).
 - [ ] M2.3 `legalCommands` + `previewCommand`. AC: preview deltas equal actual apply deltas for deterministic commands (property test).
 - [ ] M2.4 AI planner + difficulty configs + 4 personalities. AC: AI never issues illegal commands over 1,000 games; turn-time benchmarks (GDD 4.14); Hard beats Easy ≥ 70% in 200-game smoke.
 - [ ] M2.5 AI uses only public/own state. AC: test that mutating other players' hidden stats does not change AI plan.
@@ -44,7 +44,7 @@ Each milestone ends with `pnpm verify` green, CI green, `PROGRESS.md` updated, t
 ## M4 — Web UI, classic playable
 
 - [ ] M4.1 Zustand store + dispatch + EventQueue + AI worker.
-- [ ] M4.2 Title, Setup (all GDD 4.1 options), Settings, Stats screens.
+- [ ] M4.2 Title, Setup (all GDD 4.1 options + City picker from `world.json`), Settings, Stats screens.
 - [ ] M4.3 SVG ring board, AssetRegistry placeholders, token animation, reduced motion.
 - [ ] M4.4 HUD, standings, location panel with previews and disabled reasons, travel sheet.
 - [ ] M4.5 Event modals, event log, AI ticker, pass-device screen.
@@ -52,11 +52,11 @@ Each milestone ends with `pnpm verify` green, CI green, `PROGRESS.md` updated, t
 - [ ] M4.7 i18n wiring; no hardcoded strings (lint rule `i18next/no-literal-string`).
 - [ ] M4.8 End screen with goal-over-time chart (SVG, no chart lib).
 
-* AC (e2e): start 2-seat classic game (human + AI) on all 3 viewports; human completes week 1 via keyboard only; debug autoplay reaches a winner at goals 30; axe 0 serious/critical on listed screens; Lighthouse CI desktop performance ≥ 90.
+AC (e2e): start 2-seat classic game (human + AI) on all 3 viewports; human completes week 1 via keyboard only; debug autoplay reaches a winner at goals 30; axe 0 serious/critical on listed screens; Lighthouse CI desktop performance ≥ 90.
 
 ## M5 — Modern systems
 
-- [ ] M5.1 Feature flags plumbing (engine + UI hide).
+- [ ] M5.1 Feature flag registry (12.4) plumbing (engine + UI hide); every M5 system below is its own `RuleModule` with `stateSlice`, hooks and scorers.
 - [ ] M5.2 Wellbeing stat + bands + collapse. AC: GDD 4.5 tables.
 - [ ] M5.3 Transport modes, transit pass, used/new car, depreciation, upkeep, ride-hail unlock. AC: GDD 4.3 table; mode preview correct.
 - [ ] M5.4 Gig jobs + dual employment rule. AC: career stat unaffected by gig.
@@ -77,15 +77,15 @@ Each milestone ends with `pnpm verify` green, CI green, `PROGRESS.md` updated, t
 ## M7 — Polish systems
 
 - [ ] M7.1 AudioBus, SFX recipes, procedural music moods, settings persistence. AC: NullAudioBus in tests; mapping table covers every SfxId; music chunk lazy-loaded (bundle report).
-- [ ] M7.2 Save system: autosave, 3 slots, export/import, migrations, replay verification. AC: save → reload → identical hash; v1→v2 dummy migration test; corrupted import rejected gracefully.
+- [ ] M7.2 Save system behind `SaveStore` (`IndexedDbSaveStore`): autosave, 3 slots, export/import, migrations, replay verification. AC: save → reload → identical hash; v1→v2 dummy migration test; corrupted import rejected gracefully.
 - [ ] M7.3 Tutorial (UX 7.6) with spotlight + event-driven steps. AC: e2e completes tutorial on desktop and phone.
 - [ ] M7.4 Classic opacity mode. AC: hidden values absent from DOM (not just visually hidden).
-- [ ] M7.5 Themes, text scale, final a11y pass. AC: axe gate; contrast token test.
+- [ ] M7.5 Themes, text scale, pseudo-locale generation + one e2e run in pseudo-locale, final a11y pass. AC: axe gate; contrast token test; no clipped text in pseudo-locale screenshots.
 
 ## M8 — Release
 
-- [ ] M8.1 `NAMING.md` final: 5 title proposals, rival names, location names; set `config.title` to #1; banned-terms clean.
-- [ ] M8.2 README (play, controls, dev setup, architecture summary, how to add a CityPack).
+- [ ] M8.1 `score()` + `LocalLeaderboard` + Stats board UI with scopes (16.7); `NAMING.md` final: 5 title proposals, rival names, location names; set `config.title` to #1; banned-terms clean.
+- [ ] M8.2 README (play, controls, dev setup, architecture summary) + `docs/EXTENDING.md` recipes with executable examples (12.9) + links to every REPLACE ME README (16.1).
 - [ ] M8.3 Full e2e regression: 4-seat hotseat (2 human + 2 AI) modern game to week 10 via scripted inputs; save/load mid-game; phone layout full game via autoplay to winner.
 - [ ] M8.4 Deploy to GitHub Pages; post-deploy smoke test against live URL in workflow.
 - [ ] M8.5 Close-out: `KNOWN_ISSUES.md` reviewed, every open item has severity and workaround; tag `v1.0.0`.

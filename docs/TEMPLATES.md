@@ -4,7 +4,7 @@ CC creates these files in M0.8 with exactly this structure and keeps them curren
 
 ## PROGRESS.md
 
-```markdown
+````markdown
 # Progress
 Current milestone: M0
 Last updated: <ISO date> by <commit sha>
@@ -16,11 +16,11 @@ Last updated: <ISO date> by <commit sha>
 ## Gate log
 | Milestone | Date | Commit | verify | CI | Notes |
 |---|---|---|---|---|---|
-```
+````
 
 ## DECISIONS.md
 
-```markdown
+````markdown
 # Architecture & Design Decisions
 
 ## ADR-0001: <title>
@@ -30,11 +30,11 @@ Last updated: <ISO date> by <commit sha>
 - Options: 1) ... 2) ...
 - Decision:
 - Consequences:
-```
+````
 
 ## KNOWN_ISSUES.md
 
-```markdown
+````markdown
 # Known Issues
 
 ## KI-001: <title>
@@ -45,11 +45,11 @@ Last updated: <ISO date> by <commit sha>
 - Attempts: 1) ... 2) ... 3) ...
 - Mitigation: feature flag <name> = off | workaround
 - Status: open | fixed in <sha>
-```
+````
 
 ## NAMING.md
 
-```markdown
+````markdown
 # Naming (IP-safe)
 
 ## Title proposals (config.title = #1)
@@ -64,11 +64,11 @@ Last updated: <ISO date> by <commit sha>
 
 ## Parody brands
 | Real-world category | Parody name | Distinctness note |
-```
+````
 
 ## BASELINE_REPORT.md / BALANCE_REPORT.md
 
-```markdown
+````markdown
 # <Baseline|Balance> Report
 Pack: <id>@<version>  Commit: <sha>  Games per config: <n>
 
@@ -82,4 +82,4 @@ Pack: <id>@<version>  Commit: <sha>  Games per config: <n>
 ### Iteration <k> — <date>
 - Changed: <constant>: <old> → <new> (rationale)
 - Failing gates:
-```
+````

@@ -14,7 +14,7 @@ A browser-based, turn-based life-simulation board game that faithfully reproduce
 
 ## 2.3 Non-goals (v1)
 
-Online multiplayer, simultaneous-turn implementation (interface + stub only), final art, accounts, leaderboards, cloud save, languages other than English (infra only), native apps, monetization, analytics, additional city packs beyond `classic` and `modern-western`.
+Online multiplayer, simultaneous-turn implementation, final art, accounts, leaderboards, cloud save, languages other than English, native apps, monetization, analytics, additional city packs beyond `classic` and `modern-western`. Every item is stubbed behind a typed contract with a REPLACE ME guide per section 16.1; none is implemented for real in v1.
 
 ## 2.4 Locked decisions
 
@@ -54,4 +54,4 @@ All BALANCE_SPEC gates pass; zero serious/critical axe violations; Lighthouse pe
 
 ## 2.6 IP safety
 
-The original game's title, character names, location names, brand names, art, audio and text MUST NOT be reused. `pnpm check:banned` MUST fail on any case-insensitive whole-word (regex \\b boundary) match of: `jones`, `fast lane`, `sierra`, `wild willy`, `monolith burgers`, `socket city`, `hi-tech u`, `black's market`, `qt clothing`, `z-mart`, `le securite`, plus real brands: `grab`, `uber`, `lyft`, `doordash`, `netflix`, `spotify`, `amazon`, `apple`, `iphone`, `tesla`, `bitcoin`, `ethereum`, `robinhood`, `starbucks`, `mcdonald`, `walmart`, `coursera`, `udemy`, `chatgpt`, `openai`. Exception: `docs/ORIGINAL_REFERENCE.md` and the banned-terms config itself are excluded from the scan. Parody names MUST be clearly distinct (not one-letter edits).
+The original game's title, character names, location names, brand names, art, audio and text MUST NOT be reused. `pnpm check:banned` MUST fail on any case-insensitive whole-word (regex `\b` boundary) match of: `jones`, `fast lane`, `sierra`, `wild willy`, `monolith burgers`, `socket city`, `hi-tech u`, `black's market`, `qt clothing`, `z-mart`, `le securite`, plus real brands: `grab`, `uber`, `lyft`, `doordash`, `netflix`, `spotify`, `amazon`, `apple`, `iphone`, `tesla`, `bitcoin`, `ethereum`, `robinhood`, `starbucks`, `mcdonald`, `walmart`, `coursera`, `udemy`, `chatgpt`, `openai`. Exception: `docs/ORIGINAL_REFERENCE.md` and the banned-terms config itself are excluded from the scan. Parody names MUST be clearly distinct (not one-letter edits).

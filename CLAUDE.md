@@ -16,7 +16,7 @@ pnpm lint            # eslint + prettier --check, zero warnings
 pnpm typecheck       # tsc -b, strict, no any
 pnpm test            # vitest, all packages, coverage thresholds enforced
 pnpm test:e2e        # playwright, 3 viewports, includes axe checks
-pnpm sim:gate        # 1000 seeded games per gate config, asserts BALANCE_SPEC
+pnpm sim:gate        # 500 seeded games per gate config, asserts BALANCE_SPEC
 pnpm sim -- --games 10000 --pack classic --out reports/  # full run
 pnpm check:banned    # banned-terms scan over src, content, docs output
 pnpm build           # vite build, bundle budget check
@@ -68,7 +68,7 @@ All M0–M8 acceptance criteria met, `pnpm verify` green in CI, game deployed to
 ## 1.9 Hand-over state (added at scaffold time, 2026-09-17)
 
 - M0.1–M0.8 were completed by the scaffold commit; `pnpm verify` was green locally before the first push. Your first job is to confirm it in CI, then tag `m0` and start M1 (see `PROGRESS.md`).
-- Spec pack lives in `docs/` (file map + precedence in `docs/README.md`; task → section map in `docs/INDEX.md`). Amendments in `docs/BUILD_READINESS.md` §15.6 and `docs/ROADMAP_SCAFFOLDS.md` §16.8 apply as written.
+- Spec pack: `docs/SPEC_PACK.md` is the single imported source (amendments already folded in); `tools/split-spec.py` derives `CLAUDE.md` §1 and `docs/*.md` from it, `tools/gen-index.py` derives `docs/INDEX.md`. File map + precedence in `docs/README.md`. Never hand-edit a split file — edit `SPEC_PACK.md` and re-run both scripts.
 - `pnpm verify` also runs `pnpm scaffold:check` (ROADMAP_SCAFFOLDS 16) after `check:banned`.
 - Scaffold-time deviations from the spec are recorded as ADR-0001…0005 in `DECISIONS.md`; follow them.
 - Stubs that exist only to keep `verify` wired end to end are marked `STUB — M<N>` in their file header (`packages/sim/cli.ts`, `tools/gen-command-types.ts`, `packages/content/cli/validate.ts`, engine/ai/sim `src/index.ts`). Each fails loudly the moment the real thing is expected, so a stub can never satisfy a later gate.

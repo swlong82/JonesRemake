@@ -42,7 +42,7 @@ flowchart TD
 | --- | --- | --- | --- | --- | --- |
 | Walk | 0.625 | $0 | Always | +1 per trip ≥ 4 steps | Street theft exposure at bank/grocery |
 | Transit | 0.35 + 1 fixed wait | Weekly pass $25×econ or $3/trip | Buy pass at City Services | 0 | Delay event (+2h) 5% |
-| Ride-hail | 0.2 | $4 + $1.5/step × econ × surge | Own smartphone | −0 | Surge ×1.5–×3 10%; driver no-show +1h 3% |
+| Ride-hail | 0.2 | $4 + $1.5/step × econ × surge | Own smartphone | 0 | Surge ×1.5–×3 10%; driver no-show +1h 3% |
 | Car | 0.15 | Weekly upkeep $40×econ (fuel, insurance, parking) | Own car | −1 per trip in "traffic" event | Breakdown 2%/trip (used 5%) |
 
 - Hour costs are rounded up to 0.5. Minimum trip cost 0.5h.
@@ -93,7 +93,7 @@ Wellbeing is a 0–100 survival stat, not a goal.
 - Work (at workplace): 6h → pay `8 × wage`, pro-rated by hours; +1 experience (to max); +dependability `+2` (to max) [ASSUMED]; requires uniform tier ≥ job tier else refused.
 - Firing: if dependability < job req − 10 at work attempt → fired (−5 Happiness).
 - Garnish: if rent debt, 50% of pay + $2 goes to debt.
-- **[modern] Titles:** modern names per ladder (e.g. Fulfillment Center: Picker → Forklift Operator → Shift Supervisor → Operations Engineer → Site General Manager). Content defines 11 workplaces × 2–9 jobs mirroring classic table requirements exactly, only names/flavor differ.
+- **[modern] Titles:** modern names per ladder (e.g. Fulfillment Center: Picker → Forklift Operator → Shift Supervisor → Operations Engineer → Site General Manager). Content defines 10 workplaces × 3–7 jobs (SEED_DATA 14.1) mirroring classic table requirements exactly, only names/flavor differ.
 - **[modern] Gig jobs** (sign up at JobLink, 1h, no roll): Delivery Rider (needs smartphone; walk/transit uses $0 bike), Ride-hail Driver (needs smartphone + car). Work anywhere on the board via `Gig Shift` command in 3h or 6h blocks. Pay = base × econ × demand multiplier (weekly random 0.6–1.6). No experience, no dependability, career stat 0 while gig is the only job. A player MAY hold one regular job and one gig simultaneously; career stat uses the regular job. Gig shift wellbeing −4/6h; driver adds car wear (breakdown chance +1%).
 
 ## 4.7 Education
@@ -211,8 +211,8 @@ Events are content-defined: `{id, family, trigger: 'turnStart'|'weekend'|'onEnte
 
 ## 4.15 Commands (complete list)
 
-`Move{to, mode}`, `Enter{loc}`, `Exit`, `ApplyJob{jobId}`, `AskRaise`, `Work{hours}`, `GigSignup{gigId}`, `GigShift{hours}`, `Enroll{degreeId}`, `Study{degreeId}`, `Relax`, `BuyItem{itemId, qty}`, `SellItem{itemId}`, `RedeemPawn{itemId}`, `BuyFood{units}`, `EatMeal{mealId}`, `OrderDelivery{mealId}`, `PayRent{months}`, `RequestExtension`, `MoveHome{tier}`, `Deposit{amount}`, `Withdraw{amount}`, `BuyAsset{assetId, amount}`, `SellAsset{assetId, amount}`, `TakeLoan{principal, termWeeks, collateral?}`, `RepayLoan{amount}`, `Subscribe{subId}`, `Unsubscribe{subId}`, `BuyTransitPass`, `BuyCar{source, financed}`, `SellCar`, `Repair{itemId}`, `BuyLottery{qty}`, `ReadNews`, `EndTurn`. Every command has: validation rules, hour cost, money cost, effects, emitted domain events — CC MUST implement a validator per command returning typed error codes (e.g. `ERR_NOT_ENOUGH_HOURS`, `ERR_NOT_AT_LOCATION`, `ERR_UNIFORM_REQUIRED`).
+`Move{to, mode}`, `Enter{loc}`, `Exit`, `ApplyJob{jobId}`, `AskRaise`, `Work{hours}`, `GigSignup{gigId}`, `GigShift{hours}`, `Enroll{degreeId}`, `Study{degreeId}`, `Relax`, `BuyItem{itemId, qty}`, `SellItem{itemId}`, `RedeemPawn{itemId}`, `BuyFood{units}`, `EatMeal{mealId}`, `OrderDelivery{mealId}`, `PayRent{months}`, `RequestExtension`, `MoveHome{tier}`, `Deposit{amount}`, `Withdraw{amount}`, `BuyAsset{assetId, amount}`, `SellAsset{assetId, amount}`, `TakeLoan{principal, termWeeks, collateral?}`, `RepayLoan{amount}`, `Subscribe{subId}`, `Unsubscribe{subId}`, `BuyTransitPass`, `BuyCar{source, financed}`, `SellCar`, `Repair{itemId}`, `BuyLottery{qty}`, `ReadNews`, `TravelCity{to}` (disabled unless the world has >1 city), `EndTurn`. Every command has: validation rules, hour cost, money cost, effects, emitted domain events — CC MUST implement a validator per command returning typed error codes (e.g. `ERR_NOT_ENOUGH_HOURS`, `ERR_NOT_AT_LOCATION`, `ERR_UNIFORM_REQUIRED`).
 
 ## 4.16 Game end
 
-Winner declared at win check; remaining seats do not take turns. End screen: winner, weeks elapsed, per-player goal chart over time, key stats (total earned, degrees, highest job, net worth, events suffered), buttons: Rematch (same seats, new seed), New Game, Export Replay.
+Winner declared at win check; remaining seats do not take turns. End screen: winner, weeks elapsed, per-player goal chart over time, key stats (total earned, degrees, highest job, net worth, events suffered), buttons: Rematch (same seats, new seed), New Game, Export Replay. Engine `score(state, seat)` (16.7) is computed and submitted to `LeaderboardService`.

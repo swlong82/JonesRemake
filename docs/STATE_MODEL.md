@@ -4,14 +4,14 @@
 
 - Money: integer dollars. Asset prices: integer cents. Hours: integer half-hours (`hoursLeft: 120` = 60h; GDD hour costs ×2). Probabilities and percentages: basis points (10000 = 100%). Economy index: integer per-mille (1000 = 1.0). Stats: integers.
 - Engine MUST NOT call `Math.exp/log/pow/sin/cos/sqrt` or use floating division for game values; `mulDiv(a, b, c) = Math.floor((a * b + (c >> 1)) / c)` on integers is the only scaling primitive (lint rule bans the listed Math functions in `packages/engine`).
-- Normal noise N(0, σ): Irwin–Hall approximation `(Σ₁² uniform(0..10000) − 60000) × σ / 10000`, integer arithmetic.
+- Normal noise N(0, σ): Irwin–Hall approximation `(Σ₁² uniform(0..10000) − 60000) × σ / 10000` (twelve uniforms), integer arithmetic.
 - Result: `stateHash` is identical across Node, Chromium, Firefox, Safari (CI runs the replay test on Node and Chromium and compares hashes).
 
 ## 13.2 PlayerState
 
 ```ts
 export interface PlayerState {
-  seat: number; name: string; color: PaletteId; shape: TokenShape;
+  seat: number; name: string; color: PaletteId; shape: TokenShape; cityId: CityId;
   controller: 'human-local' | 'ai' | 'remote'; ai?: { difficulty: Difficulty; personality: PersonalityId };
   goals: { wealth: number; happiness: number; education: number; career: number };
   cash: number; bank: number; investments: Record<AssetId, { units: number; costBasisCents: number }>;
@@ -32,7 +32,7 @@ export interface PlayerState {
 }
 ```
 
-Top-level `GameState` per 5.3 plus `modules`, `pawnShop: Array<{ uid; itemId; sellerSeat; listedWeek; priceCents }>`, `news: { phaseHint: EconPhase; accurate: boolean }`, `engineVersion`, `packId`, `packVersion`.
+Top-level `GameState` per 5.3 plus `worldId`, `debugTouched: boolean` (immutable once set), `modules`, `pawnShop: Array<{ uid; itemId; sellerSeat; listedWeek; priceCents }>`, `news: { phaseHint: EconPhase; accurate: boolean }`, `engineVersion`, `packId`, `packVersion`.
 
 ## 13.3 ErrorCode (complete)
 

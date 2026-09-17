@@ -21,7 +21,7 @@ flowchart LR
 | Title | Continue (if autosave), New Game, Load, Settings, Stats, How to Play, version + seed display |
 | New Game Setup | GDD 4.1 fields; presets (Quick: goals 30, Standard: 50, Marathon: 80); Start disabled until valid |
 | Game Board | Ring board center; HUD; location panel; event log drawer; menu (save, load, settings, quit) |
-| Pass-device | Hotseat only, shown before each human turn when >1 human: "Pass to \<name>" + Ready button; hides previous player's private info |
+| Pass-device | Hotseat only, shown before each human turn when >1 human: "Pass to &lt;name&gt;" + Ready button; hides previous player's private info |
 | End | GDD 4.16 |
 | Settings | Music/SFX volume + mute, reduced motion, text scale 100/125/150%, theme, AI speed, Classic opacity default, language (EN only), reset data |
 | Stats | Games played, wins by ruleset, fastest win (weeks), highest net worth |

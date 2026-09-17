@@ -129,7 +129,7 @@ Move = correlation × econ weekly change + uniform(−maxMove, +maxMove) × (1 �
 | Grocery unit price | $15 × econ; spoils without fridge at turn start |
 | Meals | Burger $8, Combo $12, Fries $4 (fries do not count as a meal) |
 | Enrollment fee | $50 × econ |
-| Starting Discount Store rotation | 6 random items from its catalog per player turn, seeded per seat |
+| Discount Store rotation | 6 random items from its catalog per player turn, seeded per seat |
 
 ## 14.6 Board order (classic ring, square index → location)
 

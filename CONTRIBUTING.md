@@ -10,8 +10,11 @@ agent following `CLAUDE.md`; humans contribute the same way the agent does, so t
 - The spec pack in `docs/` is the source of truth. If the spec is silent, pick the simplest option
   consistent with `docs/GDD.md` and record an ADR in `DECISIONS.md`. If the spec is wrong, change the spec
   in the same PR and say so in the description.
-- Precedence when docs conflict: GDD > STATE_MODEL > BALANCE_SPEC > ARCHITECTURE > CONTENT_SCHEMAS >
-  UX_SPEC > ORIGINAL_REFERENCE > SEED_DATA > PRD; EXTENSIBILITY and ROADMAP_SCAFFOLDS after those.
+- Precedence when docs conflict (docs/README.md §0): GDD > STATE_MODEL > BALANCE_SPEC > EXTENSIBILITY >
+  ROADMAP_SCAFFOLDS > ARCHITECTURE > CONTENT_SCHEMAS > UX_SPEC > SEED_DATA > ORIGINAL_REFERENCE >
+  BUILD_READINESS > PRD.
+- Spec edits go into `docs/SPEC_PACK.md`, then `python3 tools/split-spec.py && python3 tools/gen-index.py`.
+  The split files under `docs/` and `CLAUDE.md` §1 are generated; a PR that hand-edits them is bounced.
 - IP safety: no names, art, audio or text from the original game or from real brands. `pnpm check:banned`
   fails the build on any hit. Parody names must be clearly distinct.
 

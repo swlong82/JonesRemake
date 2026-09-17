@@ -1,5 +1,5 @@
 {
-  "$comment": "PRD 2.6. Case-insensitive whole-word matches fail pnpm check:banned. Keep this file and docs/ORIGINAL_REFERENCE.md out of the scan (they must name the terms).",
+  "$comment": "PRD 2.6. Case-insensitive whole-word matches fail pnpm check:banned. Excluded: this file, docs/ORIGINAL_REFERENCE.md, docs/PRD.md and docs/SPEC_PACK.md (they must name the terms; see ADR-0002).",
   "terms": [
     "jones",
     "fast lane",
@@ -47,6 +47,7 @@
     "**/__fixtures__/**",
     "docs/ORIGINAL_REFERENCE.md",
     "docs/PRD.md",
+    "docs/SPEC_PACK.md",
     "tools/banned-terms.json"
   ]
 }

@@ -15,7 +15,7 @@
 - Status: Accepted
 - Context: PRD 2.6 lists every banned term verbatim, so scanning `docs/` per the spec's own exception list (only `ORIGINAL_REFERENCE.md` + the config) would always fail.
 - Options: 1) move the list out of PRD into `tools/banned-terms.json` and edit the spec; 2) add `docs/PRD.md` to the exclusion list.
-- Decision: option 2 — the spec stays intact; `tools/banned-terms.json` is the executable copy and must match PRD 2.6.
+- Decision: option 2 — the spec stays intact; `tools/banned-terms.json` is the executable copy and must match PRD 2.6. `docs/SPEC_PACK.md` (the full imported pack, which contains §2.6 and §3) is excluded for the same reason.
 - Consequences: a term added to PRD 2.6 must also be added to `tools/banned-terms.json` in the same commit.
 
 ## ADR-0003: Platform stubs are in-memory at M0

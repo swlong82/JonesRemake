@@ -20,7 +20,7 @@ Every v1 non-goal (PRD 2.3) ships as a working stub behind a typed contract, so 
 
 ## 16.2 Multi-city world model
 
-- A **WorldPack** groups CityPacks and defines how they relate: `world.json = { id, version, cities: [{ packId, displayNameKey, unlock: 'always' | { minNetWorth } | { degrees } }], travel: InterCityTravel[] , sharedEconomy: boolean }`. v1 ships `world-default` with one city per ruleset; setup screen shows a City picker fed by the world listing (one entry today).
+- A **WorldPack** groups CityPacks and defines how they relate: `world.json = { id, version, cities: [{ packId, displayNameKey, unlock: 'always' | { minNetWorth } | { degrees } }], travel: InterCityTravel[], sharedEconomy: boolean }`. v1 ships `world-default` with one city per ruleset; setup screen shows a City picker fed by the world listing (one entry today).
 - **Board topology generalised**: `board.json` gains `topology: 'ring' | 'graph'`. Ring = today's 16 squares. Graph = `nodes[]` + `edges[{ from, to, steps, modes? }]`; distance via precomputed all-pairs shortest path (Floyd–Warshall at load, integer steps). Ring is validated as the special case of a graph, and the engine's `distance(a, b)` is the only movement primitive, so a hex map or a real street network is a content change plus an SVG layout file (`layout.json`: node positions), not an engine change.
 - **Inter-city travel (v3 hook)**: `InterCityTravel { fromCity, toCity, hours, cost, requires? }`; command `TravelCity{to}` registered but disabled unless `world.cities.length > 1`. Player state carries `cityId`; per-city slices keyed by city so a player keeps a job/home per city.
 - **Shared economy toggle**: `sharedEconomy: true` runs one `EconState` for the world (needed for persistent city); false = per-city econ (v1).
@@ -61,7 +61,7 @@ Design consequences already built into v1 so these phases are additive:
 - Engine is pure and deterministic (13.1), so a server replays a client's log to verify it; anti-cheat is replay, not trust.
 - Cross-player effects are confined to `RuleModule` hooks with `contributeShared*` variants added in v3; v1 modules never read another player's private state outside those hooks (lint rule).
 - `PlayerState.cityId` + `WorldPack` (16.2) allow a persistent world to host several cities per shard.
-- Job openings per workplace are a content number (`openings`, default `Infinity` in v1) so scarcity in v3 is a content switch.
+- Job openings per workplace are a content number (`openings`, default unlimited in v1) so scarcity in v3 is a content switch.
 - Command `seq` per seat and `clientHash` make the log mergeable; `stateHash` per week is the reconciliation point.
 - Persistence is a `SaveStore`; v3 uses an event store behind the same interface plus a shard-level `WorldStore` (new interface, documented but not implemented).
 
@@ -74,18 +74,18 @@ Design consequences already built into v1 so these phases are additive:
 
 ## 16.7 Leaderboard design
 
-- **Score** (deterministic from final state, computed by engine `score(state, seat)`): `10000 − 10 × weeksToWin + netWorthAtWin / 100 + 5 × degrees + 2 × (happiness + careerStat)`; losers and unfinished games score 0. Goal targets factor in via a `goalTotal` multiplier `Σtargets / 200` (so goals 50 = ×1.0, goals 100 = ×2.0). Formula lives in content `rules.json.scoring` so it can be retuned without engine change; leaderboard entries store `scoringVersion`.
-- **Scopes**: `global` (all-time), `season:<YYYY-Qn>` (resets quarterly, season id from server time; local stub uses device time), `pack:<packId>` and `pack:<packId>:season:<id>`, `league:<leagueId>` (private/friends leagues with invite code; created by any player, up to 50 members, own seasons). All four are one `Scope` string, so adding a scope is a parser change only.
+- **Score** (deterministic from final state, computed by engine `score(state, seat)`): `10000 − 10 × weeksToWin + netWorthAtWin / 100 + 5 × degrees + 2 × (happiness + careerStat)`, multiplied by `goalTotal = Σtargets / 200` (goals 50 = ×1.0, goals 100 = ×2.0); losers and unfinished games score 0. Formula lives in content `rules.json.scoring` so it can be retuned without engine change; entries store `scoringVersion`.
+- **Scopes**: `global` (all-time), `season:<YYYY-Qn>` (resets quarterly, season id from server time; local stub uses device time), `pack:<packId>` and `pack:<packId>:season:<id>`, `league:<leagueId>` (private/friends leagues with invite code; created by any player, up to 50 members, own seasons). All scopes are one `Scope` string, so adding a scope is a parser change only.
 - **Entry**: `{ playerId, displayName, packId, packVersion, engineVersion, scoringVersion, seed, weeks, score, finishedAt, commandLogRef?, verified: boolean }`. v1 local leaderboard stores entries with `verified: false`; v2 server marks `verified: true` only after replaying the command log to the same `stateHash`.
-- **Fairness rules**: AI-only games excluded; games with debug switches excluded (state carries `debugTouched: true`, immutable once set); Classic-opacity does not change score; difficulty of AI rivals adds `+3%` per Hard seat, `−3%` per Easy seat (content constant).
-- **UI in v1**: Stats screen shows the local board per scope with the same component that v2 will point at the remote service; a "Not verified — local only" badge is rendered from `verified`.
+- **Fairness rules**: AI-only games excluded; games with debug switches excluded (`GameState.debugTouched: true`, immutable once set); Classic-opacity does not change score; AI rival difficulty adds `+3%` per Hard seat, `−3%` per Easy seat (content constant).
+- **UI in v1**: Stats screen shows the local board per scope with the same component v2 will point at the remote service; a "Not verified — local only" badge is rendered from `verified`.
 
-## 16.8 Amendments (apply as written)
+## 16.8 Amendments (already applied in this file; listed for traceability)
 
-1. PRD 2.3: each non-goal is followed by "(stubbed per 16.1)".
-2. ARCHITECTURE 5.1: add `packages/platform/` (contracts + Local\*/Null\* defaults) and `packages/content/packs/_template/`; dependency rule `shared ← platform`, `apps/web` depends on `platform`.
-3. CONTENT 6.1: add `world.json` (16.2), `board.json.topology` and optional `layout.json`; `jobs.json` gains `openings` (default unlimited).
-4. STATE_MODEL 13.2: `PlayerState.cityId: CityId`, `GameState.worldId`, `GameState.debugTouched: boolean`.
-5. GDD 4.15: add `TravelCity{to}` (disabled in single-city worlds) and 4.16 end screen calls `score()` and submits to `LeaderboardService`.
-6. MILESTONES: M0.1 creates `packages/platform` skeleton with all interfaces and `createLocalServices()`; M0.8 adds `pnpm scaffold:check`; M1.4 writes the 16.6 `test.todo` checklist; M2.1 validates `world.json`, topology and `_template`; M4.2 Setup gets the City picker; M7.2 implements `IndexedDbSaveStore` behind `SaveStore`; M7.5 adds pseudo-locale e2e run; M8.1 adds `LocalLeaderboard` + Stats board UI + `score()`; M8.2 README links every REPLACE ME.
-7. File map (section 0): 16 → `docs/ROADMAP_SCAFFOLDS.md`; precedence after EXTENSIBILITY.
+1. PRD 2.3 references the stub matrix.
+2. ARCHITECTURE 5.1 adds `packages/platform/`; dependency rule `shared ← platform`.
+3. CONTENT 6.1 adds `world.json`, `board.json.topology` + `layout.json`, `jobs.json.openings`.
+4. STATE_MODEL 13.2 adds `PlayerState.cityId`, `GameState.worldId`, `GameState.debugTouched`.
+5. GDD 4.15 adds `TravelCity{to}`; 4.16 computes `score()` and submits to `LeaderboardService`.
+6. MILESTONES M0.1, M0.8, M1.4, M2.1, M4.2, M7.2, M7.5, M8.1, M8.2 reference this section.
+7. File map and precedence in section 0 include section 16.

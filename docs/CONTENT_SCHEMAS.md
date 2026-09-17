@@ -6,11 +6,12 @@ A CityPack is a folder of JSON files validated by Zod at build time (`pnpm conte
 
 | File | Contents | Validation beyond schema |
 | --- | --- | --- |
+| `world.json` | WorldPack: id, version, cities[{packId, displayNameKey, unlock}], travel[], sharedEconomy (16.2) | every packId loads; travel refs valid |
 | `pack.json` | id, version (semver), currency {symbol, code}, featureFlags, wealthPointValue, extends? | `extends` resolves to existing pack; deep-merge by id |
 | `rules.json` | all GDD numeric constants (hours, decay, formulas' coefficients, probabilities) | every key used by engine exists (typed via `z.infer`) |
-| `board.json` | squares[16]: {index, locationId \| null, label key} | exactly 16; each location once; 2 home squares |
-| `locations.json` | id, kind (home\|store\|workplace\|service\|filler), services[], open rule, audio mood | services reference valid commands |
-| `jobs.json` | id, workplaceId, titleKey, baseWage, reqExperience, reqDependability, reqDegrees[], uniformTier, automationRisk, isGig, gigRequires[] | wages monotonic with reqs within a workplace; ids unique |
+| `board.json` | `topology: 'ring' \| 'graph'`; ring: squares[16] {index, locationId or null, label key}; graph: nodes[] + edges[{from, to, steps, modes?}] + `layout.json` positions | ring: exactly 16, each location once, 2 home squares; graph: connected, integer steps |
+| `locations.json` | id, kind (home, store, workplace, service, filler), services[], open rule, audio mood | services reference valid commands |
+| `jobs.json` | id, workplaceId, titleKey, baseWage, reqExperience, reqDependability, reqDegrees[], uniformTier, automationRisk, isGig, gigRequires[], openings (default unlimited) | wages monotonic with reqs within a workplace; ids unique |
 | `degrees.json` | id, nameKey, prereqs[], lessons, feeBase | DAG acyclic; exactly 11; 2 roots |
 | `items.json` | GDD 4.11 item fields | storeIds valid; unlock keys from enum |
 | `meals.json` | id, locationId, price, happiness, deliveryEligible | — |
