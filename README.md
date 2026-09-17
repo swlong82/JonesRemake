@@ -5,7 +5,8 @@ city locations, juggling money, career, education and happiness in weekly turns.
 reimplementation with original names, art and text — see `docs/PRD.md` §2.6 for the IP-safety rules.
 
 **Status:** M0 scaffold. The game itself lands milestone by milestone (`docs/MILESTONES.md`, M0→M8).
-Live build: https://swlong82.github.io/JonesRemake/ (GitHub Pages, deployed from `main`).
+Live build: https://swlong82.github.io/JonesRemake/ once the repo is public (GitHub Pages on a private repo
+needs GitHub Pro); `deploy.yml` is wired and runs after CI on `main`.
 
 ## Play
 
