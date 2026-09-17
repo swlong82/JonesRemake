@@ -58,6 +58,46 @@ Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 - [x] M4.8 End screen with goal-over-time chart (SVG, no chart lib) — note: `ui/screens/EndScreen.tsx` + `ui/game/GoalChart.tsx` (polyline per player per goal, dash patterns so colour is not the only signal), key stats table, rematch/new game/replay export (ADR-0023).
 - [x] M4 gate: `pnpm verify` green in CI, e2e AC on 3 viewports, tag `m4` — note: `pnpm verify` green locally (52 test files, 487 tests, bundle 144.7 kB gzip of 350, e2e 21 passed on 3 viewports with 0 serious/critical axe violations, `sim:gate` 18 assertions / 0 failed / 2 pending); CI confirmation on push. Tag `m4` created locally (KI-001).
 
+## M5 — Modern systems
+
+- [ ] M5.1 Feature flag registry (12.4) plumbing (engine + UI hide); every M5 system is its own `RuleModule` with `stateSlice`, hooks and scorers — note:
+- [ ] M5.2 Wellbeing stat + bands + collapse (GDD 4.5) — note:
+- [ ] M5.3 Transport modes, transit pass, used/new car, depreciation, upkeep, ride-hail unlock (GDD 4.3) — note:
+- [ ] M5.4 Gig jobs + dual employment rule — note:
+- [ ] M5.5 Online study + doomscroll + Focus App — note:
+- [ ] M5.6 Delivery, subscriptions (billing, drift, retention dialog, cancel location rule), rent hikes, co-living quirks — note:
+- [ ] M5.7 Modern assets with correlated returns; loans (approval, APR, amortization, missed/default) — note:
+- [ ] M5.8 Modern event families + automationRisk + mitigations — note:
+- [ ] M5.9 AI extended to all modern commands; bots `GigOnly`, `CryptoAllIn`, `DeliveryOnly`, `LoanMax`, `NoRelax` — note:
+- [ ] M5 gate: `pnpm verify` green in CI, tag `m5` — note:
+
+## M6 — Modern pack and balance
+
+- [ ] M6.1 `modern-western` pack (extends classic): names, flavor text minimums (CONTENT 6.3), modern items/subs/assets/loans/events — note:
+- [ ] M6.2 Write and lock `reports/modern-targets.json` (hash in ADR) — note:
+- [ ] M6.3 Tuning loop per BALANCE 9.6 until 9.5 gates pass; `BALANCE_REPORT.md` — note:
+- [ ] M6.4 CI `sim:gate` switched to modern gates (classic sanity gates retained) — note:
+- [ ] M6.5 UI for all modern features incl. subscriptions total, loan panel, investment panel with sparkline, transport selector — note:
+- [ ] M6 gate: `pnpm verify` green in CI, tag `m6` — note:
+
+## M7 — Polish systems
+
+- [ ] M7.1 AudioBus, SFX recipes, procedural music moods, settings persistence — note:
+- [ ] M7.2 Save system behind `SaveStore` (`IndexedDbSaveStore`): autosave, 3 slots, export/import, migrations, replay verification — note:
+- [ ] M7.3 Tutorial (UX 7.6) with spotlight + event-driven steps — note:
+- [ ] M7.4 Classic opacity mode (hidden values absent from the DOM) — note:
+- [ ] M7.5 Themes, text scale, pseudo-locale generation + one e2e run in pseudo-locale, final a11y pass — note:
+- [ ] M7 gate: `pnpm verify` green in CI, tag `m7` — note:
+
+## M8 — Release
+
+- [ ] M8.1 `score()` + `LocalLeaderboard` + Stats board UI with scopes (16.7); `NAMING.md` final — note:
+- [ ] M8.2 README + `docs/EXTENDING.md` recipes with executable examples (12.9) — note:
+- [ ] M8.3 Full e2e regression: 4-seat hotseat modern game to week 10, save/load mid-game, phone autoplay to a winner — note:
+- [ ] M8.4 Deploy to GitHub Pages; post-deploy smoke test against the live URL in the workflow — note:
+- [ ] M8.5 Close-out: `KNOWN_ISSUES.md` reviewed, every open item has severity and workaround; tag `v1.0.0` — note:
+- [ ] M8 gate: `pnpm verify` green in CI, `DEFINITION OF DONE` (CLAUDE.md 1.8) met — note:
+
 ## Gate log
 
 | Milestone | Date       | Commit  | verify | CI      | Notes                                      |

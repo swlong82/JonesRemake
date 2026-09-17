@@ -28,6 +28,9 @@ One entry per milestone (see `docs/MILESTONES.md`).
 
 ### Changed
 
+- M3.3 classic balance: happiness now decays 3 a week (`rules.happiness.decayPerWeek`, new and
+  content-driven, default 0) and a concert or theatre ticket pays its happiness once per turn, so
+  happiness is a goal you have to keep rather than buy once (ADR-0025). Golden replays regenerated.
 - The `gameBoard` and `endScreen` app feature flags are deleted now that M4 landed the screens they
   gated; `saves`, `tutorial`, `audio`, `leaderboard` and `debugTools` remain.
 - Pack display strings are registered in the i18n `pack` namespace when a game starts, so locations,

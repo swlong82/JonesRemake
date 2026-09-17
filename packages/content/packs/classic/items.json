@@ -167,7 +167,8 @@
     "repairCost": 0,
     "unlocks": [],
     "consumable": true,
-    "durable": false
+    "durable": false,
+    "oncePerTurn": true
   },
   {
     "id": "theatre-ticket",
@@ -183,7 +184,8 @@
     "repairCost": 0,
     "unlocks": [],
     "consumable": true,
-    "durable": false
+    "durable": false,
+    "oncePerTurn": true
   },
   {
     "id": "dog-food",

@@ -63,6 +63,7 @@
     "relaxBase": 2,
     "relaxPerComfort": 1,
     "relaxMax": 6,
+    "decayPerWeek": 3,
     "theft": -4,
     "starvation": -5,
     "moveSecure": 5,
