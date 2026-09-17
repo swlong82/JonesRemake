@@ -1,0 +1,12 @@
+{
+  "item:laptop": {
+    "color": "cat-retail",
+    "icon": "laptop",
+    "shape": "rounded-rect"
+  },
+  "item:smartphone": {
+    "color": "cat-retail",
+    "icon": "phone",
+    "shape": "rounded-rect"
+  }
+}

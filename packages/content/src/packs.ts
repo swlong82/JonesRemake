@@ -18,7 +18,12 @@ import classicManifest from '../packs/classic/pack.json';
 import classicPersonalities from '../packs/classic/personalities.json';
 import classicRules from '../packs/classic/rules.json';
 import classicTransport from '../packs/classic/transport.json';
+import modernAssetsRegistry from '../packs/modern-western/assets.registry.json';
+import modernI18n from '../packs/modern-western/i18n/en.json';
+import modernItems from '../packs/modern-western/items.json';
+import modernLocations from '../packs/modern-western/locations.json';
 import modernManifest from '../packs/modern-western/pack.json';
+import modernTransport from '../packs/modern-western/transport.json';
 import templateManifest from '../packs/_template/pack.json';
 import world from '../world/world.json';
 import { resolvePack, type RawPackFiles, type ResolveResult } from './resolve.js';
@@ -47,6 +52,11 @@ export const RAW_PACKS: Record<string, RawPackFiles> = {
   },
   'modern-western': {
     'pack.json': j(modernManifest),
+    'locations.json': j(modernLocations),
+    'items.json': j(modernItems),
+    'transport.json': j(modernTransport),
+    'i18n/en.json': j(modernI18n),
+    'assets.registry.json': j(modernAssetsRegistry),
   },
   'template-city': {
     'pack.json': j(templateManifest),

@@ -1,0 +1,9 @@
+{
+  "item.laptop.desc": "Work, study and doomscrolling, all on one warm lap.",
+  "item.laptop.name": "Laptop",
+  "item.smartphone.desc": "A rectangle that knows where you are and what you want.",
+  "item.smartphone.name": "Smartphone",
+  "transport.car.name": "Car",
+  "transport.ride-hail.name": "Ride-hail",
+  "transport.transit.name": "Transit"
+}

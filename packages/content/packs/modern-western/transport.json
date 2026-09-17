@@ -1,0 +1,47 @@
+[
+  {
+    "id": "transit",
+    "nameKey": "transport.transit.name",
+    "hoursPerStep": 0.35,
+    "fixedHours": 1,
+    "cost": {
+      "type": "passOrFare",
+      "fare": 3,
+      "passPrice": 25
+    },
+    "unlock": "always",
+    "delayBp": 500,
+    "delayHours": 2
+  },
+  {
+    "id": "ride-hail",
+    "nameKey": "transport.ride-hail.name",
+    "hoursPerStep": 0.2,
+    "fixedHours": 0,
+    "cost": {
+      "type": "perTrip",
+      "base": 4,
+      "perStep": 1.5
+    },
+    "unlock": "smartphone",
+    "surgeBp": 1000,
+    "surgeMinPm": 1500,
+    "surgeMaxPm": 3000,
+    "noShowBp": 300,
+    "noShowHours": 1
+  },
+  {
+    "id": "car",
+    "nameKey": "transport.car.name",
+    "hoursPerStep": 0.15,
+    "fixedHours": 0,
+    "cost": {
+      "type": "upkeep",
+      "weekly": 40
+    },
+    "unlock": "car",
+    "trafficBp": 1000,
+    "trafficWellbeing": -1,
+    "breakdownBp": 200
+  }
+]

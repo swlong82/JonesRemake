@@ -189,7 +189,7 @@ describe('wellbeing module (GDD 4.5)', () => {
           setWellbeing(employed(`waste${i}`), W.bands.burnout - 1),
           0,
           (p) => {
-            p.enrolled = { 'trade-school': { lessonsLeft: 10, extraCredit: 0 } };
+            p.enrolled = { 'trade-school': { lessonsLeft: 10 } };
           },
           on,
         ),

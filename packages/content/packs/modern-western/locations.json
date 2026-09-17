@@ -1,0 +1,24 @@
+[
+  {
+    "id": "rent-office",
+    "kind": "workplace",
+    "services": ["rent", "move-home", "work", "transit-pass"],
+    "open": "rent-week",
+    "category": "service"
+  },
+  {
+    "id": "pawn-shop",
+    "kind": "store",
+    "services": ["pawn", "cars"],
+    "open": "always",
+    "category": "retail"
+  },
+  {
+    "id": "discount-store",
+    "kind": "store",
+    "services": ["shop:discount", "work", "cars"],
+    "open": "always",
+    "category": "retail",
+    "shopRotation": 6
+  }
+]
