@@ -18,7 +18,7 @@ Last updated: 2026-09-17 by CC
 ## M1 — Engine core
 
 - [x] M1.1 Shared types, `ErrorCode` enum, `DomainEvent` union — note: `packages/shared/src/{ids,errors,events}.ts`; 46 codes, 56 event types, count-tested.
-- [ ] M1.2 Seeded RNG with named streams — note:
+- [x] M1.2 Seeded RNG with named streams — note: `core/rng.ts` xoshiro128** + cyrb128, lazy named streams in `RngState`; golden vectors + fast-check independence; `core/math.ts` mulDiv/Irwin–Hall.
 - [ ] M1.3 `GameState`, `createGame`, `stateHash` — note:
 - [ ] M1.4 `SequentialScheduler`, `AllGoalsRace`, `SimultaneousScheduler` stub — note:
 - [ ] M1.5 Start-of-turn pipeline in exact GDD order — note:

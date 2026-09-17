@@ -159,6 +159,16 @@ export default tseslint.config(
     rules: { 'no-console': 'off' },
   },
   {
+    // Test ergonomics: fixtures may assert non-null and use expect() in arrow shorthand.
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/e2e/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-confusing-void-expression': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+    },
+  },
+  {
     files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
     ...tseslint.configs.disableTypeChecked,
   },
