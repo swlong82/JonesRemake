@@ -62,6 +62,9 @@ export default tseslint.config(
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
+      // noUncheckedIndexedAccess is on; `!` after a guarded index is the idiomatic escape hatch and
+      // keeps hot engine loops free of wrapper calls. Type strictness (no any / ts-ignore) is unchanged.
+      '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/ban-ts-comment': [
         'error',
         { 'ts-ignore': true, 'ts-expect-error': 'allow-with-description' },
@@ -140,6 +143,9 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.browser } },
     rules: {
       ...reactHooks.configs['recommended-latest'].rules,
+      // `onClick={() => dispatch(cmd)}` is the idiomatic React handler; the void return is the
+      // point, not a mistake (ADR-0017).
+      '@typescript-eslint/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
     },
   },
   {
@@ -157,6 +163,16 @@ export default tseslint.config(
     ],
     languageOptions: { globals: { ...globals.node } },
     rules: { 'no-console': 'off' },
+  },
+  {
+    // Test ergonomics: fixtures may assert non-null and use expect() in arrow shorthand.
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/e2e/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-confusing-void-expression': 'off',
+      '@typescript-eslint/no-dynamic-delete': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+    },
   },
   {
     files: ['**/*.js', '**/*.mjs', '**/*.cjs'],

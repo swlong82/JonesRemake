@@ -4,27 +4,46 @@ A modern, browser-based remake of a 1991 life-sim board game: race rivals around
 city locations, juggling money, career, education and happiness in weekly turns. Built as a clean-room
 reimplementation with original names, art and text — see `docs/PRD.md` §2.6 for the IP-safety rules.
 
-**Status:** M0 scaffold complete (CI green). The game itself lands milestone by milestone
-(`docs/MILESTONES.md`, M0→M8); this README's status line and `PROGRESS.md` are updated per milestone.
+**Status:** engine, classic content, AI rival and the balance harness are complete; the web UI is
+partly built. The board, HUD and location panel are not implemented yet and ship switched off behind
+app feature flags, so nothing is playable end to end in the browser. The game lands milestone by
+milestone (`docs/MILESTONES.md`, M0→M8); this README's status line, `PROGRESS.md` and `HANDOFF.md`
+are updated per milestone.
 Live build: https://swlong82.github.io/JonesRemake/ (GitHub Pages; `deploy.yml` runs after CI on `main`).
 
-| Milestone | Scope                                   | Status |
-| --------- | --------------------------------------- | ------ |
-| M0        | Scaffold, CI, Pages deploy, spec pack   | done   |
-| M1        | Engine core (state, RNG, commands)      | —      |
-| M2        | Classic content pack + AI rival         | —      |
-| M3        | Sim harness + classic baseline          | —      |
-| M4        | Web UI, classic playable                | —      |
-| M5        | Modern systems (transport, gigs, loans) | —      |
-| M6        | Modern pack + balance                   | —      |
-| M7        | Polish: audio, save/replay, a11y        | —      |
-| M8        | Release: naming, leaderboard, docs      | —      |
+| Milestone | Scope                                   | Status                         |
+| --------- | --------------------------------------- | ------------------------------ |
+| M0        | Scaffold, CI, Pages deploy, spec pack   | done                           |
+| M1        | Engine core (state, RNG, commands)      | done                           |
+| M2        | Classic content pack + AI rival         | done                           |
+| M3        | Sim harness + classic baseline          | harness done, baseline open    |
+| M4        | Web UI, classic playable                | store + menus done, board open |
+| M5        | Modern systems (transport, gigs, loans) | —                              |
+| M6        | Modern pack + balance                   | —                              |
+| M7        | Polish: audio, save/replay, a11y        | —                              |
+| M8        | Release: naming, leaderboard, docs      | —                              |
 
 ## Play
 
-Nothing playable yet — the title page is a placeholder. When M4 lands: open the Pages URL, pick a
-city pack, choose seats (solo vs AI, or local hotseat), set goal levels, and play weekly turns until
-someone meets all four goals. Full rules: `docs/GDD.md`.
+Not playable yet. Title, New Game setup, Settings, Stats and How to Play are live; starting a game
+is blocked until the board UI lands (M4.3–M4.6), and the Start button says so. When it lands: open
+the Pages URL, pick a city pack, choose seats (solo vs AI, or local hotseat), set goal levels, and
+play weekly turns until someone meets all four goals. Full rules: `docs/GDD.md`.
+
+### Feature flags
+
+Screens that are specified but not built are gated by app feature flags
+(`apps/web/src/flags/appFlags.ts`, ADR-0017) — separate from the CityPack feature flags that gate
+rules per ruleset. All default off and each names the milestone that lands it. Override for local
+development with a build env var or a query string:
+
+```bash
+VITE_FF_GAMEBOARD=on pnpm dev     # build-time
+# http://localhost:5173/?ff=gameBoard,-endScreen   # per-visit; '-' turns one off
+```
+
+`debugTools` additionally requires `VITE_DEBUG_ALLOWED=true`, so debug surfaces cannot be switched
+on in a deployed build.
 
 ## Develop
 
@@ -36,6 +55,8 @@ pnpm exec playwright install --with-deps chromium   # once, for e2e
 pnpm dev                                            # http://localhost:5173
 pnpm verify                                         # everything CI runs
 ```
+
+Where to pick up work: `HANDOFF.md`, then the first unchecked task in `PROGRESS.md`.
 
 Individual gates: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `pnpm check:banned`,
 `pnpm scaffold:check`, `pnpm build` (includes bundle budget), `pnpm sim:gate`.

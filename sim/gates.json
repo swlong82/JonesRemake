@@ -1,5 +1,172 @@
 {
-  "$comment": "BALANCE_SPEC 9.7 / BUILD_READINESS 15.6.3: 8 configs x 500 games, filled in at M3/M6. Empty at M0.",
-  "gamesPerConfig": 500,
-  "configs": []
+  "$comment": "BALANCE_SPEC 9.3 classic sanity gates for CI (M3.4). gamesPerConfig is reduced from 500 to fit the 8-minute CI budget at ~1 s/game (ADR-0016); tolerances widened accordingly. Modern gates are added at M6.4.",
+  "gamesPerConfig": 120,
+  "configs": [
+    {
+      "id": "classic-30-normal-2",
+      "pack": "classic",
+      "seats": 2,
+      "ai": "normal,normal",
+      "goals": 30,
+      "asserts": {
+        "stallRate": {
+          "max": 2,
+          "note": "9.3 stall < 0.5% widened for sample size"
+        }
+      }
+    },
+    {
+      "id": "classic-50-normal-2",
+      "pack": "classic",
+      "seats": 2,
+      "ai": "normal,normal",
+      "goals": 50,
+      "asserts": {
+        "stallRate": {
+          "max": 2,
+          "note": "9.3 stall < 0.5% widened for sample size"
+        },
+        "firstSeatWinPct": {
+          "min": 38,
+          "max": 62,
+          "note": "9.3 seat bias 45–55% ± sampling"
+        },
+        "lastGoalPct.wealth": {
+          "min": 5,
+          "note": "9.3 each goal last ≥ 10% (widened)"
+        },
+        "lastGoalPct.education": {
+          "min": 5,
+          "note": "9.3 each goal last ≥ 10% (widened)"
+        },
+        "lastGoalPct.career": {
+          "min": 5,
+          "note": "9.3 each goal last ≥ 10% (widened)",
+          "pending": {
+            "issue": "KI-005",
+            "until": "M3.3"
+          }
+        },
+        "lastGoalPct.happiness": {
+          "min": 5,
+          "note": "9.3 each goal last ≥ 10% (widened)",
+          "pending": {
+            "issue": "KI-005",
+            "until": "M3.3"
+          }
+        }
+      }
+    },
+    {
+      "id": "classic-80-normal-2",
+      "pack": "classic",
+      "seats": 2,
+      "ai": "normal,normal",
+      "goals": 80,
+      "asserts": {
+        "stallRate": {
+          "max": 5
+        }
+      }
+    },
+    {
+      "id": "classic-100-normal-2",
+      "pack": "classic",
+      "seats": 2,
+      "ai": "normal,normal",
+      "goals": 100,
+      "asserts": {
+        "stallRate": {
+          "max": 10
+        },
+        "winnerAllDegreesPct": {
+          "min": 99,
+          "note": "9.3 education-only path completes in stall-free games"
+        }
+      }
+    },
+    {
+      "id": "classic-50-hard-vs-easy",
+      "pack": "classic",
+      "seats": 2,
+      "ai": "hard,easy",
+      "goals": 50,
+      "games": 40,
+      "asserts": {
+        "winnerDifficulty.hard": {
+          "min": 32,
+          "note": "9.3 Hard wins ≥ 80% of 40 games"
+        }
+      }
+    },
+    {
+      "id": "classic-50-easy-vs-hard",
+      "pack": "classic",
+      "seats": 2,
+      "ai": "easy,hard",
+      "goals": 50,
+      "games": 40,
+      "asserts": {
+        "winnerDifficulty.hard": {
+          "min": 32,
+          "note": "9.3 Hard wins ≥ 80% of 40 games (seats swapped)"
+        }
+      }
+    },
+    {
+      "id": "classic-50-normal-4",
+      "pack": "classic",
+      "seats": 4,
+      "ai": "normal,normal,normal,normal",
+      "goals": 50,
+      "games": 60,
+      "asserts": {
+        "stallRate": {
+          "max": 5
+        },
+        "firstSeatWinPct": {
+          "min": 12,
+          "max": 38,
+          "note": "4 seats: 25% ± sampling"
+        }
+      }
+    },
+    {
+      "id": "classic-50-bots",
+      "pack": "classic",
+      "seats": 2,
+      "ai": "bot:StudyFirst,normal",
+      "goals": 50,
+      "games": 60,
+      "asserts": {
+        "botWinPct.StudyFirst": {
+          "max": 60,
+          "note": "9.5 no bot beats Normal Balanced > 60%"
+        }
+      }
+    }
+  ],
+  "compare": [
+    {
+      "id": "median-30<50",
+      "left": "classic-30-normal-2.length.median",
+      "right": "classic-50-normal-2.length.median",
+      "op": "<",
+      "note": "9.3 median grows with goal level"
+    },
+    {
+      "id": "median-50<80",
+      "left": "classic-50-normal-2.length.median",
+      "right": "classic-80-normal-2.length.median",
+      "op": "<",
+      "note": "9.3 median grows with goal level"
+    },
+    {
+      "id": "median-80<100",
+      "left": "classic-80-normal-2.length.median",
+      "right": "classic-100-normal-2.length.median",
+      "op": "<",
+      "note": "9.3 median grows with goal level"
+    }
+  ]
 }

@@ -7,10 +7,15 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./testing": {
+      "types": "./src/testing.ts",
+      "default": "./src/testing.ts"
     }
   },
   "dependencies": {
+    "@hustle-ring/content": "workspace:*",
     "@hustle-ring/shared": "workspace:*",
-    "@hustle-ring/content": "workspace:*"
+    "zod": "^3.25.76"
   }
 }

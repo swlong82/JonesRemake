@@ -1,0 +1,23 @@
+{
+  "id": "classic",
+  "version": "0.1.0",
+  "currency": { "symbol": "$", "code": "USD" },
+  "featureFlags": {
+    "transport": false,
+    "gig": false,
+    "delivery": false,
+    "subscriptions": false,
+    "rentHikes": false,
+    "loans": false,
+    "modernAssets": false,
+    "modernEvents": false,
+    "wellbeing": false,
+    "onlineStudy": false,
+    "simultaneousTurns": false,
+    "online": false
+  },
+  "wealthPointValue": 100,
+  "priceScale": 1000,
+  "schemaVersion": 1,
+  "titleKey": "title.classic"
+}

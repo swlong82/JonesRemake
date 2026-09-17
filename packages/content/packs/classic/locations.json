@@ -1,0 +1,117 @@
+[
+  {
+    "id": "low-housing",
+    "kind": "home",
+    "services": ["relax"],
+    "open": "always",
+    "category": "home",
+    "homeTier": "low"
+  },
+  {
+    "id": "rent-office",
+    "kind": "workplace",
+    "services": ["rent", "move-home", "work"],
+    "open": "rent-week",
+    "category": "service"
+  },
+  {
+    "id": "pawn-shop",
+    "kind": "store",
+    "services": ["pawn"],
+    "open": "always",
+    "category": "retail"
+  },
+  {
+    "id": "discount-store",
+    "kind": "store",
+    "services": ["shop:discount", "work"],
+    "open": "always",
+    "category": "retail",
+    "shopRotation": 6
+  },
+  {
+    "id": "burger-joint",
+    "kind": "store",
+    "services": ["meals", "shop:burger", "work"],
+    "open": "always",
+    "category": "retail"
+  },
+  {
+    "id": "clothing-boutique",
+    "kind": "store",
+    "services": ["shop:clothing", "work"],
+    "open": "always",
+    "category": "retail"
+  },
+  {
+    "id": "electronics-store",
+    "kind": "store",
+    "services": ["shop:electronics", "work"],
+    "open": "always",
+    "category": "retail"
+  },
+  {
+    "id": "university",
+    "kind": "workplace",
+    "services": ["study", "work"],
+    "open": "always",
+    "category": "education"
+  },
+  {
+    "id": "employment-office",
+    "kind": "service",
+    "services": ["apply", "raise", "work"],
+    "open": "always",
+    "category": "service"
+  },
+  {
+    "id": "factory",
+    "kind": "workplace",
+    "services": ["work"],
+    "open": "always",
+    "category": "work"
+  },
+  {
+    "id": "bank",
+    "kind": "service",
+    "services": ["bank", "invest", "work"],
+    "open": "always",
+    "category": "finance"
+  },
+  {
+    "id": "grocery",
+    "kind": "store",
+    "services": ["grocery", "lottery", "news", "shop:grocery", "work"],
+    "open": "always",
+    "category": "retail"
+  },
+  {
+    "id": "secure-apartments",
+    "kind": "home",
+    "services": ["relax"],
+    "open": "always",
+    "category": "home",
+    "homeTier": "high"
+  },
+  {
+    "id": "appliance-depot",
+    "kind": "store",
+    "services": ["shop:appliance"],
+    "open": "always",
+    "category": "retail"
+  },
+  {
+    "id": "clinic",
+    "kind": "filler",
+    "services": ["clinic"],
+    "open": "always",
+    "category": "service"
+  },
+  {
+    "id": "park",
+    "kind": "filler",
+    "services": ["relax"],
+    "open": "always",
+    "category": "service"
+  }
+]

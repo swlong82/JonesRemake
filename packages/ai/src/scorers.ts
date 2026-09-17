@@ -1,0 +1,175 @@
+/**
+ * AI scorer registry (EXTENSIBILITY 12.6). Plan utility = Σ weight(personality, difficulty) ×
+ * score(before, after). Every scorer is a potential difference V(after) − V(before) over a
+ * normalised 0..1+ progress measure so partial progress (lessons, dependability) has a gradient.
+ * Modules add their own scorers via `registerScorer`; a system with none is simply ignored.
+ */
+import type { CityPack, PersonalitySpec } from '@hustle-ring/content';
+import { computeGoals, marketValue, type GameState, type PlayerState } from '@hustle-ring/engine';
+import type { Difficulty } from '@hustle-ring/shared';
+import { DIFFICULTY } from './config.js';
+
+export interface ScorerCtx {
+  pack: CityPack;
+  seat: number;
+  personality: PersonalitySpec;
+  difficulty: Difficulty;
+}
+
+export interface Scorer {
+  id: string;
+  weight(p: PersonalitySpec, d: Difficulty): number;
+  /** Potential function over a state; utility uses V(after) − V(before). */
+  value(ctx: ScorerCtx, state: GameState, player: PlayerState): number;
+}
+
+function goalProgress(current: number, target: number): number {
+  if (target <= 0) return 1;
+  return Math.min(1.15, current / target);
+}
+
+/** Wage × sessions per week the player can realistically work (≈ 6 sessions in 60h). */
+function weeklyIncome(pack: CityPack, p: PlayerState): number {
+  if (!p.job) return 0;
+  return p.job.wage * pack.rules.jobs.payPerSession * 6;
+}
+
+export const goalWealth: Scorer = {
+  id: 'goal-gap:wealth',
+  weight: (p) => p.weights.wealth,
+  value: (ctx, state, p) => {
+    const g = computeGoals(p, state, ctx.pack, 0);
+    const targetDollars = p.goals.wealth * ctx.pack.wealthPointValue;
+    const liquid = p.cash + p.bank + marketValue(p, state);
+    const look = DIFFICULTY[ctx.difficulty].lookaheadWeeks;
+    const future = weeklyIncome(ctx.pack, p) * look * 0.5;
+    return (
+      goalProgress(g.wealth, p.goals.wealth) +
+      Math.min(0.3, ((liquid + future) / Math.max(1, targetDollars)) * 0.3)
+    );
+  },
+};
+
+export const goalHappiness: Scorer = {
+  id: 'goal-gap:happiness',
+  weight: (p) => p.weights.happiness,
+  value: (_ctx, _state, p) => goalProgress(p.happiness, p.goals.happiness),
+};
+
+export const goalEducation: Scorer = {
+  id: 'goal-gap:education',
+  weight: (p) => p.weights.education,
+  value: (ctx, state, p) => {
+    const g = computeGoals(p, state, ctx.pack, 0);
+    const prog = goalProgress(g.education, p.goals.education);
+    if (prog >= 1) return prog;
+    // Lessons already taken fill part of the remaining gap so studying keeps a gradient right up
+    // to graduation without ever counting as more than the degree itself.
+    let best = 0;
+    for (const [id, c] of Object.entries(p.enrolled)) {
+      const total = ctx.pack.degreeById[id]?.lessons ?? ctx.pack.rules.education.lessons;
+      const f = Math.max(0, total - c.lessonsLeft) / total;
+      // Being enrolled is itself progress (0.15) so the fee is not a dead loss in the search.
+      best = Math.max(best, 0.15 + 0.85 * f);
+    }
+    // A course in progress is worth at most 90% of the degree it leads to, so graduating is
+    // always a step up (monotone), and never more than the remaining gap.
+    const degreeShare = ctx.pack.rules.goals.educationPerDegree / Math.max(1, p.goals.education);
+    return prog + Math.min(degreeShare, 1 - prog) * 0.9 * best;
+  },
+};
+
+export const goalCareer: Scorer = {
+  id: 'goal-gap:career',
+  weight: (p) => p.weights.career,
+  value: (ctx, state, p) => {
+    const g = computeGoals(p, state, ctx.pack, 0);
+    const prog = goalProgress(g.career, p.goals.career);
+    // Potential: dependability can be ground up to its job-defined maximum, so a better job is
+    // worth half the career it unlocks even before the stat catches up.
+    const potential = p.job
+      ? goalProgress(
+          Math.floor((p.maxDependability * ctx.pack.rules.goals.careerDependabilityBp) / 10_000),
+          p.goals.career,
+        )
+      : 0;
+    const jobBonus = p.job ? 0.15 : -0.25;
+    return prog + 0.5 * potential + jobBonus;
+  },
+};
+
+/** Survival: next-week food, rent covered, clothing for the job. */
+export const survival: Scorer = {
+  id: 'survival',
+  weight: (_p, d) => (d === 'easy' ? 0.6 : 1.0),
+  value: (ctx, state, p) => {
+    let v = 0;
+    const fed =
+      p.food.fridgeUnits > 0 || p.food.mealPending !== null || p.food.unrefrigeratedUnits > 0;
+    v += fed ? 0.1 : -0.15;
+    const due = p.home.paidThroughWeek + ctx.pack.rules.housing.rentWeeks;
+    const weeksToDue = due - state.week;
+    // Rent is paid in cash, so near the due week only cash on hand counts as covered.
+    const covered =
+      weeksToDue <= 1 ? p.cash >= p.home.rentLocked : p.cash + p.bank >= p.home.rentLocked;
+    if (p.home.debt > 0) v -= 0.5 + Math.min(0.5, p.home.debt / 1000);
+    else if (weeksToDue <= 1 && !covered) v -= 0.35;
+    else if (weeksToDue > ctx.pack.rules.housing.rentWeeks) v += 0.1;
+    if (p.job) {
+      const job = ctx.pack.jobById[p.job.jobId];
+      const need = job ? ctx.pack.uniformRank[job.uniformTier] : 0;
+      let best = 0;
+      for (const c of p.clothing) best = Math.max(best, ctx.pack.uniformRank[c.tier]);
+      if (best < need) v -= 0.3;
+      const weeks = p.clothing.reduce((m, c) => Math.max(m, c.weeksLeft), 0);
+      if (weeks <= 1) v -= 0.1;
+    }
+    // Cash carried outside the bank is theft exposure; large balances belong in the bank.
+    if (p.cash > 500) v -= Math.min(0.15, (p.cash - 500) / 10_000);
+    return v;
+  },
+};
+
+/** Time is only valuable when spent on something; small penalty for burning hours idly. */
+export const timeCost: Scorer = {
+  id: 'time-cost',
+  weight: () => 1,
+  value: (_ctx, _state, p) => -0.0001 * (120 - p.hoursLeft),
+};
+
+/** Relaxation reduces doctor visits and burglary; personalities weight it. */
+export const relaxation: Scorer = {
+  id: 'relaxation',
+  weight: (p) => p.preferences.relaxWeight * 0.3,
+  value: (_ctx, _state, p) => p.relaxation / 50,
+};
+
+const registry = new Map<string, Scorer>();
+export function registerScorer(s: Scorer): void {
+  registry.set(s.id, s);
+}
+export function allScorers(): Scorer[] {
+  return [...registry.values()];
+}
+for (const s of [
+  goalWealth,
+  goalHappiness,
+  goalEducation,
+  goalCareer,
+  survival,
+  timeCost,
+  relaxation,
+])
+  registerScorer(s);
+
+/** Weighted potential of a state for `seat`. */
+export function stateValue(ctx: ScorerCtx, state: GameState): number {
+  const p = state.players[ctx.seat];
+  if (!p) return -Infinity;
+  let v = 0;
+  for (const s of registry.values()) {
+    const w = s.weight(ctx.personality, ctx.difficulty);
+    if (w !== 0) v += w * s.value(ctx, state, p);
+  }
+  return v;
+}

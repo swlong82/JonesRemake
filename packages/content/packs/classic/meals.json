@@ -1,0 +1,29 @@
+[
+  {
+    "id": "burger",
+    "nameKey": "meal.burger.name",
+    "locationId": "burger-joint",
+    "price": 8,
+    "happiness": 0,
+    "countsAsMeal": true,
+    "deliveryEligible": true
+  },
+  {
+    "id": "combo",
+    "nameKey": "meal.combo.name",
+    "locationId": "burger-joint",
+    "price": 12,
+    "happiness": 1,
+    "countsAsMeal": true,
+    "deliveryEligible": true
+  },
+  {
+    "id": "fries",
+    "nameKey": "meal.fries.name",
+    "locationId": "burger-joint",
+    "price": 4,
+    "happiness": 1,
+    "countsAsMeal": false,
+    "deliveryEligible": false
+  }
+]

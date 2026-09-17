@@ -10,9 +10,10 @@
     }
   },
   "dependencies": {
-    "@hustle-ring/shared": "workspace:*",
+    "@hustle-ring/ai": "workspace:*",
     "@hustle-ring/content": "workspace:*",
     "@hustle-ring/engine": "workspace:*",
-    "@hustle-ring/ai": "workspace:*"
+    "@hustle-ring/shared": "workspace:*",
+    "zod": "^3.25.76"
   }
 }

@@ -1,19 +1,39 @@
-import { ENGINE_VERSION, STATE_SCHEMA_VERSION } from '@hustle-ring/engine';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useFlags } from './flags/appFlags';
+import { useGame } from './store/gameStore';
+import { applyDocumentSettings, useSettings } from './store/settings';
+import { SCREENS } from './ui/screens/registry';
+import { UnavailableScreen } from './ui/screens/UnavailableScreen';
 
-/** Placeholder Title page (M0.4). Replaced by the real screen map in M4 (UX_SPEC 7.1). */
+/**
+ * Screen router (UX_SPEC 7.1). Screens are plain components driven by the game store; the screen
+ * registry decides which are live and which are still gated behind an app flag (CLAUDE.md 1.5).
+ */
 export function App() {
   const { t } = useTranslation();
+  const screen = useGame((s) => s.screen);
+  const settings = useSettings((s) => s.settings);
+  const flags = useFlags((s) => s.flags);
+  useEffect(() => {
+    applyDocumentSettings(settings);
+  }, [settings]);
+
+  const entry = SCREENS[screen];
+  const gate = entry.flag;
+  const Component = gate === undefined || flags[gate] ? entry.component : undefined;
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-4 p-6 text-center">
-      <h1 className="text-4xl font-bold tracking-tight">{t('app.title')}</h1>
-      <p className="text-lg">{t('app.tagline')}</p>
-      <p role="status" className="rounded border border-current/30 p-3 text-sm">
-        {t('app.status')}
-      </p>
-      <footer className="text-xs opacity-70" data-testid="version">
-        {t('app.version', { engine: ENGINE_VERSION, schema: STATE_SCHEMA_VERSION })}
-      </footer>
-    </main>
+    <div className="min-h-screen bg-surface text-ink">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-white"
+      >
+        {t('app.skipToContent')}
+      </a>
+      <main id="main" className="min-h-screen">
+        {Component ? <Component /> : <UnavailableScreen flag={gate ?? 'gameBoard'} />}
+      </main>
+    </div>
   );
 }

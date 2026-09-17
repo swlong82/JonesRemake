@@ -1,0 +1,82 @@
+[
+  {
+    "id": "grinder",
+    "nameKey": "personality.grinder.name",
+    "taglineKey": "personality.grinder.tagline",
+    "weights": {
+      "wealth": 1.4,
+      "happiness": 0.8,
+      "education": 0.9,
+      "career": 1.4
+    },
+    "riskTolerance": 0.3,
+    "preferences": {
+      "relaxWeight": 0.4,
+      "wellbeingFloor": 30,
+      "prefersGig": false,
+      "prefersOnlineStudy": false,
+      "prefersWalk": true,
+      "cryptoTolerance": 0.2
+    }
+  },
+  {
+    "id": "scholar",
+    "nameKey": "personality.scholar.name",
+    "taglineKey": "personality.scholar.tagline",
+    "weights": {
+      "wealth": 0.8,
+      "happiness": 0.9,
+      "education": 1.6,
+      "career": 0.9
+    },
+    "riskTolerance": 0.3,
+    "preferences": {
+      "relaxWeight": 0.8,
+      "wellbeingFloor": 40,
+      "prefersGig": false,
+      "prefersOnlineStudy": true,
+      "prefersWalk": false,
+      "cryptoTolerance": 0.1
+    }
+  },
+  {
+    "id": "hustler",
+    "nameKey": "personality.hustler.name",
+    "taglineKey": "personality.hustler.tagline",
+    "weights": {
+      "wealth": 1.3,
+      "happiness": 1.0,
+      "education": 0.7,
+      "career": 0.8
+    },
+    "riskTolerance": 0.8,
+    "preferences": {
+      "relaxWeight": 0.6,
+      "wellbeingFloor": 25,
+      "prefersGig": true,
+      "prefersOnlineStudy": false,
+      "prefersWalk": false,
+      "cryptoTolerance": 0.9
+    }
+  },
+  {
+    "id": "balanced",
+    "nameKey": "personality.balanced.name",
+    "taglineKey": "personality.balanced.tagline",
+    "weights": {
+      "wealth": 1.0,
+      "happiness": 1.0,
+      "education": 1.0,
+      "career": 1.0
+    },
+    "riskTolerance": 0.4,
+    "preferences": {
+      "relaxWeight": 1.0,
+      "wellbeingFloor": 50,
+      "prefersGig": false,
+      "prefersOnlineStudy": false,
+      "prefersWalk": false,
+      "cryptoTolerance": 0.3
+    }
+  }
+]

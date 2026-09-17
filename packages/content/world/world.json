@@ -1,0 +1,7 @@
+{
+  "id": "world-default",
+  "version": "0.1.0",
+  "cities": [{ "packId": "classic", "displayNameKey": "city.classic.name", "unlock": "always" }],
+  "travel": [],
+  "sharedEconomy": false
+}
