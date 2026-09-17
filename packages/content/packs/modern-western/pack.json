@@ -6,7 +6,8 @@
     "code": "USD"
   },
   "featureFlags": {
-    "transport": true
+    "transport": true,
+    "gig": true
   },
   "wealthPointValue": 100,
   "extends": "classic",

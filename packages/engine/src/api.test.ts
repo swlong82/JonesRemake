@@ -29,6 +29,8 @@ import {
   validate,
   type RuleModule,
 } from './index.js';
+import { loadPack } from '@hustle-ring/content';
+import { MODERN_MODULES } from './modules/index.js';
 import { classic, goInside, newGame, patch } from './testing.js';
 
 const pack = classic();
@@ -61,7 +63,15 @@ describe('engine public API', () => {
   });
   it('command registry exposes a discriminated union and sorted type list matching gen:types output', () => {
     const engine = engineFor(pack);
-    expect(commandTypes(engine)).toEqual([...COMMAND_TYPES].sort());
+    // `COMMAND_TYPES` covers every command any module can contribute; an engine exposes the ones
+    // its pack's flags leave active, so classic is the whole list minus the modern modules'.
+    const modernTypes = MODERN_MODULES.flatMap((m) => (m.commands ?? []).map((c) => c.type));
+    expect(commandTypes(engine)).toEqual(
+      [...COMMAND_TYPES].filter((t) => !modernTypes.includes(t)).sort(),
+    );
+    expect(commandTypes(engineFor(loadPack('modern-western')))).toEqual(
+      expect.arrayContaining(['BuyCar', 'GigShift']),
+    );
     const schema = commandSchema(engine);
     expect(schema.safeParse({ type: 'Work', hours: 12 }).success).toBe(true);
     expect(schema.safeParse({ type: 'Work', hours: 'lots' }).success).toBe(false);

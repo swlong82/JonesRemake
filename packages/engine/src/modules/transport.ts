@@ -255,6 +255,17 @@ const repairCarHandler: CommandHandler<RepairCarCommand> = {
   ai: { category: 'finance' },
 };
 
+/**
+ * Breaks the seat's car, if it has one. The gig module calls this for driver wear (GDD 4.6): other
+ * modules touch this slice only through the selectors this module exports (EXTENSIBILITY 12.1).
+ */
+export function breakCar(ctx: Ctx, seat: number): void {
+  const car = transportOf(ctx.playerAt(seat))?.car;
+  if (!car || car.broken) return;
+  car.broken = true;
+  ctx.emit({ type: 'EventFired', seat, eventId: 'core:car-breakdown', effects: ['car'] });
+}
+
 /** Per-trip risks: a transit delay, a ride-hail no-show, a breakdown on the way. */
 function onEvent(ctx: Ctx, e: DomainEvent): void {
   if (e.type !== 'Moved') return;
