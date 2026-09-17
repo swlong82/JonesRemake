@@ -20,6 +20,7 @@ import {
 import type { DomainEvent, ErrorCode, LocationId } from '@hustle-ring/shared';
 import { create } from 'zustand';
 import { createAiClient, type AiClient } from '../ai/aiClient';
+import { loadPackStrings } from '../i18n';
 import { useSettings, type AiSpeed } from './settings';
 
 export type Screen = 'title' | 'setup' | 'settings' | 'stats' | 'game' | 'pass' | 'end' | 'help';
@@ -67,9 +68,14 @@ export interface GameStore {
   viewerSeat: number;
   selectedLocation: LocationId | null;
   travelOpen: boolean;
+  /** Transport mode chosen in the travel sheet (UX 7.2, cycled with M). */
+  travelMode: string;
   logOpen: boolean;
   standingsOpen: boolean;
+  menuOpen: boolean;
   helpOpen: boolean;
+  /** End-turn confirmation is pending because hours are still left (UX 7.7). */
+  endTurnPending: boolean;
   aiThinking: boolean;
   aiSkip: boolean;
   lastError: ErrorCode | null;
@@ -83,8 +89,14 @@ export interface GameStore {
   selectLocation: (id: LocationId | null) => void;
   openTravel: (id: LocationId) => void;
   closeTravel: () => void;
+  setTravelMode: (mode: string) => void;
+  cycleTravelMode: () => void;
   toggleLog: () => void;
   toggleStandings: () => void;
+  toggleMenu: () => void;
+  /** End the turn, or ask first when more than `END_TURN_CONFIRM_HOURS` remain. */
+  requestEndTurn: () => void;
+  cancelEndTurn: () => void;
   toggleHelp: () => void;
   dismissCard: () => void;
   skipAi: () => void;
@@ -98,9 +110,14 @@ export interface GameStore {
   rematch: () => void;
   /** Debug (7.9): mark state as debug-touched and apply a mutation. */
   debugPatch: (fn: (s: GameState) => void) => void;
+  /** Debug (7.9): drive every seat with the AI. */
+  setAutoplay: (on: boolean) => void;
 }
 
 const MAX_LOG = 400;
+
+/** Half-hours above which ending the turn asks for confirmation (UX 7.7 Shift+E). */
+export const END_TURN_CONFIRM_HOURS = 12;
 
 function delayFor(speed: AiSpeed): number {
   return speed === 'instant' ? 0 : speed === 'fast' ? 120 : 450;
@@ -125,9 +142,12 @@ export const useGame = create<GameStore>((set, get) => ({
   viewerSeat: 0,
   selectedLocation: null,
   travelOpen: false,
+  travelMode: 'walk',
   logOpen: false,
   standingsOpen: false,
+  menuOpen: false,
   helpOpen: false,
+  endTurnPending: false,
   aiThinking: false,
   aiSkip: false,
   lastError: null,
@@ -141,6 +161,8 @@ export const useGame = create<GameStore>((set, get) => ({
 
   startGame(config, opts = {}) {
     const pack = loadPack(config.packId);
+    // Pack display strings live in the `pack` i18n namespace (M4.7).
+    loadPackStrings(pack);
     const state = createGame(config, pack);
     const humans = humanSeats(state);
     const first = state.activeSeat;
@@ -155,6 +177,7 @@ export const useGame = create<GameStore>((set, get) => ({
       travelOpen: false,
       logOpen: false,
       standingsOpen: false,
+      menuOpen: false,
       lastError: null,
       debug: opts.debug ?? false,
       autoplay: opts.autoplay ?? false,
@@ -193,6 +216,7 @@ export const useGame = create<GameStore>((set, get) => ({
       cards: [...get().cards, ...cards],
       lastError: null,
       travelOpen: false,
+      endTurnPending: false,
     };
     // Turn changed: hotseat privacy screen, or AI turn.
     if (next.activeSeat !== seat || next.winner !== null) {
@@ -252,11 +276,37 @@ export const useGame = create<GameStore>((set, get) => ({
   closeTravel() {
     set({ travelOpen: false });
   },
+  setTravelMode(mode) {
+    set({ travelMode: mode });
+  },
+  cycleTravelMode() {
+    const { pack, travelMode } = get();
+    const modes = pack?.transport.map((m) => m.id) ?? [];
+    if (modes.length === 0) return;
+    const next = modes[(modes.indexOf(travelMode) + 1) % modes.length];
+    set({ travelMode: next ?? travelMode });
+  },
   toggleLog() {
     set({ logOpen: !get().logOpen });
   },
   toggleStandings() {
     set({ standingsOpen: !get().standingsOpen });
+  },
+  toggleMenu() {
+    set({ menuOpen: !get().menuOpen });
+  },
+  requestEndTurn() {
+    const { state } = get();
+    const left = state?.players[state.activeSeat]?.hoursLeft ?? 0;
+    if (left > END_TURN_CONFIRM_HOURS) {
+      set({ endTurnPending: true });
+      return;
+    }
+    set({ endTurnPending: false });
+    get().dispatch({ type: 'EndTurn' });
+  },
+  cancelEndTurn() {
+    set({ endTurnPending: false });
   },
   toggleHelp() {
     set({ helpOpen: !get().helpOpen });
@@ -344,6 +394,10 @@ export const useGame = create<GameStore>((set, get) => ({
     if (!state) return;
     const seed = `${state.config.seed}-rematch-${state.week}`;
     get().startGame({ ...state.config, seed }, { debug: get().debug, autoplay: get().autoplay });
+  },
+  setAutoplay(on) {
+    set({ autoplay: on });
+    if (on) void get().runAiIfNeeded();
   },
   debugPatch(fn) {
     const { state } = get();

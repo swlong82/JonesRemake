@@ -1,6 +1,6 @@
 # Progress
 
-Current milestone: M3 (M3.3–M3.4 open) + M4 (M4.1–M4.2 done, M4.3–M4.8 open)
+Current milestone: M4 complete and tagged (classic playable); M3 (M3.3–M3.4) still open
 Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
@@ -42,26 +42,27 @@ Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 
 - [x] M3.1 `packages/sim` CLI, worker threads, metrics, reports — note: `packages/sim/src/{spec,runner,metrics,report,gates,pool,worker}.ts`, `cli.ts`; deterministic summary test in `sim.test.ts`. ADR-0015.
 - [x] M3.2 Strategy bots (BALANCE 9.4, classic-applicable ones) — note: `bots.ts` StudyFirst + NoRelax via `PlanOptions.forbid`; modern bots at M5.9.
-- [ ] M3.3 Run stage-1 suite; tune [ASSUMED] classic values until 9.3 gates pass — note: suite started (`sim/stage1.json`, 24 configs, reduced counts per ADR-0016); 15 of 24 configs written to `reports/stage1/` when this session ended. Re-run to completion, then write `BASELINE_REPORT.md` + `reports/baseline.json`.
-- [ ] M3.4 `sim:gate` config for classic sanity gates wired into CI — note: `sim/gates.json` + `ci.yml` wired and running (8 configs, 18 assertions, ≈ 2 min); 16 pass. Two are marked `pending` against KI-005 (ADR-0019) until M3.3 tunes them.
+- [ ] M3.3 Run stage-1 suite; tune [ASSUMED] classic values until 9.3 gates pass — note: suite ran to completion (24 configs, 3,200 games); `BASELINE_REPORT.md` + `reports/baseline.json` record B(metric, config) and every 9.3 gate with its achieved value (`pnpm baseline`). Tuning still open: career and happiness are never the last goal at goals 50 (KI-005) and the fix needs a mechanic, not a value — see ADR-0024. No `baseline-frozen` tag.
+- [ ] M3.4 `sim:gate` config for classic sanity gates wired into CI — note: `sim/gates.json` + `ci.yml` wired and running (8 configs, 18 assertions, ≈ 2 min); 16 pass, the two KI-005 assertions stay `pending` (ADR-0019) until the tuning lands.
 - [ ] M3 gate: `pnpm verify` green in CI **and `pnpm sim:gate --strict` clean** (no pending assertions), tag `m3` — note:
 
 ## M4 — Web UI, classic playable
 
 - [x] M4.1 Zustand store + dispatch + EventQueue + AI worker — note: `apps/web/src/store/gameStore.ts` is the sole mutation path (engine `applyCommand`); `ai/aiClient.ts` runs planning in a Web Worker with a main-thread fallback after two failures; 12 store tests + 4 client tests.
 - [x] M4.2 Title, Setup (all GDD 4.1 options + City picker from `world.json`), Settings, Stats screens — note: plus Help and Pass-device; `ui/screens/*.tsx`, `store/settings.ts` (localStorage, no cookies), `assets/AssetRegistry.tsx` placeholders, full `i18n/en.json` key set; 20 screen/router tests.
-- [ ] M4.3 SVG ring board, AssetRegistry placeholders, token animation, reduced motion — note: gated by app flag `gameBoard` (ADR-0017); registry + tokens + theme tokens already built.
-- [ ] M4.4 HUD, standings, location panel with previews and disabled reasons, travel sheet — note: engine side ready (`legalCommands`, `candidateCommands` with error codes, `previewCommand`); i18n keys for every panel section, preview line and error code already written.
-- [ ] M4.5 Event modals, event log, AI ticker, pass-device screen — note: pass-device screen done; store already collects `cards`, `pendingCards`, `log` (capped 400) and `ticker`.
-- [ ] M4.6 Phone layout (UX 7.2) and keyboard map (UX 7.7) — note: also lands `debug/useDebugBoot` behind the `debugTools` flag (`?debug=1`, UX 7.9).
-- [ ] M4.7 i18n wiring; no hardcoded strings (lint rule `i18next/no-literal-string`) — note: rule active on `apps/web/src/**/*.tsx` and passing; pack strings load into the `pack` namespace via `loadPackStrings`.
-- [ ] M4.8 End screen with goal-over-time chart (SVG, no chart lib) — note: gated by app flag `endScreen`; `PlayerState.history` already records per-week goals.
-- [ ] M4 gate: `pnpm verify` green in CI, e2e AC on 3 viewports, tag `m4` — note:
+- [x] M4.3 SVG ring board, AssetRegistry placeholders, token animation, reduced motion — note: `ui/game/Board.tsx`, 16 squares from `pack.board`, focusable per-square buttons labelled with name/distance/hours, CSS transform transition dropped under reduced motion (ADR-0021).
+- [x] M4.4 HUD, standings, location panel with previews and disabled reasons, travel sheet — note: `Hud.tsx` (hours ring, money, 4 goal bars, 25% steps under classic opacity), `Standings.tsx`, `LocationPanel.tsx` (candidates grouped by service, preview line per row, `ErrorCode` reason on disabled rows — ADR-0020), `TravelSheet.tsx`.
+- [x] M4.5 Event modals, event log, AI ticker, pass-device screen — note: `EventCards.tsx` (stacked, Enter/click dismiss), `LogDrawer.tsx` (per-week groups, hotseat amounts hidden), `AiTicker.tsx` with skip.
+- [x] M4.6 Phone layout (UX 7.2) and keyboard map (UX 7.7) — note: `useIsPhone` picks the layout (mini ring + `PhoneLocationList` + bottom sheet), `useKeyboard` covers the whole 7.7 map, `DebugPanel` + `debug/useDebugBoot` behind `?debug=1` and the `debugTools` flag.
+- [x] M4.7 i18n wiring; no hardcoded strings (lint rule `i18next/no-literal-string`) — note: `startGame` calls `loadPackStrings`, so every content name resolves from the `pack` namespace; rule active on `apps/web/src/**/*.tsx` and passing.
+- [x] M4.8 End screen with goal-over-time chart (SVG, no chart lib) — note: `ui/screens/EndScreen.tsx` + `ui/game/GoalChart.tsx` (polyline per player per goal, dash patterns so colour is not the only signal), key stats table, rematch/new game/replay export (ADR-0023).
+- [x] M4 gate: `pnpm verify` green in CI, e2e AC on 3 viewports, tag `m4` — note: `pnpm verify` green locally (52 test files, 487 tests, bundle 144.7 kB gzip of 350, e2e 21 passed on 3 viewports with 0 serious/critical axe violations, `sim:gate` 18 assertions / 0 failed / 2 pending); CI confirmation on push. Tag `m4` created locally (KI-001).
 
 ## Gate log
 
-| Milestone | Date       | Commit  | verify | CI      | Notes                  |
-| --------- | ---------- | ------- | ------ | ------- | ---------------------- |
-| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0                 |
-| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 (local, KI-001) |
-| M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001) |
+| Milestone | Date       | Commit  | verify | CI      | Notes                                      |
+| --------- | ---------- | ------- | ------ | ------- | ------------------------------------------ |
+| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0                                     |
+| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 (local, KI-001)                     |
+| M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001)                     |
+| M4        | 2026-09-17 | c2ecf4e | green  | pending | tag m4 (local, KI-001); M3 gate still open |

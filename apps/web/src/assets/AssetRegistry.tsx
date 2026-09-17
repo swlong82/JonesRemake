@@ -158,3 +158,17 @@ export function locationKey(id: string): string {
 export function itemKey(id: string): string {
   return `item:${id}`;
 }
+
+const registries = new WeakMap<object, PlaceholderAssetRegistry>();
+
+/** One placeholder registry per pack (visuals are immutable once the pack is resolved). */
+export function registryFor(pack: {
+  visuals: Record<string, VisualSpec>;
+}): PlaceholderAssetRegistry {
+  let r = registries.get(pack);
+  if (!r) {
+    r = new PlaceholderAssetRegistry(pack.visuals);
+    registries.set(pack, r);
+  }
+  return r;
+}

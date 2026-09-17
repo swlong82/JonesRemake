@@ -107,6 +107,8 @@ describe('M1.7 property: random legal command sequences keep the state valid', (
 });
 
 describe('M1.10 replay determinism', () => {
+  // 20 s timeout, not 5: the seed count is the M1.10 acceptance criterion, so under
+  // concurrent load (a sim run on the same box, KI-004) the budget gives way, not the count.
   it('200 random seeds × random legal logs replay to identical hashes', () => {
     for (let i = 0; i < 200; i++) {
       const seed = `replay-${i}`;
@@ -115,7 +117,7 @@ describe('M1.10 replay determinism', () => {
       expect(stateHash(again)).toBe(stateHash(state));
       expect(again.log.length).toBe(log.length);
     }
-  });
+  }, 20_000);
   it('a different seed with the same log diverges (RNG is seed-driven)', () => {
     const { state, log } = randomPlay('div', 60);
     let other = createGame(makeConfig('div-2', [humanSeat(), aiSeat()]), pack);

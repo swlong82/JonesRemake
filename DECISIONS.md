@@ -181,3 +181,49 @@
 - Options: 1) leave the gate red until M3.3 lands; 2) delete or widen the two assertions; 3) mark them `pending` with the issue and the milestone that must clear them, report them as such, and keep them fatal under a strict flag.
 - Decision: option 3. `sim/gates.json` assertions accept `pending: { issue, until }`. A pending assertion is still evaluated and printed, as `⚠ … PENDING KI-005, due M3.3`, and counted in the summary line, but does not fail `--assert`. `pnpm sim:gate --strict` fails on pending assertions, and the M3 milestone gate MUST be run strict, so a pending target cannot be forgotten or quietly inherited. A test asserts that every pending entry in the committed gate file names a `KI-…` issue and an `M…` milestone.
 - Consequences: CI stays meaningful for everything except the two known-unmet targets, and the failure is visible in every gate run rather than buried in a doc. This does not contradict CLAUDE.md 1.5's "a milestone gate MUST NOT be passed by disabling a test that the gate requires": nothing is disabled, the M3 gate still requires these assertions to pass under `--strict`, and no milestone is being claimed here (ADR-0018). If M3.3 tuning cannot reach the target within ±25%, the stuck policy applies: record the achieved value and keep the entry.
+
+## ADR-0020: The location panel renders engine candidates; the UI never re-derives legality
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: UX 7.4 asks for the action list from `legalCommands` plus disabled actions with their reason. `candidateCommands` returns every candidate with its `ErrorCode`, but that includes all 46 jobs, all 11 degrees and a `Move` per location per mode — a flat list of hundreds of rows, most of them irrelevant where the player is standing.
+- Options: 1) hand-write a per-location action menu in the UI; 2) render every candidate and let the player scroll; 3) filter by the _kind_ of error, group the rest by service and sort legal rows first.
+- Decision: option 3 (`ui/game/LocationPanel.tsx`). Candidates whose code means "not here, not now" (`ERR_NOT_AT_LOCATION`, `ERR_NOT_INSIDE`, `ERR_ALREADY_INSIDE`, `ERR_LOCATION_CLOSED`, `ERR_UNKNOWN_ID`, `ERR_FEATURE_OFF`, plus the turn-level codes) are dropped; everything else is shown, grouped into the panel sections of the location's `services` and ordered legal-first, with the reason rendered under a disabled row. Movement, enter/exit and end turn are rendered outside the sections. Open/closed state is read from the `Enter` candidate's code rather than re-implementing the open rule.
+- Consequences: a new command shows up in the UI as soon as it has a handler with `candidates`, with no UI change, and no rule or number is duplicated outside content and the engine (CLAUDE.md 1.3). The cost is that a genuinely blocked action at the right location (not enough cash, missing degree) is listed rather than hidden — which is what 7.4 asks for.
+
+## ADR-0021: Token movement animates with a CSS transform transition, not a JS animation loop
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: M4.3 asks for token animation along the ring with `prefers-reduced-motion` and the reduced-motion setting disabling it. A path animation (token walking square by square) needs a frame loop and a queue of intermediate positions, and the engine reports only the final destination of a `Move`.
+- Options: 1) animate along the ring path with `requestAnimationFrame` and interpolated positions; 2) a CSS `transition` on the token group's `transform`, so React re-render moves the token and the browser tweens it.
+- Decision: option 2. Each token is an SVG `<g>` positioned with a CSS `transform` and `transition: transform 380ms ease-in-out`, dropped entirely when the reduced-motion setting is on; the global `prefers-reduced-motion` rule in `index.css` already neutralises transitions for users who ask for it.
+- Consequences: no animation frame budget, no queue to keep in sync with the store, and the token cannot visibly walk through the squares it passes. Partial moves (GDD 4.2) still animate correctly because they end on a real square. A future path animation can replace this without touching the store.
+
+## ADR-0022: The e2e build exposes the store as `__hustleRing`, gated on `VITE_DEBUG_ALLOWED`
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: UX 7.8 requires axe to pass on the event modal and the end screen. Reaching either through play takes a full game (the lowest goal a seat can be given is 10 in every goal, which still needs a job, a degree and cash), which is far too slow and too seed-dependent for an e2e run on three viewports.
+- Options: 1) add a debug "win now" switch to the game; 2) drive the app for minutes until an event fires and a game ends; 3) expose the Zustand store on `globalThis` in builds where debug is allowed, and set those two states directly from Playwright.
+- Decision: option 3. `main.tsx` defines `globalThis.__hustleRing = { useGame }` only when `import.meta.env.VITE_DEBUG_ALLOWED === 'true'`; `playwright.config.ts` sets that variable for the e2e build, and `deploy.yml` never does, so the deployed bundle contains neither the hook nor the debug panel. The store's own contract is unchanged: the specs set UI state (a card, the end screen), never game rules.
+- Consequences: the event modal and end screen are axe-checked on every viewport in about a second each. The deployed build stays free of test hooks, and UX 7.9's "stripped from production unless `VITE_DEBUG_ALLOWED=true`" now covers this hook as well as the debug panel.
+
+## ADR-0023: Replay export is config plus command log, not a state snapshot
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: GDD 4.16 lists "Export Replay" on the end screen. A `GameState` is JSON-serializable, so either the whole final state or the inputs that produced it could be exported.
+- Decision: export `{ engineVersion, schemaVersion, packId, packVersion, config, log, weeks, winner }` as a Blob download. Same seed plus same command log reproduce the state exactly (M1.10, hash-checked), so the log is the smaller and more useful artefact: it can be replayed, diffed and attached to a bug report.
+- Consequences: an exported replay is a few kB rather than a few hundred, and it only replays against a compatible engine and pack — which the version fields make checkable. Importing replays arrives with saves in M7.2.
+
+## ADR-0024: The classic baseline is published unfrozen; the career/happiness tuning is a separate change
+
+- Date: 2026-09-17
+- Status: Accepted
+- Context: M3.3 asks for the stage-1 suite, a `BASELINE_REPORT.md` and tuning of `[ASSUMED]` classic values until the 9.3 gates pass, then a `baseline-frozen` tag. The suite has now run to completion (24 configs, 3,200 games). Three 9.3 targets are unmet, and the two that need balance work are KI-005: at goals 50 Normal×2 the last goal completed is education in 65% of games and wealth in 35%, career and happiness in none. The causes are structural, not a matter of nudging one number:
+  - career is `clamp(dependability × careerDependabilityBp / 10000)`, and only a value ≥ 10000 keeps career 100 reachable at all, because `statMax` is 100. So the usable tuning range is 10000–12500, a 20% reduction at most.
+  - happiness has no decay anywhere in the rules (`core-decay` decays dependability, relaxation and clothing only), so it climbs monotonically at 2–6 per relax and never becomes the binding constraint. No value inside ±25% changes that; it needs a mechanic.
+- Options: 1) tune both now, regenerate the golden replays, re-run the 1.5-hour suite and publish a frozen baseline in the same change as the M4 UI; 2) publish the baseline as measured on the shipped values, keep KI-005 open with the evidence, and do the tuning as its own change; 3) widen or drop the two assertions.
+- Decision: option 2. `BASELINE_REPORT.md` and `reports/baseline.json` record B(metric, config) for all 24 configs and every 9.3 gate with its achieved value, including the five unmet ones, per the stuck policy (CLAUDE.md 1.5). No `baseline-frozen` tag is created, because the numbers are not frozen. The two KI-005 assertions stay `pending` in `sim/gates.json` (ADR-0019), so every gate run reports them and `--strict` still fails, and the M3 gate therefore stays open. Option 3 is excluded by 1.5: a gate is not passed by weakening it.
+- Consequences: the M4 work ships on a baseline that is honest about what is unmet, and the balance change stays reviewable on its own — it will move `careerDependabilityBp` toward 10000, add happiness decay (an engine change with its own ADR), regenerate `packages/engine/test/golden/`, re-run the suite and only then freeze. One further 9.3 target stays unmet for a reason already recorded, not a new finding: sim speed (ADR-0016 — the spec-sized AI beam costs ~1 s/game, and sample sizes were reduced instead of shrinking the beam). Everything else passes, including the goals-100 education path at 100%. The suite also shows the shape of the fix: at goals 100 all four goals are last-completed between 18% and 42% of the time, so the distribution is only degenerate where career and happiness are cheap relative to the wealth and education grind.

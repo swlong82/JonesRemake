@@ -17,8 +17,8 @@ describe('app feature flags', () => {
   it('defaults every unfinished feature to off', () => {
     const flags = resolveAppFlags();
     for (const id of APP_FLAG_IDS) expect(flags[id]).toBe(APP_FLAGS[id].default);
-    expect(flags.gameBoard).toBe(false);
-    expect(DEFAULT_APP_FLAGS.endScreen).toBe(false);
+    expect(flags.saves).toBe(false);
+    expect(DEFAULT_APP_FLAGS.audio).toBe(false);
   });
 
   it('every flag names the milestone that removes it', () => {
@@ -29,21 +29,18 @@ describe('app feature flags', () => {
   });
 
   it('reads build env overrides in every accepted spelling', () => {
-    expect(envKeyFor('gameBoard')).toBe('VITE_FF_GAMEBOARD');
-    expect(resolveAppFlags({ env: { VITE_FF_GAMEBOARD: 'on' } }).gameBoard).toBe(true);
-    expect(resolveAppFlags({ env: { VITE_FF_GAMEBOARD: 'true' } }).gameBoard).toBe(true);
-    expect(resolveAppFlags({ env: { VITE_FF_GAMEBOARD: '1' } }).gameBoard).toBe(true);
-    expect(resolveAppFlags({ env: { VITE_FF_GAMEBOARD: 'off' } }).gameBoard).toBe(false);
-    expect(resolveAppFlags({ env: { VITE_FF_GAMEBOARD: 'nonsense' } }).gameBoard).toBe(false);
-    expect(resolveAppFlags({ env: { VITE_FF_GAMEBOARD: true } }).gameBoard).toBe(true);
+    expect(envKeyFor('saves')).toBe('VITE_FF_SAVES');
+    expect(resolveAppFlags({ env: { VITE_FF_SAVES: 'on' } }).saves).toBe(true);
+    expect(resolveAppFlags({ env: { VITE_FF_SAVES: 'true' } }).saves).toBe(true);
+    expect(resolveAppFlags({ env: { VITE_FF_SAVES: '1' } }).saves).toBe(true);
+    expect(resolveAppFlags({ env: { VITE_FF_SAVES: 'off' } }).saves).toBe(false);
+    expect(resolveAppFlags({ env: { VITE_FF_SAVES: 'nonsense' } }).saves).toBe(false);
+    expect(resolveAppFlags({ env: { VITE_FF_SAVES: true } }).saves).toBe(true);
   });
 
   it('parses the ff query, with a minus prefix turning a flag off', () => {
-    expect(parseFlagQuery('?ff=gameBoard,-endScreen')).toEqual({
-      gameBoard: true,
-      endScreen: false,
-    });
-    expect(parseFlagQuery('?ff=gameBoard&ff=saves')).toEqual({ gameBoard: true, saves: true });
+    expect(parseFlagQuery('?ff=saves,-audio')).toEqual({ saves: true, audio: false });
+    expect(parseFlagQuery('?ff=audio&ff=saves')).toEqual({ audio: true, saves: true });
     expect(parseFlagQuery('?ff=')).toEqual({});
     expect(parseFlagQuery('?ff=notAFlag')).toEqual({});
     expect(parseFlagQuery('')).toEqual({});
@@ -51,10 +48,10 @@ describe('app feature flags', () => {
 
   it('lets the query override the build env', () => {
     const flags = resolveAppFlags({
-      env: { VITE_FF_GAMEBOARD: 'on' },
-      search: '?ff=-gameBoard',
+      env: { VITE_FF_SAVES: 'on' },
+      search: '?ff=-saves',
     });
-    expect(flags.gameBoard).toBe(false);
+    expect(flags.saves).toBe(false);
   });
 
   it('keeps debug-only flags off unless the build allows debug', () => {
@@ -70,12 +67,12 @@ describe('app feature flags', () => {
   });
 
   it('exposes a store that can flip a non-debug flag and reset', () => {
-    expect(useFlags.getState().flags.gameBoard).toBe(false);
-    useFlags.getState().set('gameBoard', true);
-    expect(useFlags.getState().flags.gameBoard).toBe(true);
+    expect(useFlags.getState().flags.saves).toBe(false);
+    useFlags.getState().set('saves', true);
+    expect(useFlags.getState().flags.saves).toBe(true);
     useFlags.getState().set('debugTools', true);
     expect(useFlags.getState().flags.debugTools).toBe(false);
     useFlags.getState().reset({ env: {}, search: '' });
-    expect(useFlags.getState().flags.gameBoard).toBe(false);
+    expect(useFlags.getState().flags.saves).toBe(false);
   });
 });

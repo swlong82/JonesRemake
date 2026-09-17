@@ -22,6 +22,7 @@
     "sim": "tsx packages/sim/cli.ts",
     "sim:smoke": "tsx packages/sim/cli.ts --games 200 --seats 2 --ai normal,normal --goals 50",
     "sim:gate": "tsx packages/sim/cli.ts --config sim/gates.json --assert",
+    "baseline": "tsx tools/baseline-report.ts && prettier --write --log-level warn BASELINE_REPORT.md reports/baseline.json",
     "check:banned": "tsx tools/check-banned.ts",
     "scaffold:check": "tsx tools/scaffold-check.ts",
     "budget": "tsx tools/bundle-budget.ts --max-gzip-kb 350",

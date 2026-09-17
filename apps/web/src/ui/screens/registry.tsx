@@ -2,13 +2,14 @@
  * Screen registry: maps each `Screen` to its component and, where the screen belongs to unfinished
  * work, to the app flag that gates it (see `flags/appFlags.ts`).
  *
- * Wiring point for the next milestone: when M4.3–M4.6 land the board UI, add
- * `game: { flag: 'gameBoard', component: GameScreen }` here and flip `gameBoard` to default on in
- * the flag registry. Nothing else in the router changes.
+ * Every M4 screen is built, so nothing here is gated. A later milestone adds its screen the same
+ * way: register it with the flag that gates it, and drop the flag when the screen lands.
  */
 import type { ComponentType } from 'react';
 import type { AppFlagId } from '../../flags/appFlags';
 import type { Screen } from '../../store/gameStore';
+import { EndScreen } from './EndScreen';
+import { GameScreen } from './GameScreen';
 import { HelpScreen } from './HelpScreen';
 import { PassDeviceScreen } from './PassDeviceScreen';
 import { SettingsScreen } from './SettingsScreen';
@@ -29,11 +30,9 @@ export const SCREENS: Record<Screen, ScreenEntry> = {
   settings: { component: SettingsScreen },
   stats: { component: StatsScreen },
   help: { component: HelpScreen },
-  // Built, but only reachable inside a game, so it rides the same flag as the board.
-  pass: { flag: 'gameBoard', component: PassDeviceScreen },
-  // Not built yet (M4.3–M4.6 board + HUD + panel, M4.8 end screen).
-  game: { flag: 'gameBoard' },
-  end: { flag: 'endScreen' },
+  pass: { component: PassDeviceScreen },
+  game: { component: GameScreen },
+  end: { component: EndScreen },
 };
 
 /** The flag gating a screen, or null when the screen is unconditional. */

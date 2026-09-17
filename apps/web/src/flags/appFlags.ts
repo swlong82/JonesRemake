@@ -9,7 +9,7 @@
  * Resolution order (last wins):
  *   1. registry default
  *   2. build env `VITE_FF_<ID>` = on|off|true|false|1|0
- *   3. URL query `?ff=gameBoard,-endScreen` (`-` prefix turns a flag off)
+ *   3. URL query `?ff=audio,-saves` (`-` prefix turns a flag off)
  *
  * Flags marked `debugOnly` additionally require `VITE_DEBUG_ALLOWED === 'true'` (UX_SPEC 7.9);
  * without it they stay off however they are requested, so debug surfaces cannot be switched on in
@@ -17,15 +17,7 @@
  */
 import { create } from 'zustand';
 
-export const APP_FLAG_IDS = [
-  'gameBoard',
-  'endScreen',
-  'debugTools',
-  'saves',
-  'tutorial',
-  'audio',
-  'leaderboard',
-] as const;
+export const APP_FLAG_IDS = ['debugTools', 'saves', 'tutorial', 'audio', 'leaderboard'] as const;
 
 export type AppFlagId = (typeof APP_FLAG_IDS)[number];
 export type AppFlags = Record<AppFlagId, boolean>;
@@ -43,18 +35,6 @@ export interface AppFlagSpec {
 }
 
 export const APP_FLAGS: Record<AppFlagId, AppFlagSpec> = {
-  gameBoard: {
-    id: 'gameBoard',
-    default: false,
-    milestone: 'M4.3–M4.6',
-    labelKey: 'flag.gameBoard',
-  },
-  endScreen: {
-    id: 'endScreen',
-    default: false,
-    milestone: 'M4.8',
-    labelKey: 'flag.endScreen',
-  },
   debugTools: {
     id: 'debugTools',
     default: false,
@@ -92,12 +72,12 @@ function parseBool(raw: string | boolean | undefined): boolean | null {
   return null;
 }
 
-/** `VITE_FF_GAMEBOARD` — upper-cased flag id, so env keys stay shell-safe. */
+/** `VITE_FF_SAVES` — upper-cased flag id, so env keys stay shell-safe. */
 export function envKeyFor(id: AppFlagId): string {
   return `VITE_FF_${id.toUpperCase()}`;
 }
 
-/** Parse `?ff=gameBoard,-endScreen` into explicit on/off requests. */
+/** Parse `?ff=audio,-saves` into explicit on/off requests. */
 export function parseFlagQuery(search: string): Partial<AppFlags> {
   const out: Partial<AppFlags> = {};
   const params = new URLSearchParams(search);

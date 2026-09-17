@@ -15,7 +15,6 @@ import {
 } from '@hustle-ring/shared';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { APP_FLAGS, useAppFlag } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { useSettings } from '../../store/settings';
 import { Button } from '../common/Button';
@@ -109,7 +108,6 @@ export function SetupScreen() {
   const [chaos, setChaos] = useState<Chaos>(pack.flags.modernEvents ? 'modern' : 'classic');
   const [classicOpacity, setClassicOpacity] = useState(settings.classicOpacityDefault);
   const [soloPractice, setSoloPractice] = useState(false);
-  const boardReady = useAppFlag('gameBoard');
   const error = validateDraft(seats, seed);
   const personalities = pack.personalities;
 
@@ -367,16 +365,11 @@ export function SetupScreen() {
           {t(error)}
         </p>
       )}
-      {!boardReady && (
-        <p className="mt-4 text-ink-muted" data-testid="board-gated">
-          {t('flags.startBlocked', { milestone: APP_FLAGS.gameBoard.milestone })}
-        </p>
-      )}
       <div className="mt-6 flex gap-2">
         <Button onClick={() => go('title')}>{t('setup.back')}</Button>
         <Button
           variant="primary"
-          disabled={error !== null || !boardReady}
+          disabled={error !== null}
           data-testid="start-game"
           onClick={() =>
             startGame(buildConfig(packId, seats, seed, chaos, classicOpacity, soloPractice))
