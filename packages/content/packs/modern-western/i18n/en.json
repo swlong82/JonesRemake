@@ -5,6 +5,13 @@
   "item.smartphone.name": "Smartphone",
   "job.gig-delivery-rider.title": "Delivery Rider",
   "job.gig-ride-hail-driver.title": "Ride-hail Driver",
+  "sub.cloud-storage.name": "Cloud Storage",
+  "sub.focus-app.name": "Focus App",
+  "sub.food-club.name": "Food Club",
+  "sub.gym.name": "Gym",
+  "sub.home-internet.name": "Home Internet",
+  "sub.music.name": "Music",
+  "sub.streaming.name": "Streaming",
   "transport.car.name": "Car",
   "transport.ride-hail.name": "Ride-hail",
   "transport.transit.name": "Transit"

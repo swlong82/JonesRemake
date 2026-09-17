@@ -365,7 +365,7 @@
       "cmd": {
         "type": "Move",
         "to": "discount-store",
-        "mode": "transit"
+        "mode": "walk"
       }
     },
     {
@@ -648,7 +648,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "low-housing",
+        "to": "discount-store",
         "mode": "walk"
       }
     },
@@ -656,7 +656,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "clothing-boutique",
+        "to": "university",
         "mode": "walk"
       }
     },
@@ -1195,6 +1195,6 @@
       }
     }
   ],
-  "finalHash": "04786baecb72e7",
+  "finalHash": "1c6512e59ded57",
   "week": 5
 }

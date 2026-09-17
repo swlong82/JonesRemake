@@ -93,7 +93,8 @@ function onEvent(ctx: Ctx, e: DomainEvent): void {
       ctx.addStat(e.seat, 'wellbeing', perSession(w.gigDelta, e.hours, t.workSessionHours), 'gig');
       break;
     case 'Studied':
-      ctx.addStat(e.seat, 'wellbeing', w.studyDelta, 'study');
+      // Studying at home online is easier on you than a lesson at the university (GDD 4.5).
+      ctx.addStat(e.seat, 'wellbeing', e.online ? w.onlineStudyDelta : w.studyDelta, 'study');
       break;
     case 'Relaxed':
       ctx.addStat(e.seat, 'wellbeing', relaxGain(ctx, e.seat), 'relax');

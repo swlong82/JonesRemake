@@ -24,6 +24,7 @@ import modernItems from '../packs/modern-western/items.json';
 import modernJobs from '../packs/modern-western/jobs.json';
 import modernLocations from '../packs/modern-western/locations.json';
 import modernManifest from '../packs/modern-western/pack.json';
+import modernSubs from '../packs/modern-western/subscriptions.json';
 import modernTransport from '../packs/modern-western/transport.json';
 import templateManifest from '../packs/_template/pack.json';
 import world from '../world/world.json';
@@ -57,6 +58,7 @@ export const RAW_PACKS: Record<string, RawPackFiles> = {
     'items.json': j(modernItems),
     'jobs.json': j(modernJobs),
     'transport.json': j(modernTransport),
+    'subscriptions.json': j(modernSubs),
     'i18n/en.json': j(modernI18n),
     'assets.registry.json': j(modernAssetsRegistry),
   },

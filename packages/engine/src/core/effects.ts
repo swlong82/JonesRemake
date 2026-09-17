@@ -18,7 +18,10 @@ export function resolveRange(ctx: Ctx, seat: number, r: number | RangeSpec): num
 export function logicView(ctx: Ctx, seat: number): Record<string, unknown> {
   const p = ctx.playerAt(seat);
   const job = p.job ? ctx.pack.jobById[p.job.jobId] : undefined;
-  const subs = (p.modules.subscriptions as { active?: { id: string }[] } | undefined)?.active ?? [];
+  // The subscriptions module keeps its active set keyed by id (M5.6); core only needs the ids.
+  const subs = Object.keys(
+    (p.modules.subscriptions as { active?: Record<string, unknown> } | undefined)?.active ?? {},
+  );
   return {
     player: {
       cash: p.cash,
@@ -38,7 +41,7 @@ export function logicView(ctx: Ctx, seat: number): Record<string, unknown> {
       homeTier: p.home.tier,
       rentDebt: p.home.debt,
       hasCar: (p.modules.transport as { car?: unknown } | undefined)?.car != null,
-      subscriptionIds: subs.map((s) => s.id),
+      subscriptionIds: subs,
       wellbeing: (p.modules.wellbeing as { value?: number } | undefined)?.value ?? null,
       lotteryTickets: p.lotteryTickets,
       unlocks: unlockList(ctx, seat),

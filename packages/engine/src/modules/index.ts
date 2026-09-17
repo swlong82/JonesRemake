@@ -16,6 +16,8 @@ import { coreEvents } from './core-events.js';
 import { corePending } from './core-pending.js';
 import { coreSetup } from './core-setup.js';
 import { gig } from './gig.js';
+import { onlineStudy, registerOnlineStudyHooks } from './online-study.js';
+import { subscriptions } from './subscriptions.js';
 import { registerTransportHooks, transport } from './transport.js';
 import { registerWellbeingHooks, wellbeing } from './wellbeing.js';
 
@@ -39,11 +41,18 @@ export const CORE_MODULES: readonly RuleModule[] = [
  * Modern systems (M5). Each carries its `flag`, so `createEngine` drops it for a pack that does
  * not enable it and the UI never sees its commands (EXTENSIBILITY 12.4: no disabled stubs).
  */
-export const MODERN_MODULES: readonly RuleModule[] = [wellbeing, transport, gig];
+export const MODERN_MODULES: readonly RuleModule[] = [
+  wellbeing,
+  transport,
+  subscriptions,
+  onlineStudy,
+  gig,
+];
 
 // Core command hooks the modern modules extend (burnout pay penalty, lesson waste, transport).
 registerWellbeingHooks();
 registerTransportHooks();
+registerOnlineStudyHooks();
 
 /** All modules known to this engine build (core + modern). Packs may register more. */
 const extra: RuleModule[] = [];

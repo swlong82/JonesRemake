@@ -597,7 +597,7 @@
       "cmd": {
         "type": "Move",
         "to": "park",
-        "mode": "transit"
+        "mode": "walk"
       }
     },
     {
@@ -970,6 +970,22 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
+        "to": "low-housing",
+        "mode": "walk"
+      }
+    },
+    {
+      "seat": 1,
+      "cmd": {
+        "type": "Move",
+        "to": "university",
+        "mode": "walk"
+      }
+    },
+    {
+      "seat": 1,
+      "cmd": {
+        "type": "Move",
         "to": "bank",
         "mode": "walk"
       }
@@ -978,23 +994,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "electronics-store",
-        "mode": "walk"
-      }
-    },
-    {
-      "seat": 1,
-      "cmd": {
-        "type": "Move",
-        "to": "bank",
-        "mode": "walk"
-      }
-    },
-    {
-      "seat": 1,
-      "cmd": {
-        "type": "Move",
-        "to": "burger-joint",
+        "to": "secure-apartments",
         "mode": "walk"
       }
     },
@@ -1189,6 +1189,6 @@
       }
     }
   ],
-  "finalHash": "07502ab6a4b629",
+  "finalHash": "1a81b74685960f",
   "week": 5
 }

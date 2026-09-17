@@ -143,7 +143,7 @@
       "cmd": {
         "type": "Move",
         "to": "rent-office",
-        "mode": "walk"
+        "mode": "transit"
       }
     },
     {
@@ -916,8 +916,8 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "clothing-boutique",
-        "mode": "transit"
+        "to": "rent-office",
+        "mode": "walk"
       }
     },
     {
@@ -1002,12 +1002,12 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "grocery",
+        "to": "pawn-shop",
         "mode": "walk"
       }
     },
     {
-      "seat": 1,
+      "seat": 0,
       "cmd": {
         "type": "Move",
         "to": "rent-office",
@@ -1018,7 +1018,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "electronics-store",
+        "to": "bank",
         "mode": "walk"
       }
     },
@@ -1119,10 +1119,10 @@
       }
     },
     {
-      "seat": 0,
+      "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "university",
+        "to": "clinic",
         "mode": "walk"
       }
     },
@@ -1130,7 +1130,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "pawn-shop",
+        "to": "factory",
         "mode": "walk"
       }
     },
@@ -1144,7 +1144,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "discount-store",
+        "to": "pawn-shop",
         "mode": "walk"
       }
     },
@@ -1197,6 +1197,6 @@
       }
     }
   ],
-  "finalHash": "1abc430eee1e9f",
+  "finalHash": "1335d28e6829f7",
   "week": 5
 }

@@ -1,0 +1,55 @@
+[
+  {
+    "id": "home-internet",
+    "nameKey": "sub.home-internet.name",
+    "locationId": "electronics-store",
+    "weeklyPrice": 15,
+    "grants": ["homeInternet"]
+  },
+  {
+    "id": "streaming",
+    "nameKey": "sub.streaming.name",
+    "locationId": "electronics-store",
+    "weeklyPrice": 12,
+    "happinessPerWeek": 1,
+    "wellbeingPerWeek": 1,
+    "grants": ["streaming"]
+  },
+  {
+    "id": "music",
+    "nameKey": "sub.music.name",
+    "locationId": "electronics-store",
+    "weeklyPrice": 8,
+    "happinessPerWeek": 1,
+    "grants": ["music"]
+  },
+  {
+    "id": "cloud-storage",
+    "nameKey": "sub.cloud-storage.name",
+    "locationId": "electronics-store",
+    "weeklyPrice": 3,
+    "grants": ["cloud"]
+  },
+  {
+    "id": "gym",
+    "nameKey": "sub.gym.name",
+    "locationId": "clinic",
+    "weeklyPrice": 25,
+    "wellbeingPerWeek": 2,
+    "grants": ["gym"]
+  },
+  {
+    "id": "focus-app",
+    "nameKey": "sub.focus-app.name",
+    "locationId": "electronics-store",
+    "weeklyPrice": 5,
+    "grants": ["focusApp"]
+  },
+  {
+    "id": "food-club",
+    "nameKey": "sub.food-club.name",
+    "locationId": "burger-joint",
+    "weeklyPrice": 9,
+    "grants": ["foodClub"]
+  }
+]

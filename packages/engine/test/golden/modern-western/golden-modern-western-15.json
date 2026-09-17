@@ -68,8 +68,8 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "electronics-store",
-        "mode": "walk"
+        "to": "factory",
+        "mode": "transit"
       }
     },
     {
@@ -1182,6 +1182,6 @@
       }
     }
   ],
-  "finalHash": "0fd868df6a9767",
+  "finalHash": "1fd3b2e081023c",
   "week": 5
 }

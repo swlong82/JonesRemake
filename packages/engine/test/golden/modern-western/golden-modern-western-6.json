@@ -1092,7 +1092,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "grocery",
+        "to": "bank",
         "mode": "walk"
       }
     },
@@ -1191,6 +1191,6 @@
       }
     }
   ],
-  "finalHash": "0921909bc3ca40",
+  "finalHash": "16a757552f7416",
   "week": 5
 }
