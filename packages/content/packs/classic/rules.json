@@ -180,7 +180,7 @@
     "studyDelta": -2,
     "onlineStudyDelta": -1,
     "relaxBase": 8,
-    "relaxPerComfort": 1,
+    "relaxPerComfort": 2,
     "relaxMax": 16,
     "unspentHoursThreshold": 12,
     "unspentBonus": 5,

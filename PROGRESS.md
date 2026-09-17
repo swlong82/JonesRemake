@@ -60,8 +60,8 @@ Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 
 ## M5 — Modern systems
 
-- [ ] M5.1 Feature flag registry (12.4) plumbing (engine + UI hide); every M5 system is its own `RuleModule` with `stateSlice`, hooks and scorers — note:
-- [ ] M5.2 Wellbeing stat + bands + collapse (GDD 4.5) — note:
+- [x] M5.1 Feature flag registry (12.4) plumbing (engine + UI hide); every M5 system is its own `RuleModule` with `stateSlice`, hooks and scorers — note: `MODERN_MODULES` in `modules/index.ts` (order 100–199) is filtered by `pack.flags` in `createEngine`, so a pack with the flag off gets neither the module nor its commands and the UI has nothing to hide (ADR-0020: panels render engine candidates). Tested with flag-on pack variants, so `classic` and its goldens stay untouched until M6.1 turns the flags on for `modern-western`.
+- [x] M5.2 Wellbeing stat + bands + collapse (GDD 4.5) — note: `modules/wellbeing.ts` owns the slice `ctx.addStat(seat, 'wellbeing', …)` writes through; per-session deltas pro-rated by hours, walk bonus, rest bonus off the end-turn hours, weekly drift, the four bands, and burnout's pay cut and lesson-waste chance through the `setPayModifier`/`setLessonWaste` seams. 10 tests.
 - [ ] M5.3 Transport modes, transit pass, used/new car, depreciation, upkeep, ride-hail unlock (GDD 4.3) — note:
 - [ ] M5.4 Gig jobs + dual employment rule — note:
 - [ ] M5.5 Online study + doomscroll + Focus App — note:
