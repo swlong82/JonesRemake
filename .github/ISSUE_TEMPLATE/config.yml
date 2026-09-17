@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Spec pack
+    url: https://github.com/swlong82/JonesRemake/tree/main/docs
+    about: Read the game design and architecture docs before proposing rule changes.

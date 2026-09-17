@@ -1,0 +1,8 @@
+{
+  "id": "template-city",
+  "version": "0.0.1",
+  "currency": { "symbol": "$", "code": "USD" },
+  "featureFlags": {},
+  "wealthPointValue": 1000,
+  "extends": "modern-western"
+}

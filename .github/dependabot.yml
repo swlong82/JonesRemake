@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      dev-tooling:
+        patterns:
+          ['eslint*', 'prettier', 'typescript*', 'vitest*', '@vitest/*', '@playwright/*', 'tsx']
+      runtime:
+        patterns:
+          ['react*', 'zustand', 'zod', 'i18next*', 'idb', 'framer-motion', 'tone', 'lucide-react']
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

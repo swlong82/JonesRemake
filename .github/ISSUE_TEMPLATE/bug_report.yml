@@ -1,0 +1,42 @@
+name: Bug report
+description: Something is broken or behaves differently from the spec.
+labels: ['bug', 'triage']
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Commit / deployed version
+      placeholder: e.g. main@abc1234 or the Pages URL footer
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [engine, ai, content, web, audio, save, balance, ci, docs]
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Seed + pack id + command log or exported save if engine/balance; steps + viewport if UI.
+      placeholder: |
+        seed: e2e-quick
+        pack: classic
+        steps: ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected (cite spec section)
+      placeholder: GDD 4.8 says ...
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+    validations:
+      required: true

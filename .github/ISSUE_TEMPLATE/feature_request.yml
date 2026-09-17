@@ -1,0 +1,29 @@
+name: Feature / rule change
+description: Propose a new mechanic, content, or a change to the spec.
+labels: ['enhancement', 'triage']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Which spec doc/section changes? Is it content-only (CityPack), a RuleModule, or engine core?
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Expected scope
+      options: [content only, new RuleModule behind a flag, engine core change, UI only, docs only]
+    validations:
+      required: true
+  - type: textarea
+    id: balance
+    attributes:
+      label: Balance impact
+      description: Which BALANCE_SPEC gates could move? How would you verify with the sim?

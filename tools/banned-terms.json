@@ -1,0 +1,52 @@
+{
+  "$comment": "PRD 2.6. Case-insensitive whole-word matches fail pnpm check:banned. Keep this file and docs/ORIGINAL_REFERENCE.md out of the scan (they must name the terms).",
+  "terms": [
+    "jones",
+    "fast lane",
+    "sierra",
+    "wild willy",
+    "monolith burgers",
+    "socket city",
+    "hi-tech u",
+    "black's market",
+    "qt clothing",
+    "z-mart",
+    "le securite",
+    "grab",
+    "uber",
+    "lyft",
+    "doordash",
+    "netflix",
+    "spotify",
+    "amazon",
+    "apple",
+    "iphone",
+    "tesla",
+    "bitcoin",
+    "ethereum",
+    "robinhood",
+    "starbucks",
+    "mcdonald",
+    "walmart",
+    "coursera",
+    "udemy",
+    "chatgpt",
+    "openai"
+  ],
+  "include": [
+    "packages/**/*.{ts,tsx,json,md}",
+    "apps/**/*.{ts,tsx,json,md,html,css}",
+    "tools/**/*.ts",
+    "docs/**/*.md",
+    "*.md"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/__fixtures__/**",
+    "docs/ORIGINAL_REFERENCE.md",
+    "docs/PRD.md",
+    "tools/banned-terms.json"
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "$comment": "BALANCE_SPEC 9.7 / BUILD_READINESS 15.6.3: 8 configs x 500 games, filled in at M3/M6. Empty at M0.",
+  "gamesPerConfig": 500,
+  "configs": []
+}

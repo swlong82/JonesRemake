@@ -1,0 +1,10 @@
+{
+  "name": "@hustle-ring/tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@hustle-ring/platform": "workspace:*",
+    "fast-glob": "^3.3.3"
+  }
+}

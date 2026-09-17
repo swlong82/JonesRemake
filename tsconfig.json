@@ -1,0 +1,32 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "packages/shared"
+    },
+    {
+      "path": "packages/platform"
+    },
+    {
+      "path": "packages/content"
+    },
+    {
+      "path": "packages/engine"
+    },
+    {
+      "path": "packages/ai"
+    },
+    {
+      "path": "packages/sim"
+    },
+    {
+      "path": "apps/web"
+    },
+    {
+      "path": "tools"
+    },
+    {
+      "path": "tsconfig.node.json"
+    }
+  ]
+}

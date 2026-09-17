@@ -1,0 +1,33 @@
+{
+  "name": "web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@hustle-ring/ai": "workspace:*",
+    "@hustle-ring/content": "workspace:*",
+    "@hustle-ring/engine": "workspace:*",
+    "@hustle-ring/platform": "workspace:*",
+    "@hustle-ring/shared": "workspace:*",
+    "i18next": "^26.4.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^17.0.14",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^5.2.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
+    "vite": "^6.4.3"
+  }
+}

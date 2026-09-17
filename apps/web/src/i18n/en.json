@@ -1,0 +1,8 @@
+{
+  "app": {
+    "title": "Hustle Ring",
+    "tagline": "A modern remake of a 1991 life-sim board game. Placeholder art, real rules.",
+    "status": "Scaffold only — the game arrives with milestone M4.",
+    "version": "Engine {{engine}} · schema v{{schema}}"
+  }
+}
