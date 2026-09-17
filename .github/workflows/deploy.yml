@@ -1,5 +1,7 @@
 name: Deploy to GitHub Pages
 
+# NOTE: GitHub Pages needs a public repo (or GitHub Pro/Team for private ones). While the repo is
+# private this workflow is skipped/fails at configure-pages; flip visibility or plan, then re-run.
 on:
   workflow_run:
     workflows: [CI]
@@ -25,9 +27,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -38,9 +40,9 @@ jobs:
         run: pnpm --filter web build
       - name: SPA 404 fallback
         run: cp apps/web/dist/index.html apps/web/dist/404.html
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: apps/web/dist
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

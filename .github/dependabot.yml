@@ -4,14 +4,69 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 5
     groups:
       dev-tooling:
         patterns:
-          ['eslint*', 'prettier', 'typescript*', 'vitest*', '@vitest/*', '@playwright/*', 'tsx']
+          [
+            'eslint*',
+            '@eslint/*',
+            'typescript-eslint',
+            'prettier',
+            'vitest',
+            '@vitest/*',
+            '@playwright/*',
+            'tsx',
+            'jsdom',
+            '@testing-library/*',
+          ]
       runtime:
         patterns:
-          ['react*', 'zustand', 'zod', 'i18next*', 'idb', 'framer-motion', 'tone', 'lucide-react']
-    open-pull-requests-limit: 5
+          [
+            'react*',
+            '@types/react*',
+            'zustand',
+            'zod',
+            'i18next*',
+            'idb',
+            'framer-motion',
+            'tone',
+            'lucide-react',
+          ]
+    ignore:
+      # Toolchain majors are fixed by docs/ARCHITECTURE.md 5.2 (change needs an ADR, not a bot PR).
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/react-dom'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vite'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@vitejs/plugin-react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vitest'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@vitest/coverage-v8'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'tailwindcss'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'zod'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'zustand'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'framer-motion'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'jsdom'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
