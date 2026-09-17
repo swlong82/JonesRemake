@@ -50,15 +50,18 @@ export function GameScreen() {
   const [expanded, setExpanded] = useState(false);
   useKeyboard();
   if (!state) return null;
+  // While a rival is playing, the panel and travel sheet would act on the AI's seat: show the
+  // ticker instead (the keyboard map is gated the same way).
+  const yourTurn = state.players[state.activeSeat]?.controller === 'human-local';
 
   const side = (
     <div className="flex flex-col gap-3">
       <Hud compact={phone} />
-      {travelOpen && <TravelSheet />}
+      {yourTurn && travelOpen && <TravelSheet />}
       {standingsOpen && <Standings />}
       {menuOpen && <MenuSheet />}
       <AiTicker />
-      <LocationPanel />
+      {yourTurn && <LocationPanel />}
       {debug && <DebugPanel />}
       {logOpen && <LogDrawer />}
     </div>

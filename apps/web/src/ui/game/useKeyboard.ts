@@ -41,7 +41,11 @@ export function handleGameKey(e: KeyboardEvent): void {
     else if (store.logOpen) store.toggleLog();
     return;
   }
+  // View toggles work any time; anything that could dispatch is limited to the human's own turn.
+  const yourTurn = state.players[state.activeSeat]?.controller === 'human-local';
+
   if (e.key === 'Enter' || e.key === ' ') {
+    if (!yourTurn) return;
     if (store.cards.length > 0) {
       e.preventDefault();
       store.dismissCard();
@@ -62,7 +66,7 @@ export function handleGameKey(e: KeyboardEvent): void {
   if (store.cards.length > 0) return;
 
   if (e.shiftKey && e.key.toLowerCase() === 'e') {
-    store.requestEndTurn();
+    if (yourTurn) store.requestEndTurn();
     return;
   }
   if (e.shiftKey) return;
@@ -83,6 +87,7 @@ export function handleGameKey(e: KeyboardEvent): void {
     default:
       break;
   }
+  if (!yourTurn) return;
   const loc = locationForKey(e.key, pack.board.locationAt);
   if (loc === null) return;
   const active = state.players[state.activeSeat];

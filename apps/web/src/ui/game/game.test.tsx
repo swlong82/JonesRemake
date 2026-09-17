@@ -504,6 +504,24 @@ describe('game screen', () => {
     expect(screen.getByTestId('board-mini')).toBeDefined();
   });
 
+  it('hides the panel and ignores action keys while a rival is playing', () => {
+    stubMatchMedia(false);
+    start();
+    const state = useGame.getState().state!;
+    const players = state.players.map((p) => ({ ...p, controller: 'ai' as const }));
+    useGame.setState({ state: { ...state, players } });
+    render(<GameScreen />);
+    expect(screen.queryByTestId('location-panel')).toBeNull();
+    expect(screen.getByTestId('ai-ticker')).toBeDefined();
+    handleGameKey(new KeyboardEvent('keydown', { key: 'q' }));
+    expect(useGame.getState().travelOpen).toBe(false);
+    handleGameKey(new KeyboardEvent('keydown', { key: 'E', shiftKey: true }));
+    expect(useGame.getState().endTurnPending).toBe(false);
+    // View toggles still work while watching.
+    handleGameKey(new KeyboardEvent('keydown', { key: 'l' }));
+    expect(useGame.getState().logOpen).toBe(true);
+  });
+
   it('opens the menu from the header', () => {
     stubMatchMedia(false);
     start();

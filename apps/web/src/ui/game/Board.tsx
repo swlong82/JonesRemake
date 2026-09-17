@@ -9,10 +9,13 @@ import { useGame } from '../../store/gameStore';
 import { useSettings } from '../../store/settings';
 import { hours, locationName, ringKeyFor, stepsBetween } from './labels';
 
-const SIZE = 620;
+// Squares are sized so that on a 390 px phone (≈ 358 px of board) each one renders ≥ 44 CSS px,
+// the touch target size UX 7.8 asks for; the ring chord at this radius is ~102 px, so they do not
+// touch.
+const SIZE = 660;
 const CENTER = SIZE / 2;
-const RADIUS = 250;
-const SQUARE = 74;
+const RADIUS = 262;
+const SQUARE = 86;
 
 export function nodePosition(index: number, count: number): { x: number; y: number } {
   const angle = (index / count) * Math.PI * 2 - Math.PI / 2;
@@ -39,7 +42,7 @@ export function Board({ compact = false }: { compact?: boolean }) {
   return (
     <svg
       viewBox={`0 0 ${SIZE} ${SIZE}`}
-      className={compact ? 'h-auto w-full max-w-[22rem]' : 'h-auto w-full max-w-[42rem]'}
+      className={compact ? 'h-auto w-full max-w-[24rem]' : 'h-auto w-full max-w-[42rem]'}
       role="group"
       aria-label={t('board.label')}
       data-testid={compact ? 'board-mini' : 'board'}
