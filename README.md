@@ -4,42 +4,49 @@ A modern, browser-based remake of a 1991 life-sim board game: race rivals around
 city locations, juggling money, career, education and happiness in weekly turns. Built as a clean-room
 reimplementation with original names, art and text — see `docs/PRD.md` §2.6 for the IP-safety rules.
 
-**Status:** engine, classic content, AI rival and the balance harness are complete; the web UI is
-partly built. The board, HUD and location panel are not implemented yet and ship switched off behind
-app feature flags, so nothing is playable end to end in the browser. The game lands milestone by
-milestone (`docs/MILESTONES.md`, M0→M8); this README's status line, `PROGRESS.md` and `HANDOFF.md`
-are updated per milestone.
+**Status:** the classic ruleset is playable end to end in the browser — engine, classic content, AI
+rival, balance harness and the full web UI (ring board, HUD, location panel with action previews,
+event cards, log, phone layout, keyboard map, end screen). The classic balance baseline (M3.3–M3.4)
+is still open. The game lands milestone by milestone (`docs/MILESTONES.md`, M0→M8); this README's
+status line, `PROGRESS.md` and `HANDOFF.md` are updated per milestone.
 Live build: https://swlong82.github.io/JonesRemake/ (GitHub Pages; `deploy.yml` runs after CI on `main`).
 
-| Milestone | Scope                                   | Status                         |
-| --------- | --------------------------------------- | ------------------------------ |
-| M0        | Scaffold, CI, Pages deploy, spec pack   | done                           |
-| M1        | Engine core (state, RNG, commands)      | done                           |
-| M2        | Classic content pack + AI rival         | done                           |
-| M3        | Sim harness + classic baseline          | harness done, baseline open    |
-| M4        | Web UI, classic playable                | store + menus done, board open |
-| M5        | Modern systems (transport, gigs, loans) | —                              |
-| M6        | Modern pack + balance                   | —                              |
-| M7        | Polish: audio, save/replay, a11y        | —                              |
-| M8        | Release: naming, leaderboard, docs      | —                              |
+| Milestone | Scope                                   | Status                      |
+| --------- | --------------------------------------- | --------------------------- |
+| M0        | Scaffold, CI, Pages deploy, spec pack   | done                        |
+| M1        | Engine core (state, RNG, commands)      | done                        |
+| M2        | Classic content pack + AI rival         | done                        |
+| M3        | Sim harness + classic baseline          | harness done, baseline open |
+| M4        | Web UI, classic playable                | done                        |
+| M5        | Modern systems (transport, gigs, loans) | —                           |
+| M6        | Modern pack + balance                   | —                           |
+| M7        | Polish: audio, save/replay, a11y        | —                           |
+| M8        | Release: naming, leaderboard, docs      | —                           |
 
 ## Play
 
-Not playable yet. Title, New Game setup, Settings, Stats and How to Play are live; starting a game
-is blocked until the board UI lands (M4.3–M4.6), and the Start button says so. When it lands: open
-the Pages URL, pick a city pack, choose seats (solo vs AI, or local hotseat), set goal levels, and
-play weekly turns until someone meets all four goals. Full rules: `docs/GDD.md`.
+Open the Pages URL, press **New Game**, pick a city pack, choose seats (solo against an AI rival, or
+local hotseat up to four), set each goal level, and play weekly turns until someone meets all four
+goals. Full rules: `docs/GDD.md`.
+
+Each turn is one week of 60 hours. Click a ring square to open the travel sheet, **Enter** a
+location to use it, and pick actions from the panel — every action shows its cost and effect before
+you commit (`−6h · +$96 · Dependability +2`). Keyboard: `1`–`9`, `0`, `Q W E R T Y` travel to the
+square with that badge, `Enter` confirms, `L` the event log, `G` standings, `H` help, `Shift+E` ends
+the turn. Saves arrive in M7; the end screen exports a replay (seed + command log) you can keep.
 
 ### Feature flags
 
 Screens that are specified but not built are gated by app feature flags
 (`apps/web/src/flags/appFlags.ts`, ADR-0017) — separate from the CityPack feature flags that gate
-rules per ruleset. All default off and each names the milestone that lands it. Override for local
-development with a build env var or a query string:
+rules per ruleset. All default off and each names the milestone that lands it; the flag is deleted
+when its milestone lands, as `gameBoard` and `endScreen` were in M4. What is left: `saves` (M7.2),
+`tutorial` (M7.3), `audio` (M7.1), `leaderboard` (M8.1) and `debugTools` (UX 7.9). Override for
+local development with a build env var or a query string:
 
 ```bash
-VITE_FF_GAMEBOARD=on pnpm dev     # build-time
-# http://localhost:5173/?ff=gameBoard,-endScreen   # per-visit; '-' turns one off
+VITE_FF_AUDIO=on pnpm dev     # build-time
+# http://localhost:5173/?ff=audio,-saves   # per-visit; '-' turns one off
 ```
 
 `debugTools` additionally requires `VITE_DEBUG_ALLOWED=true`, so debug surfaces cannot be switched

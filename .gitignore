@@ -5,6 +5,7 @@ coverage/
 .tmp/
 reports/*
 !reports/.gitkeep
+!reports/baseline.json
 playwright-report/
 test-results/
 blob-report/
