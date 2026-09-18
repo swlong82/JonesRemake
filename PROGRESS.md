@@ -1,6 +1,6 @@
 # Progress
 
-Current milestone: M0–M4 complete and tagged; next is M5 (modern systems)
+Current milestone: M0–M5 complete and tagged; next is M6 (modern pack and balance)
 Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
@@ -68,8 +68,8 @@ Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 - [x] M5.6 Delivery, subscriptions (billing, drift, retention dialog, cancel location rule), rent hikes, co-living quirks — note: `modules/subscriptions.ts` (seven subs, weekly billing bank-then-cash, lapse with the pack's happiness cost, price drift on schedule, cancel only at the desk you signed up at, `grantsOf`/`hasGrant` for other modules), `modules/delivery.ts` (`OrderDelivery` anywhere with a phone, markup less the food-club discount, lost orders with a partial refund, the meal counts as fast food next turn) and `modules/rent-hikes.ts` (notice a week before a renewal, then the locked rent rises; the co-living roommate borrows a fridge unit). The retention dialog is UI (M6.5).
 - [x] M5.7 Modern assets with correlated returns; loans (approval, APR, amortization, missed/default) — note: `modules/modern-assets.ts` adds the `drift` pricing model behind the `setAssetStepper` seam, with the idiosyncratic shock weighted √(1−corr²) so the realised correlation is the content value (AC: within ±0.1 over 50k weeks, tested); the resolver swaps the six classic instruments for the six modern ones on the `modernAssets` flag (12.4). `modules/loans.ts` covers approval against income or car collateral, APR from base + economy + a low-dependability premium, the amortised weekly payment in fixed point (AC: within a cent of the closed form, tested), weekly auto-debit, missed-payment fees, default with repossession, early repayment, and the balance counted against wealth. 12 tests.
 - [x] M5.8 Modern event families + automationRisk + mitigations — note: four families in `modern-western/events.json` behind the `modernEvents` flag — AI layoffs weighted by the job's own `automationRisk` (severance plus a free course), going viral with a scheduled backlash, phishing weighted down by degrees and a cloud subscription, and gadget breakdowns that a phone case halves. All of it is content: weights are JSON-logic over the condition view, so a mitigation is a term in a formula rather than a branch in code. 5 tests, including the AC that each mitigation measurably cuts its family's rate over hundreds of weeks.
-- [ ] M5.9 AI extended to all modern commands; bots `GigOnly`, `CryptoAllIn`, `DeliveryOnly`, `LoanMax`, `NoRelax` — note:
-- [ ] M5 gate: `pnpm verify` green in CI, tag `m5` — note:
+- [x] M5.9 AI extended to all modern commands; bots `GigOnly`, `CryptoAllIn`, `DeliveryOnly`, `LoanMax`, `NoRelax` — note: `filterCandidates` and `quickScore` cover every modern command, and three module scorers join the registry (`wellbeing` against the personality's floor and the collapse band, `loan-burden` against the wealth goal, `subscription-drain`), all inert for a pack without the systems. The four modern bots are registered beside `StudyFirst`/`NoRelax`. Tested: a full modern game with no illegal command, the modern surface actually used by the planner, and each bot's forbidden set.
+- [x] M5 gate: `pnpm verify` green in CI, tag `m5` — note: nine modern systems behind their flags, `modern-western` carries the content and turns them on, classic is byte-for-byte unaffected (its goldens never moved). `pnpm verify` green locally; tag `m5` created locally (KI-001).
 
 ## M6 — Modern pack and balance
 
@@ -100,9 +100,11 @@ Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 
 ## Gate log
 
-| Milestone | Date       | Commit  | verify | CI      | Notes                                      |
-| --------- | ---------- | ------- | ------ | ------- | ------------------------------------------ |
-| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0                                     |
-| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 (local, KI-001)                     |
-| M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001)                     |
-| M4        | 2026-09-17 | c2ecf4e | green  | pending | tag m4 (local, KI-001); M3 gate still open |
+| Milestone | Date       | Commit  | verify | CI      | Notes                                                       |
+| --------- | ---------- | ------- | ------ | ------- | ----------------------------------------------------------- |
+| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0                                                      |
+| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 (local, KI-001)                                      |
+| M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001)                                      |
+| M4        | 2026-09-17 | c2ecf4e | green  | pending | tag m4 (local, KI-001); M3 gate still open                  |
+| M3        | 2026-09-17 | 037b1b2 | green  | pending | tag m3 (local, KI-001); career target recorded per ADR-0026 |
+| M5        | 2026-09-18 | HEAD    | green  | pending | tag m5 (local, KI-001); nine modern systems behind flags    |

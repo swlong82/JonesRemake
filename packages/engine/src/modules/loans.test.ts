@@ -187,7 +187,6 @@ describe('loans module (GDD 4.12)', () => {
     for (const h of engine.hooks.contributeWealth)
       moduleWealth += h.fn(
         {
-          ...({} as never),
           state: s,
           pack: modern,
           playerAt: () => s.players[0]!,

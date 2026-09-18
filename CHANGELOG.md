@@ -28,7 +28,17 @@ One entry per milestone (see `docs/MILESTONES.md`).
 
 ### Changed
 
-- M3.3 classic balance: happiness now decays 3 a week (`rules.happiness.decayPerWeek`, new and
+- M5 modern systems, each its own rule module behind its CityPack feature flag: wellbeing with
+  its four bands, transport (transit pass, used and new cars, upkeep, depreciation, breakdowns),
+  gig work with a weekly demand multiplier, subscriptions with billing, drift and the
+  cancel-where-you-started rule, online study with doomscrolling, delivery, rent hikes and the
+  co-living roommate, six modern instruments with correlated returns, and loans with amortised
+  weekly payments, missed-payment fees and default. `modern-western` carries the content and turns
+  the flags on; `classic` is untouched.
+- M5.9 AI: the planner covers every modern command, three module scorers (wellbeing, loan burden,
+  subscription drain) join the registry, and the `GigOnly`, `CryptoAllIn`, `DeliveryOnly` and
+  `LoanMax` strategy bots join `StudyFirst` and `NoRelax`.
+- M3.3 classic balance: happiness now decays 4 a week (`rules.happiness.decayPerWeek`, new and
   content-driven, default 0) and a concert or theatre ticket pays its happiness once per turn, so
   happiness is a goal you have to keep rather than buy once (ADR-0025). Golden replays regenerated.
 - The `gameBoard` and `endScreen` app feature flags are deleted now that M4 landed the screens they

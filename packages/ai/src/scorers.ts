@@ -192,6 +192,55 @@ export const relaxation: Scorer = {
   value: (_ctx, _state, p) => p.relaxation / 50,
 };
 
+/**
+ * Wellbeing (GDD 4.5): a modern seat that lets it fall hits burnout and then a collapse, which
+ * costs a whole turn. Personalities carry their own floor, and the scorer punishes being under it.
+ * Packs without the system score 0, because the slice is not there.
+ */
+export const wellbeing: Scorer = {
+  id: 'wellbeing',
+  weight: (_p, d) => (d === 'easy' ? 0.5 : 1),
+  value: (ctx, _state, p) => {
+    const value = (p.modules.wellbeing as { value?: number } | undefined)?.value;
+    if (value === undefined) return 0;
+    const floor = ctx.personality.preferences.wellbeingFloor;
+    const bands = ctx.pack.rules.wellbeing.bands;
+    if (value < bands.collapse) return -1;
+    if (value < bands.burnout) return -0.5;
+    return Math.min(1, value / Math.max(1, floor)) * 0.5;
+  },
+};
+
+/** Debt is a drag on every goal: it is negative wealth and a weekly bill you cannot skip. */
+export const loanBurden: Scorer = {
+  id: 'loan-burden',
+  weight: (p) => 0.5 + 0.5 * p.weights.wealth,
+  value: (ctx, _state, p) => {
+    const slice = p.modules.loans as
+      { loans: { balance: number; weeklyPayment: number }[] } | undefined;
+    if (!slice || slice.loans.length === 0) return 0;
+    const owed = slice.loans.reduce((sum, l) => sum + l.balance, 0);
+    const weekly = slice.loans.reduce((sum, l) => sum + l.weeklyPayment, 0);
+    const target = Math.max(1, p.goals.wealth * ctx.pack.wealthPointValue);
+    return -Math.min(1, owed / target) - Math.min(0.5, weekly / 200);
+  },
+};
+
+/** Subscriptions are small, weekly and easy to forget; the AI should feel the drain. */
+export const subscriptionDrain: Scorer = {
+  id: 'subscription-drain',
+  weight: (p) => p.weights.wealth * 0.5,
+  value: (_ctx, _state, p) => {
+    const slice = p.modules.subscriptions as
+      { active: Record<string, { price: number }> } | undefined;
+    if (!slice) return 0;
+    let weekly = 0;
+    for (const entry of Object.values(slice.active)) weekly += entry.price;
+    // A week's subscriptions measured against a week's rent: 0 when nothing is running.
+    return -Math.min(1, weekly / 100);
+  },
+};
+
 const registry = new Map<string, Scorer>();
 export function registerScorer(s: Scorer): void {
   registry.set(s.id, s);
@@ -209,6 +258,9 @@ for (const s of [
   timeCost,
   relaxation,
   happinessUpkeep,
+  wellbeing,
+  loanBurden,
+  subscriptionDrain,
 ])
   registerScorer(s);
 
