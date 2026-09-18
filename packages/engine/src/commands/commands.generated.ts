@@ -3,6 +3,7 @@
  */
 import type { OrderDeliveryCommand } from '../modules/delivery.js';
 import type { GigShiftCommand, GigSignupCommand } from '../modules/gig.js';
+import type { RepayLoanCommand, TakeLoanCommand } from '../modules/loans.js';
 import type { StudyOnlineCommand } from '../modules/online-study.js';
 import type { SubscribeCommand, UnsubscribeCommand } from '../modules/subscriptions.js';
 import type {
@@ -51,6 +52,7 @@ export type Command =
   | RelaxCommand
   | RepairCommand
   | RepairCarCommand
+  | RepayLoanCommand
   | RequestExtensionCommand
   | SellAssetCommand
   | SellCarCommand
@@ -58,6 +60,7 @@ export type Command =
   | StudyCommand
   | StudyOnlineCommand
   | SubscribeCommand
+  | TakeLoanCommand
   | UnsubscribeCommand
   | WithdrawCommand
   | WorkCommand;
@@ -90,6 +93,7 @@ export const COMMAND_TYPES = [
   'Relax',
   'Repair',
   'RepairCar',
+  'RepayLoan',
   'RequestExtension',
   'SellAsset',
   'SellCar',
@@ -97,6 +101,7 @@ export const COMMAND_TYPES = [
   'Study',
   'StudyOnline',
   'Subscribe',
+  'TakeLoan',
   'Unsubscribe',
   'Withdraw',
   'Work',

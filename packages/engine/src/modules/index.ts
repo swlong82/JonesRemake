@@ -17,6 +17,8 @@ import { corePending } from './core-pending.js';
 import { coreSetup } from './core-setup.js';
 import { delivery } from './delivery.js';
 import { gig } from './gig.js';
+import { loans } from './loans.js';
+import { modernAssets, registerModernAssetHooks } from './modern-assets.js';
 import { onlineStudy, registerOnlineStudyHooks } from './online-study.js';
 import { rentHikes } from './rent-hikes.js';
 import { subscriptions } from './subscriptions.js';
@@ -51,12 +53,15 @@ export const MODERN_MODULES: readonly RuleModule[] = [
   delivery,
   rentHikes,
   gig,
+  loans,
+  modernAssets,
 ];
 
 // Core command hooks the modern modules extend (burnout pay penalty, lesson waste, transport).
 registerWellbeingHooks();
 registerTransportHooks();
 registerOnlineStudyHooks();
+registerModernAssetHooks();
 
 /** All modules known to this engine build (core + modern). Packs may register more. */
 const extra: RuleModule[] = [];

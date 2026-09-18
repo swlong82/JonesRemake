@@ -1,0 +1,70 @@
+[
+  {
+    "id": "savings",
+    "nameKey": "asset.savings.name",
+    "model": "drift",
+    "startCents": 10000,
+    "driftBp": 5,
+    "volBp": 0,
+    "econCorrBp": 0,
+    "feeBp": 0,
+    "crashImmune": true,
+    "set": "modern"
+  },
+  {
+    "id": "bonds",
+    "nameKey": "asset.bonds.name",
+    "model": "drift",
+    "startCents": 10000,
+    "driftBp": 12,
+    "volBp": 30,
+    "econCorrBp": -2000,
+    "feeBp": 100,
+    "set": "modern"
+  },
+  {
+    "id": "index-etf",
+    "nameKey": "asset.index-etf.name",
+    "model": "drift",
+    "startCents": 10000,
+    "driftBp": 15,
+    "volBp": 200,
+    "econCorrBp": 7000,
+    "feeBp": 100,
+    "set": "modern"
+  },
+  {
+    "id": "tech-stock",
+    "nameKey": "asset.tech-stock.name",
+    "model": "drift",
+    "startCents": 10000,
+    "driftBp": 20,
+    "volBp": 500,
+    "econCorrBp": 8000,
+    "feeBp": 100,
+    "set": "modern"
+  },
+  {
+    "id": "crypto",
+    "nameKey": "asset.crypto.name",
+    "model": "drift",
+    "startCents": 10000,
+    "driftBp": 10,
+    "volBp": 1200,
+    "econCorrBp": 4000,
+    "feeBp": 200,
+    "set": "modern"
+  },
+  {
+    "id": "gold-modern",
+    "nameKey": "asset.gold-modern.name",
+    "model": "drift",
+    "startCents": 10000,
+    "driftBp": 8,
+    "volBp": 150,
+    "econCorrBp": -5000,
+    "feeBp": 100,
+    "crashImmune": true,
+    "set": "modern"
+  }
+]

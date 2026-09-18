@@ -41,5 +41,12 @@
     "services": ["clinic", "subscriptions"],
     "open": "always",
     "category": "service"
+  },
+  {
+    "id": "bank",
+    "kind": "service",
+    "services": ["bank", "invest", "work", "loans"],
+    "open": "always",
+    "category": "finance"
   }
 ]

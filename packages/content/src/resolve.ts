@@ -344,7 +344,10 @@ export function buildPack(merged: RawPackFiles): ResolveResult {
     'subscriptions',
     issues,
   ).map((s) => ({ ...s, weeklyPrice: scale(s.weeklyPrice, ps) }));
-  const assets = parseArray(assetSchema, merged['assets.json'], 'assets', issues);
+  const allAssets = parseArray(assetSchema, merged['assets.json'], 'assets', issues);
+  // EXTENSIBILITY 12.4: the modern instruments replace the classic six rather than joining them.
+  const assetSet = flags.modernAssets ? 'modern' : 'classic';
+  const assets = allAssets.filter((a) => a.set === assetSet);
   const events: EventSpec[] = parseArray(eventSchema, merged['events.json'], 'events', issues);
   const personalities = parseArray(
     personalitySchema,
@@ -427,6 +430,7 @@ export function buildPack(merged: RawPackFiles): ResolveResult {
     subscriptions,
     subscriptionById: byId(subscriptions),
     assets,
+    allAssets,
     assetById: byId(assets),
     loans,
     events,

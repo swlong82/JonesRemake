@@ -12,7 +12,9 @@
     "onlineStudy": true,
     "wellbeing": true,
     "delivery": true,
-    "rentHikes": true
+    "rentHikes": true,
+    "loans": true,
+    "modernAssets": true
   },
   "wealthPointValue": 100,
   "extends": "classic",

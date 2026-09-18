@@ -19,7 +19,9 @@ import classicPersonalities from '../packs/classic/personalities.json';
 import classicRules from '../packs/classic/rules.json';
 import classicTransport from '../packs/classic/transport.json';
 import modernAssetsRegistry from '../packs/modern-western/assets.registry.json';
+import modernAssets from '../packs/modern-western/assets.json';
 import modernI18n from '../packs/modern-western/i18n/en.json';
+import modernLoans from '../packs/modern-western/loans.json';
 import modernItems from '../packs/modern-western/items.json';
 import modernJobs from '../packs/modern-western/jobs.json';
 import modernLocations from '../packs/modern-western/locations.json';
@@ -59,6 +61,8 @@ export const RAW_PACKS: Record<string, RawPackFiles> = {
     'jobs.json': j(modernJobs),
     'transport.json': j(modernTransport),
     'subscriptions.json': j(modernSubs),
+    'assets.json': j(modernAssets),
+    'loans.json': j(modernLoans),
     'i18n/en.json': j(modernI18n),
     'assets.registry.json': j(modernAssetsRegistry),
   },

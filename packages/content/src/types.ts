@@ -103,7 +103,10 @@ export interface CityPack {
   transportById: Record<TransportModeId, ResolvedTransportMode>;
   subscriptions: SubscriptionSpec[];
   subscriptionById: Record<SubscriptionId, SubscriptionSpec>;
+  /** The instrument set the pack's `modernAssets` flag selects (EXTENSIBILITY 12.4). */
   assets: AssetSpec[];
+  /** Both instrument sets as authored, for validation and for switching sets. */
+  allAssets: AssetSpec[];
   assetById: Record<AssetId, AssetSpec>;
   loans: LoansSpec | null;
   events: EventSpec[];

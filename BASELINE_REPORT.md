@@ -11,52 +11,52 @@ metric is deterministic for these seeds.
 
 ## B(metric, config)
 
-| Config                 | Games | Weeks p10/median/p90 | Stall % | Seat 0 win % | Bankrupt % | Degrees median | Last goal % (W/H/E/C)       | ms/game |
-| ---------------------- | ----- | -------------------- | ------- | ------------ | ---------- | -------------- | --------------------------- | ------- |
-| `classic-30-easy-2`    | 100   | 55 / 144 / 244       | 50      | 48           | 100        | 4              | W50 H46 E4 C0               | 1548    |
-| `classic-30-easy-4`    | 100   | 52 / 82 / 200        | 30      | 30           | 100        | 4              | W31.43 H58.57 E10 C0        | 1696    |
-| `classic-30-normal-2`  | 200   | 22 / 30 / 80         | 0       | 38.5         | 75         | 4              | W43 H0 E57 C0               | 527     |
-| `classic-30-normal-4`  | 200   | 21 / 29 / 45         | 0       | 21           | 92         | 3              | W31 H0 E68.5 C0.5           | 1042    |
-| `classic-30-hard-2`    | 100   | 20 / 23 / 37         | 0       | 39           | 34         | 4              | W21 H0 E79 C0               | 1093    |
-| `classic-30-hard-4`    | 100   | 19 / 21 / 25         | 0       | 14           | 37         | 3              | W16 H0 E84 C0               | 2031    |
-| `classic-50-easy-2`    | 100   | 119 / 163 / 244      | 57      | 86.05        | 100        | 6              | W30.23 H69.77 E0 C0         | 1590    |
-| `classic-50-easy-4`    | 100   | 102 / 152 / 248      | 31      | 37.68        | 100        | 6              | W24.64 H68.12 E7.25 C0      | 2642    |
-| `classic-50-normal-2`  | 200   | 34 / 45 / 71         | 0       | 47.5         | 79         | 6              | W35 H0 E65 C0               | 847     |
-| `classic-50-normal-4`  | 200   | 34 / 41 / 57         | 0       | 27           | 94.5       | 5              | W26.5 H0 E73.5 C0           | 1563    |
-| `classic-50-hard-2`    | 100   | 25 / 31 / 43         | 0       | 34           | 33         | 6              | W50 H0 E49 C1               | 1527    |
-| `classic-50-hard-4`    | 100   | 26 / 29 / 37         | 0       | 27           | 59         | 5              | W37 H0 E63 C0               | 3055    |
-| `classic-80-easy-2`    | 100   | 167 / 228 / 281      | 78      | 77.27        | 100        | 9              | W13.64 H86.36 E0 C0         | 1729    |
-| `classic-80-easy-4`    | 100   | 194 / 244 / 296      | 75      | 36           | 100        | 9              | W4 H88 E8 C0                | 4139    |
-| `classic-80-normal-2`  | 200   | 52 / 84 / 129        | 2       | 47.45        | 76.5       | 9              | W27.55 H5.61 E60.2 C6.63    | 1519    |
-| `classic-80-normal-4`  | 200   | 54 / 70 / 100        | 0       | 25.5         | 94.5       | 8              | W10 H5.5 E82.5 C2           | 2583    |
-| `classic-80-hard-2`    | 100   | 37 / 53 / 81         | 0       | 43           | 49         | 9              | W49 H0 E50 C1               | 2458    |
-| `classic-80-hard-4`    | 100   | 36 / 46 / 59         | 0       | 7            | 69         | 6              | W40 H0 E60 C0               | 4504    |
-| `classic-100-easy-2`   | 100   | 0 / 0 / 0            | 100     | 0            | 100        | 10             | W0 H0 E0 C0                 | 1668    |
-| `classic-100-easy-4`   | 100   | 199 / 259 / 295      | 92      | 37.5         | 100        | 9              | W12.5 H37.5 E0 C50          | 3810    |
-| `classic-100-normal-2` | 200   | 64 / 97 / 205        | 5.5     | 24.34        | 86         | 11             | W42.33 H19.58 E19.58 C18.52 | 1839    |
-| `classic-100-normal-4` | 200   | 68 / 97 / 154        | 0       | 14           | 98.5       | 7              | W27 H23.5 E30 C19.5         | 3514    |
-| `classic-100-hard-2`   | 100   | 48 / 73 / 96         | 0       | 50           | 61         | 11             | W46 H20 E31 C3              | 3256    |
-| `classic-100-hard-4`   | 100   | 46 / 69 / 92         | 0       | 27           | 84         | 8              | W34 H20 E37 C9              | 6266    |
+| Config                 | Games | Weeks p10/median/p90 | Stall % | Seat 0 win % | Bankrupt % | Degrees median | Last goal % (W/H/E/C)     | ms/game |
+| ---------------------- | ----- | -------------------- | ------- | ------------ | ---------- | -------------- | ------------------------- | ------- |
+| `classic-30-easy-2`    | 100   | 51 / 135 / 252       | 48      | 38.46        | 100        | 4              | W23.08 H73.08 E3.85 C0    | 1403    |
+| `classic-30-easy-4`    | 100   | 52 / 85 / 225        | 25      | 22.67        | 100        | 4              | W21.33 H65.33 E13.33 C0   | 1454    |
+| `classic-30-normal-2`  | 200   | 22 / 28 / 81         | 0.5     | 46.23        | 95         | 4              | W26.13 H30.65 E42.71 C0.5 | 410     |
+| `classic-30-normal-4`  | 200   | 21 / 25 / 39         | 0       | 21.5         | 98.5       | 3              | W10 H22 E68 C0            | 737     |
+| `classic-30-hard-2`    | 100   | 20 / 23 / 32         | 0       | 36           | 31         | 4              | W20 H6 E74 C0             | 855     |
+| `classic-30-hard-4`    | 100   | 20 / 21 / 24         | 0       | 23           | 40         | 3              | W8 H4 E88 C0              | 1569    |
+| `classic-50-easy-2`    | 100   | 95 / 156 / 243       | 35      | 55.38        | 100        | 6              | W32.31 H64.62 E3.08 C0    | 1209    |
+| `classic-50-easy-4`    | 100   | 86 / 119 / 201       | 26      | 18.92        | 100        | 6              | W36.49 H59.46 E4.05 C0    | 1770    |
+| `classic-50-normal-2`  | 200   | 34 / 40 / 52         | 0.5     | 46.73        | 76         | 6              | W42.21 H11.56 E45.73 C0.5 | 622     |
+| `classic-50-normal-4`  | 200   | 32 / 36 / 44         | 0       | 20           | 88.5       | 5              | W26.5 H16.5 E56.5 C0.5    | 1173    |
+| `classic-50-hard-2`    | 100   | 28 / 32 / 43         | 0       | 63           | 33         | 6              | W30 H6 E64 C0             | 1289    |
+| `classic-50-hard-4`    | 100   | 27 / 29 / 36         | 0       | 39           | 61         | 5              | W18 H5 E77 C0             | 2307    |
+| `classic-80-easy-2`    | 100   | 147 / 187 / 242      | 73      | 62.96        | 100        | 9              | W25.93 H66.67 E7.41 C0    | 1455    |
+| `classic-80-easy-4`    | 100   | 151 / 203 / 254      | 56      | 25           | 100        | 9              | W15.91 H75 E9.09 C0       | 3344    |
+| `classic-80-normal-2`  | 200   | 48 / 62 / 84         | 0       | 46.5         | 68.5       | 9              | W67 H4.5 E27 C1.5         | 961     |
+| `classic-80-normal-4`  | 200   | 47 / 56 / 71         | 0       | 30.5         | 94         | 7              | W65 H4.5 E28 C2.5         | 1768    |
+| `classic-80-hard-2`    | 100   | 37 / 41 / 60         | 1       | 60.61        | 25         | 9              | W37.37 H3.03 E57.58 C2.02 | 1702    |
+| `classic-80-hard-4`    | 100   | 37 / 40 / 46         | 0       | 39           | 44         | 8              | W29 H1 E70 C0             | 3317    |
+| `classic-100-easy-2`   | 100   | 246 / 291 / 291      | 98      | 100          | 100        | 10             | W0 H100 E0 C0             | 1469    |
+| `classic-100-easy-4`   | 100   | 213 / 269 / 285      | 96      | 25           | 100        | 9              | W0 H50 E0 C50             | 3363    |
+| `classic-100-normal-2` | 200   | 69 / 83 / 108        | 1       | 43.94        | 79.5       | 11             | W60.61 H33.33 E3.54 C2.53 | 1247    |
+| `classic-100-normal-4` | 200   | 65 / 75 / 93         | 0       | 18           | 96         | 9              | W59.5 H25.5 E14 C1        | 2314    |
+| `classic-100-hard-2`   | 100   | 45 / 50 / 62         | 0       | 68           | 44         | 11             | W70 H12 E17 C1            | 1958    |
+| `classic-100-hard-4`   | 100   | 44 / 48 / 54         | 0       | 45           | 55         | 9              | W64 H15 E18 C3            | 3819    |
 
 ## Stage-1 sanity gates (9.3)
 
 | Gate                                      | Target                    | Achieved                      | Result                                                                                      |
 | ----------------------------------------- | ------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------- |
-| Stall rate at goals 50 Normal×2           | < 0.5%                    | 0%                            | pass                                                                                        |
-| Median length grows with goal level       | 30 < 50 < 80 < 100        | 30 < 45 < 84 < 97             | pass                                                                                        |
-| Seat bias Normal×2 (goals 50)             | first seat 45–55%         | 47.5%                         | pass                                                                                        |
-| Goal last-completed: wealth (goals 50)    | ≥ 10% of games            | 35%                           | pass                                                                                        |
-| Goal last-completed: happiness (goals 50) | ≥ 10% of games            | 0%                            | FAIL                                                                                        |
-| Goal last-completed: education (goals 50) | ≥ 10% of games            | 65%                           | pass                                                                                        |
-| Goal last-completed: career (goals 50)    | ≥ 10% of games            | 0%                            | FAIL                                                                                        |
-| Sim speed, Normal AI                      | < 200 ms/game median      | 3514 ms (worst Normal config) | FAIL — ADR-0016: the spec-sized AI beam costs ~1 s/game; sample sizes were reduced instead. |
+| Stall rate at goals 50 Normal×2           | < 0.5%                    | 0.5%                          | FAIL                                                                                        |
+| Median length grows with goal level       | 30 < 50 < 80 < 100        | 28 < 40 < 62 < 83             | pass                                                                                        |
+| Seat bias Normal×2 (goals 50)             | first seat 45–55%         | 46.73%                        | pass                                                                                        |
+| Goal last-completed: wealth (goals 50)    | ≥ 10% of games            | 42.21%                        | pass                                                                                        |
+| Goal last-completed: happiness (goals 50) | ≥ 10% of games            | 11.56%                        | pass                                                                                        |
+| Goal last-completed: education (goals 50) | ≥ 10% of games            | 45.73%                        | pass                                                                                        |
+| Goal last-completed: career (goals 50)    | ≥ 10% of games            | 0.5%                          | FAIL                                                                                        |
+| Sim speed, Normal AI                      | < 200 ms/game median      | 2314 ms (worst Normal config) | FAIL — ADR-0016: the spec-sized AI beam costs ~1 s/game; sample sizes were reduced instead. |
 | Education path completes at goals 100     | ≥ 99% of stall-free games | 100%                          | pass                                                                                        |
 
 ## Unmet targets
 
-- **Goal last-completed: happiness (goals 50)** — target ≥ 10% of games, achieved 0%.
-- **Goal last-completed: career (goals 50)** — target ≥ 10% of games, achieved 0%.
-- **Sim speed, Normal AI** — target < 200 ms/game median, achieved 3514 ms (worst Normal config).
+- **Stall rate at goals 50 Normal×2** — target < 0.5%, achieved 0.5%.
+- **Goal last-completed: career (goals 50)** — target ≥ 10% of games, achieved 0.5%.
+- **Sim speed, Normal AI** — target < 200 ms/game median, achieved 2314 ms (worst Normal config).
 
 Unmet targets are recorded here per the stuck policy (CLAUDE.md 1.5) and tracked in
 `KNOWN_ISSUES.md`; the CI gate keeps asserting them (`pnpm sim:gate --strict`, ADR-0019).

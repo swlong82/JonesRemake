@@ -38,3 +38,16 @@ export function pm(value: number, perMille: number): number {
 export function assertInt(v: number, what: string): void {
   if (!Number.isSafeInteger(v)) throw new Error(`${what} must be a safe integer, got ${v}`);
 }
+
+/** Integer square root (Newton): exact floor(sqrt(n)) for n ≥ 0, no floating point. */
+export function isqrt(n: number): number {
+  if (n < 0) throw new Error(`isqrt: negative input ${n}`);
+  if (n < 2) return n;
+  let x = n;
+  let y = Math.floor((x + 1) / 2);
+  while (y < x) {
+    x = y;
+    y = Math.floor((x + Math.floor(n / x)) / 2);
+  }
+  return x;
+}
