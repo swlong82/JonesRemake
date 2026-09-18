@@ -107,4 +107,4 @@ Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 | M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001)                                      |
 | M4        | 2026-09-17 | c2ecf4e | green  | pending | tag m4 (local, KI-001); M3 gate still open                  |
 | M3        | 2026-09-17 | 037b1b2 | green  | pending | tag m3 (local, KI-001); career target recorded per ADR-0026 |
-| M5        | 2026-09-18 | HEAD    | green  | pending | tag m5 (local, KI-001); nine modern systems behind flags    |
+| M5        | 2026-09-18 | 903066e | green  | pending | tag m5 (local, KI-001); nine modern systems behind flags    |
