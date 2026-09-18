@@ -26,5 +26,19 @@
     "breakdownPerWeek": 1.0,
     "repairCost": 180,
     "unlocks": ["onlineStudy"]
+  },
+  {
+    "id": "phone-case",
+    "nameKey": "item.phone-case.name",
+    "descKey": "item.phone-case.desc",
+    "category": "misc",
+    "price": 30,
+    "storeIds": ["electronics-store", "discount-store"],
+    "happinessOnBuy": 0,
+    "comfort": false,
+    "extraCredit": false,
+    "breakdownPerWeek": 0,
+    "repairCost": 0,
+    "unlocks": ["phoneProtection"]
   }
 ]

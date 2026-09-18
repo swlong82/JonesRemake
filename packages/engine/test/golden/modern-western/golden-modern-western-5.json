@@ -364,15 +364,15 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "discount-store",
-        "mode": "walk"
+        "to": "employment-office",
+        "mode": "transit"
       }
     },
     {
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "university",
+        "to": "electronics-store",
         "mode": "transit"
       }
     },
@@ -1195,6 +1195,6 @@
       }
     }
   ],
-  "finalHash": "148ec3c160df8b",
+  "finalHash": "076c8169999c07",
   "week": 5
 }

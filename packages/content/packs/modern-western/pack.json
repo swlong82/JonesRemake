@@ -14,7 +14,8 @@
     "delivery": true,
     "rentHikes": true,
     "loans": true,
-    "modernAssets": true
+    "modernAssets": true,
+    "modernEvents": true
   },
   "wealthPointValue": 100,
   "extends": "classic",

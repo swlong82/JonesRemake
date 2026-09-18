@@ -20,6 +20,7 @@ import classicRules from '../packs/classic/rules.json';
 import classicTransport from '../packs/classic/transport.json';
 import modernAssetsRegistry from '../packs/modern-western/assets.registry.json';
 import modernAssets from '../packs/modern-western/assets.json';
+import modernEvents from '../packs/modern-western/events.json';
 import modernI18n from '../packs/modern-western/i18n/en.json';
 import modernLoans from '../packs/modern-western/loans.json';
 import modernItems from '../packs/modern-western/items.json';
@@ -63,6 +64,7 @@ export const RAW_PACKS: Record<string, RawPackFiles> = {
     'subscriptions.json': j(modernSubs),
     'assets.json': j(modernAssets),
     'loans.json': j(modernLoans),
+    'events.json': j(modernEvents),
     'i18n/en.json': j(modernI18n),
     'assets.registry.json': j(modernAssetsRegistry),
   },

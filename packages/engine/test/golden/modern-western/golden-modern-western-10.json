@@ -188,8 +188,8 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "university",
-        "mode": "walk"
+        "to": "grocery",
+        "mode": "transit"
       }
     },
     {
@@ -338,8 +338,8 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "clinic",
-        "mode": "transit"
+        "to": "low-housing",
+        "mode": "walk"
       }
     },
     {
@@ -1189,6 +1189,6 @@
       }
     }
   ],
-  "finalHash": "055fa033f78bf0",
+  "finalHash": "1f26fc95d0bc6b",
   "week": 5
 }

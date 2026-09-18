@@ -1,0 +1,225 @@
+[
+  {
+    "id": "job-automated",
+    "family": "ai-layoffs",
+    "trigger": "turnStart",
+    "flag": "modernEvents",
+    "weight": {
+      "*": [
+        150,
+        {
+          "var": "player.automationRiskBp"
+        },
+        0.0001
+      ]
+    },
+    "conditions": {
+      "and": [
+        {
+          "var": "player.employed"
+        },
+        {
+          "!": {
+            "var": "player.isGig"
+          }
+        }
+      ]
+    },
+    "effects": [
+      {
+        "op": "loseJob",
+        "severanceWeeks": 2
+      },
+      {
+        "op": "grant",
+        "what": "freeEnrollment",
+        "qty": 1
+      }
+    ],
+    "textKey": "event.job-automated",
+    "tone": "bad"
+  },
+  {
+    "id": "going-viral",
+    "family": "viral",
+    "trigger": "turnStart",
+    "flag": "modernEvents",
+    "weight": 120,
+    "conditions": {
+      "in": [
+        "smartphone",
+        {
+          "var": "player.itemIds"
+        }
+      ]
+    },
+    "effects": [
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": 8
+      },
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": {
+          "min": 100,
+          "max": 1000,
+          "int": true
+        },
+        "scaleEcon": true
+      },
+      {
+        "op": "schedule",
+        "eventId": "viral-backlash",
+        "inWeeks": 1,
+        "chance": 3000
+      }
+    ],
+    "textKey": "event.going-viral",
+    "tone": "good"
+  },
+  {
+    "id": "viral-backlash",
+    "family": "viral",
+    "trigger": "turnStart",
+    "flag": "modernEvents",
+    "weight": 0,
+    "effects": [
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": -3
+      }
+    ],
+    "textKey": "event.viral-backlash",
+    "tone": "bad"
+  },
+  {
+    "id": "phishing-scam",
+    "family": "scams",
+    "trigger": "turnStart",
+    "flag": "modernEvents",
+    "weight": {
+      "*": [
+        {
+          "if": [
+            {
+              "in": [
+                "cloud-storage",
+                {
+                  "var": "player.subscriptionIds"
+                }
+              ]
+            },
+            100,
+            200
+          ]
+        },
+        {
+          "max": [
+            0,
+            {
+              "-": [
+                10000,
+                {
+                  "*": [
+                    800,
+                    {
+                      "var": "player.degreeCount"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        0.0001
+      ]
+    },
+    "conditions": {
+      ">": [
+        {
+          "var": "player.bank"
+        },
+        50
+      ]
+    },
+    "effects": [
+      {
+        "op": "money",
+        "account": "bank",
+        "delta": {
+          "pctOf": "bank",
+          "pct": {
+            "min": -30,
+            "max": -5
+          }
+        }
+      }
+    ],
+    "textKey": "event.phishing-scam",
+    "tone": "bad"
+  },
+  {
+    "id": "cracked-screen",
+    "family": "gadget-breakdown",
+    "trigger": "turnStart",
+    "flag": "modernEvents",
+    "weight": {
+      "if": [
+        {
+          "in": [
+            "phone-case",
+            {
+              "var": "player.itemIds"
+            }
+          ]
+        },
+        100,
+        200
+      ]
+    },
+    "conditions": {
+      "in": [
+        "smartphone",
+        {
+          "var": "player.itemIds"
+        }
+      ]
+    },
+    "effects": [
+      {
+        "op": "disableItem",
+        "itemId": "smartphone",
+        "untilRepaired": true
+      }
+    ],
+    "textKey": "event.cracked-screen",
+    "tone": "bad"
+  },
+  {
+    "id": "laptop-battery",
+    "family": "gadget-breakdown",
+    "trigger": "turnStart",
+    "flag": "modernEvents",
+    "weight": 150,
+    "conditions": {
+      "in": [
+        "laptop",
+        {
+          "var": "player.itemIds"
+        }
+      ]
+    },
+    "effects": [
+      {
+        "op": "disableItem",
+        "itemId": "laptop",
+        "untilRepaired": true
+      }
+    ],
+    "textKey": "event.laptop-battery",
+    "tone": "bad"
+  }
+]

@@ -328,7 +328,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "employment-office",
+        "to": "discount-store",
         "mode": "transit"
       }
     },
@@ -336,7 +336,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "electronics-store",
+        "to": "university",
         "mode": "walk"
       }
     },
@@ -349,10 +349,10 @@
       }
     },
     {
-      "seat": 0,
+      "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "electronics-store",
+        "to": "grocery",
         "mode": "walk"
       }
     },
@@ -360,8 +360,8 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "burger-joint",
-        "mode": "walk"
+        "to": "electronics-store",
+        "mode": "transit"
       }
     },
     {
@@ -374,8 +374,8 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "appliance-depot",
-        "mode": "walk"
+        "to": "pawn-shop",
+        "mode": "transit"
       }
     },
     {
@@ -462,7 +462,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "low-housing",
+        "to": "pawn-shop",
         "mode": "walk"
       }
     },
@@ -1183,6 +1183,6 @@
       }
     }
   ],
-  "finalHash": "03850acfeff392",
+  "finalHash": "044a802bf038f1",
   "week": 6
 }

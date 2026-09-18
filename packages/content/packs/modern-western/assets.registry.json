@@ -4,6 +4,11 @@
     "icon": "laptop",
     "shape": "rounded-rect"
   },
+  "item:phone-case": {
+    "color": "cat-retail",
+    "icon": "shield",
+    "shape": "rounded-rect"
+  },
   "item:smartphone": {
     "color": "cat-retail",
     "icon": "phone",
