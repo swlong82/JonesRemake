@@ -89,6 +89,8 @@ export const rulesSchema = z
         relaxBase: z.number().int(),
         relaxPerComfort: z.number().int(),
         relaxMax: z.number().int(),
+        /** Per-week happiness decay (GDD 4.8 step E, ADR-0025); 0 keeps happiness monotonic. */
+        decayPerWeek: z.number().int().nonnegative().default(0),
         theft: z.number().int(),
         starvation: z.number().int(),
         moveSecure: z.number().int(),

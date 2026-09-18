@@ -6,28 +6,37 @@ reimplementation with original names, art and text — see `docs/PRD.md` §2.6 f
 
 **Status:** the classic ruleset is playable end to end in the browser — engine, classic content, AI
 rival, balance harness and the full web UI (ring board, HUD, location panel with action previews,
-event cards, log, phone layout, keyboard map, end screen). The classic balance baseline (M3.3–M3.4)
-is still open. The game lands milestone by milestone (`docs/MILESTONES.md`, M0→M8); this README's
-status line, `PROGRESS.md` and `HANDOFF.md` are updated per milestone.
+event cards, log, phone layout, keyboard map, end screen) — and its balance baseline is measured and
+closed. The modern systems (wellbeing, transport, gig work, subscriptions, online study, delivery,
+rent hikes, loans, modern instruments) are implemented behind CityPack feature flags, which
+`modern-western` turns on and `classic` leaves off; that pack still needs its own names, flavour and
+balance pass (M6). The game lands milestone by milestone (`docs/MILESTONES.md`, M0→M8); this
+README's status line, `PROGRESS.md` and `HANDOFF.md` are updated per milestone.
 Live build: https://swlong82.github.io/JonesRemake/ (GitHub Pages; `deploy.yml` runs after CI on `main`).
 
-| Milestone | Scope                                   | Status                      |
-| --------- | --------------------------------------- | --------------------------- |
-| M0        | Scaffold, CI, Pages deploy, spec pack   | done                        |
-| M1        | Engine core (state, RNG, commands)      | done                        |
-| M2        | Classic content pack + AI rival         | done                        |
-| M3        | Sim harness + classic baseline          | harness done, baseline open |
-| M4        | Web UI, classic playable                | done                        |
-| M5        | Modern systems (transport, gigs, loans) | —                           |
-| M6        | Modern pack + balance                   | —                           |
-| M7        | Polish: audio, save/replay, a11y        | —                           |
-| M8        | Release: naming, leaderboard, docs      | —                           |
+| Milestone | Scope                                   | Status |
+| --------- | --------------------------------------- | ------ |
+| M0        | Scaffold, CI, Pages deploy, spec pack   | done   |
+| M1        | Engine core (state, RNG, commands)      | done   |
+| M2        | Classic content pack + AI rival         | done   |
+| M3        | Sim harness + classic baseline          | done   |
+| M4        | Web UI, classic playable                | done   |
+| M5        | Modern systems (transport, gigs, loans) | done   |
+| M6        | Modern pack + balance                   | —      |
+| M7        | Polish: audio, save/replay, a11y        | —      |
+| M8        | Release: naming, leaderboard, docs      | —      |
 
 ## Play
 
 Open the Pages URL, press **New Game**, pick a city pack, choose seats (solo against an AI rival, or
 local hotseat up to four), set each goal level, and play weekly turns until someone meets all four
 goals. Full rules: `docs/GDD.md`.
+
+Two rulesets ship. **Classic** is the balanced one: sixteen locations, a job ladder, eleven degrees,
+a bounded market and weekend events. **Modern western** adds wellbeing, travel modes and cars, gig
+shifts, subscriptions that bill weekly and drift upward, online study you can doomscroll away,
+delivery, rent hikes, loans and six correlated instruments — all of it working, none of it balanced
+or renamed yet (M6), so treat it as a preview.
 
 Each turn is one week of 60 hours. Click a ring square to open the travel sheet, **Enter** a
 location to use it, and pick actions from the panel — every action shows its cost and effect before
@@ -70,17 +79,17 @@ Individual gates: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `
 
 ### Layout
 
-| Path                | What                                                                 |
-| ------------------- | -------------------------------------------------------------------- |
-| `packages/shared`   | Types shared by every layer                                          |
-| `packages/platform` | Provider-agnostic contracts + v1 local defaults (`REPLACE ME` stubs) |
-| `packages/content`  | CityPack Zod schemas, packs, validator CLI                           |
-| `packages/engine`   | Pure, deterministic game rules (`applyCommand`)                      |
-| `packages/ai`       | Utility-planner rival, personalities, difficulty tiers               |
-| `packages/sim`      | Headless balance harness + CI gates                                  |
-| `apps/web`          | React + Vite SPA, SVG board, Zustand store, Playwright e2e           |
-| `tools/`            | Banned-terms scan, bundle budget, scaffold check, type generator     |
-| `docs/`             | The spec pack (source of truth)                                      |
+| Path                | What                                                                   |
+| ------------------- | ---------------------------------------------------------------------- |
+| `packages/shared`   | Types shared by every layer                                            |
+| `packages/platform` | Provider-agnostic contracts + v1 local defaults (`REPLACE ME` stubs)   |
+| `packages/content`  | CityPack Zod schemas, packs, validator CLI                             |
+| `packages/engine`   | Pure, deterministic game rules (`applyCommand`), core + modern modules |
+| `packages/ai`       | Utility-planner rival, personalities, difficulty tiers                 |
+| `packages/sim`      | Headless balance harness + CI gates                                    |
+| `apps/web`          | React + Vite SPA, SVG board, Zustand store, Playwright e2e             |
+| `tools/`            | Banned-terms scan, bundle budget, scaffold check, type generator       |
+| `docs/`             | The spec pack (source of truth)                                        |
 
 Dependency direction is lint-enforced: `shared ← platform`, `shared ← content ← engine ← ai ← sim`;
 `apps/web` may import everything except `sim`.

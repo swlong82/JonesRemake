@@ -51,7 +51,7 @@ export type DomainEventBody =
   | { type: 'GigStarted'; seat: number; gigId: GigId }
   | { type: 'GigWorked'; seat: number; hours: number; pay: number }
   | { type: 'Enrolled'; seat: number; degreeId: DegreeId }
-  | { type: 'Studied'; seat: number; degreeId: DegreeId; counted: boolean }
+  | { type: 'Studied'; seat: number; degreeId: DegreeId; counted: boolean; online: boolean }
   | { type: 'Graduated'; seat: number; degreeId: DegreeId }
   | { type: 'Relaxed'; seat: number }
   | { type: 'ItemBought'; seat: number; itemId: ItemId }

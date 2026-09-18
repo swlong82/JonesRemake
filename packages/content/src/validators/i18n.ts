@@ -14,7 +14,9 @@ export const EVENT_VARIANTS = 2;
 /** Compute the set of keys a pack's content requires (exact) and key prefixes allowed for extras. */
 export function requiredKeys(pack: CityPack): { exact: Set<string>; prefixes: string[] } {
   const exact = new Set<string>();
-  const prefixes: string[] = ['tutorial.', 'quip.', 'name.', 'title.'];
+  // `asset.` is a prefix rather than an exact set: a pack carries both instrument sets and the
+  // `modernAssets` flag decides which six are live, so the other six keep their names (12.4).
+  const prefixes: string[] = ['tutorial.', 'quip.', 'name.', 'title.', 'asset.'];
   if (pack.manifest.titleKey) exact.add(pack.manifest.titleKey);
   for (const l of pack.locations) {
     exact.add(`location.${l.id}.name`);

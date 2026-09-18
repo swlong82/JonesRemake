@@ -157,7 +157,7 @@ describe('BuyItem (SEED_DATA 14.2)', () => {
       ).events[0],
     ).toMatchObject({ code: 'ERR_NOT_INSIDE' });
   });
-  it('consumables: tickets/junk apply happiness immediately, soft drink only first per turn, newspaper gives the news hint; clothing adds an outfit', () => {
+  it('consumables: tickets/junk apply happiness immediately, tickets and soft drink only first per turn, newspaper gives the news hint; clothing adds an outfit', () => {
     const d = patch(
       at('cons', 'discount-store', 500),
       0,
@@ -169,6 +169,10 @@ describe('BuyItem (SEED_DATA 14.2)', () => {
     ]);
     expect(r.players[0]!.happiness).toBe(10 + 3 - 4);
     expect(r.players[0]!.items).toEqual([]);
+    // A ticket pays its happiness once per turn (ADR-0025), so a second one is 45 dollars of nothing.
+    const again = run(r, 0, [{ type: 'BuyItem', itemId: 'concert-ticket', qty: 2 }]);
+    expect(again.players[0]!.happiness).toBe(10 + 3 - 4);
+    expect(again.players[0]!.cash).toBe(500 - 45 - 24 - 90);
     const g = at('cons2', 'grocery', 500);
     const drinks = run(g, 0, [
       { type: 'BuyItem', itemId: 'soft-drink', qty: 3 },

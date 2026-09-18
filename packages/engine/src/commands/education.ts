@@ -98,7 +98,7 @@ export function studyLesson(ctx: Ctx, seat: number, degreeId: string, online: bo
     course.lessonsLeft -= 1;
     p.stats.lessons += 1;
   }
-  ctx.emit({ type: 'Studied', seat, degreeId, counted });
+  ctx.emit({ type: 'Studied', seat, degreeId, counted, online });
   if (course.lessonsLeft <= 0) graduate(ctx, seat, degreeId);
 }
 

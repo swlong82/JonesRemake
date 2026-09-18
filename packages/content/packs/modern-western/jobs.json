@@ -1,0 +1,32 @@
+[
+  {
+    "id": "gig-delivery-rider",
+    "workplaceId": "employment-office",
+    "titleKey": "job.gig-delivery-rider.title",
+    "baseWage": 1,
+    "reqExperience": 0,
+    "reqDependability": 0,
+    "reqDegrees": [],
+    "uniformTier": "none",
+    "automationRisk": 0.35,
+    "isGig": true,
+    "gigRequires": ["gigDelivery"],
+    "gigPay": 42,
+    "alwaysHire": true
+  },
+  {
+    "id": "gig-ride-hail-driver",
+    "workplaceId": "employment-office",
+    "titleKey": "job.gig-ride-hail-driver.title",
+    "baseWage": 1,
+    "reqExperience": 0,
+    "reqDependability": 0,
+    "reqDegrees": [],
+    "uniformTier": "none",
+    "automationRisk": 0.4,
+    "isGig": true,
+    "gigRequires": ["rideHail", "car"],
+    "gigPay": 60,
+    "alwaysHire": true
+  }
+]

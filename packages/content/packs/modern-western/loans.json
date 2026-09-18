@@ -1,0 +1,15 @@
+{
+  "min": 500,
+  "max": 15000,
+  "terms": [52, 104],
+  "aprBaseBp": 600,
+  "aprPerEconBp": 400,
+  "aprLowDepBp": 800,
+  "lowDepThreshold": 30,
+  "approvalIncomeWeeks": 52,
+  "approvalIncomeBp": 4000,
+  "missedFee": 25,
+  "defaultAfter": 4,
+  "garnishBp": 3000,
+  "maxActive": 2
+}

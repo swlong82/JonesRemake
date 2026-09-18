@@ -63,12 +63,13 @@
     "relaxBase": 2,
     "relaxPerComfort": 1,
     "relaxMax": 6,
+    "decayPerWeek": 4,
     "theft": -4,
     "starvation": -5,
     "moveSecure": 5,
     "subscriptionLapsed": -2,
     "min": 0,
-    "max": 100
+    "max": 104
   },
   "jobs": {
     "luckBase": 30,

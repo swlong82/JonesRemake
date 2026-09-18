@@ -1,106 +1,125 @@
 # Handoff
 
-State of the build after M4, for the session that picks this up. Read `CLAUDE.md` first, then this
-file, then resume at the first unchecked task in `PROGRESS.md`.
+State of the build after M5, for the session that picks this up. Read `CLAUDE.md` first, then this
+file, then resume at the first unchecked task in `PROGRESS.md` (M6.1).
 
 ## Where the build is
 
-| Area                                   | State                                                         |
-| -------------------------------------- | ------------------------------------------------------------- |
-| `packages/shared`, `engine`, `content` | Complete through M1–M2, tagged `m1`, `m2` locally (KI-001)    |
-| `packages/ai`                          | Complete through M2.5                                         |
-| `packages/sim`                         | Runner, bots, metrics, reports and gates complete (M3.1–M3.2) |
-| Classic baseline (M3.3)                | Suite run and `BASELINE_REPORT.md` written; tuning still open |
-| Classic gate (M3.4)                    | Wired and green except the two KI-005 `pending` assertions    |
-| `apps/web`                             | **Complete through M4.8 — the classic ruleset is playable**   |
-| M5–M8                                  | Not started                                                   |
+| Area                                   | State                                                                       |
+| -------------------------------------- | --------------------------------------------------------------------------- |
+| `packages/shared`, `engine`, `content` | Complete through M1–M2 and the M5 modules; tags `m1`, `m2` local (KI-001)   |
+| `packages/ai`                          | M2.4–M2.5 plus the M5.9 modern coverage and three module scorers            |
+| `packages/sim`                         | Runner, bots (6), metrics, reports and gates complete                       |
+| Classic balance (M3)                   | **Closed** — tag `m3` (local). One target recorded unmet, not met: ADR-0026 |
+| `apps/web`                             | Complete through M4.8 — the **classic** ruleset is playable and deployed    |
+| Modern systems (M5)                    | **Complete** — nine modules behind CityPack flags, tag `m5` (local)         |
+| M6–M8                                  | Not started                                                                 |
 
-`pnpm verify` is green, with one caveat: `pnpm sim:gate` reports two BALANCE 9.3 targets as
-**pending** rather than failing (career and happiness are never the last goal completed — KI-005,
-ADR-0019). `pnpm sim:gate --strict` fails on them, and the M3 milestone gate must be run strict.
+`pnpm verify` is green end to end (lint, typecheck, 30 test files, content validation, `gen:types`,
+banned terms, scaffold check, bundle 154.1 kB gzip of 350, e2e 21 on three viewports, `sim:gate`).
+The one thing to know before reading a gate run: `sim:gate` reports **18 assertions, 0 failed, 1
+pending**. The pending one is `lastGoalPct.career`, and it is recorded as structurally unreachable
+rather than open work — see ADR-0026 before spending time on it.
 
-## Resume here
+Live build: https://swlong82.github.io/JonesRemake/ (deployed from `main` by `deploy.yml` after CI
+goes green). The playable build there is M4; M5 is on the branch below, not yet merged.
 
-1. **M3.3 tuning** — the measurement half is done: the 24-config stage-1 suite ran to completion,
-   `BASELINE_REPORT.md` and `reports/baseline.json` hold B(metric, config) and every 9.3 gate with
-   its achieved value. What is left is the balance work itself, and ADR-0024 records the plan:
-   career saturates because it is `dependability × 1.25` (only ≥ 10000 bp keeps career 100 reachable
-   at `statMax`), and happiness has no decay at all, so it climbs monotonically to any target.
-   Expect to change `goals.careerDependabilityBp` and to add happiness decay (a mechanic, so an ADR
-   plus a `core-decay` change), then regenerate the golden replays (`UPDATE_GOLDEN=1 pnpm test`)
-   and re-run the suite before writing the frozen baseline.
+## Branch and tags
 
-   ```bash
-   mkdir -p reports
-   pnpm tsx packages/sim/cli.ts --config sim/stage1.json --workers 2 --out reports/stage1
-   pnpm baseline           # rewrites BASELINE_REPORT.md + reports/baseline.json
-   pnpm sim:gate --strict  # what the M3 gate requires
-   ```
+- Work branch: `claude/focused-maxwell-jhqrj4`, currently 11 commits ahead of `main` (M3 tuning and
+  all of M5). Nothing is merged to `main` yet, so the live demo is still the M4 build.
+- Tags `m1`…`m5` exist **locally only** — the session cannot push tags (KI-001). Their SHAs are in
+  the PROGRESS gate log; push them with `git push origin --tags` from a machine that can.
 
-   Budget roughly 1 s per Normal game and 3–6 s per Hard or goals-100 game (ADR-0016); the whole
-   suite is about 1.5 hours on two workers. It no longer clashes with `pnpm test` (KI-004 fixed).
+## Resume here: M6 — modern pack and balance
 
-2. **M3.4** — once KI-005 clears, delete the two `pending` blocks from `sim/gates.json`, run
-   `pnpm sim:gate --strict`, tag `m3` and `baseline-frozen`, and fill in the PROGRESS gate log.
+M5 left `modern-western` carrying working content for every system, but only the content the rules
+needed. M6 is what turns it into a pack rather than a test fixture.
 
-3. **M5** — modern systems (transport, wellbeing, gigs, loans, subscriptions). The module pipeline,
-   pack `FeatureFlags` and the `modern-western` pack skeleton already exist; the web UI reads
-   everything from `candidateCommands`/`previewCommand`, so a new command with a handler and a
-   panel section key shows up in the UI without a UI change (ADR-0020).
+1. **M6.1 — the pack proper.** Names and flavour are still inherited from `classic`, so the modern
+   city currently calls its co-living pod "Low-Cost Housing" and its ride-hail driver's employer the
+   "Employment Office". What is missing, in order of size:
+   - i18n overrides for 16 locations (name + 3 greetings + 3 farewells each — the validator
+     requires `MIN_GREETINGS`/`MIN_FAREWELLS`), 46 job titles, 11 degrees, the meals and clothing;
+   - the rest of GDD 4.11's modern item list (tablet, smart TV, game console, e-reader, headphones,
+     air fryer, robot vacuum, massage chair, bike, gym card) — the smartphone, laptop and phone case
+     are already there;
+   - `automationRisk` per job tuned to GDD 4.13's bands (clerical and warehouse 0.3–0.5, trades 0.1,
+     management and teaching 0.05); classic's values are inherited and only roughly right.
+     Everything goes in `packages/content/packs/modern-western/` and must be registered in
+     `packages/content/src/packs.ts` — the pack registry is a static import list, and a file that is
+     not listed there is silently ignored (that caught this session twice).
+2. **M6.2** — write and lock `reports/modern-targets.json`, hash in an ADR.
+3. **M6.3** — the BALANCE 9.6 tuning loop until the 9.5 gates pass; `BALANCE_REPORT.md` is the
+   output. This is also where KI-005's career target is revisited for the modern ladder (ADR-0026).
+4. **M6.4** — add modern configs to `sim/gates.json`, keeping the classic sanity gates.
+5. **M6.5** — the modern UI: subscriptions total in the HUD, loan panel, investment panel with a
+   sparkline, transport selector, and the retention-offer dialog the cancel flow is written around.
+   `labels.ts`'s `SECTION_ORDER` needs the new service sections (`gig`, `loans`, `subscriptions`,
+   `transit-pass`, `cars`); the panel itself needs no new plumbing, because it renders whatever
+   `candidateCommands` returns (ADR-0020).
 
-## How the app flags work
+## How the modern systems are put together
 
-`apps/web/src/flags/appFlags.ts` gates screens that are specified but not built (ADR-0017). These
-are not the CityPack `FeatureFlags` of EXTENSIBILITY 12.4, which gate rules per ruleset.
+Each system is a `RuleModule` in `packages/engine/src/modules/`, carrying its own `flag`, its own
+slice and its own commands, listed in `MODERN_MODULES` (order 100–199):
 
-- Five flags are left, all default off, each naming the milestone that deletes it: `saves` (M7.2),
-  `tutorial` (M7.3), `audio` (M7.1), `leaderboard` (M8.1), `debugTools` (UX 7.9).
-  `gameBoard` and `endScreen` were deleted when M4 landed their screens — that is the pattern:
-  the flag goes away with the milestone, it is not left behind switched on.
-- Resolution: registry default → build env `VITE_FF_<ID>` → URL `?ff=audio,-saves`.
-- `debugTools` also needs `VITE_DEBUG_ALLOWED=true`, so a deployed build cannot enable it. The e2e
-  build sets that variable, which also exposes the store as `globalThis.__hustleRing` for the two
-  specs that need a state a full game away (ADR-0022).
-- `apps/web/src/ui/screens/registry.tsx` maps each screen to its component and, while gated, its
-  flag. A screen whose flag is off, or that has no component yet, renders `UnavailableScreen`.
+| Module          | Flag            | What it owns                                                      |
+| --------------- | --------------- | ----------------------------------------------------------------- |
+| `wellbeing`     | `wellbeing`     | The stat `ctx.addStat(…, 'wellbeing', …)` writes through, 4 bands |
+| `transport`     | `transport`     | Mode gating and pricing, transit pass, car, upkeep, breakdowns    |
+| `subscriptions` | `subscriptions` | Billing, drift, lapse, `grantsOf`/`hasGrant` for other modules    |
+| `online-study`  | `onlineStudy`   | `StudyOnline` and the doomscroll chance                           |
+| `delivery`      | `delivery`      | `OrderDelivery`, markup, food-club discount, lost orders          |
+| `rent-hikes`    | `rentHikes`     | Renewal notice and hike, the co-living roommate                   |
+| `gig`           | `gig`           | `GigSignup`/`GigShift`, weekly demand, driver car wear            |
+| `loans`         | `loans`         | Approval, APR, amortised payment, default, negative wealth        |
+| `modern-assets` | `modernAssets`  | The `drift` pricing model and its correlation weighting           |
 
-## Where the UI pieces live
+Rules to keep, because breaking them costs a debugging session each:
 
-| Piece                                           | File                                                               |
-| ----------------------------------------------- | ------------------------------------------------------------------ |
-| Router                                          | `apps/web/src/App.tsx` + `ui/screens/registry.tsx`                 |
-| Store (only mutation path)                      | `apps/web/src/store/gameStore.ts`                                  |
-| Board, HUD, panel, travel, cards, log           | `apps/web/src/ui/game/*`                                           |
-| Wording helpers (commands, previews, log lines) | `apps/web/src/ui/game/labels.ts`                                   |
-| Layout, keyboard, live region                   | `apps/web/src/ui/screens/GameScreen.tsx`, `ui/game/useKeyboard.ts` |
-| End screen + goal chart                         | `apps/web/src/ui/screens/EndScreen.tsx`, `ui/game/GoalChart.tsx`   |
-| Debug switches                                  | `apps/web/src/debug/useDebugBoot.ts`, `ui/game/DebugPanel.tsx`     |
+- **Nothing random in `cost()` or `validate()`.** They run inside `legalCommands` and
+  `previewCommand`, which are pure; a draw there also desynchronises replay, which is how the golden
+  tests catch it. Prices a preview can show are rolled at turn start into the module slice
+  (ADR-0028); risks that land afterwards go in `apply` or on the event, with `riskBp` in the preview.
+- **One module touches another only through exported selectors** (`carOf`, `breakCar`, `grantsOf`,
+  `totalOwed`), never by reaching into `player.modules[x]`.
+- **`takeMoneyCascade` returns the shortfall**, not the amount taken.
+- `pnpm gen:types` scans `src/commands/*.ts` **and** `src/modules/*.ts`; run it after adding a
+  command or CI's `--check` will fail.
+- Adding content to `modern-western` usually means four files: the JSON, its i18n keys, its
+  `assets.registry.json` entry, and `packages/content/src/packs.ts`.
+- Changing any rule or content value changes the golden replays. Regenerate with
+  `UPDATE_GOLDEN=1 npx vitest run test/golden.test.ts --root packages/engine`, and say why in the
+  commit; classic's goldens did **not** move during M5, which is the check that classic is untouched.
 
-To preview a gated feature while building it: `pnpm dev`, then `http://localhost:5173/?ff=<flag>`.
-For the debug panel: `VITE_DEBUG_ALLOWED=true pnpm dev` and `?debug=1&ff=debugTools`.
+## Balance, as it stands
 
-## Things that will bite you
+`BASELINE_REPORT.md` and `reports/baseline.json` are the stage-1 numbers for the shipped classic
+values (24 configs, 3,200 games). At goals 50 Normal×2: medians 28 < 40 < 62 < 83 across goal
+levels, seat bias 46.7%, stall 0.5%, last goal completed education 45.7% / wealth 42.2% /
+happiness 11.6% / career 0.5%.
 
-- **Never mutate `state.players[i]` directly.** Copy-on-write cloning (ADR-0009) shares player
-  objects until `Ctx.playerAt` deep-clones one. Go through `applyCommand`.
-- **The UI must not re-derive rules.** Action legality, previews, travel times and open/closed
-  state all come from the engine (ADR-0020); if the UI needs a number, add it to `ActionPreview`.
-- **Engine purity is lint-enforced**: no DOM, `Date.now()`, `Math.random()`, `Math.exp/log/pow`, or
-  I/O in `packages/engine`. Randomness comes from the injected seeded RNG only.
-- **Units**: money is integer dollars, asset prices cents, hours are half-hours (a 60-hour week is
-  `weekHours: 120`), probabilities basis points, the economy index per-mille. Content is authored in
-  human units and converted in `packages/content/src/resolve.ts`.
-- **A balance target you cannot meet yet** goes in `sim/gates.json` as `pending: { issue, until }`
-  (ADR-0019), never deleted or widened. It reports on every run and fails `--strict`.
-- **Changing classic rules invalidates the golden replays** (`packages/engine/test/golden/`) and the
-  committed baseline. Regenerate with `UPDATE_GOLDEN=1 pnpm test` and re-run the stage-1 suite.
-- **Tags cannot be pushed from the build session** (KI-001) — create them locally and record the SHA
-  in the PROGRESS gate log.
-- **Never hand-edit a split doc.** `docs/*.md` and `CLAUDE.md` §1 are generated from
-  `docs/SPEC_PACK.md` by `tools/split-spec.py`. `PROGRESS.md`, `DECISIONS.md`, `KNOWN_ISSUES.md`,
-  `BASELINE_REPORT.md`, `NAMING.md` and this file are living documents and are edited directly.
-- **Regenerate command types** with `pnpm gen:types` after adding a command handler; `pnpm verify`
-  checks the generated file is current.
-- E2E in this sandbox needs the preinstalled browser:
-  `PW_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium-1194/chrome-linux/chrome pnpm test:e2e`.
-  Never set that in CI.
+Three 9.3 targets are recorded unmet, each with a reason rather than a plan:
+
+- **career last-completed** — structurally unreachable on `[SRC]` values (ADR-0026, KI-005);
+- **sim speed** — the spec-sized AI beam costs about a second a game (ADR-0016);
+- **stall rate** — lands on 0.5% against a "< 0.5%" target; the CI gate's tolerance is 2%.
+
+The M3.3 tuning that got happiness from 0% to 11.6% is worth reading before touching balance again:
+ADR-0025 (happiness decay and the ticket cap), ADR-0027 (why the stat needs headroom above the goal
+ceiling, and the two AI scorers the decay forced), ADR-0028 (turn-start pricing).
+
+## Commands
+
+```bash
+pnpm verify                     # everything, in the order CI runs it
+pnpm sim:gate                   # 8 configs, ~5 min; --strict also fails on the pending target
+pnpm tsx packages/sim/cli.ts --config sim/stage1.json --workers 2 --out reports/stage1
+pnpm baseline                   # rewrites BASELINE_REPORT.md + reports/baseline.json
+UPDATE_GOLDEN=1 npx vitest run test/golden.test.ts --root packages/engine
+PW_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium-1194/chrome-linux/chrome pnpm test:e2e
+```
+
+Budget roughly 0.5–1 s per Normal game and 3–6 s per Hard or goals-100 game (ADR-0016): the full
+stage-1 suite is about two hours on two workers, so start it in the background and work alongside it.

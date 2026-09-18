@@ -1,0 +1,44 @@
+[
+  {
+    "id": "smartphone",
+    "nameKey": "item.smartphone.name",
+    "descKey": "item.smartphone.desc",
+    "category": "electronics",
+    "price": 600,
+    "storeIds": ["electronics-store", "discount-store"],
+    "happinessOnBuy": 3,
+    "comfort": false,
+    "extraCredit": false,
+    "breakdownPerWeek": 1.5,
+    "repairCost": 120,
+    "unlocks": ["rideHail", "delivery", "gigDelivery", "newsHint"]
+  },
+  {
+    "id": "laptop",
+    "nameKey": "item.laptop.name",
+    "descKey": "item.laptop.desc",
+    "category": "electronics",
+    "price": 900,
+    "storeIds": ["electronics-store"],
+    "happinessOnBuy": 4,
+    "comfort": true,
+    "extraCredit": false,
+    "breakdownPerWeek": 1.0,
+    "repairCost": 180,
+    "unlocks": ["onlineStudy"]
+  },
+  {
+    "id": "phone-case",
+    "nameKey": "item.phone-case.name",
+    "descKey": "item.phone-case.desc",
+    "category": "misc",
+    "price": 30,
+    "storeIds": ["electronics-store", "discount-store"],
+    "happinessOnBuy": 0,
+    "comfort": false,
+    "extraCredit": false,
+    "breakdownPerWeek": 0,
+    "repairCost": 0,
+    "unlocks": ["phoneProtection"]
+  }
+]

@@ -183,9 +183,9 @@ export function crossFileIssues(pack: CityPack): Issue[] {
       if (!(e in pack.eventById))
         issues.push({ path: `assets.${a.id}.specialEvents`, message: `unknown event "${e}"` });
   }
-  if (pack.assets.filter((a) => a.set === 'classic').length !== 6)
+  if (pack.allAssets.filter((a) => a.set === 'classic').length !== 6)
     issues.push({ path: 'assets', message: 'expected 6 classic instruments' });
-  if (pack.flags.modernAssets && pack.assets.filter((a) => a.set === 'modern').length !== 6)
+  if (pack.flags.modernAssets && pack.allAssets.filter((a) => a.set === 'modern').length !== 6)
     issues.push({ path: 'assets', message: 'modernAssets on → expected 6 modern assets' });
   if (pack.flags.loans && !pack.loans)
     issues.push({ path: 'loans.json', message: 'loans flag on but loans.json missing' });

@@ -1,4 +1,7 @@
-/** core-decay (order 40): GDD 4.8 step E — dependability, relaxation and clothing decay. */
+/**
+ * core-decay (order 40): GDD 4.8 step E — dependability, relaxation, clothing and (where the pack
+ * sets it) happiness decay (ADR-0025).
+ */
 import type { RuleModule } from '../core/module.js';
 
 export const coreDecay: RuleModule = {
@@ -10,6 +13,7 @@ export const coreDecay: RuleModule = {
       const s = ctx.rules.stats;
       if (ctx.week > 1) {
         ctx.addStat(ctx.seat, 'dependability', -s.dependabilityDecay, 'decay');
+        ctx.addStat(ctx.seat, 'happiness', -ctx.rules.happiness.decayPerWeek, 'decay');
         if (!ctx.hasUnlock(ctx.seat, 'noRelaxDecay'))
           ctx.addStat(ctx.seat, 'relaxation', -s.relaxationDecay, 'decay');
         // The outfit in use (best tier) wears one week; worn-out outfits are discarded.

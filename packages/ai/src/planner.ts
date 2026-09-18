@@ -13,6 +13,7 @@ import {
   Rng,
   type Command,
   type GameState,
+  type PlayerState,
 } from '@hustle-ring/engine';
 import type { Difficulty } from '@hustle-ring/shared';
 import { ASSET_TIER, DIFFICULTY, type DifficultyConfig } from './config.js';
@@ -114,6 +115,34 @@ export function filterCandidates(
       case 'SellItem':
         if (p.cash + p.bank > 300) continue;
         break;
+      // ---- modern systems (M5.9) ---------------------------------------------------------
+      case 'TakeLoan':
+        // Borrowing is for seats that cannot cover the principal themselves, and only for
+        // personalities with some appetite for it.
+        if (ctx.personality.riskTolerance < 0.4) continue;
+        if (p.cash + p.bank > c.principal) continue;
+        break;
+      case 'RepayLoan':
+        if (p.cash < c.amount) continue;
+        break;
+      case 'BuyCar':
+        // A car is a slow purchase: only with the price twice over, so the week is not gutted.
+        if (p.cash < 2 * Math.abs(previewCommand(state, seat, c, pack).money)) continue;
+        break;
+      case 'SellCar':
+        // Selling the car is a last resort, not a strategy.
+        if (p.cash + p.bank > 1_000) continue;
+        break;
+      case 'GigShift':
+        if (previewCommand(state, seat, c, pack).money <= 0) continue;
+        break;
+      case 'Subscribe':
+        if ((pack.subscriptionById[c.subId]?.weeklyPrice ?? 0) * 4 > p.cash) continue;
+        break;
+      case 'OrderDelivery':
+        // Delivery is for when there is no time to go out, not a default.
+        if (p.food.mealPending !== null || p.hoursLeft > 12) continue;
+        break;
       default:
         break;
     }
@@ -194,6 +223,9 @@ function quickScore(
         s += 0.5;
       if (loc?.kind === 'home' && gap('happiness') > 0 && !p.turn.relaxed)
         s += 0.3 * gap('happiness');
+      // Where happiness decays, a shopping trip for a comfort durable is the only lasting fix.
+      if (gap('happiness') > 0 && relaxNet(pack, p) < 1 && sellsUnownedComfort(pack, p, cmd.to))
+        s += 0.3 * gap('happiness');
       if (svc.includes('meals') && p.food.mealPending === null && p.food.fridgeUnits === 0)
         s += 0.3;
       if (svc.includes('grocery') && p.food.fridgeUnits === 0) s += 0.1;
@@ -207,6 +239,11 @@ function quickScore(
       const cl = pack.clothingById[cmd.itemId];
       if (cl && needClothes && pack.uniformRank[cl.tier] >= pack.uniformRank[curJob.uniformTier])
         s += 0.8;
+      const spec = pack.itemById[cmd.itemId];
+      // A comfort durable raises every future relax; without one, a decaying happiness goal is
+      // unreachable, so it outranks the immediate happinessOnBuy the base score already counts.
+      if (spec?.comfort && gap('happiness') > 0 && relaxNet(pack, p) < 1)
+        s += 0.4 * gap('happiness');
       break;
     }
     case 'EatMeal':
@@ -224,6 +261,42 @@ function quickScore(
     case 'Relax':
       s += 0.1 * ctx.personality.preferences.relaxWeight + 0.5 * gap('happiness');
       break;
+    case 'GigShift':
+      // Gig money is money; the planner values it through the preview like any other pay.
+      s += 0.5 + 0.2 * gap('wealth');
+      break;
+    case 'GigSignup':
+      s += 0.3 + 0.3 * gap('wealth') - (p.job ? 0.1 : 0);
+      break;
+    case 'StudyOnline':
+      s += 0.5 * w.education + 0.5 + gap('education');
+      break;
+    case 'BuyTransitPass':
+    case 'BuyCar':
+      // Faster travel is worth the most when the week is tight.
+      s += 0.2 + 0.3 * (1 - p.hoursLeft / Math.max(1, pack.rules.time.weekHours));
+      break;
+    case 'RepairCar':
+      s += 0.4;
+      break;
+    case 'Subscribe': {
+      const sub = pack.subscriptionById[cmd.subId];
+      s += sub ? 0.1 + 0.2 * (sub.happinessPerWeek + sub.wellbeingPerWeek) : 0;
+      break;
+    }
+    case 'Unsubscribe':
+      // Cancel when money is tight, keep it otherwise.
+      s += p.cash < 100 ? 0.4 : -0.3;
+      break;
+    case 'TakeLoan':
+      s += 0.2 * gap('wealth') * ctx.personality.riskTolerance;
+      break;
+    case 'RepayLoan':
+      s += 0.3;
+      break;
+    case 'OrderDelivery':
+      s += p.food.mealPending === null && p.food.fridgeUnits === 0 ? 0.3 : -0.3;
+      break;
     case 'EndTurn':
       s -= p.hoursLeft > 12 ? 0.5 : 0;
       break;
@@ -231,6 +304,30 @@ function quickScore(
       break;
   }
   return s;
+}
+
+/**
+ * Happiness a relax session nets per week after the pack's decay (ADR-0025). Non-positive means
+ * relaxing alone cannot close the happiness goal and comfort durables are the only way up.
+ */
+function relaxNet(pack: CityPack, p: PlayerState): number {
+  const h = pack.rules.happiness;
+  let comfort = 0;
+  for (const it of p.items)
+    if (pack.itemById[it.itemId]?.comfort && it.condition === 'ok') comfort++;
+  return Math.min(h.relaxMax, h.relaxBase + h.relaxPerComfort * comfort) - h.decayPerWeek;
+}
+
+/** True when this location sells an affordable comfort durable the player does not own yet. */
+function sellsUnownedComfort(pack: CityPack, p: PlayerState, locId: string): boolean {
+  const spare = p.cash - p.home.rentLocked;
+  return pack.items.some(
+    (i) =>
+      i.comfort &&
+      i.price <= spare &&
+      i.storeIds.includes(locId) &&
+      !p.items.some((it) => it.itemId === i.id),
+  );
 }
 
 export function planTurn(

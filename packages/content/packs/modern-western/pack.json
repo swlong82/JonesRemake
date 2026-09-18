@@ -1,8 +1,22 @@
 {
   "id": "modern-western",
   "version": "0.1.0",
-  "currency": { "symbol": "$", "code": "USD" },
-  "featureFlags": {},
+  "currency": {
+    "symbol": "$",
+    "code": "USD"
+  },
+  "featureFlags": {
+    "transport": true,
+    "gig": true,
+    "subscriptions": true,
+    "onlineStudy": true,
+    "wellbeing": true,
+    "delivery": true,
+    "rentHikes": true,
+    "loans": true,
+    "modernAssets": true,
+    "modernEvents": true
+  },
   "wealthPointValue": 100,
   "extends": "classic",
   "titleKey": "title.modern-western"

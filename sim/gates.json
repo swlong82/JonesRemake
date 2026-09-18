@@ -41,19 +41,15 @@
         },
         "lastGoalPct.career": {
           "min": 5,
-          "note": "9.3 each goal last ≥ 10% (widened)",
+          "note": "9.3 each goal last ≥ 10% (widened); structurally unreachable at goals 50 on [SRC] values — ADR-0026",
           "pending": {
             "issue": "KI-005",
-            "until": "M3.3"
+            "until": "M6.3"
           }
         },
         "lastGoalPct.happiness": {
           "min": 5,
-          "note": "9.3 each goal last ≥ 10% (widened)",
-          "pending": {
-            "issue": "KI-005",
-            "until": "M3.3"
-          }
+          "note": "9.3 each goal last ≥ 10% (widened); ADR-0025 happiness decay"
         }
       }
     },

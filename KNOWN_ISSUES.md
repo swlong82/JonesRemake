@@ -40,16 +40,26 @@
 - Mitigation: the per-test timeout is now 20 s (M4), so a busy machine no longer fails the sweep; the seed count was not reduced.
 - Status: fixed in M4 (`packages/engine/src/core/replay.test.ts`)
 
-## KI-005: Career and happiness are never the last goal completed (classic, goals 50)
+## KI-005: Career is never the last goal completed (classic, goals 50)
 
-- Severity: major
+- Severity: minor (accepted; happiness half fixed)
 - Area: balance
 - Found in: M3.4 (`pnpm sim:gate`)
-- Repro: `pnpm sim:gate` → `classic-50-normal-2 lastGoalPct.career: 0` and `lastGoalPct.happiness: 0`, against BALANCE 9.3's "each goal last-completed ≥ 10%".
-- Measured (stage-1, 200 games, `classic-50-normal-2`): last goal completed is education 65%, wealth 35%, career 0%, happiness 0%. Full numbers in `BASELINE_REPORT.md`.
-- Attempts: 1) diagnosed career: it is `clamp(dependability × careerDependabilityBp / 10000)` with bp 12500, so career 50 needs only dependability 40, which sustained work reaches long before six degrees do. 2) bounded the tuning range: bp below 10000 makes career 100 unreachable because `statMax` is 100, so the usable range is 10000–12500 (≤ 20% reduction). 3) diagnosed happiness: nothing decays it — `core-decay` decays dependability, relaxation and clothing only — so it climbs monotonically at 2–6 per relax and no value inside ±25% makes it bind.
-- Mitigation: both assertions are marked `pending: { issue: KI-005, until: M3.3 }` in `sim/gates.json` (ADR-0019), so they are reported on every gate run but do not fail CI. `pnpm sim:gate --strict` fails on them, and the M3 gate must be run strict.
-- Status: open — the fix is `careerDependabilityBp` toward 10000 plus happiness decay (a `core-decay` change, so its own ADR), then regenerate `packages/engine/test/golden/` and re-run the stage-1 suite before freezing the baseline (ADR-0024).
+- Repro: `pnpm sim:gate` → `classic-50-normal-2 lastGoalPct.career` under 1%, against BALANCE 9.3's "each goal last-completed ≥ 10%".
+- Measured (120 games, `classic-50-normal-2`, after the M3.3 tuning): last goal completed is education 42.5%, wealth 40.8%, happiness 16.7%, career 0%. Full numbers per config in `BASELINE_REPORT.md`.
+- Attempts: 1) happiness — fixed: `rules.happiness.decayPerWeek` 4, headroom above the goal ceiling and `oncePerTurn` on both tickets took happiness from 0% to 16.7% (ADR-0025, ADR-0027). 2) career — `stats.workDependabilityGain` 2 → 1, the only [ASSUMED] value with leverage: 0.00%, worse. 3) career — proved structural: education 50 needs six degrees, six degrees grant +30 dependability and career is `dependability × 1.25`, all three [SRC], so career 50 is met long before the sixth degree (ADR-0026).
+- Mitigation: the career assertion stays asserted and `pending: { issue: KI-005, until: M6.3 }` in `sim/gates.json` (ADR-0019), so every gate run prints it and `pnpm sim:gate --strict` fails on it; the M3 gate records it per CLAUDE.md 1.5 instead of meeting it (ADR-0026). Only `careerDependabilityBp` 12500 → 10000 would meet it, at the cost of an ORIGINAL_REFERENCE [SRC] anchor.
+- Status: open, accepted — revisited for `modern-western` at M6.3. Not degenerate at every goal level: at goals 100 all four goals are last-completed between 18% and 42%.
+
+## KI-006: The modern ruleset has never been balance-run
+
+- Severity: minor
+- Area: balance
+- Found in: M5 gate
+- Repro: `pnpm sim:gate` covers `classic` only; `sim/stage1.json` and `sim/gates.json` have no `modern-western` config, so the nine modern systems have been exercised by unit tests and a 200-turn AI self-play smoke test, never by a seeded suite.
+- Attempts: not a defect — M6.3 is the milestone that does it (BALANCE 9.5/9.6), with `reports/modern-targets.json` locked first at M6.2.
+- Mitigation: none needed for `classic`, which is unaffected: every modern module is gated by a CityPack flag that `classic` leaves off, and classic's golden replays did not move across the whole of M5.
+- Status: open — closes with M6.3.
 
 <!--
 ## KI-001: <title>

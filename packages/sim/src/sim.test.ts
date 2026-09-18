@@ -353,3 +353,81 @@ describe('worker pool', () => {
     expect(seen).toEqual([1, 2]);
   });
 });
+
+describe('M5.9 modern strategy bots (BALANCE 9.4)', () => {
+  const modern = loadPack('modern-western');
+  it('registers every bot the spec names, each with a narrower command set', () => {
+    // An earlier test registers a TestBot, so this asserts the spec's bots are all present.
+    expect(botIds()).toEqual(
+      expect.arrayContaining([
+        'CryptoAllIn',
+        'DeliveryOnly',
+        'GigOnly',
+        'LoanMax',
+        'NoRelax',
+        'StudyFirst',
+      ]),
+    );
+  });
+
+  it('each modern bot forbids exactly what its strategy forbids', () => {
+    const state = runGame(
+      {
+        runId: 'bots',
+        packId: 'modern-western',
+        seed: 'bots-1',
+        seats: [
+          { kind: 'bot', bot: 'GigOnly' },
+          { kind: 'ai', difficulty: 'normal', personality: 'balanced' },
+        ],
+        goals: 30,
+        chaos: 'modern',
+        stallWeek: 40,
+      },
+      modern,
+    );
+    expect(state.seats[0]!.jobId).toBeNull();
+
+    const gig = getBot('GigOnly');
+    expect(gig.allow({ type: 'Work', hours: 12 }, {} as never, 0, modern)).toBe(false);
+    expect(gig.allow({ type: 'GigShift', hours: 12 }, {} as never, 0, modern)).toBe(true);
+
+    const crypto = getBot('CryptoAllIn');
+    expect(
+      crypto.allow({ type: 'BuyAsset', assetId: 'crypto', amount: 100 }, {} as never, 0, modern),
+    ).toBe(true);
+    expect(
+      crypto.allow({ type: 'BuyAsset', assetId: 'bonds', amount: 100 }, {} as never, 0, modern),
+    ).toBe(false);
+    expect(
+      crypto.allow({ type: 'SellAsset', assetId: 'crypto', amount: 100 }, {} as never, 0, modern),
+    ).toBe(false);
+
+    const delivery = getBot('DeliveryOnly');
+    expect(delivery.allow({ type: 'EatMeal', mealId: 'burger' }, {} as never, 0, modern)).toBe(
+      false,
+    );
+    expect(
+      delivery.allow({ type: 'OrderDelivery', mealId: 'burger' }, {} as never, 0, modern),
+    ).toBe(true);
+
+    const loanMax = getBot('LoanMax');
+    expect(
+      loanMax.allow(
+        { type: 'TakeLoan', principal: modern.loans!.max, termWeeks: 52 },
+        {} as never,
+        0,
+        modern,
+      ),
+    ).toBe(true);
+    expect(
+      loanMax.allow(
+        { type: 'TakeLoan', principal: modern.loans!.min, termWeeks: 52 },
+        {} as never,
+        0,
+        modern,
+      ),
+    ).toBe(false);
+    expect(loanMax.allow({ type: 'RepayLoan', amount: 100 }, {} as never, 0, modern)).toBe(false);
+  }, 30_000);
+});
