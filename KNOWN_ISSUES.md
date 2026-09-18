@@ -51,6 +51,16 @@
 - Mitigation: the career assertion stays asserted and `pending: { issue: KI-005, until: M6.3 }` in `sim/gates.json` (ADR-0019), so every gate run prints it and `pnpm sim:gate --strict` fails on it; the M3 gate records it per CLAUDE.md 1.5 instead of meeting it (ADR-0026). Only `careerDependabilityBp` 12500 → 10000 would meet it, at the cost of an ORIGINAL_REFERENCE [SRC] anchor.
 - Status: open, accepted — revisited for `modern-western` at M6.3. Not degenerate at every goal level: at goals 100 all four goals are last-completed between 18% and 42%.
 
+## KI-006: The modern ruleset has never been balance-run
+
+- Severity: minor
+- Area: balance
+- Found in: M5 gate
+- Repro: `pnpm sim:gate` covers `classic` only; `sim/stage1.json` and `sim/gates.json` have no `modern-western` config, so the nine modern systems have been exercised by unit tests and a 200-turn AI self-play smoke test, never by a seeded suite.
+- Attempts: not a defect — M6.3 is the milestone that does it (BALANCE 9.5/9.6), with `reports/modern-targets.json` locked first at M6.2.
+- Mitigation: none needed for `classic`, which is unaffected: every modern module is gated by a CityPack flag that `classic` leaves off, and classic's golden replays did not move across the whole of M5.
+- Status: open — closes with M6.3.
+
 <!--
 ## KI-001: <title>
 - Severity: blocker | major | minor
