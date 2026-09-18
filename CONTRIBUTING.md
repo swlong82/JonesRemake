@@ -45,6 +45,33 @@ Node 22 (`.nvmrc`) and pnpm 9 (`packageManager` in `package.json`) are required.
 See `docs/ARCHITECTURE.md` §5.1. Dependency rule (lint-enforced):
 `shared ← platform`, `shared ← content ← engine ← ai ← sim`; `apps/web` depends on everything except `sim`.
 
+## Adding a rule, a system or a pack
+
+Rules and numbers live in content, never in engine code (`CLAUDE.md` §1.3). In practice:
+
+- **A new number** → the CityPack rules schema plus each pack's `rules.json`. Give it a default so
+  packs that do not set it are unchanged.
+- **A new command** → one handler file plus one line in the owning module's `commands` array, then
+  `pnpm gen:types` (it scans `packages/engine/src/commands/*.ts` and `packages/engine/src/modules/*.ts`,
+  and CI checks the generated union is current).
+- **A new system** → a `RuleModule` in `packages/engine/src/modules/` with its own `flag`, `stateSlice`
+  and commands, added to `MODERN_MODULES` (order 100–199; core is 0–99). `createEngine` drops it for a
+  pack whose flag is off, so the UI needs no gating of its own: the location panel renders whatever
+  `candidateCommands` returns. Read another module's state only through the selectors it exports.
+- **New pack content** → the JSON file, its i18n keys, its `assets.registry.json` entry, **and** an
+  entry in `packages/content/src/packs.ts`. The pack registry is a static import list; a file that is
+  not listed there is silently ignored.
+
+Two invariants worth repeating because they fail loudly and late:
+
+- `cost()` and `validate()` must not draw from the RNG — they run inside `legalCommands` and
+  `previewCommand`, which are pure, and a draw there breaks replay determinism. Roll a price a preview
+  must show at turn start into the module's slice; apply a risk that lands afterwards in `apply` or on
+  the event, and report it as `riskBp` in the preview (ADR-0028).
+- Any rule or content change moves the golden replays. Regenerate them deliberately with
+  `UPDATE_GOLDEN=1 npx vitest run test/golden.test.ts --root packages/engine` and say why in the commit
+  — an unexplained golden churn is the review's cue that something changed that should not have.
+
 ## Reporting bugs and proposing features
 
 Use the issue templates. For balance issues include the seed and pack id so the sim can reproduce it.
