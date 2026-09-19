@@ -25,6 +25,8 @@ export interface AiResponse {
 
 export interface AiClient {
   plan(state: GameState, seat: number, packId: string, opts: PlanOptions): Promise<Command[]>;
+  /** Stop work whose result is no longer owned by the current game. */
+  cancelPending(): void;
   dispose(): void;
 }
 
@@ -41,6 +43,9 @@ export class MainThreadAiClient implements AiClient {
   plan(state: GameState, seat: number, packId: string, opts: PlanOptions): Promise<Command[]> {
     return Promise.resolve(planOnMainThread(state, seat, packId, opts));
   }
+  cancelPending(): void {
+    /* synchronous planning has no pending work to cancel */
+  }
   dispose(): void {
     /* nothing to release */
   }
@@ -54,6 +59,7 @@ export class WorkerAiClient implements AiClient {
     { resolve: (c: Command[]) => void; reject: (e: Error) => void }
   >();
   private failures = 0;
+  private cancelVersion = 0;
   private readonly fallback = new MainThreadAiClient();
 
   constructor(private readonly makeWorker: () => Worker) {}
@@ -83,6 +89,14 @@ export class WorkerAiClient implements AiClient {
     this.worker = null;
   }
 
+  cancelPending(): void {
+    this.cancelVersion++;
+    for (const p of this.pending.values()) p.reject(new Error('ai planning cancelled'));
+    this.pending.clear();
+    this.worker?.terminate();
+    this.worker = null;
+  }
+
   async plan(
     state: GameState,
     seat: number,
@@ -91,6 +105,7 @@ export class WorkerAiClient implements AiClient {
   ): Promise<Command[]> {
     // 15.5: retry the worker once, then fall back to the main thread with a notice.
     if (this.failures >= 2) return this.fallback.plan(state, seat, packId, opts);
+    const startedAtCancelVersion = this.cancelVersion;
     try {
       const id = this.nextId++;
       const req: AiRequest = {
@@ -104,15 +119,15 @@ export class WorkerAiClient implements AiClient {
         this.pending.set(id, { resolve, reject });
         this.ensure().postMessage(req);
       });
-    } catch {
+    } catch (error) {
+      if (this.cancelVersion !== startedAtCancelVersion) throw error;
       this.crash();
       return this.plan(state, seat, packId, opts);
     }
   }
 
   dispose(): void {
-    this.worker?.terminate();
-    this.worker = null;
+    this.cancelPending();
   }
 }
 
