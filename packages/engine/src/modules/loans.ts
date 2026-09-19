@@ -6,8 +6,8 @@
  *
  * The weekly payment is the textbook amortised one, computed in fixed point: `P·r/(1−(1+r)^−n)`
  * with `r` the weekly rate. `(1+r)^n` is built by repeated multiplication rather than `Math.pow`,
- * so the engine stays free of floating point for game values (STATE_MODEL 13.1) and still lands
- * within a cent of the closed form.
+ * so the engine stays free of floating point for game values (STATE_MODEL 13.1). ADR-0029 fixes
+ * the whole-dollar rounding rules for the payment, weekly interest and final instalment.
  */
 import { z } from 'zod';
 import type { Ctx } from '../core/ctx.js';
@@ -37,7 +37,7 @@ interface Loan {
 
 interface LoansSlice {
   loans: Loan[];
-  /** Dollars still owed to a defaulted lender, collected by garnishing pay. */
+  /** Outstanding default debt. Kept under its original save-field name for compatibility. */
   garnished: number;
 }
 
@@ -67,8 +67,13 @@ export function loansOf(p: PlayerState): Loan[] {
   return sliceOf(p)?.loans ?? [];
 }
 
-export function totalOwed(p: PlayerState): number {
+function activeOwed(p: PlayerState): number {
   return loansOf(p).reduce((sum, l) => sum + l.balance, 0);
+}
+
+export function totalOwed(p: PlayerState): number {
+  const slice = sliceOf(p);
+  return activeOwed(p) + (slice?.garnished ?? 0);
 }
 
 /** APR in basis points for this seat right now (GDD 4.12). */
@@ -80,7 +85,7 @@ export function aprBpFor(ctx: Ctx, seat: number): number {
   return Math.max(0, spec.aprBaseBp + econAdjust + lowDep);
 }
 
-/** `P·r/(1−(1+r)^−n)`, rounded up to the cent-free dollar the ledger uses. */
+/** `P·r/(1−(1+r)^−n)`, rounded up to the whole dollar the ledger uses. */
 export function weeklyPayment(principal: number, aprBp: number, termWeeks: number): number {
   if (termWeeks <= 0) return principal;
   // Weekly rate in fixed point; APR is nominal, divided across 52 weeks.
@@ -92,6 +97,11 @@ export function weeklyPayment(principal: number, aprBp: number, termWeeks: numbe
   const numerator = Math.round((principal * rate * 100) / SCALE) * compound;
   const denominator = compound - SCALE;
   return Math.max(1, Math.ceil(numerator / denominator / 100));
+}
+
+/** One week's simple interest, rounded to the nearest whole dollar with halves rounded up. */
+export function weeklyInterest(balance: number, aprBp: number): number {
+  return mulDiv(balance, aprBp, 10_000 * 52);
 }
 
 /** What a seat is reckoned to earn a week: the job plus whatever modules add (a gig). */
@@ -192,22 +202,28 @@ const repayLoanHandler: CommandHandler<RepayLoanCommand> = {
     const svc = requireService(ctx, 'loans');
     if (svc) return svc;
     const slice = sliceOf(ctx.player);
-    if (!slice || slice.loans.length === 0) return 'ERR_NO_LOAN';
+    if (!slice || totalOwed(ctx.player) === 0) return 'ERR_NO_LOAN';
     if (ctx.player.cash < Math.min(cmd.amount, totalOwed(ctx.player))) return 'ERR_NOT_ENOUGH_CASH';
     return null;
   },
   apply: (ctx, cmd) => {
     const slice = sliceOf(ctx.player)!;
     let left = Math.min(cmd.amount, totalOwed(ctx.player));
-    ctx.addMoney(ctx.seat, 'cash', -left, 'loan-repay');
+    const paid = left;
+    ctx.addMoney(ctx.seat, 'cash', -paid, 'loan-repay');
+
+    // Clear default debt first: it is the balance that otherwise garnishes every pay cheque.
+    const defaultPaid = Math.min(slice.garnished, left);
+    slice.garnished -= defaultPaid;
+    left -= defaultPaid;
     for (const loan of slice.loans) {
       if (left <= 0) break;
-      const paid = Math.min(loan.balance, left);
-      loan.balance -= paid;
-      left -= paid;
+      const principalPaid = Math.min(loan.balance, left);
+      loan.balance -= principalPaid;
+      left -= principalPaid;
     }
     slice.loans = slice.loans.filter((l) => l.balance > 0);
-    ctx.emit({ type: 'LoanPaid', seat: ctx.seat });
+    if (totalOwed(ctx.player) === 0) ctx.emit({ type: 'LoanPaid', seat: ctx.seat });
   },
   candidates: (ctx) => {
     const owed = totalOwed(ctx.player);
@@ -227,11 +243,17 @@ function collect(ctx: Ctx): void {
   const slice = sliceOf(ctx.player);
   if (!spec || !slice) return;
   for (const loan of slice.loans) {
-    const due = Math.min(loan.weeklyPayment, loan.balance);
+    const balanceWithInterest = loan.balance + weeklyInterest(loan.balance, loan.aprBp);
+    const finalInstalment = ctx.week - loan.takenWeek >= loan.termWeeks;
+    const due = finalInstalment
+      ? balanceWithInterest
+      : Math.min(loan.weeklyPayment, balanceWithInterest);
     const shortfall = ctx.takeMoneyCascade(ctx.seat, due, 'loan-payment');
+    const paid = due - shortfall;
+    loan.balance = balanceWithInterest - paid;
     if (shortfall > 0) {
-      // Missed: the fee goes on the balance, and it costs wellbeing (GDD 4.5).
-      loan.balance += shortfall + spec.missedFee;
+      // A partial payment reduces the debt first; one fee is then added for the shortfall.
+      loan.balance += spec.missedFee;
       loan.missed += 1;
       ctx.emit({ type: 'LoanMissed', seat: ctx.seat });
       if (loan.missed >= spec.defaultAfter && !loan.defaulted) {
@@ -246,10 +268,21 @@ function collect(ctx: Ctx): void {
       }
       continue;
     }
-    loan.balance -= due;
     if (loan.balance === 0) ctx.emit({ type: 'LoanPaid', seat: ctx.seat });
   }
   slice.loans = slice.loans.filter((l) => l.balance > 0 && !l.defaulted);
+}
+
+/** Default debt takes the pack-defined share of earned pay until it is gone. */
+function garnishDefaultDebt(ctx: Ctx, seat: number, pay: number): void {
+  const spec = ctx.pack.loans;
+  const slice = sliceOf(ctx.playerAt(seat));
+  if (!spec || !slice || slice.garnished === 0 || pay <= 0) return;
+  const amount = Math.min(slice.garnished, mulDiv(pay, spec.garnishBp, 10_000));
+  if (amount === 0) return;
+  slice.garnished -= amount;
+  ctx.addMoney(seat, 'cash', -amount, 'loan-garnish');
+  if (slice.garnished === 0) ctx.emit({ type: 'LoanPaid', seat });
 }
 
 export const loans: RuleModule = {
@@ -269,8 +302,11 @@ export const loans: RuleModule = {
     },
     contributeWealth(ctx, seat) {
       // Debt is negative wealth, so a loan cannot inflate the wealth goal (GDD 4.4).
-      const slice = sliceOf(ctx.playerAt(seat));
-      return slice ? -(totalOwed(ctx.playerAt(seat)) + slice.garnished) : 0;
+      return -totalOwed(ctx.playerAt(seat));
+    },
+    onDomainEvent(ctx, event) {
+      if (event.type === 'Worked' || event.type === 'GigWorked')
+        garnishDefaultDebt(ctx, event.seat, event.pay);
     },
   },
 };
