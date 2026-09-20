@@ -119,6 +119,12 @@ const MAX_LOG = 400;
 /** Half-hours above which ending the turn asks for confirmation (UX 7.7 Shift+E). */
 export const END_TURN_CONFIRM_HOURS = 12;
 
+/**
+ * Monotonically identifies the game that owns asynchronous AI work. Kept outside serializable
+ * game state because it is UI concurrency bookkeeping, not part of a deterministic replay.
+ */
+let gameGeneration = 0;
+
 function delayFor(speed: AiSpeed): number {
   return speed === 'instant' ? 0 : speed === 'fast' ? 120 : 450;
 }
@@ -160,6 +166,8 @@ export const useGame = create<GameStore>((set, get) => ({
   },
 
   startGame(config, opts = {}) {
+    gameGeneration++;
+    get().aiClient.cancelPending();
     const pack = loadPack(config.packId);
     // Pack display strings live in the `pack` i18n namespace (M4.7).
     loadPackStrings(pack);
@@ -178,6 +186,11 @@ export const useGame = create<GameStore>((set, get) => ({
       logOpen: false,
       standingsOpen: false,
       menuOpen: false,
+      helpOpen: false,
+      endTurnPending: false,
+      aiThinking: false,
+      aiSkip: false,
+      pendingCards: [],
       lastError: null,
       debug: opts.debug ?? false,
       autoplay: opts.autoplay ?? false,
@@ -337,6 +350,8 @@ export const useGame = create<GameStore>((set, get) => ({
     if (!player) return;
     const isAi = player.controller === 'ai' || g.autoplay;
     if (!isAi) return;
+    const ownerGeneration = gameGeneration;
+    let planCompleted = false;
     set({ aiThinking: true, aiSkip: false });
     try {
       const opts = {
@@ -344,27 +359,47 @@ export const useGame = create<GameStore>((set, get) => ({
         personality: player.ai?.personality ?? 'balanced',
       };
       const commands = await g.aiClient.plan(state, seat, pack.id, opts);
+      if (gameGeneration !== ownerGeneration) return;
+      planCompleted = true;
       const speed = useSettings.getState().settings.aiSpeed;
       const delay = g.autoplay ? 0 : delayFor(speed);
       for (const cmd of commands) {
         const cur = get();
-        if (cur.state?.activeSeat !== seat || cur.state.winner !== null) break;
+        if (
+          gameGeneration !== ownerGeneration ||
+          cur.state?.activeSeat !== seat ||
+          cur.state.winner !== null
+        )
+          break;
         if (delay > 0 && !cur.aiSkip) await sleep(delay);
-        set({ aiThinking: false });
-        const ok = cur.dispatch(cmd);
-        set({ aiThinking: true });
+        // The game may have been quit/restarted/rematched while the pacing timer was sleeping.
+        const afterDelay = get();
+        if (
+          gameGeneration !== ownerGeneration ||
+          afterDelay.state?.activeSeat !== seat ||
+          afterDelay.state.winner !== null
+        )
+          break;
+        const ok = afterDelay.dispatch(cmd);
         if (!ok) break;
       }
       // Safety: if the seat is still active after the plan, end the turn so the game never hangs.
       const after = get();
-      if (after.state?.activeSeat === seat && after.state.winner === null) {
-        set({ aiThinking: false });
+      if (
+        gameGeneration === ownerGeneration &&
+        after.state?.activeSeat === seat &&
+        after.state.winner === null
+      ) {
         after.dispatch({ type: 'EndTurn' });
       }
+    } catch {
+      // Lifecycle cancellation is expected. A worker crash retries/falls back inside AiClient.
     } finally {
-      set({ aiThinking: false });
+      if (gameGeneration === ownerGeneration) set({ aiThinking: false });
     }
-    // dispatch() already re-triggers for the next AI seat; nothing else to do here.
+    // Calls made by dispatch while this job owned the turn were intentionally ignored. Once it
+    // releases ownership, start exactly one plan for a consecutive AI seat.
+    if (gameGeneration === ownerGeneration && planCompleted) void get().runAiIfNeeded();
   },
 
   preview(cmd) {
@@ -387,7 +422,19 @@ export const useGame = create<GameStore>((set, get) => ({
     return state ? stateHash(state) : '';
   },
   quit() {
-    set({ screen: 'title', state: null, pack: null, cards: [], ticker: [], log: [] });
+    gameGeneration++;
+    get().aiClient.cancelPending();
+    set({
+      screen: 'title',
+      state: null,
+      pack: null,
+      cards: [],
+      pendingCards: [],
+      ticker: [],
+      log: [],
+      aiThinking: false,
+      aiSkip: false,
+    });
   },
   rematch() {
     const { state } = get();

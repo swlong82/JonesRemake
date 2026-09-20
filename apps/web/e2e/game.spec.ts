@@ -19,6 +19,15 @@ async function startGame(page: Page, query = ''): Promise<void> {
   await expect(page.getByTestId('hud')).toBeVisible();
 }
 
+async function startModernGame(page: Page): Promise<void> {
+  await page.goto('/?debug=1&ff=debugTools');
+  await page.getByTestId('new-game').click();
+  await page.locator('#ruleset').selectOption('modern-western');
+  await page.getByTestId('seed').fill('e2e-modern');
+  await page.getByTestId('start-game').click();
+  await expect(page.getByTestId('hud')).toBeVisible();
+}
+
 test('plays a classic turn on the board and passes axe', async ({ page }) => {
   await startGame(page);
 
@@ -127,5 +136,51 @@ test('the end screen shows the goal chart and passes axe', async ({ page }) => {
   await expect(page.getByTestId('end-heading')).toContainText('week 2');
   await expect(page.getByTestId('goal-chart')).toBeVisible();
   await expect(page.getByTestId('end-stats')).toBeVisible();
+  await expectNoA11yViolations(page);
+});
+
+test('modern actions, costs and unavailable reasons are exposed through the interface', async ({
+  page,
+}) => {
+  await startModernGame(page);
+
+  await expect(page.getByTestId('wellbeing')).toBeVisible();
+  await expect(page.getByTestId('subscription-total')).toBeVisible();
+  await expect(page.getByTestId('loan-due')).toBeVisible();
+  await expect(page.getByTestId('section-delivery')).toBeVisible();
+  await expect(
+    page.getByTestId('section-delivery').getByTestId('disabled-reason').first(),
+  ).toBeVisible();
+
+  // Gig signup is scoped to the employment office and keeps its requirement visible when locked.
+  await page.getByTestId('exit').click();
+  await page
+    .getByTestId(isPhone(page) ? 'phone-loc-employment-office' : 'square-employment-office')
+    .click();
+  await page.getByTestId('travel-go').click();
+  await page.getByTestId('enter').click();
+  await expect(page.getByTestId('section-gig')).toBeVisible();
+  await expect(
+    page.getByTestId('section-gig').getByTestId('disabled-reason').first(),
+  ).toBeVisible();
+  await page.getByTestId('exit').click();
+
+  // Modern travel exposes the available modes and gives a human-readable reason for locked ones.
+  await page.getByTestId(isPhone(page) ? 'phone-loc-bank' : 'square-bank').click();
+  await expect(page.getByTestId('mode-transit')).toBeVisible();
+  await expect(page.getByTestId('mode-ride-hail')).toBeDisabled();
+
+  // At the bank, investment and loan summaries accompany the actionable rows.
+  await page.getByTestId('travel-go').click();
+  await page.getByTestId('enter').click();
+  await expect(page.getByTestId('section-invest')).toBeVisible();
+  await expect(page.getByTestId('investment-summary')).toBeVisible();
+  await expect(page.getByTestId('section-loans')).toBeVisible();
+  await expect(page.getByTestId('loan-summary')).toBeVisible();
+  await page
+    .getByTestId(/^action-BuyAsset/)
+    .first()
+    .click();
+  await expect(page.getByTestId('investment-summary')).not.toContainText('No investments yet.');
   await expectNoA11yViolations(page);
 });

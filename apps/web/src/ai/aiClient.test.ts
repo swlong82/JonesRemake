@@ -61,6 +61,23 @@ describe('AI client', () => {
     expect(worker.terminated).toBe(true);
   });
 
+  it('cancels pending worker plans without retrying them', async () => {
+    const made: FakeWorker[] = [];
+    const client = new WorkerAiClient(() => {
+      const worker = new FakeWorker();
+      worker.postMessage = () => {
+        /* leave the request pending until cancellation */
+      };
+      made.push(worker);
+      return worker as unknown as Worker;
+    });
+    const pending = client.plan(aiGame(), 0, 'classic', OPTS);
+    client.cancelPending();
+    await expect(pending).rejects.toThrow('cancelled');
+    expect(made).toHaveLength(1);
+    expect(made[0]?.terminated).toBe(true);
+  });
+
   it('retries once and then falls back to the main thread when the worker fails', async () => {
     const made: FakeWorker[] = [];
     const client = new WorkerAiClient(() => {

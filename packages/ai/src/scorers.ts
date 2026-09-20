@@ -217,9 +217,10 @@ export const loanBurden: Scorer = {
   weight: (p) => 0.5 + 0.5 * p.weights.wealth,
   value: (ctx, _state, p) => {
     const slice = p.modules.loans as
-      { loans: { balance: number; weeklyPayment: number }[] } | undefined;
-    if (!slice || slice.loans.length === 0) return 0;
-    const owed = slice.loans.reduce((sum, l) => sum + l.balance, 0);
+      { loans: { balance: number; weeklyPayment: number }[]; garnished?: number } | undefined;
+    if (!slice) return 0;
+    const owed = slice.loans.reduce((sum, l) => sum + l.balance, 0) + (slice.garnished ?? 0);
+    if (owed === 0) return 0;
     const weekly = slice.loans.reduce((sum, l) => sum + l.weeklyPayment, 0);
     const target = Math.max(1, p.goals.wealth * ctx.pack.wealthPointValue);
     return -Math.min(1, owed / target) - Math.min(0.5, weekly / 200);

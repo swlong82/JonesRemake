@@ -1,5 +1,6 @@
-import type { GameConfig } from '@hustle-ring/engine';
+import type { Command, GameConfig, GameState } from '@hustle-ring/engine';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { AiClient } from '../ai/aiClient';
 import { buildConfig, defaultSeat } from '../ui/screens/SetupScreen';
 import { hoursLabel, useGame } from './gameStore';
 import { useSettings } from './settings';
@@ -17,6 +18,44 @@ function config(
   };
 }
 
+interface PendingPlan {
+  seat: number;
+  resolve: (commands: Command[]) => void;
+}
+
+class ControlledAiClient implements AiClient {
+  readonly plans: PendingPlan[] = [];
+  cancelCount = 0;
+
+  plan(_state: GameState, seat: number): Promise<Command[]> {
+    return new Promise((resolve) => this.plans.push({ seat, resolve }));
+  }
+  cancelPending(): void {
+    // Deliberately leave promises resolvable: the store must reject stale results even when the
+    // underlying computation cannot be interrupted immediately.
+    this.cancelCount++;
+  }
+  dispose(): void {
+    this.cancelPending();
+  }
+}
+
+class EndTurnAiClient implements AiClient {
+  readonly seats: number[] = [];
+  plan(_state: GameState, seat: number): Promise<Command[]> {
+    this.seats.push(seat);
+    return Promise.resolve([{ type: 'EndTurn' }]);
+  }
+  cancelPending(): void {
+    /* immediate plans have no pending work */
+  }
+  dispose(): void {
+    /* immediate plans have no resources */
+  }
+}
+
+const defaultAiClient = useGame.getState().aiClient;
+
 /** Wait for the floating AI turn started by dispatch() to hand control back. */
 async function waitForHumanTurn(): Promise<void> {
   await vi.waitFor(
@@ -32,6 +71,7 @@ async function waitForHumanTurn(): Promise<void> {
 describe('game store', () => {
   beforeEach(() => {
     useGame.getState().quit();
+    useGame.setState({ aiClient: defaultAiClient });
     globalThis.localStorage.clear();
     useSettings.getState().resetData();
   });
@@ -96,6 +136,81 @@ describe('game store', () => {
     expect(s.state?.week).toBe(2);
     expect(s.ticker.length).toBeGreaterThan(0);
     expect(s.ticker.every((t) => t.seat === 1)).toBe(true);
+  });
+
+  it('starts only one planning job for an active AI turn, even when repeatedly prompted', () => {
+    const ai = new ControlledAiClient();
+    useGame.setState({ aiClient: ai });
+    useGame
+      .getState()
+      .startGame(config([defaultSeat(0, 'ai', 'Bot'), defaultSeat(1, 'human-local', 'You')]));
+    void useGame.getState().runAiIfNeeded();
+    void useGame.getState().runAiIfNeeded();
+    expect(ai.plans).toHaveLength(1);
+    expect(useGame.getState().aiThinking).toBe(true);
+  });
+
+  it('ignores a slow AI result after quit', async () => {
+    const ai = new ControlledAiClient();
+    useGame.setState({ aiClient: ai });
+    useGame
+      .getState()
+      .startGame(config([defaultSeat(0, 'ai', 'Bot'), defaultSeat(1, 'human-local', 'You')]));
+    expect(ai.plans).toHaveLength(1);
+    useGame.getState().quit();
+    ai.plans[0]?.resolve([{ type: 'Relax' }, { type: 'EndTurn' }]);
+    await vi.waitFor(() => expect(useGame.getState().aiThinking).toBe(false));
+    expect(useGame.getState().state).toBeNull();
+    expect(useGame.getState().log).toEqual([]);
+    expect(ai.cancelCount).toBeGreaterThan(0);
+  });
+
+  it('ignores a previous game result after restart', async () => {
+    const ai = new ControlledAiClient();
+    useGame.setState({ aiClient: ai });
+    const aiFirst = config([defaultSeat(0, 'ai', 'Bot'), defaultSeat(1, 'human-local', 'You')]);
+    useGame.getState().startGame(aiFirst);
+    useGame.getState().startGame({ ...aiFirst, seed: 'restarted-game' });
+    expect(ai.plans).toHaveLength(2);
+    ai.plans[0]?.resolve([{ type: 'Relax' }, { type: 'EndTurn' }]);
+    await Promise.resolve();
+    expect(useGame.getState().state?.config.seed).toBe('restarted-game');
+    expect(useGame.getState().log).toEqual([]);
+    expect(useGame.getState().ticker).toEqual([]);
+  });
+
+  it('ignores a previous game result after rematch', async () => {
+    const ai = new ControlledAiClient();
+    useGame.setState({ aiClient: ai });
+    useGame
+      .getState()
+      .startGame(config([defaultSeat(0, 'ai', 'Bot'), defaultSeat(1, 'human-local', 'You')]));
+    const oldSeed = useGame.getState().state?.config.seed;
+    useGame.getState().rematch();
+    expect(ai.plans).toHaveLength(2);
+    ai.plans[0]?.resolve([{ type: 'Relax' }, { type: 'EndTurn' }]);
+    await Promise.resolve();
+    expect(useGame.getState().state?.config.seed).not.toBe(oldSeed);
+    expect(useGame.getState().log).toEqual([]);
+    expect(useGame.getState().ticker).toEqual([]);
+  });
+
+  it('hands consecutive AI seats one planning job each', async () => {
+    const ai = new EndTurnAiClient();
+    useGame.setState({ aiClient: ai });
+    useSettings.getState().update({ aiSpeed: 'instant' });
+    useGame
+      .getState()
+      .startGame(
+        config([
+          defaultSeat(0, 'human-local', 'You'),
+          defaultSeat(1, 'ai', 'Bot One'),
+          defaultSeat(2, 'ai', 'Bot Two'),
+        ]),
+      );
+    useGame.getState().dispatch({ type: 'EndTurn' });
+    await waitForHumanTurn();
+    expect(ai.seats).toEqual([1, 2]);
   });
 
   it('shows the pass-device screen between two human seats', () => {

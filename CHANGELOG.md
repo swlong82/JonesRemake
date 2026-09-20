@@ -63,6 +63,9 @@ One entry per milestone (see `docs/MILESTONES.md`).
   draw there desynchronises replay (ADR-0028).
 - `takeMoneyCascade` returns the shortfall it could not cover, not the amount taken; the
   subscription billing loop had been reading it backwards and cancelling paid subscriptions.
+- Loan balances now accrue weekly interest under an explicit whole-dollar rounding policy; partial
+  payments reduce debt before missed-payment fees, and default debt remains negative wealth until
+  wage/gig garnishment or an explicit bank repayment clears it (ADR-0029).
 - The condition view in `core/effects.ts` reads the subscriptions module's record of active ids
   instead of assuming an array of `{id}`, which the golden replays caught.
 - The `Studied` domain event carries whether the lesson was taken online, so wellbeing charges the

@@ -3,7 +3,7 @@
  * (`candidateCommands`), grouped by service section; each row shows its preview line and, when the
  * command is not legal here, the reason from its `ErrorCode` (ADR-0020).
  */
-import type { Command } from '@hustle-ring/engine';
+import { loansOf, weeklySubTotal, type Command } from '@hustle-ring/engine';
 import type { ErrorCode } from '@hustle-ring/shared';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,7 @@ import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import {
   SECTION_ORDER,
+  assetName,
   commandKey,
   commandLabel,
   hours,
@@ -113,6 +114,85 @@ function ActionRow({ row, repeat }: { row: Row; repeat: boolean }) {
   );
 }
 
+/** Small, text-backed sparkline: useful at a glance and still readable to assistive technology. */
+function Sparkline({ values, label }: { values: number[]; label: string }) {
+  if (values.length < 2) return null;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = Math.max(1, max - min);
+  const points = values
+    .map((value, i) => `${(i * 100) / (values.length - 1)},${24 - ((value - min) * 24) / span}`)
+    .join(' ');
+  return (
+    <svg className="h-6 w-24" viewBox="0 0 100 24" role="img" aria-label={label}>
+      <polyline points={points} fill="none" stroke="var(--c-accent)" strokeWidth="2" />
+    </svg>
+  );
+}
+
+function ModernDetails({ section }: { section: SectionId }) {
+  const { t } = useTranslation();
+  const state = useGame((s) => s.state);
+  const pack = useGame((s) => s.pack);
+  if (!state || !pack) return null;
+  const player = state.players[state.activeSeat];
+  if (!player) return null;
+
+  if (section === 'invest') {
+    const held = Object.entries(player.investments).filter(([, holding]) => holding.units > 0);
+    return (
+      <div className="text-xs text-ink-muted" data-testid="investment-summary">
+        {held.length === 0 ? (
+          <p>{t('panel.noInvestments')}</p>
+        ) : (
+          held.map(([assetId, holding]) => {
+            const price = state.market.prices[assetId] ?? 0;
+            const value = Math.floor((holding.units * price) / 100_000);
+            return (
+              <div className="flex items-center gap-2" key={assetId}>
+                <Sparkline
+                  values={state.market.history[assetId] ?? []}
+                  label={`${assetName(assetId)} price history`}
+                />
+                <span>{t('panel.investment', { asset: assetName(assetId), value })}</span>
+              </div>
+            );
+          })
+        )}
+      </div>
+    );
+  }
+
+  if (section === 'loans') {
+    const loans = loansOf(player);
+    return (
+      <div className="text-xs text-ink-muted" data-testid="loan-summary">
+        {loans.length === 0 ? (
+          <p>{t('panel.noLoans')}</p>
+        ) : (
+          loans.map((loan, i) => (
+            <p key={`${loan.takenWeek}-${i}`}>
+              {t('panel.loan', {
+                balance: loan.balance,
+                payment: loan.weeklyPayment,
+                apr: (loan.aprBp / 100).toFixed(2),
+              })}
+            </p>
+          ))
+        )}
+      </div>
+    );
+  }
+
+  if (section === 'subscriptions')
+    return (
+      <p className="text-xs text-ink-muted" data-testid="subscription-summary">
+        {t('panel.subTotal', { amount: weeklySubTotal(player) })}
+      </p>
+    );
+  return null;
+}
+
 export function LocationPanel() {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
@@ -188,6 +268,7 @@ export function LocationPanel() {
                 {t('panel.balance', { cash: player.cash, bank: player.bank })}
               </p>
             )}
+            <ModernDetails section={section} />
             <ul>
               {list.map((row) => (
                 <ActionRow key={commandKey(row.cmd)} row={row} repeat={repeat} />

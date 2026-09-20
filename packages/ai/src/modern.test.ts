@@ -123,5 +123,16 @@ describe('M5.9: the AI plays the modern ruleset', () => {
       modern,
     );
     expect(loanBurden.value(ctx, indebted, indebted.players[0]!)).toBeLessThan(0);
+    const defaulted = patch(
+      s,
+      0,
+      (p) => {
+        const loans = p.modules.loans as { loans: unknown[]; garnished: number };
+        loans.loans = [];
+        loans.garnished = 5000;
+      },
+      modern,
+    );
+    expect(loanBurden.value(ctx, defaulted, defaulted.players[0]!)).toBeLessThan(0);
   });
 });

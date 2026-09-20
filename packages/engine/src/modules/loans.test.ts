@@ -1,12 +1,19 @@
 /** M5.7: modern instruments with correlated returns, and loans end to end. */
 import { describe, expect, it } from 'vitest';
 import { loadPack, type CityPack } from '@hustle-ring/content';
-import { applyCommand, computeGoals, engineFor, previewCommand } from '../index.js';
+import {
+  applyCommand,
+  cloneState,
+  computeGoals,
+  Ctx,
+  engineFor,
+  previewCommand,
+} from '../index.js';
 import type { Command } from '../commands/commands.generated.js';
 import type { ErrorCode } from '@hustle-ring/shared';
 import { goInside, humanSeat, newGame, patch, run } from '../testing.js';
 import type { GameState } from '../core/state.js';
-import { aprBpFor, loansOf, totalOwed, weeklyPayment } from './loans.js';
+import { aprBpFor, loansOf, totalOwed, weeklyInterest, weeklyPayment } from './loans.js';
 import { idioWeightBp, stepDrift } from './modern-assets.js';
 import { transportOf } from './transport.js';
 import { Rng } from '../core/rng.js';
@@ -25,6 +32,18 @@ const why = (s: GameState, cmd: Command, pack: CityPack = modern): ErrorCode | n
 
 const endWeek = (s: GameState): GameState =>
   run(run(s, 0, [{ type: 'EndTurn' }], modern), 1, [{ type: 'EndTurn' }], modern);
+
+/** Run only the real loans turn-start hook, isolating its ledger effects from weekend events. */
+function collectLoanPayment(s: GameState): GameState {
+  const next = cloneState(s);
+  next.week += 1;
+  const engine = engineFor(modern);
+  const ctx = new Ctx(next, modern, 0, true);
+  ctx.engine = engine;
+  ctx.setListeners(engine.hooks.onDomainEvent.map((h) => h.fn));
+  engine.hooks.onTurnStart.find((h) => h.module === 'loans')!.fn(ctx);
+  return next;
+}
 
 /** At the bank, with a job good enough to borrow against and food in the fridge. */
 function borrower(seed: string, wage = 20): GameState {
@@ -122,16 +141,17 @@ describe('loans module (GDD 4.12)', () => {
     expect(classicPack.loans).toBeNull();
   });
 
-  it('AC: the weekly payment matches the closed form within a cent', () => {
+  it('rounds the fixed weekly payment up to whole dollars and interest half-up', () => {
     for (const principal of [500, 1500, 5000, 15_000])
       for (const termWeeks of SPEC.terms)
         for (const aprBp of [600, 1000, 1800]) {
           const engineValue = weeklyPayment(principal, aprBp, termWeeks);
           const exact = closedForm(principal, aprBp, termWeeks);
-          // The ledger works in whole dollars, so the engine rounds up from the exact payment.
-          expect(engineValue).toBeGreaterThanOrEqual(Math.floor(exact));
-          expect(engineValue - exact).toBeLessThan(1.01);
+          expect(engineValue).toBe(Math.ceil(exact));
         }
+    // 260 × 10% / 52 = exactly $0.50; 259 is just below the half-dollar boundary.
+    expect(weeklyInterest(260, 1000)).toBe(1);
+    expect(weeklyInterest(259, 1000)).toBe(0);
   });
 
   it('approves against income, refuses without it, and takes a car as collateral', () => {
@@ -202,7 +222,58 @@ describe('loans module (GDD 4.12)', () => {
     expect(loansOf(next.players[0]!)[0]!.balance).toBeLessThan(1000);
   });
 
-  it('a missed payment costs a fee, and enough of them default the loan', () => {
+  it('matches an independently calculated principal-and-interest schedule', () => {
+    let s = run(
+      borrower('schedule'),
+      0,
+      [{ type: 'TakeLoan', principal: 1500, termWeeks: 52 }],
+      modern,
+    );
+    const original = loansOf(s.players[0]!)[0]!;
+    const payment = Math.ceil(closedForm(1500, original.aprBp, 52));
+    expect(original.weeklyPayment).toBe(payment);
+
+    let expectedBalance = 1500;
+    for (let installment = 1; installment <= 52; installment++) {
+      const interest = Math.floor((expectedBalance * original.aprBp + 260_000) / 520_000);
+      const balanceWithInterest = expectedBalance + interest;
+      const expectedPaid =
+        installment === 52 ? balanceWithInterest : Math.min(payment, balanceWithInterest);
+      expectedBalance = balanceWithInterest - expectedPaid;
+      s = endWeek(patch(s, 0, (p) => (p.cash = 1000), modern));
+      expect(loansOf(s.players[0]!)[0]?.balance ?? 0).toBe(expectedBalance);
+    }
+    expect(expectedBalance).toBe(0);
+    expect(totalOwed(s.players[0]!)).toBe(0);
+  });
+
+  it('credits a partial scheduled payment before adding the missed-payment fee', () => {
+    let s = run(
+      borrower('partial-scheduled'),
+      0,
+      [{ type: 'TakeLoan', principal: 1000, termWeeks: 52 }],
+      modern,
+    );
+    const loan = loansOf(s.players[0]!)[0]!;
+    const paid = Math.floor(loan.weeklyPayment / 2);
+    s = collectLoanPayment(
+      patch(
+        s,
+        0,
+        (p) => {
+          p.cash = paid;
+          p.bank = 0;
+        },
+        modern,
+      ),
+    );
+    const after = loansOf(s.players[0]!)[0]!;
+    expect(after.balance).toBe(1000 + weeklyInterest(1000, loan.aprBp) - paid + SPEC.missedFee);
+    expect(after.missed).toBe(1);
+    expect(s.players[0]!.cash).toBe(0);
+  });
+
+  it('default preserves the debt in wealth and wage garnishment repays it', () => {
     let s = run(
       borrower('miss'),
       0,
@@ -226,7 +297,7 @@ describe('loans module (GDD 4.12)', () => {
     expect(totalOwed(once.players[0]!)).toBeGreaterThan(owedBefore);
     expect(loansOf(once.players[0]!)[0]!.missed).toBe(1);
     let defaulted = once;
-    for (let i = 0; i < SPEC.defaultAfter; i++)
+    for (let i = 1; i < SPEC.defaultAfter; i++)
       defaulted = endWeek(
         patch(
           defaulted,
@@ -240,19 +311,76 @@ describe('loans module (GDD 4.12)', () => {
       );
     expect(loansOf(defaulted.players[0]!)).toHaveLength(0);
     expect(transportOf(defaulted.players[0]!)!.car).toBeNull();
+    const defaultDebt = totalOwed(defaulted.players[0]!);
+    expect(defaultDebt).toBeGreaterThan(0);
+
+    const engine = engineFor(modern);
+    const wealth = engine.hooks.contributeWealth.reduce(
+      (sum, h) =>
+        sum +
+        h.fn(
+          {
+            state: defaulted,
+            pack: modern,
+            playerAt: () => defaulted.players[0]!,
+            rules: modern.rules,
+            week: defaulted.week,
+          } as never,
+          0,
+        ),
+      0,
+    );
+    expect(wealth).toBe(-defaultDebt);
+
+    const readyToWork = patch(
+      defaulted,
+      0,
+      (p) => {
+        p.cash = 0;
+        p.location = 'burger-joint';
+        p.inside = true;
+        p.job = { jobId: 'burger-joint-cook', wage: 10, raises: 0, hiredWeek: 1 };
+        p.home.debt = 0;
+        p.home.debtSinceWeek = null;
+      },
+      modern,
+    );
+    const worked = run(readyToWork, 0, [{ type: 'Work', hours: 12 }], modern);
+    const grossPay = modern.rules.jobs.payPerSession * 10;
+    const garnished = Math.floor((grossPay * SPEC.garnishBp + 5000) / 10_000);
+    expect(worked.players[0]!.cash).toBe(grossPay - garnished);
+    expect(totalOwed(worked.players[0]!)).toBe(defaultDebt - garnished);
+
+    const remaining = totalOwed(worked.players[0]!);
+    const atBank = patch(
+      worked,
+      0,
+      (p) => {
+        p.cash = remaining;
+        p.location = 'bank';
+        p.inside = true;
+      },
+      modern,
+    );
+    const cleared = run(atBank, 0, [{ type: 'RepayLoan', amount: remaining }], modern);
+    expect(totalOwed(cleared.players[0]!)).toBe(0);
+    expect(cleared.players[0]!.cash).toBe(0);
   });
 
-  it('can be repaid early, in full, with no penalty', () => {
+  it('credits partial early repayment and can then be repaid in full with no penalty', () => {
     const s = run(
       borrower('early'),
       0,
       [{ type: 'TakeLoan', principal: 1000, termWeeks: 104 }],
       modern,
     );
-    const owed = totalOwed(s.players[0]!);
-    const cleared = run(s, 0, [{ type: 'RepayLoan', amount: owed }], modern);
+    const partial = run(s, 0, [{ type: 'RepayLoan', amount: 123 }], modern);
+    expect(totalOwed(partial.players[0]!)).toBe(877);
+    expect(s.players[0]!.cash - partial.players[0]!.cash).toBe(123);
+    const owed = totalOwed(partial.players[0]!);
+    const cleared = run(partial, 0, [{ type: 'RepayLoan', amount: owed }], modern);
     expect(loansOf(cleared.players[0]!)).toHaveLength(0);
-    expect(s.players[0]!.cash - cleared.players[0]!.cash).toBe(owed);
+    expect(partial.players[0]!.cash - cleared.players[0]!.cash).toBe(owed);
     expect(why(cleared, { type: 'RepayLoan', amount: 10 })).toBe('ERR_NO_LOAN');
   });
 

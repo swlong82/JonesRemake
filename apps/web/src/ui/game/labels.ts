@@ -20,10 +20,16 @@ export type SectionId =
   | 'work'
   | 'apply'
   | 'raise'
+  | 'gig'
   | 'meals'
   | 'grocery'
   | 'bank'
   | 'invest'
+  | 'loans'
+  | 'subscriptions'
+  | 'transit-pass'
+  | 'cars'
+  | 'delivery'
   | 'rent'
   | 'move-home'
   | 'study'
@@ -37,12 +43,23 @@ const SECTION_OF: Record<string, SectionId> = {
   Work: 'work',
   ApplyJob: 'apply',
   AskRaise: 'raise',
+  GigSignup: 'gig',
+  GigShift: 'gig',
   EatMeal: 'meals',
   BuyFood: 'grocery',
   Deposit: 'bank',
   Withdraw: 'bank',
   BuyAsset: 'invest',
   SellAsset: 'invest',
+  TakeLoan: 'loans',
+  RepayLoan: 'loans',
+  Subscribe: 'subscriptions',
+  Unsubscribe: 'subscriptions',
+  BuyTransitPass: 'transit-pass',
+  BuyCar: 'cars',
+  SellCar: 'cars',
+  RepairCar: 'cars',
+  OrderDelivery: 'delivery',
   PayRent: 'rent',
   RequestExtension: 'rent',
   MoveHome: 'move-home',
@@ -62,6 +79,7 @@ export const SECTION_ORDER: SectionId[] = [
   'work',
   'apply',
   'raise',
+  'gig',
   'study',
   'relax',
   'meals',
@@ -70,6 +88,11 @@ export const SECTION_ORDER: SectionId[] = [
   'move-home',
   'bank',
   'invest',
+  'loans',
+  'subscriptions',
+  'transit-pass',
+  'cars',
+  'delivery',
   'shop',
   'pawn',
   'lottery',
@@ -126,6 +149,12 @@ export function commandLabel(cmd: Command, t: Translate): string {
       return t('cmd.Enroll', { degree: degreeName(cmd.degreeId) });
     case 'Study':
       return t('cmd.Study', { degree: degreeName(cmd.degreeId) });
+    case 'StudyOnline':
+      return t('cmd.StudyOnline', { degree: degreeName(cmd.degreeId) });
+    case 'GigSignup':
+      return t('cmd.GigSignup', { job: jobTitle(cmd.gigId) });
+    case 'GigShift':
+      return t('cmd.GigShift', { hours: hours(cmd.hours) });
     case 'BuyItem':
       return t('cmd.BuyItem', { item: itemName(cmd.itemId) });
     case 'SellItem':
@@ -152,6 +181,18 @@ export function commandLabel(cmd: Command, t: Translate): string {
       return t('cmd.BuyAsset', { amount: cmd.amount, asset: assetName(cmd.assetId) });
     case 'SellAsset':
       return t('cmd.SellAsset', { amount: cmd.amount, asset: assetName(cmd.assetId) });
+    case 'TakeLoan':
+      return t('cmd.TakeLoan', { amount: cmd.principal, weeks: cmd.termWeeks });
+    case 'RepayLoan':
+      return t('cmd.RepayLoan', { amount: cmd.amount });
+    case 'Subscribe':
+      return t('cmd.Subscribe', { sub: tp(`sub.${cmd.subId}.name`) });
+    case 'Unsubscribe':
+      return t('cmd.Unsubscribe', { sub: tp(`sub.${cmd.subId}.name`) });
+    case 'BuyCar':
+      return t(`cmd.BuyCar.${cmd.source}`);
+    case 'OrderDelivery':
+      return t('cmd.OrderDelivery', { meal: mealName(cmd.mealId) });
     case 'BuyLottery':
       return t(cmd.qty === 1 ? 'cmd.BuyLottery' : 'cmd.BuyLottery_plural', { qty: cmd.qty });
     case 'Move':
