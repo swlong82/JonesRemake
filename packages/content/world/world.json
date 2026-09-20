@@ -1,7 +1,10 @@
 {
   "id": "world-default",
   "version": "0.1.0",
-  "cities": [{ "packId": "classic", "displayNameKey": "city.classic.name", "unlock": "always" }],
+  "cities": [
+    { "packId": "classic", "displayNameKey": "city.classic.name", "unlock": "always" },
+    { "packId": "modern-western", "displayNameKey": "title.modern-western", "unlock": "always" }
+  ],
   "travel": [],
   "sharedEconomy": false
 }

@@ -3,7 +3,14 @@
  * housekeeping (job, rent, food, outfit). Classic opacity hides exact goal numbers and shows the
  * bars in 25% steps instead (GDD 4.1.4).
  */
-import { computeGoals, type GameState } from '@hustle-ring/engine';
+import {
+  computeGoals,
+  loansOf,
+  weeklySubTotal,
+  wellbeingBand,
+  wellbeingOf,
+  type GameState,
+} from '@hustle-ring/engine';
 import type { CityPack } from '@hustle-ring/content';
 import type { GoalId } from '@hustle-ring/shared';
 import { useTranslation } from 'react-i18next';
@@ -108,6 +115,10 @@ export function Hud({ compact = false }: { compact?: boolean }) {
   const opaque = state.config.classicOpacity;
   const job = player.job;
   const outfit = player.clothing[0];
+  const subscriptions = weeklySubTotal(player);
+  const loans = loansOf(player);
+  const loanDue = loans.reduce((total, loan) => total + loan.weeklyPayment, 0);
+  const wellbeing = wellbeingOf(player);
 
   return (
     <section
@@ -170,6 +181,50 @@ export function Hud({ compact = false }: { compact?: boolean }) {
           <li>
             {t('hud.econ', { phase: t(`phase.${state.econ.phase}`), index: state.econ.index })}
           </li>
+          {wellbeing !== undefined && (
+            <li data-testid="wellbeing">
+              {t('hud.wellbeing')}:{' '}
+              {t('hud.wellbeingValue', {
+                band: t(`wellbeing.${wellbeingBand(wellbeing, pack)}`),
+                value: wellbeing,
+              })}
+            </li>
+          )}
+          {state.flags.subscriptions && (
+            <li data-testid="subscription-total">
+              {t('hud.subscriptions')}: {t('hud.weekly', { amount: subscriptions })}
+            </li>
+          )}
+          {state.flags.loans && (
+            <li data-testid="loan-due">
+              {t('hud.loans')}:{' '}
+              {loanDue > 0 ? t('hud.loanDue', { amount: loanDue }) : t('panel.noLoans')}
+            </li>
+          )}
+        </ul>
+      )}
+      {compact && (wellbeing !== undefined || state.flags.subscriptions || state.flags.loans) && (
+        <ul className="flex flex-col gap-0.5 text-xs text-ink-muted">
+          {wellbeing !== undefined && (
+            <li data-testid="wellbeing">
+              {t('hud.wellbeing')}:{' '}
+              {t('hud.wellbeingValue', {
+                band: t(`wellbeing.${wellbeingBand(wellbeing, pack)}`),
+                value: wellbeing,
+              })}
+            </li>
+          )}
+          {state.flags.subscriptions && (
+            <li data-testid="subscription-total">
+              {t('hud.subscriptions')}: {t('hud.weekly', { amount: subscriptions })}
+            </li>
+          )}
+          {state.flags.loans && (
+            <li data-testid="loan-due">
+              {t('hud.loans')}:{' '}
+              {loanDue > 0 ? t('hud.loanDue', { amount: loanDue }) : t('panel.noLoans')}
+            </li>
+          )}
         </ul>
       )}
       <div className="flex gap-2">
