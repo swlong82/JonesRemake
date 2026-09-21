@@ -3,9 +3,15 @@
  * (`candidateCommands`), grouped by service section; each row shows its preview line and, when the
  * command is not legal here, the reason from its `ErrorCode` (ADR-0020).
  */
-import { loansOf, weeklySubTotal, type Command } from '@hustle-ring/engine';
+import {
+  defaultDebtOf,
+  loansOf,
+  totalOwed,
+  weeklySubTotal,
+  type Command,
+} from '@hustle-ring/engine';
 import type { ErrorCode } from '@hustle-ring/shared';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
@@ -19,6 +25,7 @@ import {
   locationQuip,
   previewParts,
   sectionOf,
+  subscriptionName,
   type SectionId,
 } from './labels';
 
@@ -81,6 +88,7 @@ export function runRepeat(cmd: Command, limit = 24): void {
 function ActionRow({ row, repeat }: { row: Row; repeat: boolean }) {
   const { t } = useTranslation();
   const dispatch = useGame((s) => s.dispatch);
+  const requestSubscriptionCancel = useGame((s) => s.requestSubscriptionCancel);
   const preview = useGame((s) => s.preview);
   const opaque = useGame((s) => s.state?.config.classicOpacity ?? false);
   const p = preview(row.cmd);
@@ -95,6 +103,7 @@ function ActionRow({ row, repeat }: { row: Row; repeat: boolean }) {
         data-testid={`action-${commandKey(row.cmd)}`}
         onClick={() => {
           if (repeat && REPEATABLE.has(row.cmd.type)) runRepeat(row.cmd);
+          else if (row.cmd.type === 'Unsubscribe') requestSubscriptionCancel(row.cmd);
           else dispatch(row.cmd);
         }}
       >
@@ -165,20 +174,32 @@ function ModernDetails({ section }: { section: SectionId }) {
 
   if (section === 'loans') {
     const loans = loansOf(player);
+    const defaultDebt = defaultDebtOf(player);
     return (
       <div className="text-xs text-ink-muted" data-testid="loan-summary">
-        {loans.length === 0 ? (
+        {loans.length === 0 && defaultDebt === 0 ? (
           <p>{t('panel.noLoans')}</p>
         ) : (
-          loans.map((loan, i) => (
-            <p key={`${loan.takenWeek}-${i}`}>
-              {t('panel.loan', {
-                balance: loan.balance,
-                payment: loan.weeklyPayment,
-                apr: (loan.aprBp / 100).toFixed(2),
-              })}
-            </p>
-          ))
+          <>
+            {loans.map((loan, i) => (
+              <p key={`${loan.takenWeek}-${i}`}>
+                {t('panel.loan', {
+                  balance: loan.balance,
+                  payment: loan.weeklyPayment,
+                  apr: (loan.aprBp / 100).toFixed(2),
+                })}
+              </p>
+            ))}
+            {defaultDebt > 0 && (
+              <p className="font-semibold text-danger" data-testid="default-debt">
+                {t('panel.defaultDebt', {
+                  amount: defaultDebt,
+                  percent: (pack.loans?.garnishBp ?? 0) / 100,
+                })}
+              </p>
+            )}
+            <p>{t('panel.totalLoanDebt', { amount: totalOwed(player) })}</p>
+          </>
         )}
       </div>
     );
@@ -191,6 +212,79 @@ function ModernDetails({ section }: { section: SectionId }) {
       </p>
     );
   return null;
+}
+
+function SubscriptionCancelDialog() {
+  const { t } = useTranslation();
+  const pending = useGame((s) => s.subscriptionCancelPending);
+  const confirm = useGame((s) => s.confirmSubscriptionCancel);
+  const cancel = useGame((s) => s.cancelSubscriptionCancel);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!pending) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    dialogRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    return () => {
+      if (previous?.isConnected) previous.focus();
+    };
+  }, [pending]);
+
+  if (!pending) return null;
+
+  const name = subscriptionName(pending.cmd.subId);
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="subscription-cancel-title"
+      aria-describedby="subscription-cancel-description"
+      data-testid="subscription-cancel-dialog"
+      ref={dialogRef}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopPropagation();
+          cancel();
+          return;
+        }
+        if (event.key !== 'Tab') return;
+        const buttons = Array.from(
+          dialogRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [],
+        );
+        const first = buttons[0];
+        const last = buttons.at(-1);
+        if (!first || !last) return;
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          event.stopPropagation();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          event.stopPropagation();
+          first.focus();
+        }
+      }}
+    >
+      <div className="flex max-w-md flex-col gap-3 rounded-lg border border-line bg-surface-2 p-4 shadow-xl">
+        <h3 id="subscription-cancel-title" className="text-lg font-bold">
+          {t('panel.retention.title')}
+        </h3>
+        <p id="subscription-cancel-description" className="text-sm">
+          {t('panel.retention.body', { name })}
+        </p>
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button onClick={cancel} data-testid="subscription-cancel-keep">
+            {t('panel.retention.keep')}
+          </Button>
+          <Button variant="danger" onClick={confirm} data-testid="subscription-cancel-confirm">
+            {t('panel.retention.confirm')}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function LocationPanel() {
@@ -277,6 +371,8 @@ export function LocationPanel() {
           </div>
         ))}
       </div>
+
+      <SubscriptionCancelDialog />
 
       {confirmEnd ? (
         <div role="alertdialog" aria-label={t('panel.endTurn')} className="flex flex-col gap-2">

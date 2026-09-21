@@ -67,13 +67,17 @@ export function loansOf(p: PlayerState): Loan[] {
   return sliceOf(p)?.loans ?? [];
 }
 
+/** Outstanding debt from loans that have defaulted and now garnish earned pay. */
+export function defaultDebtOf(p: PlayerState): number {
+  return sliceOf(p)?.garnished ?? 0;
+}
+
 function activeOwed(p: PlayerState): number {
   return loansOf(p).reduce((sum, l) => sum + l.balance, 0);
 }
 
 export function totalOwed(p: PlayerState): number {
-  const slice = sliceOf(p);
-  return activeOwed(p) + (slice?.garnished ?? 0);
+  return activeOwed(p) + defaultDebtOf(p);
 }
 
 /** APR in basis points for this seat right now (GDD 4.12). */

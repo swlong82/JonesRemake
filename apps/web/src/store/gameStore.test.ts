@@ -18,6 +18,17 @@ function config(
   };
 }
 
+function modernConfig(): GameConfig {
+  return buildConfig(
+    'modern-western',
+    [defaultSeat(0, 'human-local', 'You')],
+    'store-modern-test',
+    'modern',
+    false,
+    true,
+  );
+}
+
 interface PendingPlan {
   seat: number;
   resolve: (commands: Command[]) => void;
@@ -117,6 +128,34 @@ describe('game store', () => {
     const candidates = useGame.getState().candidates();
     expect(candidates.length).toBeGreaterThan(legal.length);
     expect(candidates.some((c) => c.code !== null)).toBe(true);
+  });
+
+  it('rejects a stale subscription cancellation after the owning game state changes', () => {
+    useGame.getState().startGame(modernConfig());
+    useGame.getState().debugPatch((state) => {
+      const player = state.players[state.activeSeat];
+      if (!player) return;
+      player.location = 'electronics-store';
+      player.inside = true;
+    });
+    expect(useGame.getState().dispatch({ type: 'Subscribe', subId: 'home-internet' })).toBe(true);
+    expect(
+      useGame.getState().requestSubscriptionCancel({ type: 'Unsubscribe', subId: 'home-internet' }),
+    ).toBe(true);
+
+    const changed = structuredClone(useGame.getState().state!);
+    changed.week += 1;
+    useGame.setState({ state: changed });
+    const beforeConfirm = useGame.getState().hash();
+    expect(useGame.getState().confirmSubscriptionCancel()).toBe(false);
+    expect(useGame.getState().hash()).toBe(beforeConfirm);
+    expect(useGame.getState().subscriptionCancelPending).toBeNull();
+    expect(
+      useGame
+        .getState()
+        .candidates()
+        .some((row) => row.cmd.type === 'Unsubscribe' && row.cmd.subId === 'home-internet'),
+    ).toBe(true);
   });
 
   it('returns empty results and false before a game exists', () => {

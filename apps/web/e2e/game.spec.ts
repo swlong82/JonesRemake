@@ -184,3 +184,37 @@ test('modern actions, costs and unavailable reasons are exposed through the inte
   await expect(page.getByTestId('investment-summary')).not.toContainText('No investments yet.');
   await expectNoA11yViolations(page);
 });
+
+test('subscription cancellation requires the retention confirmation', async ({ page }) => {
+  await startModernGame(page);
+  await page.getByTestId('exit').click();
+  await page
+    .getByTestId(isPhone(page) ? 'phone-loc-electronics-store' : 'square-electronics-store')
+    .click();
+  await page.getByTestId('travel-go').click();
+  await page.getByTestId('enter').click();
+
+  await page.getByTestId('action-Subscribe:subId=home-internet').click();
+  await expect(page.getByTestId('subscription-total')).toContainText('$15/week');
+  await page.getByTestId('action-Unsubscribe:subId=home-internet').click();
+  await expect(page.getByTestId('subscription-cancel-dialog')).toBeVisible();
+  await expect(page.getByTestId('subscription-cancel-keep')).toBeFocused();
+  await expect(page.getByTestId('subscription-total')).toContainText('$15/week');
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.getByTestId('subscription-cancel-confirm')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByTestId('subscription-cancel-keep')).toBeFocused();
+  await page.keyboard.press('l');
+  await expect(page.getByTestId('log-drawer')).toBeHidden();
+  await expectNoA11yViolations(page);
+
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('subscription-cancel-dialog')).toBeHidden();
+  await expect(page.getByTestId('action-Unsubscribe:subId=home-internet')).toBeFocused();
+  await expect(page.getByTestId('subscription-total')).toContainText('$15/week');
+
+  await page.getByTestId('action-Unsubscribe:subId=home-internet').click();
+  await page.getByTestId('subscription-cancel-confirm').click();
+  await expect(page.getByTestId('subscription-cancel-dialog')).toBeHidden();
+  await expect(page.getByTestId('subscription-total')).toContainText('$0/week');
+});

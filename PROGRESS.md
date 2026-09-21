@@ -1,7 +1,7 @@
 # Progress
 
-Current milestone: M0–M5 complete and tagged; next is M6 (modern pack and balance)
-Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
+Current milestone: M0–M5 complete and tagged; M6.5 complete out of order; next is M6.1
+Last updated: 2026-09-22 by Codex — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
 
@@ -77,7 +77,7 @@ Last updated: 2026-09-17 by CC — see `HANDOFF.md` for the resume point.
 - [ ] M6.2 Write and lock `reports/modern-targets.json` (hash in ADR) — note:
 - [ ] M6.3 Tuning loop per BALANCE 9.6 until 9.5 gates pass; `BALANCE_REPORT.md` — note:
 - [ ] M6.4 CI `sim:gate` switched to modern gates (classic sanity gates retained) — note:
-- [ ] M6.5 UI for all modern features incl. subscriptions total, loan panel, investment panel with sparkline, transport selector — note:
+- [x] M6.5 UI for all modern features incl. subscriptions total, loan panel, investment panel with sparkline, transport selector — note: PR #16 exposed the modern command sections, HUD subscription/loan summaries, investments with a sparkline and the transport selector. The completion adds a state-bound, keyboard-accessible retention confirmation for `Unsubscribe`; it traps/restores focus, blocks background gameplay shortcuts, cancel/Escape dispatches nothing, and stale requests cannot cross a state/turn/game change. Default debt and its pack-defined wage garnishment now remain visible after active loans leave the schedule, using exported engine selectors, and `StudyOnline` is mapped into the study section. Regression coverage spans the engine selector, store ownership, component flows, every modern module command's section, and a three-viewport Playwright cancellation path. `pnpm verify` green locally (62 test files / 573 tests; e2e 27 passed; bundle 156.7 kB gzip; `sim:gate` 18 assertions / 0 failed / 1 accepted pending KI-005). This does not close the M6 gate.
 - [ ] M6 gate: `pnpm verify` green in CI, tag `m6` — note:
 
 ## M7 — Polish systems

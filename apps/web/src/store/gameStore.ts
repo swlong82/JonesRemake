@@ -53,6 +53,14 @@ export interface TickerEntry {
   cmd: Command;
 }
 
+export type UnsubscribeCommand = Extract<Command, { type: 'Unsubscribe' }>;
+
+export interface SubscriptionCancelPending {
+  cmd: UnsubscribeCommand;
+  /** Engine-state snapshot that owned the offer; stale dialogs must never dispatch. */
+  stateHash: string;
+}
+
 export interface GameStore {
   screen: Screen;
   pack: CityPack | null;
@@ -76,6 +84,8 @@ export interface GameStore {
   helpOpen: boolean;
   /** End-turn confirmation is pending because hours are still left (UX 7.7). */
   endTurnPending: boolean;
+  /** The deliberately inconvenient second step in the subscription cancellation flow. */
+  subscriptionCancelPending: SubscriptionCancelPending | null;
   aiThinking: boolean;
   aiSkip: boolean;
   lastError: ErrorCode | null;
@@ -97,6 +107,9 @@ export interface GameStore {
   /** End the turn, or ask first when more than `END_TURN_CONFIRM_HOURS` remain. */
   requestEndTurn: () => void;
   cancelEndTurn: () => void;
+  requestSubscriptionCancel: (cmd: UnsubscribeCommand) => boolean;
+  confirmSubscriptionCancel: () => boolean;
+  cancelSubscriptionCancel: () => void;
   toggleHelp: () => void;
   dismissCard: () => void;
   skipAi: () => void;
@@ -154,6 +167,7 @@ export const useGame = create<GameStore>((set, get) => ({
   menuOpen: false,
   helpOpen: false,
   endTurnPending: false,
+  subscriptionCancelPending: null,
   aiThinking: false,
   aiSkip: false,
   lastError: null,
@@ -188,6 +202,7 @@ export const useGame = create<GameStore>((set, get) => ({
       menuOpen: false,
       helpOpen: false,
       endTurnPending: false,
+      subscriptionCancelPending: null,
       aiThinking: false,
       aiSkip: false,
       pendingCards: [],
@@ -230,6 +245,7 @@ export const useGame = create<GameStore>((set, get) => ({
       lastError: null,
       travelOpen: false,
       endTurnPending: false,
+      subscriptionCancelPending: null,
     };
     // Turn changed: hotseat privacy screen, or AI turn.
     if (next.activeSeat !== seat || next.winner !== null) {
@@ -320,6 +336,26 @@ export const useGame = create<GameStore>((set, get) => ({
   },
   cancelEndTurn() {
     set({ endTurnPending: false });
+  },
+  requestSubscriptionCancel(cmd) {
+    const { state, pack } = get();
+    if (!state || !pack) return false;
+    const legal = legalCommands(state, state.activeSeat, pack).some(
+      (candidate) => candidate.type === 'Unsubscribe' && candidate.subId === cmd.subId,
+    );
+    if (!legal) return false;
+    set({ subscriptionCancelPending: { cmd, stateHash: stateHash(state) } });
+    return true;
+  },
+  confirmSubscriptionCancel() {
+    const { state, subscriptionCancelPending: pending } = get();
+    set({ subscriptionCancelPending: null });
+    if (!state) return false;
+    if (stateHash(state) !== pending?.stateHash) return false;
+    return get().dispatch(pending.cmd);
+  },
+  cancelSubscriptionCancel() {
+    set({ subscriptionCancelPending: null });
   },
   toggleHelp() {
     set({ helpOpen: !get().helpOpen });
@@ -434,6 +470,7 @@ export const useGame = create<GameStore>((set, get) => ({
       log: [],
       aiThinking: false,
       aiSkip: false,
+      subscriptionCancelPending: null,
     });
   },
   rematch() {
@@ -452,7 +489,7 @@ export const useGame = create<GameStore>((set, get) => ({
     const next = structuredClone(state);
     next.debugTouched = true;
     fn(next);
-    set({ state: next });
+    set({ state: next, subscriptionCancelPending: null });
   },
 }));
 

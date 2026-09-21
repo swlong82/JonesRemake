@@ -32,6 +32,15 @@ export function handleGameKey(e: KeyboardEvent): void {
   }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
 
+  // A retention offer is modal: only its own buttons and Escape may act while it is open.
+  if (store.subscriptionCancelPending) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      store.cancelSubscriptionCancel();
+    }
+    return;
+  }
+
   if (e.key === 'Escape') {
     if (store.cards.length > 0) store.dismissCard();
     else if (store.travelOpen) store.closeTravel();

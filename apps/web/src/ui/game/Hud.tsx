@@ -5,7 +5,9 @@
  */
 import {
   computeGoals,
+  defaultDebtOf,
   loansOf,
+  totalOwed,
   weeklySubTotal,
   wellbeingBand,
   wellbeingOf,
@@ -117,7 +119,27 @@ export function Hud({ compact = false }: { compact?: boolean }) {
   const outfit = player.clothing[0];
   const subscriptions = weeklySubTotal(player);
   const loans = loansOf(player);
-  const loanDue = loans.reduce((total, loan) => total + loan.weeklyPayment, 0);
+  const defaultDebt = defaultDebtOf(player);
+  const loanDebt = totalOwed(player);
+  const activeLoanDebt = loanDebt - defaultDebt;
+  const loanDue = loans.reduce(
+    (total, loan) => total + Math.min(loan.weeklyPayment, loan.balance),
+    0,
+  );
+  const loanSummary =
+    loanDebt === 0
+      ? t('panel.noLoans')
+      : [
+          loanDue > 0 ? t('hud.loanDue', { amount: loanDue, outstanding: activeLoanDebt }) : null,
+          defaultDebt > 0
+            ? t('hud.loanDefault', {
+                amount: defaultDebt,
+                percent: (pack.loans?.garnishBp ?? 0) / 100,
+              })
+            : null,
+        ]
+          .filter((part): part is string => part !== null)
+          .join(' · ');
   const wellbeing = wellbeingOf(player);
 
   return (
@@ -197,8 +219,7 @@ export function Hud({ compact = false }: { compact?: boolean }) {
           )}
           {state.flags.loans && (
             <li data-testid="loan-due">
-              {t('hud.loans')}:{' '}
-              {loanDue > 0 ? t('hud.loanDue', { amount: loanDue }) : t('panel.noLoans')}
+              {t('hud.loans')}: {loanSummary}
             </li>
           )}
         </ul>
@@ -221,8 +242,7 @@ export function Hud({ compact = false }: { compact?: boolean }) {
           )}
           {state.flags.loans && (
             <li data-testid="loan-due">
-              {t('hud.loans')}:{' '}
-              {loanDue > 0 ? t('hud.loanDue', { amount: loanDue }) : t('panel.noLoans')}
+              {t('hud.loans')}: {loanSummary}
             </li>
           )}
         </ul>

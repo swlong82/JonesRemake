@@ -40,6 +40,11 @@ One entry per milestone (see `docs/MILESTONES.md`).
 - M5.9 AI: the planner covers every modern command, three module scorers (wellbeing, loan burden,
   subscription drain) join the registry, and the `GigOnly`, `CryptoAllIn`, `DeliveryOnly` and
   `LoanMax` strategy bots join `StudyFirst` and `NoRelax`.
+- M6.5 modern UI: modern commands and services are exposed through the shared candidate/preview
+  flow; the HUD and bank panel show subscriptions, active loans, default debt and wage garnishment;
+  investments include a sparkline; transport has a mode selector; and subscription cancellation
+  uses a focus-contained, state-bound retention confirmation that cannot outlive its game state or
+  leak gameplay shortcuts to the board behind it.
 - `pnpm gen:types` derives the `Command` union from `src/modules/*.ts` as well as the commands
   folder, so a command a rule module owns is part of the union (37 commands).
 - `BASELINE_REPORT.md` and `reports/baseline.json` for the shipped classic values: 24 configs,

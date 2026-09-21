@@ -79,6 +79,21 @@ describe('sections', () => {
     expect(sectionOf({ type: 'EndTurn' })).toBeNull();
     expect(sectionOf({ type: 'Move', to: 'bank', mode: 'walk' })).toBeNull();
   });
+
+  it('maps every modern module command to a visible panel section', () => {
+    expect(sectionOf({ type: 'GigSignup', gigId: 'gig-driver' })).toBe('gig');
+    expect(sectionOf({ type: 'GigShift', hours: 4 })).toBe('gig');
+    expect(sectionOf({ type: 'StudyOnline', degreeId: 'trade-school' })).toBe('study');
+    expect(sectionOf({ type: 'OrderDelivery', mealId: 'burger' })).toBe('delivery');
+    expect(sectionOf({ type: 'Subscribe', subId: 'home-internet' })).toBe('subscriptions');
+    expect(sectionOf({ type: 'Unsubscribe', subId: 'home-internet' })).toBe('subscriptions');
+    expect(sectionOf({ type: 'TakeLoan', principal: 500, termWeeks: 52 })).toBe('loans');
+    expect(sectionOf({ type: 'RepayLoan', amount: 100 })).toBe('loans');
+    expect(sectionOf({ type: 'BuyTransitPass' })).toBe('transit-pass');
+    expect(sectionOf({ type: 'BuyCar', source: 'used' })).toBe('cars');
+    expect(sectionOf({ type: 'SellCar' })).toBe('cars');
+    expect(sectionOf({ type: 'RepairCar' })).toBe('cars');
+  });
 });
 
 describe('previewParts', () => {

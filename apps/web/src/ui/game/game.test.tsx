@@ -43,6 +43,30 @@ function start(opaque = false): void {
   useGame.getState().startGame(soloConfig(opaque));
 }
 
+function startModern(): void {
+  useGame
+    .getState()
+    .startGame(
+      buildConfig(
+        'modern-western',
+        [defaultSeat(0, 'human-local', 'You')],
+        'ui-modern-test',
+        'modern',
+        false,
+        true,
+      ),
+    );
+}
+
+function moveInside(location: 'bank' | 'electronics-store'): void {
+  useGame.getState().debugPatch((state) => {
+    const player = state.players[state.activeSeat];
+    if (!player) return;
+    player.location = location;
+    player.inside = true;
+  });
+}
+
 function stubMatchMedia(matches: boolean): void {
   Object.defineProperty(globalThis, 'matchMedia', {
     configurable: true,
@@ -173,6 +197,29 @@ describe('hud', () => {
     fireEvent.click(screen.getByTestId('log-btn'));
     expect(useGame.getState().logOpen).toBe(true);
   });
+
+  it('shows default debt and the wage garnishment when no active loan remains', () => {
+    startModern();
+    moveInside('bank');
+    useGame.getState().debugPatch((state) => {
+      const player = state.players[state.activeSeat];
+      const loans = player?.modules.loans as { loans: unknown[]; garnished: number } | undefined;
+      if (!loans) return;
+      loans.loans = [];
+      loans.garnished = 425;
+    });
+    render(
+      <>
+        <Hud />
+        <LocationPanel />
+      </>,
+    );
+    expect(screen.getByTestId('loan-due').textContent).toContain('$425 default debt');
+    expect(screen.getByTestId('loan-due').textContent).toContain('30% of pay garnished');
+    expect(screen.getByTestId('default-debt').textContent).toContain('$425 in default');
+    expect(screen.getByTestId('loan-summary').textContent).not.toContain('No loan debt');
+    expect(screen.getByTestId('action-RepayLoan:amount=425')).toBeDefined();
+  });
 });
 
 describe('standings', () => {
@@ -256,6 +303,42 @@ describe('location panel', () => {
     const before = useGame.getState().hash();
     runRepeat({ type: 'Work', hours: 16 });
     expect(useGame.getState().hash()).toBe(before);
+  });
+
+  it('requires an accessible retention confirmation before cancelling a subscription', () => {
+    startModern();
+    moveInside('electronics-store');
+    expect(useGame.getState().dispatch({ type: 'Subscribe', subId: 'home-internet' })).toBe(true);
+    render(<LocationPanel />);
+
+    const before = useGame.getState().hash();
+    const cancelAction = screen.getByTestId('action-Unsubscribe:subId=home-internet');
+    cancelAction.focus();
+    fireEvent.click(cancelAction);
+    const dialog = screen.getByRole('alertdialog', { name: 'One last retention offer' });
+    expect(dialog.textContent).toContain('Home Internet');
+    expect(useGame.getState().hash()).toBe(before);
+    const keep = screen.getByTestId('subscription-cancel-keep');
+    const confirm = screen.getByTestId('subscription-cancel-confirm');
+    expect(document.activeElement).toBe(keep);
+
+    fireEvent.keyDown(keep, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(confirm);
+    fireEvent.keyDown(confirm, { key: 'Tab' });
+    expect(document.activeElement).toBe(keep);
+    handleGameKey(new KeyboardEvent('keydown', { key: 'l' }));
+    expect(useGame.getState().logOpen).toBe(false);
+
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(screen.queryByTestId('subscription-cancel-dialog')).toBeNull();
+    expect(useGame.getState().hash()).toBe(before);
+    expect(document.activeElement).toBe(cancelAction);
+
+    fireEvent.click(screen.getByTestId('action-Unsubscribe:subId=home-internet'));
+    fireEvent.click(screen.getByTestId('subscription-cancel-confirm'));
+    expect(useGame.getState().hash()).not.toBe(before);
+    expect(screen.queryByTestId('action-Unsubscribe:subId=home-internet')).toBeNull();
+    expect(screen.getByTestId('subscription-summary').textContent).toContain('$0/week');
   });
 });
 

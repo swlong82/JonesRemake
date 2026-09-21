@@ -1,7 +1,8 @@
 # Handoff
 
-State of the build after M5, for the session that picks this up. Read `CLAUDE.md` first, then this
-file, then resume at the first unchecked task in `PROGRESS.md` (M6.1).
+State of the build after M5, its merged follow-up PR #16, and the M6.5 UI slice. Read `CLAUDE.md`
+first, then this file, then resume at the first unchecked task in `PROGRESS.md` (M6.1). M6.5 landed
+out of sequence because it completed the modern action surface already started by PR #16.
 
 ## Where the build is
 
@@ -11,23 +12,28 @@ file, then resume at the first unchecked task in `PROGRESS.md` (M6.1).
 | `packages/ai`                          | M2.4–M2.5 plus the M5.9 modern coverage and three module scorers            |
 | `packages/sim`                         | Runner, bots (6), metrics, reports and gates complete                       |
 | Classic balance (M3)                   | **Closed** — tag `m3` (local). One target recorded unmet, not met: ADR-0026 |
-| `apps/web`                             | Complete through M4.8 — the **classic** ruleset is playable and deployed    |
+| `apps/web`                             | Classic playable; M6.5 modern UI complete                                   |
 | Modern systems (M5)                    | **Complete** — nine modules behind CityPack flags, tag `m5` (local)         |
-| M6–M8                                  | Not started                                                                 |
+| M6                                     | M6.5 complete out of order; M6.1–M6.4 and the M6 gate remain open           |
+| M7–M8                                  | Not started                                                                 |
 
-`pnpm verify` is green end to end (lint, typecheck, 30 test files, content validation, `gen:types`,
-banned terms, scaffold check, bundle 154.1 kB gzip of 350, e2e 21 on three viewports, `sim:gate`).
-The one thing to know before reading a gate run: `sim:gate` reports **18 assertions, 0 failed, 1
-pending**. The pending one is `lastGoalPct.career`, and it is recorded as structurally unreachable
-rather than open work — see ADR-0026 before spending time on it.
+The last milestone verification record is the M5 run in `PROGRESS.md`; do not reinterpret it as an
+M6 gate. The one thing to know before reading a gate run is that `lastGoalPct.career` remains an
+accepted pending classic assertion, recorded as structurally unreachable in ADR-0026 and KI-005.
+M6 cannot close until M6.1–M6.4 are complete and its own CI evidence exists.
 
-Live build: https://swlong82.github.io/JonesRemake/ (deployed from `main` by `deploy.yml` after CI
-goes green). The playable build there is M4; M5 is on the branch below, not yet merged.
+The isolated M6.5 completion branch passed `pnpm verify` locally on 2026-09-22: 62 test files / 573
+tests, 27 Playwright + axe checks across three viewports, bundle 156.7 kB gzip of 350, and
+`sim:gate` 18 assertions / 0 failed / 1 accepted pending (KI-005). This is task evidence, not an M6
+gate or tag.
+
+`origin/main` now contains M5 and PR #16. The prior statement that M5 was unmerged and the live build
+was M4-only was stale; this handoff does not claim a fresh deployment check.
 
 ## Branch and tags
 
-- Work branch: `claude/focused-maxwell-jhqrj4`, currently 11 commits ahead of `main` (M3 tuning and
-  all of M5). Nothing is merged to `main` yet, so the live demo is still the M4 build.
+- `origin/main` was fetched at `4e3964d` (`Fix/ai loans modern actions (#16)`) before the M6.5
+  completion work started in its isolated worktree.
 - Tags `m1`…`m5` exist **locally only** — the session cannot push tags (KI-001). Their SHAs are in
   the PROGRESS gate log; push them with `git push origin --tags` from a machine that can.
 
@@ -53,11 +59,13 @@ needed. M6 is what turns it into a pack rather than a test fixture.
 3. **M6.3** — the BALANCE 9.6 tuning loop until the 9.5 gates pass; `BALANCE_REPORT.md` is the
    output. This is also where KI-005's career target is revisited for the modern ladder (ADR-0026).
 4. **M6.4** — add modern configs to `sim/gates.json`, keeping the classic sanity gates.
-5. **M6.5** — the modern UI: subscriptions total in the HUD, loan panel, investment panel with a
-   sparkline, transport selector, and the retention-offer dialog the cancel flow is written around.
-   `labels.ts`'s `SECTION_ORDER` needs the new service sections (`gig`, `loans`, `subscriptions`,
-   `transit-pass`, `cars`); the panel itself needs no new plumbing, because it renders whatever
-   `candidateCommands` returns (ADR-0020).
+5. **M6.5 — complete out of order.** PR #16 added the modern service sections, HUD totals, loan and
+   investment summaries, sparkline, transport selector and modern action labels. The completion
+   fixed default debt being mistaken for “no active loans”, displays the pack-defined wage
+   garnishment in the HUD and bank panel, exposes `StudyOnline`, and adds the GDD 4.11 retention
+   confirmation. The dialog traps and restores focus and blocks gameplay shortcuts behind it. The
+   cancellation request is bound to an engine-state hash: cancel/Escape sends no command, and a
+   game or turn change invalidates the pending request before it can dispatch.
 
 ## How the modern systems are put together
 
@@ -83,7 +91,7 @@ Rules to keep, because breaking them costs a debugging session each:
   tests catch it. Prices a preview can show are rolled at turn start into the module slice
   (ADR-0028); risks that land afterwards go in `apply` or on the event, with `riskBp` in the preview.
 - **One module touches another only through exported selectors** (`carOf`, `breakCar`, `grantsOf`,
-  `totalOwed`), never by reaching into `player.modules[x]`.
+  `defaultDebtOf`, `totalOwed`), never by reaching into `player.modules[x]`.
 - **`takeMoneyCascade` returns the shortfall**, not the amount taken.
 - `pnpm gen:types` scans `src/commands/*.ts` **and** `src/modules/*.ts`; run it after adding a
   command or CI's `--check` will fail.

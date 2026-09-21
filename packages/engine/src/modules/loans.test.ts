@@ -13,7 +13,14 @@ import type { Command } from '../commands/commands.generated.js';
 import type { ErrorCode } from '@hustle-ring/shared';
 import { goInside, humanSeat, newGame, patch, run } from '../testing.js';
 import type { GameState } from '../core/state.js';
-import { aprBpFor, loansOf, totalOwed, weeklyInterest, weeklyPayment } from './loans.js';
+import {
+  aprBpFor,
+  defaultDebtOf,
+  loansOf,
+  totalOwed,
+  weeklyInterest,
+  weeklyPayment,
+} from './loans.js';
 import { idioWeightBp, stepDrift } from './modern-assets.js';
 import { transportOf } from './transport.js';
 import { Rng } from '../core/rng.js';
@@ -313,6 +320,7 @@ describe('loans module (GDD 4.12)', () => {
     expect(transportOf(defaulted.players[0]!)!.car).toBeNull();
     const defaultDebt = totalOwed(defaulted.players[0]!);
     expect(defaultDebt).toBeGreaterThan(0);
+    expect(defaultDebtOf(defaulted.players[0]!)).toBe(defaultDebt);
 
     const engine = engineFor(modern);
     const wealth = engine.hooks.contributeWealth.reduce(
