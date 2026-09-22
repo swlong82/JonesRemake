@@ -1,7 +1,7 @@
 # Progress
 
-Current milestone: M0–M5 complete and tagged; M6.1 and M6.5 complete; next roadmap task is M6.2
-Last updated: 2026-09-22 by Codex — see `HANDOFF.md` for the resume point.
+Current milestone: M0–M5 complete and tagged; M6.1, M6.2 and M6.5 complete; next roadmap task is M6.3
+Last updated: 2026-09-22 — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
 
@@ -74,7 +74,7 @@ Last updated: 2026-09-22 by Codex — see `HANDOFF.md` for the resume point.
 ## M6 — Modern pack and balance
 
 - [x] M6.1 `modern-western` pack (extends classic): names, flavor text minimums (CONTENT 6.3), modern items/subs/assets/loans/events — note: all 16 location names and 3+3 greetings/farewells, 46 inherited job titles, 11 degree labels, meals and clothing are modernized; ten missing GDD 4.11 items have names, descriptions and registered visuals alongside existing phone/laptop/case, subscriptions, assets, loans and modern events. Inherited management/trade automation-risk exceptions now match GDD 4.13. Modern goldens alone were regenerated for the new item roster and risk values (ADR-0030); all 20 Classic goldens remained byte-for-byte unchanged. `pnpm verify` green locally (63 test files / 578 passing tests; 27 e2e; initial gzip 162.6 kB / 350; `sim:gate` 18 assertions / 0 failed / 1 accepted pending KI-005). This is task evidence, not an M6 gate or CI claim.
-- [ ] M6.2 Write and lock `reports/modern-targets.json` (hash in ADR) — note:
+- [x] M6.2 Write and lock `reports/modern-targets.json` (hash in ADR) — note: 23 stage-2 targets (BALANCE 9.5) derived from `reports/baseline.json`, each naming the `sim/gates.json` config and the dotted `Summary` metric it is measured on; median bands are the classic Normal×2 medians (28/40/62/83) ±20% rounded outward. ADR-0033 records the file's sha256 and the baseline's, and `tools/lib/targets.test.ts` (8 tests) fails `pnpm test` on any later edit, re-deriving every band from the recorded medians. `.gitignore` gains a second `reports/` exception. Three metric paths (`botBankruptcyPct`, `botCollapsePct`, `botDefaultPct`) are implemented with the M6.3 measurement runs.
 - [ ] M6.3 Tuning loop per BALANCE 9.6 until 9.5 gates pass; `BALANCE_REPORT.md` — note:
 - [ ] M6.4 CI `sim:gate` switched to modern gates (classic sanity gates retained) — note:
 - [x] M6.5 UI for all modern features incl. subscriptions total, loan panel, investment panel with sparkline, transport selector — note: PR #16 exposed the modern command sections, HUD subscription/loan summaries, investments with a sparkline and the transport selector. The completion adds a state-bound, keyboard-accessible retention confirmation for `Unsubscribe`; it traps/restores focus, blocks background gameplay shortcuts, cancel/Escape dispatches nothing, and stale requests cannot cross a state/turn/game change. Default debt and its pack-defined wage garnishment now remain visible after active loans leave the schedule, using exported engine selectors, and `StudyOnline` is mapped into the study section. Regression coverage spans the engine selector, store ownership, component flows, every modern module command's section, and a three-viewport Playwright cancellation path. `pnpm verify` green locally (62 test files / 573 tests; e2e 27 passed; bundle 156.7 kB gzip; `sim:gate` 18 assertions / 0 failed / 1 accepted pending KI-005). This does not close the M6 gate.
