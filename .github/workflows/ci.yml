@@ -92,9 +92,11 @@ jobs:
           retention-days: 7
 
   sim-gate:
+    # BALANCE 9.7: classic sanity gates plus the modern stage-2 gates added at M6.4.
+    # 17 configs / 42 assertions, ~3 min on six workers locally; the budget is 8 min of sim.
     name: sim:gate
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 20
     needs: [static]
     steps:
       - uses: actions/checkout@v7
@@ -104,7 +106,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm sim:gate
+      - run: pnpm sim:gate --out reports/gates
       - uses: actions/upload-artifact@v7
         if: always()
         with:

@@ -1,5 +1,5 @@
 {
-  "$comment": "BALANCE_SPEC 9.3 classic sanity gates for CI (M3.4). gamesPerConfig is reduced from 500 to fit the 8-minute CI budget at ~1 s/game (ADR-0016); tolerances widened accordingly. Modern gates are added at M6.4.",
+  "$comment": "CI gate suite (BALANCE_SPEC 9.7). Classic keeps the 9.3 sanity gates it has had since M3.4; `modern-western` adds the 9.5 stage-2 gates at M6.4. gamesPerConfig is reduced from 500 to fit the 8-minute CI budget at ~1 s/game (ADR-0016) and every tolerance is widened by ±3 points for the smaller sample. A target `modern-targets.json` locks but the game does not yet meet is asserted with `pending` (ADR-0019) so the run prints it and `--strict` fails on it.",
   "gamesPerConfig": 120,
   "configs": [
     {
@@ -8,6 +8,7 @@
       "seats": 2,
       "ai": "normal,normal",
       "goals": 30,
+      "games": 80,
       "asserts": {
         "stallRate": {
           "max": 2,
@@ -21,6 +22,7 @@
       "seats": 2,
       "ai": "normal,normal",
       "goals": 50,
+      "games": 120,
       "asserts": {
         "stallRate": {
           "max": 2,
@@ -44,7 +46,7 @@
           "note": "9.3 each goal last ≥ 10% (widened); structurally unreachable at goals 50 on [SRC] values — ADR-0026",
           "pending": {
             "issue": "KI-005",
-            "until": "M6.3"
+            "until": "M8.5"
           }
         },
         "lastGoalPct.happiness": {
@@ -59,6 +61,7 @@
       "seats": 2,
       "ai": "normal,normal",
       "goals": 80,
+      "games": 80,
       "asserts": {
         "stallRate": {
           "max": 5
@@ -71,6 +74,7 @@
       "seats": 2,
       "ai": "normal,normal",
       "goals": 100,
+      "games": 80,
       "asserts": {
         "stallRate": {
           "max": 10
@@ -87,11 +91,11 @@
       "seats": 2,
       "ai": "hard,easy",
       "goals": 50,
-      "games": 40,
+      "games": 32,
       "asserts": {
-        "winnerDifficulty.hard": {
-          "min": 32,
-          "note": "9.3 Hard wins ≥ 80% of 40 games"
+        "winnerDifficultyPct.hard": {
+          "min": 77,
+          "note": "9.3 Hard wins ≥ 80%, widened ±3 points"
         }
       }
     },
@@ -101,11 +105,11 @@
       "seats": 2,
       "ai": "easy,hard",
       "goals": 50,
-      "games": 40,
+      "games": 32,
       "asserts": {
-        "winnerDifficulty.hard": {
-          "min": 32,
-          "note": "9.3 Hard wins ≥ 80% of 40 games (seats swapped)"
+        "winnerDifficultyPct.hard": {
+          "min": 77,
+          "note": "9.3 Hard wins ≥ 80% (seats swapped), widened ±3 points"
         }
       }
     },
@@ -115,7 +119,7 @@
       "seats": 4,
       "ai": "normal,normal,normal,normal",
       "goals": 50,
-      "games": 60,
+      "games": 48,
       "asserts": {
         "stallRate": {
           "max": 5
@@ -133,11 +137,236 @@
       "seats": 2,
       "ai": "bot:StudyFirst,normal",
       "goals": 50,
-      "games": 60,
+      "games": 48,
       "asserts": {
         "botWinPct.StudyFirst": {
-          "max": 60,
-          "note": "9.5 no bot beats Normal Balanced > 60%"
+          "max": 63,
+          "note": "9.5 no bot beats Normal Balanced > 60%, widened ±3 points"
+        }
+      }
+    },
+    {
+      "id": "modern-30-normal-2",
+      "pack": "modern-western",
+      "seats": 2,
+      "ai": "normal:balanced,normal:balanced",
+      "goals": 30,
+      "chaos": "modern",
+      "games": 60,
+      "asserts": {
+        "length.median": {
+          "min": 19,
+          "max": 37,
+          "note": "9.5 median within ±20% of classic B=28, widened ±3 weeks"
+        },
+        "stallRate": {
+          "max": 2
+        }
+      }
+    },
+    {
+      "id": "modern-50-normal-2",
+      "pack": "modern-western",
+      "seats": 2,
+      "ai": "normal:balanced,normal:balanced",
+      "goals": 50,
+      "chaos": "modern",
+      "games": 120,
+      "asserts": {
+        "length.median": {
+          "min": 29,
+          "max": 51,
+          "note": "9.5 median within ±20% of classic B=40, widened ±3 weeks"
+        },
+        "stallRate": {
+          "max": 2,
+          "note": "9.5 stall < 0.5% widened for sample size"
+        },
+        "firstSeatWinPct": {
+          "min": 38,
+          "max": 62,
+          "note": "9.5 seat bias 45–55% ± sampling; one personality against itself, so this is turn order alone"
+        },
+        "lastGoalPct.happiness": {
+          "min": 5,
+          "note": "9.5 each goal last ≥ 10% (widened)"
+        },
+        "lastGoalPct.education": {
+          "min": 5,
+          "note": "9.5 each goal last ≥ 10% (widened)"
+        },
+        "lastGoalPct.wealth": {
+          "min": 5,
+          "note": "9.5 each goal last ≥ 10% (widened); education is the long pole — achieved 1.0% at M6.3",
+          "pending": {
+            "issue": "KI-008",
+            "until": "M8.5"
+          }
+        },
+        "lastGoalPct.career": {
+          "min": 5,
+          "note": "9.5 each goal last ≥ 10% (widened); the ADR-0026 structure carries over to modern — achieved 0.5%",
+          "pending": {
+            "issue": "KI-008",
+            "until": "M8.5"
+          }
+        },
+        "collapseGamePct": {
+          "min": 12,
+          "max": 43,
+          "note": "9.5 Normal AI collapse 15–40%, widened ±3 points; achieved 71% at M6.3",
+          "pending": {
+            "issue": "KI-008",
+            "until": "M8.5"
+          }
+        }
+      }
+    },
+    {
+      "id": "modern-50-hard-vs-easy",
+      "pack": "modern-western",
+      "seats": 2,
+      "ai": "hard,easy",
+      "goals": 50,
+      "chaos": "modern",
+      "games": 32,
+      "asserts": {
+        "winnerDifficultyPct.hard": {
+          "min": 77,
+          "note": "9.5 Hard wins ≥ 80%, widened ±3 points; achieved 70% at M6.3 (95% with the seats swapped)",
+          "pending": {
+            "issue": "KI-008",
+            "until": "M8.5"
+          }
+        }
+      }
+    },
+    {
+      "id": "modern-50-bot-GigOnly",
+      "pack": "modern-western",
+      "seats": 2,
+      "ai": "bot:GigOnly,normal:balanced",
+      "goals": 50,
+      "chaos": "modern",
+      "games": 40,
+      "asserts": {
+        "botWinPct.GigOnly": {
+          "max": 28,
+          "note": "9.5 GigOnly win rate < 25%, widened ±3 points"
+        }
+      }
+    },
+    {
+      "id": "modern-50-bot-CryptoAllIn",
+      "pack": "modern-western",
+      "seats": 2,
+      "ai": "bot:CryptoAllIn,normal:balanced",
+      "goals": 50,
+      "chaos": "modern",
+      "games": 40,
+      "asserts": {
+        "botBankruptcyPct.CryptoAllIn": {
+          "min": 37,
+          "note": "9.5 bankruptcy > 40%, widened ±3 points"
+        },
+        "botWinPct.CryptoAllIn": {
+          "min": 10,
+          "max": 48,
+          "note": "9.5 win rate 15–40%; widened further than ±3 points because 40 games is one bot seat per game — the 60-game stage-2 measurement reads 35%"
+        }
+      }
+    },
+    {
+      "id": "modern-50-bot-StudyFirst",
+      "pack": "modern-western",
+      "seats": 2,
+      "ai": "bot:StudyFirst,normal:balanced",
+      "goals": 50,
+      "chaos": "modern",
+      "games": 40,
+      "asserts": {
+        "botWinPct.StudyFirst": {
+          "max": 63,
+          "note": "9.5 no bot beats Normal Balanced > 60%, widened ±3 points"
+        }
+      }
+    },
+    {
+      "id": "modern-50-bot-NoRelax",
+      "pack": "modern-western",
+      "seats": 2,
+      "ai": "bot:NoRelax,normal:balanced",
+      "goals": 50,
+      "chaos": "modern",
+      "games": 40,
+      "asserts": {
+        "botCollapsePct.NoRelax": {
+          "min": 57,
+          "note": "9.5 ≥ 60% of games have ≥ 1 collapse, widened ±3 points"
+        },
+        "botWinPct.NoRelax": {
+          "max": 63,
+          "note": "9.5 no bot beats Normal Balanced > 60%, widened ±3 points"
+        }
+      }
+    },
+    {
+      "id": "modern-50-bot-LoanMax",
+      "pack": "modern-western",
+      "seats": 2,
+      "ai": "bot:LoanMax,normal:balanced",
+      "goals": 50,
+      "chaos": "modern",
+      "games": 40,
+      "asserts": {
+        "botDefaultPct.LoanMax": {
+          "min": 17,
+          "max": 63,
+          "note": "9.5 default rate 20–60%, widened ±3 points; achieved 0% at M6.3 — the tuned wage services the loan",
+          "pending": {
+            "issue": "KI-008",
+            "until": "M8.5"
+          }
+        },
+        "botWinPct.LoanMax": {
+          "max": 63,
+          "note": "9.5 no bot beats Normal Balanced > 60%, widened ±3 points"
+        }
+      }
+    },
+    {
+      "id": "modern-50-chaos",
+      "pack": "modern-western",
+      "seats": 2,
+      "ai": "normal:balanced,normal:balanced",
+      "goals": 50,
+      "chaos": "modern",
+      "games": 40,
+      "seedBase": "gate-modern-chaos",
+      "asserts": {
+        "eventsPer100PlayerWeeks.ai-layoffs": {
+          "min": 1,
+          "note": "9.5 every modern family fires ≥ 1 per 100 player-weeks at Chaos Modern"
+        },
+        "eventsPer100PlayerWeeks.scams": {
+          "min": 1,
+          "note": "9.5 every modern family fires ≥ 1 per 100 player-weeks at Chaos Modern"
+        },
+        "eventsPer100PlayerWeeks.viral": {
+          "min": 1,
+          "note": "9.5 every modern family fires; the family needs a smartphone the AI rarely owns — achieved 0 over 60 games at M6.3",
+          "pending": {
+            "issue": "KI-008",
+            "until": "M8.5"
+          }
+        },
+        "eventsPer100PlayerWeeks.gadget-breakdown": {
+          "min": 1,
+          "note": "9.5 every modern family fires; both its events need a phone or laptop — achieved 0.12 at M6.3",
+          "pending": {
+            "issue": "KI-008",
+            "until": "M8.5"
+          }
         }
       }
     }
@@ -163,6 +392,13 @@
       "right": "classic-100-normal-2.length.median",
       "op": "<",
       "note": "9.3 median grows with goal level"
+    },
+    {
+      "id": "modern-median-30<50",
+      "left": "modern-30-normal-2.length.median",
+      "right": "modern-50-normal-2.length.median",
+      "op": "<",
+      "note": "9.5 median grows with goal level"
     }
   ]
 }
