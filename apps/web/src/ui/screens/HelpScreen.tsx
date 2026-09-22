@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useGame } from '../../store/gameStore';
+import { startTutorial } from '../../tutorial/startTutorial';
 import { Button } from '../common/Button';
 
 const KEYS = [
@@ -32,7 +33,6 @@ export function HelpContent() {
           ))}
         </tbody>
       </table>
-      <p className="mt-4 text-sm text-ink-muted">{t('help.tutorialSoon')}</p>
     </>
   );
 }
@@ -45,9 +45,15 @@ export function HelpScreen() {
     <section className="mx-auto max-w-xl p-4 sm:p-6">
       <h1 className="mb-4 text-3xl font-bold">{t('help.heading')}</h1>
       <HelpContent />
-      <Button className="mt-6" onClick={() => go(hasGame ? 'game' : 'title')} data-testid="back">
-        {t('help.close')}
-      </Button>
+      <div className="mt-6 flex flex-wrap gap-2">
+        {/* UX 7.6: the tutorial is replayable from How to Play, not only on a first game. */}
+        <Button variant="primary" onClick={startTutorial} data-testid="tutorial-start">
+          {t('tutorial.start')}
+        </Button>
+        <Button onClick={() => go(hasGame ? 'game' : 'title')} data-testid="back">
+          {t('help.close')}
+        </Button>
+      </div>
     </section>
   );
 }

@@ -42,7 +42,8 @@ export const APP_FLAGS: Record<AppFlagId, AppFlagSpec> = {
     labelKey: 'flag.debugTools',
     debugOnly: true,
   },
-  tutorial: { id: 'tutorial', default: false, milestone: 'M7.3', labelKey: 'flag.tutorial' },
+  // M7.3 landed the spotlight and the scripted steps, so the tutorial is on by default now.
+  tutorial: { id: 'tutorial', default: true, milestone: 'M7.3', labelKey: 'flag.tutorial' },
   // M7.1 landed the bus, the recipes and the moods, so audio is on by default now.
   audio: { id: 'audio', default: true, milestone: 'M7.1', labelKey: 'flag.audio' },
   leaderboard: {

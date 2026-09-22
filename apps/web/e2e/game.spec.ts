@@ -12,7 +12,9 @@ function isPhone(page: Page): boolean {
 }
 
 async function startGame(page: Page, query = ''): Promise<void> {
-  await page.goto(`/${query}`);
+  // `-tutorial` keeps the M7.3 spotlight out of specs that are testing the board itself; the
+  // tutorial has its own spec.
+  await page.goto(`/${query === '' ? '?ff=-tutorial' : `${query}&ff=-tutorial`}`);
   await page.getByTestId('new-game').click();
   await page.getByTestId('seed').fill('e2e-board');
   await page.getByTestId('start-game').click();
@@ -20,7 +22,7 @@ async function startGame(page: Page, query = ''): Promise<void> {
 }
 
 async function startModernGame(page: Page): Promise<void> {
-  await page.goto('/?debug=1&ff=debugTools');
+  await page.goto('/?debug=1&ff=debugTools,-tutorial');
   await page.getByTestId('new-game').click();
   await page.locator('#ruleset').selectOption('modern-western');
   await page.getByTestId('seed').fill('e2e-modern');

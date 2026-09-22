@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useFlags } from './flags/appFlags';
 import { useGame } from './store/gameStore';
 import { applyDocumentSettings, useSettings } from './store/settings';
+import { Spotlight } from './tutorial/Spotlight';
+import { useTutorialBoot } from './tutorial/useTutorialBoot';
 import { SCREENS } from './ui/screens/registry';
 import { UnavailableScreen } from './ui/screens/UnavailableScreen';
 
@@ -16,6 +18,7 @@ import { UnavailableScreen } from './ui/screens/UnavailableScreen';
 export function App() {
   useSaveConnection();
   useAudio();
+  useTutorialBoot();
   const { t } = useTranslation();
   const screen = useGame((s) => s.screen);
   const settings = useSettings((s) => s.settings);
@@ -39,6 +42,7 @@ export function App() {
       <main id="main" className="min-h-screen">
         <SaveNotice />
         {Component ? <Component /> : <UnavailableScreen flag={gate ?? 'tutorial'} />}
+        <Spotlight />
       </main>
     </div>
   );

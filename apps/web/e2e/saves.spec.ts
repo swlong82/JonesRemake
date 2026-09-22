@@ -15,7 +15,7 @@ for (const pack of ['classic', 'modern-western']) {
   test(`${pack}: manual slots, reload equality, Continue, export/import and axe`, async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/?ff=-tutorial');
     await page.getByTestId('new-game').click();
     await page.locator('#ruleset').selectOption(pack);
     await page.getByTestId('seed').fill('e2e-saves');
@@ -68,7 +68,7 @@ test('unavailable IndexedDB reports a recoverable error without claiming a save'
       },
     });
   });
-  await page.goto('/');
+  await page.goto('/?ff=-tutorial');
   await expect(page.getByRole('alert')).toContainText('storage failed');
   await page.getByTestId('new-game').click();
   await page.getByTestId('start-game').click();
