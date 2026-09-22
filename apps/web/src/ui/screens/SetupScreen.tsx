@@ -331,6 +331,7 @@ export function SetupScreen() {
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
+            data-testid="classic-opacity"
             checked={classicOpacity}
             onChange={(e) => setClassicOpacity(e.target.checked)}
           />

@@ -220,3 +220,28 @@ test('subscription cancellation requires the retention confirmation', async ({ p
   await expect(page.getByTestId('subscription-cancel-dialog')).toBeHidden();
   await expect(page.getByTestId('subscription-total')).toContainText('$0/week');
 });
+
+/**
+ * M7.4 AC: under classic opacity the hidden values are absent from the DOM, not merely hidden by
+ * CSS — so this reads the served markup rather than what is painted.
+ */
+test('classic opacity keeps the numbers out of the served markup', async ({ page }) => {
+  await page.goto('/?ff=-tutorial');
+  await page.getByTestId('new-game').click();
+  await page.getByTestId('seed').fill('e2e-opaque');
+  await page.getByTestId('classic-opacity').check();
+  await page.getByTestId('start-game').click();
+  await expect(page.getByTestId('hud')).toBeVisible();
+
+  // Goal readouts are quarter steps or the met marker, never `value/target`.
+  for (const goal of ['wealth', 'happiness', 'education', 'career']) {
+    const text = (await page.getByTestId(`goal-${goal}`).first().textContent()) ?? '';
+    expect(text).not.toContain('/');
+    if (text.endsWith('%')) expect(Number(text.replace('%', '')) % 25).toBe(0);
+  }
+
+  // Action previews carry hours and money only; no hidden stat name reaches the markup.
+  const html = await page.content();
+  for (const stat of ['Dependability', 'Experience', 'Relaxation'])
+    expect(html).not.toContain(stat);
+});

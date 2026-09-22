@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { PALETTE_HEX } from '../../assets/AssetRegistry';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
-import { hours, jobTitle } from './labels';
+import { hours, jobTitle, type Translate } from './labels';
 
 export const GOAL_IDS: GoalId[] = ['wealth', 'happiness', 'education', 'career'];
 
@@ -103,6 +103,16 @@ export function GoalBars({
       })}
     </ul>
   );
+}
+
+/**
+ * Wellbeing as the player is allowed to see it. Under classic opacity the band is named and the
+ * number is never rendered at all — UX 7.3's "hidden stats never shown" is about the DOM, not
+ * about CSS (M7.4).
+ */
+function wellbeingLine(value: number, opaque: boolean, pack: CityPack, t: Translate): string {
+  const band = t(`wellbeing.${wellbeingBand(value, pack)}`);
+  return opaque ? t('hud.wellbeingBand', { band }) : t('hud.wellbeingValue', { band, value });
 }
 
 export function Hud({ compact = false }: { compact?: boolean }) {
@@ -205,11 +215,7 @@ export function Hud({ compact = false }: { compact?: boolean }) {
           </li>
           {wellbeing !== undefined && (
             <li data-testid="wellbeing">
-              {t('hud.wellbeing')}:{' '}
-              {t('hud.wellbeingValue', {
-                band: t(`wellbeing.${wellbeingBand(wellbeing, pack)}`),
-                value: wellbeing,
-              })}
+              {t('hud.wellbeing')}: {wellbeingLine(wellbeing, opaque, pack, t)}
             </li>
           )}
           {state.flags.subscriptions && (
@@ -228,11 +234,7 @@ export function Hud({ compact = false }: { compact?: boolean }) {
         <ul className="flex flex-col gap-0.5 text-xs text-ink-muted">
           {wellbeing !== undefined && (
             <li data-testid="wellbeing">
-              {t('hud.wellbeing')}:{' '}
-              {t('hud.wellbeingValue', {
-                band: t(`wellbeing.${wellbeingBand(wellbeing, pack)}`),
-                value: wellbeing,
-              })}
+              {t('hud.wellbeing')}: {wellbeingLine(wellbeing, opaque, pack, t)}
             </li>
           )}
           {state.flags.subscriptions && (

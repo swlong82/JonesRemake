@@ -167,6 +167,7 @@
   "hud.loanDue": "${{amount}} due weekly · ${{outstanding}} outstanding",
   "hud.loanDefault": "${{amount}} default debt · {{percent}}% of pay garnished",
   "hud.wellbeingValue": "{{band}} ({{value}}/100)",
+  "hud.wellbeingBand": "{{band}}",
   "wellbeing.thrive": "Thriving",
   "wellbeing.steady": "Steady",
   "wellbeing.burnout": "Burnout risk",
