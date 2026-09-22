@@ -81,6 +81,17 @@
 - Mitigation: the nine targets stay asserted in `sim/gates.json` with `pending: { issue: KI-008, until: M8.5 }` (the ADR-0019 mechanism), so every gate run prints them and `pnpm sim:gate --strict` fails on them; the M6 gate records them per CLAUDE.md 1.5 rather than meeting them. `classic` is unaffected — no classic file changed during M6.3 and its goldens and gate results did not move.
 - Status: open, accepted — the `viral` family reading zero while the other three respond to weight looks like a defect rather than a tuning miss, and is the one worth looking at first.
 
+## KI-009: The setup form's Start button cannot be clicked at 150% text on a phone viewport
+
+- Severity: minor
+- Area: web
+- Found in: M7.5 (the final a11y and text-scale pass)
+- Repro: on the `phone` Playwright project (485×1050 CSS px at a 24px root font), open Settings, set text scale 150%, go to New game and click Start. The click times out with `<label class="flex items-center gap-2">… from <div class="mt-2 grid gap-3 sm:grid-cols-2"> subtree intercepts pointer events`. Every other viewport, and the same form at 100% and 125%, are fine.
+- Measured: scrolled to the foot of the page the geometry is correct — the options grid ends at y = 94 and the button sits at y = 960–1026, and `document.elementFromPoint` at the button's centre returns the button itself. The interception only appears during Playwright's own scroll-then-hit-test, so the two disagree about where the button is on a page 3,308 px tall.
+- Attempts: 1) `scrollIntoViewIfNeeded()` before the click — still intercepted; 2) `scrollTo(0, document.body.scrollHeight)` first — still intercepted; 3) measured both boxes and the hit test at the click point, which say the button is on top and clickable. Three attempts, so CLAUDE.md 1.5 applies.
+- Mitigation: none needed for the a11y pass itself, which is what M7.5 is about — `presentation.spec.ts` now reaches the board first and turns the scale and theme up from the in-game menu, so the axe gate, the contrast check and the no-clipped-text check all still run on the board in the dark theme at 150% on all three viewports. Nothing is disabled and no assertion was weakened. A player on a phone can still start a game at 150%: the button is visible and on top, and only the automated click disagrees.
+- Status: open — worth a look at the setup form's grid at large root font sizes before release; it may be the harness rather than the layout.
+
 <!--
 ## KI-001: <title>
 - Severity: blocker | major | minor

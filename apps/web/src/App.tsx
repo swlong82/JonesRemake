@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFlags } from './flags/appFlags';
 import { useGame } from './store/gameStore';
+import { setLanguage } from './i18n';
 import { applyDocumentSettings, useSettings } from './store/settings';
 import { Spotlight } from './tutorial/Spotlight';
 import { useTutorialBoot } from './tutorial/useTutorialBoot';
@@ -25,6 +26,7 @@ export function App() {
   const flags = useFlags((s) => s.flags);
   useEffect(() => {
     applyDocumentSettings(settings);
+    setLanguage(settings.language);
   }, [settings]);
 
   const entry = SCREENS[screen];
@@ -35,7 +37,7 @@ export function App() {
     <div className="min-h-screen bg-surface text-ink">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-white"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-on-accent"
       >
         {t('app.skipToContent')}
       </a>
