@@ -61,6 +61,16 @@
 - Mitigation: none needed for `classic`, which is unaffected: every modern module is gated by a CityPack flag that `classic` leaves off, and classic's golden replays did not move across the whole of M5.
 - Status: open — closes with M6.3.
 
+## KI-007: `pnpm test` fails on Node 24+ because the runtime shadows jsdom's `localStorage`
+
+- Severity: major
+- Area: ci
+- Found in: M6 resume (verifying the M6.1/M6.5 `pnpm verify` claims on a Node 26 machine)
+- Repro: `pnpm test` on Node >= 24 → 93 of the 140 `apps/web` tests fail with `TypeError: Cannot read properties of undefined (reading 'clear')` at `globalThis.localStorage.clear()`. Node owns a built-in `globalThis.localStorage` that stays `undefined` without `--localstorage-file`, and the key existing stops vitest's jsdom environment from installing jsdom's own storage. CI pins Node 22 (`.nvmrc`), so CI never saw it although `engines.node` is `>= 22`.
+- Attempts: 1) copy `window.localStorage` onto the global — there is none, `globalThis === window` under the jsdom environment and the built-in shadows it; 2) install a `Storage`-shaped in-memory stand-in in `apps/web/src/test-setup.ts` when `globalThis.localStorage` is `undefined` — 140/140 web tests pass, and Node 22 is untouched because the branch never runs there.
+- Mitigation: none needed; fixed by the setup guard (ADR-0032). Local e2e on a machine whose Playwright cache lacks the pinned revision still needs `PW_CHROMIUM_EXECUTABLE` (CLAUDE.md 1.9); that is unrelated to this issue.
+- Status: fixed in M6 resume (`apps/web/src/test-setup.ts`, ADR-0032)
+
 <!--
 ## KI-001: <title>
 - Severity: blocker | major | minor
