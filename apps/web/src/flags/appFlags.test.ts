@@ -18,7 +18,9 @@ describe('app feature flags', () => {
     const flags = resolveAppFlags();
     for (const id of APP_FLAG_IDS) expect(flags[id]).toBe(APP_FLAGS[id].default);
     expect(flags.tutorial).toBe(false);
-    expect(DEFAULT_APP_FLAGS.audio).toBe(false);
+    expect(DEFAULT_APP_FLAGS.leaderboard).toBe(false);
+    // M7.1 landed the audio bus, so its flag is on; the flag stays until the milestone is closed.
+    expect(DEFAULT_APP_FLAGS.audio).toBe(true);
   });
 
   it('every flag names the milestone that removes it', () => {

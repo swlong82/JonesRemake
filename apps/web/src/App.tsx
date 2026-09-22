@@ -1,3 +1,4 @@
+import { useAudio } from './audio/useAudio';
 import { useSaveConnection } from './platform/Services';
 import { SaveNotice } from './save/SaveNotice';
 import { useEffect } from 'react';
@@ -14,6 +15,7 @@ import { UnavailableScreen } from './ui/screens/UnavailableScreen';
  */
 export function App() {
   useSaveConnection();
+  useAudio();
   const { t } = useTranslation();
   const screen = useGame((s) => s.screen);
   const settings = useSettings((s) => s.settings);

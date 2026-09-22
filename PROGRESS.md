@@ -1,6 +1,6 @@
 # Progress
 
-Current milestone: M0–M6 complete and tagged; M7.2 complete out of order; next roadmap task is M7.1
+Current milestone: M0–M6 complete and tagged; M7.1 and M7.2 complete; next roadmap task is M7.3
 Last updated: 2026-09-22 — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
@@ -82,7 +82,7 @@ Last updated: 2026-09-22 — see `HANDOFF.md` for the resume point.
 
 ## M7 — Polish systems
 
-- [ ] M7.1 AudioBus, SFX recipes, procedural music moods, settings persistence — note:
+- [x] M7.1 AudioBus, SFX recipes, procedural music moods, settings persistence — note: `apps/web/src/audio/` — `AudioBus` per AUDIO_SPEC 8.1 with a `WebAudioBus` and the `NullAudioBus` tests and non-WebAudio hosts fall back to; all 14 SFX of 8.2 as jsfxr-style oscillator/noise recipes; the six moods of 8.3 as data (BPM, scale, progression, filtering, percussion, victory playing once) driven by a pure `moodFor` over screen, economy, rent debt and wellbeing. Sound is driven only by `DomainEvent`s through `eventMap`, so the engine keeps no audio knowledge, and the mapping reaches every `SfxId`. Music is a genuine lazy chunk (`music-*.js`, 2.95 kB) imported only after the first gesture, with a source-level test against a static import; the generator is plain WebAudio rather than Tone.js (ADR-0036) and its lead is a seeded UI-side walk that cannot touch game determinism. Volume and mute come from the existing settings store, which already persists to localStorage, and the music pauses while the tab is hidden. The `audio` app flag now defaults on. 19 audio tests; initial bundle 172.0 kB gzip of 350.
 - [x] M7.2 Save system behind `SaveStore` (`IndexedDbSaveStore`): autosave, 3 slots, export/import, migrations, replay verification — note: IndexedDB `game` persistence, autosave at game start/end turn/every 10 commands, three manual slots, Continue/Load, JSON save and replay import/export, v1→v2 envelope migration, snapshot validation with hash and replay verification, warned snapshot fallback on replay drift, storage/transaction/race handling, and AI cancellation on load (ADR-0031). `pnpm verify` green locally on 2026-09-22: 66 test files / 599 passed / 11 todo, 36 e2e on three viewports, initial gzip 169.1 kB / 350 kB, `sim:gate` 18 assertions / 0 failed / 1 accepted pending KI-005. This is task evidence, not an M7 gate or CI claim.
 - [ ] M7.3 Tutorial (UX 7.6) with spotlight + event-driven steps — note:
 - [ ] M7.4 Classic opacity mode (hidden values absent from the DOM) — note:
