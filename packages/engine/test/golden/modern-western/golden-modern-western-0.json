@@ -108,8 +108,8 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "clinic",
-        "mode": "transit"
+        "to": "secure-apartments",
+        "mode": "walk"
       }
     },
     {
@@ -1183,6 +1183,6 @@
       }
     }
   ],
-  "finalHash": "044a802bf038f1",
+  "finalHash": "0e93dad3e70caf",
   "week": 6
 }

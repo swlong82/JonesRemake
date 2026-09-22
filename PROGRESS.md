@@ -1,6 +1,6 @@
 # Progress
 
-Current milestone: M0–M5 complete and tagged; M6.5 complete out of order; next is M6.1
+Current milestone: M0–M5 complete and tagged; M6.1 and M6.5 complete; next roadmap task is M6.2
 Last updated: 2026-09-22 by Codex — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
@@ -73,7 +73,7 @@ Last updated: 2026-09-22 by Codex — see `HANDOFF.md` for the resume point.
 
 ## M6 — Modern pack and balance
 
-- [ ] M6.1 `modern-western` pack (extends classic): names, flavor text minimums (CONTENT 6.3), modern items/subs/assets/loans/events — note:
+- [x] M6.1 `modern-western` pack (extends classic): names, flavor text minimums (CONTENT 6.3), modern items/subs/assets/loans/events — note: all 16 location names and 3+3 greetings/farewells, 46 inherited job titles, 11 degree labels, meals and clothing are modernized; ten missing GDD 4.11 items have names, descriptions and registered visuals alongside existing phone/laptop/case, subscriptions, assets, loans and modern events. Inherited management/trade automation-risk exceptions now match GDD 4.13. Modern goldens alone were regenerated for the new item roster and risk values (ADR-0030); all 20 Classic goldens remained byte-for-byte unchanged. `pnpm verify` green locally (63 test files / 578 passing tests; 27 e2e; initial gzip 162.6 kB / 350; `sim:gate` 18 assertions / 0 failed / 1 accepted pending KI-005). This is task evidence, not an M6 gate or CI claim.
 - [ ] M6.2 Write and lock `reports/modern-targets.json` (hash in ADR) — note:
 - [ ] M6.3 Tuning loop per BALANCE 9.6 until 9.5 gates pass; `BALANCE_REPORT.md` — note:
 - [ ] M6.4 CI `sim:gate` switched to modern gates (classic sanity gates retained) — note:

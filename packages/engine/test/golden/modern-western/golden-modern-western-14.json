@@ -530,7 +530,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "electronics-store",
+        "to": "burger-joint",
         "mode": "transit"
       }
     },
@@ -1189,6 +1189,6 @@
       }
     }
   ],
-  "finalHash": "068f0c29eb1d9a",
+  "finalHash": "10fd74d8d1827b",
   "week": 5
 }

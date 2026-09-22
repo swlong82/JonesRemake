@@ -1,8 +1,9 @@
 # Handoff
 
-State of the build after M5, its merged follow-up PR #16, and the M6.5 UI slice. Read `CLAUDE.md`
-first, then this file, then resume at the first unchecked task in `PROGRESS.md` (M6.1). M6.5 landed
-out of sequence because it completed the modern action surface already started by PR #16.
+State of the build after M5, its merged follow-up PR #16, the M6.5 UI slice and M6.1 content.
+Read `CLAUDE.md` first, then this file, then resume at the first unchecked task in `PROGRESS.md`
+(M6.2). M6.5 landed out of sequence because it completed the modern action surface already started
+by PR #16.
 
 ## Where the build is
 
@@ -14,13 +15,18 @@ out of sequence because it completed the modern action surface already started b
 | Classic balance (M3)                   | **Closed** — tag `m3` (local). One target recorded unmet, not met: ADR-0026 |
 | `apps/web`                             | Classic playable; M6.5 modern UI complete                                   |
 | Modern systems (M5)                    | **Complete** — nine modules behind CityPack flags, tag `m5` (local)         |
-| M6                                     | M6.5 complete out of order; M6.1–M6.4 and the M6 gate remain open           |
+| M6                                     | M6.1 and M6.5 complete; M6.2–M6.4 and the M6 gate remain open               |
 | M7–M8                                  | Not started                                                                 |
 
 The last milestone verification record is the M5 run in `PROGRESS.md`; do not reinterpret it as an
 M6 gate. The one thing to know before reading a gate run is that `lastGoalPct.career` remains an
 accepted pending classic assertion, recorded as structurally unreachable in ADR-0026 and KI-005.
-M6 cannot close until M6.1–M6.4 are complete and its own CI evidence exists.
+M6 cannot close until M6.2–M6.4 are complete and its own CI evidence exists.
+
+The isolated M6.1 completion branch passed `pnpm verify` locally on 2026-09-22: 63 test files / 578
+tests, 27 Playwright + axe checks, initial bundle 162.6 kB gzip of 350, and `sim:gate` 18
+assertions / 0 failed / 1 accepted pending (KI-005). No CI gate, merge, deployment or milestone tag
+is claimed by this content task.
 
 The isolated M6.5 completion branch passed `pnpm verify` locally on 2026-09-22: 62 test files / 573
 tests, 27 Playwright + axe checks across three viewports, bundle 156.7 kB gzip of 350, and
@@ -40,21 +46,18 @@ was M4-only was stale; this handoff does not claim a fresh deployment check.
 ## Resume here: M6 — modern pack and balance
 
 M5 left `modern-western` carrying working content for every system, but only the content the rules
-needed. M6 is what turns it into a pack rather than a test fixture.
+needed. M6 is turning it into a complete pack and locking its balance targets.
 
-1. **M6.1 — the pack proper.** Names and flavour are still inherited from `classic`, so the modern
-   city currently calls its co-living pod "Low-Cost Housing" and its ride-hail driver's employer the
-   "Employment Office". What is missing, in order of size:
-   - i18n overrides for 16 locations (name + 3 greetings + 3 farewells each — the validator
-     requires `MIN_GREETINGS`/`MIN_FAREWELLS`), 46 job titles, 11 degrees, the meals and clothing;
-   - the rest of GDD 4.11's modern item list (tablet, smart TV, game console, e-reader, headphones,
-     air fryer, robot vacuum, massage chair, bike, gym card) — the smartphone, laptop and phone case
-     are already there;
-   - `automationRisk` per job tuned to GDD 4.13's bands (clerical and warehouse 0.3–0.5, trades 0.1,
-     management and teaching 0.05); classic's values are inherited and only roughly right.
-     Everything goes in `packages/content/packs/modern-western/` and must be registered in
-     `packages/content/src/packs.ts` — the pack registry is a static import list, and a file that is
-     not listed there is silently ignored (that caught this session twice).
+1. **M6.1 — complete.** `modern-western` now overrides the 16 location names and all 3+3 greetings
+   and farewells, the 46 inherited job titles, 11 degrees, meals and clothing. The ten missing
+   GDD 4.11 items are in `items.json`, with translations and visual entries. `AssetRegistry` resolves
+   their icons rather than falling back to the generic building. Five inherited management/trade
+   jobs received GDD 4.13 risk corrections; other jobs already fit their bands. The phone, laptop,
+   case, subscriptions, modern assets, loans and events were already present and were not rebuilt.
+   `packages/content/src/packs.ts` statically registered all edited pack files already, so no new
+   import was needed. Modern goldens were regenerated for the changed item roster/risk values;
+   Classic goldens did not change. ADR-0030 records provisional prices and the legacy hot-tub
+   overlay constraint. These item prices are not M6.2 target locks or M6.3 balance tuning.
 2. **M6.2** — write and lock `reports/modern-targets.json`, hash in an ADR.
 3. **M6.3** — the BALANCE 9.6 tuning loop until the 9.5 gates pass; `BALANCE_REPORT.md` is the
    output. This is also where KI-005's career target is revisited for the modern ladder (ADR-0026).
