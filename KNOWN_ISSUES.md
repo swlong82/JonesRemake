@@ -71,6 +71,16 @@
 - Mitigation: none needed; fixed by the setup guard (ADR-0032). Local e2e on a machine whose Playwright cache lacks the pinned revision still needs `PW_CHROMIUM_EXECUTABLE` (CLAUDE.md 1.9); that is unrelated to this issue.
 - Status: fixed in M6 resume (`apps/web/src/test-setup.ts`, ADR-0032)
 
+## KI-008: Nine stage-2 modern balance targets are unmet after the tuning budget
+
+- Severity: minor (accepted)
+- Area: balance
+- Found in: M6.3 (`pnpm tsx packages/sim/cli.ts --config sim/stage2.json`)
+- Repro: run the stage-2 suite; 17 of the 26 targets locked in `reports/modern-targets.json` pass and these nine do not, with the achieved value beside each: wealth last-completed 1.0% and career last-completed 0.5% (target ≥ 10% each); Normal-AI collapse 71% (target 15–40%); median at goals 80 is 45 weeks (target 49–75); Hard beats Easy 70% one way round (target ≥ 80%; the swapped-seat config reads 95%); StudyFirst wins 0% (target 30–60%); LoanMax defaults in 0% of its games (target 20–60%); the `viral` family never appears in the family counts and `gadget-breakdown` fires 0.12 per 100 player-weeks (target ≥ 1 each, at Chaos Modern).
+- Attempts: 17 tuning iterations, logged one by one in `BALANCE_REPORT.md` with the value each produced. The ruleset went from 100% stalls and no winner at all to a 48-week median and 0.5% stalls; every remaining miss moves in the opposite direction to a target already met. Two were proved structural rather than under-tuned: career repeats classic's ADR-0026 result (degrees grant dependability, career is a multiple of dependability, so career lands with the degrees), and `careerDependabilityBp` below 10000 makes goals-100 unwinnable because career then caps under 100. Collapse frequency is a cliff in the band rather than a dial: bands 4/6/8 measured 0%/71%/96% on identical content.
+- Mitigation: the nine targets stay asserted in `sim/gates.json` with `pending: { issue: KI-008, until: M8.5 }` (the ADR-0019 mechanism), so every gate run prints them and `pnpm sim:gate --strict` fails on them; the M6 gate records them per CLAUDE.md 1.5 rather than meeting them. `classic` is unaffected — no classic file changed during M6.3 and its goldens and gate results did not move.
+- Status: open, accepted — the `viral` family reading zero while the other three respond to weight looks like a defect rather than a tuning miss, and is the one worth looking at first.
+
 <!--
 ## KI-001: <title>
 - Severity: blocker | major | minor

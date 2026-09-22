@@ -1,60 +1,99 @@
 {
-  "$comment": "BALANCE_SPEC 9.5/9.6 stage-2 suite for `modern-western`: the measurement run behind each locked target in reports/modern-targets.json. Config ids match the `config` field there. Game counts are reduced from 10,000 (ADR-0016) and sized so one iteration fits a working session; `sim/gates.json` re-states the passing targets at CI sample sizes.",
+  "$comment": "BALANCE_SPEC 9.5/9.6 stage-2 suite for `modern-western`: the measurement run behind each locked target in reports/modern-targets.json. Config ids match the `config` field there. Game counts are reduced from 10,000 (ADR-0016) and sized so one iteration fits a working session; `sim/gates.json` re-states the passing targets at CI sample sizes. The Normal x2 configs pit one personality against itself, so `firstSeatWinPct` measures turn order alone rather than the personality rotation (M6.3 iteration 7). Goals-100 modern games run long (~50 s each), so that config keeps the smallest sample the median can be read from (ADR-0016).",
   "gamesPerConfig": 120,
   "configs": [
     {
       "id": "modern-30-normal-2",
       "pack": "modern-western",
       "seats": 2,
-      "ai": "normal,normal",
+      "ai": "normal:balanced,normal:balanced",
       "goals": 30,
       "chaos": "modern",
       "games": 120,
       "asserts": {
-        "length.median": { "min": 22, "max": 34, "note": "9.5 median within ±20% of B=28" }
+        "length.median": {
+          "min": 22,
+          "max": 34,
+          "note": "9.5 median within ±20% of B=28"
+        }
       }
     },
     {
       "id": "modern-50-normal-2",
       "pack": "modern-western",
       "seats": 2,
-      "ai": "normal,normal",
+      "ai": "normal:balanced,normal:balanced",
       "goals": 50,
       "chaos": "modern",
       "games": 200,
       "asserts": {
-        "length.median": { "min": 32, "max": 48, "note": "9.5 median within ±20% of B=40" },
-        "stallRate": { "max": 0.5, "note": "9.5 stall < 0.5%" },
-        "firstSeatWinPct": { "min": 45, "max": 55, "note": "9.5 seat bias 45–55%" },
-        "lastGoalPct.wealth": { "min": 10, "note": "9.5 each goal last ≥ 10%" },
-        "lastGoalPct.happiness": { "min": 10, "note": "9.5 each goal last ≥ 10%" },
-        "lastGoalPct.education": { "min": 10, "note": "9.5 each goal last ≥ 10%" },
-        "lastGoalPct.career": { "min": 10, "note": "9.5 each goal last ≥ 10%" },
-        "collapseGamePct": { "min": 15, "max": 40, "note": "9.5 Normal AI collapse 15–40%" }
+        "length.median": {
+          "min": 32,
+          "max": 48,
+          "note": "9.5 median within ±20% of B=40"
+        },
+        "stallRate": {
+          "max": 0.5,
+          "note": "9.5 stall < 0.5%"
+        },
+        "firstSeatWinPct": {
+          "min": 45,
+          "max": 55,
+          "note": "9.5 seat bias 45–55%"
+        },
+        "lastGoalPct.wealth": {
+          "min": 10,
+          "note": "9.5 each goal last ≥ 10%"
+        },
+        "lastGoalPct.happiness": {
+          "min": 10,
+          "note": "9.5 each goal last ≥ 10%"
+        },
+        "lastGoalPct.education": {
+          "min": 10,
+          "note": "9.5 each goal last ≥ 10%"
+        },
+        "lastGoalPct.career": {
+          "min": 10,
+          "note": "9.5 each goal last ≥ 10%"
+        },
+        "collapseGamePct": {
+          "min": 15,
+          "max": 40,
+          "note": "9.5 Normal AI collapse 15–40%"
+        }
       }
     },
     {
       "id": "modern-80-normal-2",
       "pack": "modern-western",
       "seats": 2,
-      "ai": "normal,normal",
+      "ai": "normal:balanced,normal:balanced",
       "goals": 80,
       "chaos": "modern",
-      "games": 120,
+      "games": 60,
       "asserts": {
-        "length.median": { "min": 49, "max": 75, "note": "9.5 median within ±20% of B=62" }
+        "length.median": {
+          "min": 49,
+          "max": 75,
+          "note": "9.5 median within ±20% of B=62"
+        }
       }
     },
     {
       "id": "modern-100-normal-2",
       "pack": "modern-western",
       "seats": 2,
-      "ai": "normal,normal",
+      "ai": "normal:balanced,normal:balanced",
       "goals": 100,
       "chaos": "modern",
-      "games": 120,
+      "games": 24,
       "asserts": {
-        "length.median": { "min": 66, "max": 100, "note": "9.5 median within ±20% of B=83" }
+        "length.median": {
+          "min": 66,
+          "max": 100,
+          "note": "9.5 median within ±20% of B=83"
+        }
       }
     },
     {
@@ -66,7 +105,10 @@
       "chaos": "modern",
       "games": 40,
       "asserts": {
-        "winnerDifficultyPct.hard": { "min": 80, "note": "9.5 Hard wins ≥ 80%" }
+        "winnerDifficultyPct.hard": {
+          "min": 80,
+          "note": "9.5 Hard wins ≥ 80%"
+        }
       }
     },
     {
@@ -78,7 +120,10 @@
       "chaos": "modern",
       "games": 40,
       "asserts": {
-        "winnerDifficultyPct.hard": { "min": 80, "note": "9.5 Hard wins ≥ 80%, seats swapped" }
+        "winnerDifficultyPct.hard": {
+          "min": 80,
+          "note": "9.5 Hard wins ≥ 80%, seats swapped"
+        }
       }
     },
     {
@@ -90,7 +135,10 @@
       "chaos": "modern",
       "games": 60,
       "asserts": {
-        "botWinPct.GigOnly": { "max": 25, "note": "9.5 GigOnly win rate < 25%" }
+        "botWinPct.GigOnly": {
+          "max": 25,
+          "note": "9.5 GigOnly win rate < 25%"
+        }
       }
     },
     {
@@ -102,8 +150,15 @@
       "chaos": "modern",
       "games": 60,
       "asserts": {
-        "botBankruptcyPct.CryptoAllIn": { "min": 40, "note": "9.5 bankruptcy > 40%" },
-        "botWinPct.CryptoAllIn": { "min": 15, "max": 40, "note": "9.5 win rate 15–40%" }
+        "botBankruptcyPct.CryptoAllIn": {
+          "min": 40,
+          "note": "9.5 bankruptcy > 40%"
+        },
+        "botWinPct.CryptoAllIn": {
+          "min": 15,
+          "max": 40,
+          "note": "9.5 win rate 15–40%"
+        }
       }
     },
     {
@@ -115,7 +170,11 @@
       "chaos": "modern",
       "games": 60,
       "asserts": {
-        "botWinPct.StudyFirst": { "min": 30, "max": 60, "note": "9.5 viable, not dominant" }
+        "botWinPct.StudyFirst": {
+          "min": 30,
+          "max": 60,
+          "note": "9.5 viable, not dominant"
+        }
       }
     },
     {
@@ -127,8 +186,14 @@
       "chaos": "modern",
       "games": 60,
       "asserts": {
-        "botCollapsePct.NoRelax": { "min": 60, "note": "9.5 ≥ 60% of games have ≥ 1 collapse" },
-        "botWinPct.NoRelax": { "max": 60, "note": "9.5 no bot beats Normal Balanced > 60%" }
+        "botCollapsePct.NoRelax": {
+          "min": 60,
+          "note": "9.5 ≥ 60% of games have ≥ 1 collapse"
+        },
+        "botWinPct.NoRelax": {
+          "max": 60,
+          "note": "9.5 no bot beats Normal Balanced > 60%"
+        }
       }
     },
     {
@@ -140,8 +205,15 @@
       "chaos": "modern",
       "games": 60,
       "asserts": {
-        "botDefaultPct.LoanMax": { "min": 20, "max": 60, "note": "9.5 default rate 20–60%" },
-        "botWinPct.LoanMax": { "max": 60, "note": "9.5 no bot beats Normal Balanced > 60%" }
+        "botDefaultPct.LoanMax": {
+          "min": 20,
+          "max": 60,
+          "note": "9.5 default rate 20–60%"
+        },
+        "botWinPct.LoanMax": {
+          "max": 60,
+          "note": "9.5 no bot beats Normal Balanced > 60%"
+        }
       }
     },
     {
@@ -153,22 +225,34 @@
       "chaos": "modern",
       "games": 60,
       "asserts": {
-        "botWinPct.DeliveryOnly": { "max": 60, "note": "9.5 no bot beats Normal Balanced > 60%" }
+        "botWinPct.DeliveryOnly": {
+          "max": 60,
+          "note": "9.5 no bot beats Normal Balanced > 60%"
+        }
       }
     },
     {
       "id": "modern-50-chaos",
       "pack": "modern-western",
       "seats": 2,
-      "ai": "normal,normal",
+      "ai": "normal:balanced,normal:balanced",
       "goals": 50,
       "chaos": "modern",
       "games": 60,
       "seedBase": "stage2-chaos",
       "asserts": {
-        "eventsPer100PlayerWeeks.ai-layoffs": { "min": 1, "note": "9.5 every modern family fires" },
-        "eventsPer100PlayerWeeks.viral": { "min": 1, "note": "9.5 every modern family fires" },
-        "eventsPer100PlayerWeeks.scams": { "min": 1, "note": "9.5 every modern family fires" },
+        "eventsPer100PlayerWeeks.ai-layoffs": {
+          "min": 1,
+          "note": "9.5 every modern family fires"
+        },
+        "eventsPer100PlayerWeeks.viral": {
+          "min": 1,
+          "note": "9.5 every modern family fires"
+        },
+        "eventsPer100PlayerWeeks.scams": {
+          "min": 1,
+          "note": "9.5 every modern family fires"
+        },
         "eventsPer100PlayerWeeks.gadget-breakdown": {
           "min": 1,
           "note": "9.5 every modern family fires"

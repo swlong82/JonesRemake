@@ -47,6 +47,12 @@ export interface Summary {
   collapseGamePct: number;
   /** Per-seat win percent for bot seats, keyed by bot id. */
   botWinPct: Record<string, number>;
+  /** Percent of a bot's own seat-games that ended bankrupt (BALANCE 9.5 CryptoAllIn). */
+  botBankruptcyPct: Record<string, number>;
+  /** Percent of a bot's own seat-games with at least one collapse (9.5 NoRelax). */
+  botCollapsePct: Record<string, number>;
+  /** Percent of a bot's own seat-games in which it defaulted on a loan (9.5 LoanMax). */
+  botDefaultPct: Record<string, number>;
 }
 
 export interface Perf {
@@ -81,7 +87,10 @@ export function summarize(
   const lastGoal: Record<string, number> = { wealth: 0, happiness: 0, education: 0, career: 0 };
   const jobTier: Record<string, number> = {};
   const events: Record<string, number> = {};
-  const botGames: Record<string, { games: number; wins: number }> = {};
+  const botGames: Record<
+    string,
+    { games: number; wins: number; bankrupt: number; collapse: number; defaulted: number }
+  > = {};
   let bankrupt = 0;
   let allDegrees = 0;
   let collapseGames = 0;
@@ -92,15 +101,24 @@ export function summarize(
   for (const r of results) {
     playerWeeks += r.playerWeeks;
     for (const [fam, n] of Object.entries(r.eventsByFamily)) inc(events, fam, n);
-    if (r.seats.some((s) => s.evicted || s.weeksInDebt >= 4)) bankrupt++;
+    if (r.seats.some((s) => s.bankrupt)) bankrupt++;
     if (r.seats.some((s) => s.collapses > 0)) collapseGames++;
     for (const s of r.seats) {
       degrees.push(s.degrees);
       inc(jobTier, s.jobTier < 0 ? 'none' : `tier${s.jobTier}`);
       if (s.spec.kind === 'bot') {
-        const b = (botGames[s.spec.bot] ??= { games: 0, wins: 0 });
+        const b = (botGames[s.spec.bot] ??= {
+          games: 0,
+          wins: 0,
+          bankrupt: 0,
+          collapse: 0,
+          defaulted: 0,
+        });
         b.games++;
         if (r.winner === s.seat) b.wins++;
+        if (s.bankrupt) b.bankrupt++;
+        if (s.collapses > 0) b.collapse++;
+        if (s.defaulted) b.defaulted++;
       }
     }
     r.wealthByWeek.forEach((w, i) => wealthCols[i]!.push(w));
@@ -149,6 +167,15 @@ export function summarize(
     collapseGamePct: pct(collapseGames, results.length),
     botWinPct: sortKeys(
       Object.fromEntries(Object.entries(botGames).map(([k, v]) => [k, pct(v.wins, v.games)])),
+    ),
+    botBankruptcyPct: sortKeys(
+      Object.fromEntries(Object.entries(botGames).map(([k, v]) => [k, pct(v.bankrupt, v.games)])),
+    ),
+    botCollapsePct: sortKeys(
+      Object.fromEntries(Object.entries(botGames).map(([k, v]) => [k, pct(v.collapse, v.games)])),
+    ),
+    botDefaultPct: sortKeys(
+      Object.fromEntries(Object.entries(botGames).map(([k, v]) => [k, pct(v.defaulted, v.games)])),
     ),
   };
   const perf: Perf = {

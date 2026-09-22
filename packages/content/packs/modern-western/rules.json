@@ -1,0 +1,23 @@
+{
+  "goals": {
+    "educationPerDegree": 12
+  },
+  "jobs": {
+    "payPerSession": 30
+  },
+  "happiness": {
+    "decayPerWeek": 1,
+    "relaxBase": 7,
+    "relaxMax": 11
+  },
+  "wellbeing": {
+    "relaxBase": 20,
+    "relaxMax": 34,
+    "driftStep": 5,
+    "bands": {
+      "thrive": 70,
+      "burnout": 25,
+      "collapse": 6
+    }
+  }
+}

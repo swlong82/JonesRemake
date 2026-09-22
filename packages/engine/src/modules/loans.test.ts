@@ -222,8 +222,10 @@ describe('loans module (GDD 4.12)', () => {
         } as never,
         0,
       );
+    // The pack's own point value, not a literal: M6.3 moved `wealthPointValue` for modern.
+    const owedPoints = Math.round(1000 / modern.wealthPointValue);
     expect(computeGoals(s.players[0]!, s, modern, moduleWealth).wealth).toBe(
-      computeGoals(s.players[0]!, s, modern, 0).wealth - 10,
+      computeGoals(s.players[0]!, s, modern, 0).wealth - owedPoints,
     );
     const next = endWeek(s);
     expect(loansOf(next.players[0]!)[0]!.balance).toBeLessThan(1000);

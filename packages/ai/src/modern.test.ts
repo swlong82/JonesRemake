@@ -102,6 +102,12 @@ describe('M5.9: the AI plays the modern ruleset', () => {
     const at = (v: number): number => wellbeing.value(ctx, s, withValue(v).players[0]!);
     expect(at(5)).toBeLessThan(at(20));
     expect(at(20)).toBeLessThan(at(80));
+    // ADR-0034: never decreasing, and strictly increasing below the personality's floor, so a rest
+    // inside a band is always worth something and a band edge is a slope, not a step the beam
+    // cannot see over. Above the floor the score is capped on purpose: wellbeing is not a goal.
+    const floor = modern.personalityById.balanced!.preferences.wellbeingFloor;
+    for (let v = 0; v < 100; v++) expect(at(v)).toBeLessThanOrEqual(at(v + 1));
+    for (let v = 0; v < floor; v++) expect(at(v)).toBeLessThan(at(v + 1));
     const indebted = patch(
       s,
       0,

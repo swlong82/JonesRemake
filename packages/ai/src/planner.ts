@@ -244,6 +244,11 @@ function quickScore(
       // unreachable, so it outranks the immediate happinessOnBuy the base score already counts.
       if (spec?.comfort && gap('happiness') > 0 && relaxNet(pack, p) < 1)
         s += 0.4 * gap('happiness');
+      // A gadget that unlocks a system the pack has switched on is worth more than the happiness
+      // it hands over the counter: without it delivery, ride-hail and online study stay closed and
+      // whole event families never reach the player (ADR-0034).
+      if (spec && spec.unlocks.length > 0 && !p.items.some((it) => it.itemId === spec.id))
+        s += 0.35;
       break;
     }
     case 'EatMeal':

@@ -155,7 +155,23 @@ export const buyItemHandler: CommandHandler<BuyItemCommand> = {
   },
   preview: (ctx, cmd) => {
     const spec = ctx.pack.itemById[cmd.itemId];
-    return spec && spec.happinessOnBuy !== 0 ? { deltas: { happiness: spec.happinessOnBuy } } : {};
+    if (!spec || spec.happinessOnBuy === 0) return {};
+    const p = ctx.player;
+    // Mirror `apply` exactly: a `oncePerTurn` consumable pays once however many are bought, and
+    // the stat is clamped, so a seat already at the pack's happiness ceiling gains nothing. The
+    // preview said otherwise until M6.3's gentler modern decay made the ceiling reachable in
+    // ordinary play and the preview ≡ apply property test caught it (ADR-0035).
+    const times = spec.consumable
+      ? spec.oncePerTurn
+        ? p.turn.consumed.includes(spec.id)
+          ? 0
+          : 1
+        : cmd.qty
+      : 1;
+    const h = ctx.rules.happiness;
+    const raw = spec.happinessOnBuy * times;
+    const gained = Math.min(h.max, Math.max(h.min, p.happiness + raw)) - p.happiness;
+    return gained === 0 ? {} : { deltas: { happiness: gained } };
   },
   candidates: (ctx) => {
     const p = ctx.player;
