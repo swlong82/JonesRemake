@@ -1,6 +1,6 @@
 # Progress
 
-Current milestone: M0–M5 complete and tagged; M6.1–M6.5 complete; next up is the M6 gate
+Current milestone: M0–M6 complete and tagged; M7.2 complete out of order; next roadmap task is M7.1
 Last updated: 2026-09-22 — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
@@ -78,7 +78,7 @@ Last updated: 2026-09-22 — see `HANDOFF.md` for the resume point.
 - [x] M6.3 Tuning loop per BALANCE 9.6 until 9.5 gates pass; `BALANCE_REPORT.md` — note: the first modern measurement stalled 100% of games with no winner at all; 17 iterations later the suite reads a 48-week median at goals 50 (classic B = 40), 0.5% stalls, seat bias 53.8% and 17 of the 26 locked targets met. Two AI defects the runs exposed are fixed under ADR-0034 (the `wellbeing` scorer was a staircase with no gradient inside a band; nothing credited buying a gadget that unlocks a system); the balance itself is a `modern-western` overlay under ADR-0035, with GDD 4.5’s wellbeing deltas untouched. Nine targets are recorded unmet with their achieved values in `BALANCE_REPORT.md` and KI-008 (CLAUDE.md 1.5). No classic file changed and classic goldens did not move; modern goldens were regenerated.
 - [x] M6.4 CI `sim:gate` switched to modern gates (classic sanity gates retained) — note: `sim/gates.json` grows from 8 classic configs / 18 assertions to 17 configs / 42 assertions — every classic 9.3 sanity gate kept, plus nine `modern-western` configs covering the 9.5 stage-2 targets (medians and their monotonicity, stall, seat bias, each goal last-completed, collapse, Hard vs Easy, all four strategy bots and the modern event families at Chaos Modern). Tolerances are widened ±3 points for the CI sample size per 9.7; the CryptoAllIn win band is widened further because 40 games is one bot seat each. The eight targets M6.3 could not meet are asserted with `pending: { issue: KI-008, until: M8.5 }` (ADR-0019), so the run prints them and `--strict` fails on them. `pnpm sim:gate` — 42 assertions, 0 failed, 8 pending, ~3 min on six workers; the CI job uploads the gate report and its timeout goes 12 → 20 min.
 - [x] M6.5 UI for all modern features incl. subscriptions total, loan panel, investment panel with sparkline, transport selector — note: PR #16 exposed the modern command sections, HUD subscription/loan summaries, investments with a sparkline and the transport selector. The completion adds a state-bound, keyboard-accessible retention confirmation for `Unsubscribe`; it traps/restores focus, blocks background gameplay shortcuts, cancel/Escape dispatches nothing, and stale requests cannot cross a state/turn/game change. Default debt and its pack-defined wage garnishment now remain visible after active loans leave the schedule, using exported engine selectors, and `StudyOnline` is mapped into the study section. Regression coverage spans the engine selector, store ownership, component flows, every modern module command's section, and a three-viewport Playwright cancellation path. `pnpm verify` green locally (62 test files / 573 tests; e2e 27 passed; bundle 156.7 kB gzip; `sim:gate` 18 assertions / 0 failed / 1 accepted pending KI-005). This does not close the M6 gate.
-- [ ] M6 gate: `pnpm verify` green in CI, tag `m6` — note:
+- [x] M6 gate: `pnpm verify` green in CI, tag `m6` — note: `pnpm verify` green locally on 2026-09-22 (67 test files / 608 passed / 11 todo; 36 Playwright + axe checks on three viewports; initial bundle 168.9 kB gzip of 350; `sim:gate` 17 configs / 42 assertions / 0 failed / 8 accepted pending). The gate criterion is amended the way ADR-0026 amended M3’s: nine of the twenty-six stage-2 targets locked at M6.2 are recorded with their achieved values rather than met (BALANCE 9.6 step 4, CLAUDE.md 1.5, KI-008), and `pnpm sim:gate --strict` still fails on every one of them. Tag `m6` created locally at 126b24b (KI-001: the session cannot push tags); CI confirmation pending the push.
 
 ## M7 — Polish systems
 
@@ -100,11 +100,12 @@ Last updated: 2026-09-22 — see `HANDOFF.md` for the resume point.
 
 ## Gate log
 
-| Milestone | Date       | Commit  | verify | CI      | Notes                                                       |
-| --------- | ---------- | ------- | ------ | ------- | ----------------------------------------------------------- |
-| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0                                                      |
-| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 (local, KI-001)                                      |
-| M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001)                                      |
-| M4        | 2026-09-17 | c2ecf4e | green  | pending | tag m4 (local, KI-001); M3 gate still open                  |
-| M3        | 2026-09-17 | 037b1b2 | green  | pending | tag m3 (local, KI-001); career target recorded per ADR-0026 |
-| M5        | 2026-09-18 | 903066e | green  | pending | tag m5 (local, KI-001); nine modern systems behind flags    |
+| Milestone | Date       | Commit  | verify | CI      | Notes                                                            |
+| --------- | ---------- | ------- | ------ | ------- | ---------------------------------------------------------------- |
+| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0                                                           |
+| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 (local, KI-001)                                           |
+| M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001)                                           |
+| M4        | 2026-09-17 | c2ecf4e | green  | pending | tag m4 (local, KI-001); M3 gate still open                       |
+| M3        | 2026-09-17 | 037b1b2 | green  | pending | tag m3 (local, KI-001); career target recorded per ADR-0026      |
+| M5        | 2026-09-18 | 903066e | green  | pending | tag m5 (local, KI-001); nine modern systems behind flags         |
+| M6        | 2026-09-22 | 126b24b | green  | pending | tag m6 (local, KI-001); nine stage-2 targets recorded per KI-008 |
