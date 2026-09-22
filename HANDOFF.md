@@ -25,8 +25,9 @@ are local only.
 ## Branch and tags
 
 - Everything is on `origin/task/local-save-load`, which starts from `origin/main` at `4e3964d`.
-- Tags `m6` (126b24b) and `m7` (ad32369) exist **locally only** (KI-001: this session cannot push
-  tags). `m0` is the only other tag in this clone — `m1`…`m5` were created in earlier sessions
+- Tags `m6` (c3525d0) and `m7` (3454842) exist **locally only** (KI-001: this session cannot push
+  tags); each points at its gate commit, and the verify run behind it was taken one commit
+  earlier (126b24b and ad32369), which only added the gate record itself. `m0` is the only other tag in this clone — `m1`…`m5` were created in earlier sessions
   elsewhere and never pushed, so their SHAs live in the PROGRESS gate log and nowhere else.
 - No PR was opened and nothing was merged to `main`; that is deliberately left to the human.
 
