@@ -26,6 +26,7 @@ import type { Command } from './commands/commands.generated.js';
 
 export { ENGINE_VERSION, STATE_SCHEMA_VERSION } from './core/version.js';
 export * from './core/state.js';
+export { GameStateSchema, GameConfigSchema } from './core/state-schema.js';
 export * from './core/rng.js';
 export * from './core/math.js';
 export * from './core/hash.js';

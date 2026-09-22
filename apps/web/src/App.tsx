@@ -1,3 +1,5 @@
+import { useSaveConnection } from './platform/Services';
+import { SaveNotice } from './save/SaveNotice';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFlags } from './flags/appFlags';
@@ -11,6 +13,7 @@ import { UnavailableScreen } from './ui/screens/UnavailableScreen';
  * registry decides which are live and which are still gated behind an app flag (CLAUDE.md 1.5).
  */
 export function App() {
+  useSaveConnection();
   const { t } = useTranslation();
   const screen = useGame((s) => s.screen);
   const settings = useSettings((s) => s.settings);
@@ -32,7 +35,8 @@ export function App() {
         {t('app.skipToContent')}
       </a>
       <main id="main" className="min-h-screen">
-        {Component ? <Component /> : <UnavailableScreen flag={gate ?? 'saves'} />}
+        <SaveNotice />
+        {Component ? <Component /> : <UnavailableScreen flag={gate ?? 'tutorial'} />}
       </main>
     </div>
   );

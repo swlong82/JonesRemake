@@ -54,6 +54,7 @@ export interface SaveMeta {
 /** Full record shape is fixed in ARCHITECTURE 5.7; snapshot/commandLog stay opaque here. */
 export interface SaveRecord extends SaveMeta {
   readonly schemaVersion: number;
+  readonly engineVersion?: string;
   readonly packVersion: string;
   readonly config: JsonValue;
   readonly commandLog: readonly JsonValue[];

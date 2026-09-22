@@ -16,7 +16,8 @@ by PR #16.
 | `apps/web`                             | Classic playable; M6.5 modern UI complete                                   |
 | Modern systems (M5)                    | **Complete** — nine modules behind CityPack flags, tag `m5` (local)         |
 | M6                                     | M6.1 and M6.5 complete; M6.2–M6.4 and the M6 gate remain open               |
-| M7–M8                                  | Not started                                                                 |
+| M7.2                                   | Local save/load complete in isolated task; M7 gate remains open             |
+| M7.1, M7.3–M8                          | Not started                                                                 |
 
 The last milestone verification record is the M5 run in `PROGRESS.md`; do not reinterpret it as an
 M6 gate. The one thing to know before reading a gate run is that `lastGoalPct.career` remains an
@@ -134,3 +135,11 @@ PW_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium-1194/chrome-linux/chrome pnpm t
 
 Budget roughly 0.5–1 s per Normal game and 3–6 s per Hard or goals-100 game (ADR-0016): the full
 stage-1 suite is about two hours on two workers, so start it in the background and work alongside it.
+
+## M7.2 local save/load task (2026-09-22)
+
+The isolated `task/local-save-load` branch begins from M6.1's commit `a74d315`. It provides
+IndexedDB persistence behind `SaveStore`, autosave and three slots, Continue/Load, validated
+export/import, v1→v2 envelope migration, deterministic replay checks and checked snapshot fallback.
+ADR-0031 records the compatibility and failure choices. The task's local verification evidence is in its `PROGRESS.md` line. M7.1, M7.3–M7.5 and the M7 gate remain open.
+Do not infer an M6 or M7 milestone completion from this out-of-order task.

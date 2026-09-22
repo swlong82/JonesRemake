@@ -67,7 +67,7 @@ export const PlayerStateSchema = z
         penalties: nonneg,
       })
       .strict(),
-    happiness: int.min(0).max(100),
+    happiness: nonneg,
     dependability: int.min(0).max(100),
     experience: int.min(0).max(100),
     relaxation: int.min(0).max(100),

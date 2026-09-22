@@ -150,8 +150,8 @@ describe('pass-device screen', () => {
 
 describe('unavailable screen', () => {
   it('names the feature and the milestone that lands it', () => {
-    render(<UnavailableScreen flag="saves" />);
-    expect(screen.getByTestId('unavailable-milestone').textContent).toContain('M7.2');
+    render(<UnavailableScreen flag="tutorial" />);
+    expect(screen.getByTestId('unavailable-milestone').textContent).toContain('M7.3');
     fireEvent.click(screen.getByTestId('unavailable-back'));
     expect(useGame.getState().screen).toBe('title');
   });

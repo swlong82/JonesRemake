@@ -1,3 +1,6 @@
+export { IndexedDbSaveStore } from './indexedDb.js';
+export { migrateSave, SAVE_SCHEMA_VERSION } from './migrations.js';
+import { migrateSave } from './migrations.js';
 import type { SaveMeta, SaveRecord, SyncResult } from '../types.js';
 
 export interface SaveStore {
@@ -24,10 +27,10 @@ export class MemorySaveStore implements SaveStore {
     );
   }
   get(id: string): Promise<SaveRecord | null> {
-    return Promise.resolve(this.records.get(id) ?? null);
+    return Promise.resolve(this.records.has(id) ? migrateSave(this.records.get(id)!) : null);
   }
   put(rec: SaveRecord): Promise<void> {
-    this.records.set(rec.id, rec);
+    this.records.set(rec.id, migrateSave(rec));
     return Promise.resolve();
   }
   delete(id: string): Promise<void> {

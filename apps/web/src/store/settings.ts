@@ -1,6 +1,6 @@
 /**
  * Player settings (UX_SPEC 7.1 Settings) and local stats, persisted in localStorage. No cookies,
- * no network. IndexedDB saves arrive in M7.2 through the platform SaveStore.
+ * no network. Game saves use the platform SaveStore; settings continue to use localStorage.
  */
 import { create } from 'zustand';
 

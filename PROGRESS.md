@@ -83,7 +83,7 @@ Last updated: 2026-09-22 by Codex — see `HANDOFF.md` for the resume point.
 ## M7 — Polish systems
 
 - [ ] M7.1 AudioBus, SFX recipes, procedural music moods, settings persistence — note:
-- [ ] M7.2 Save system behind `SaveStore` (`IndexedDbSaveStore`): autosave, 3 slots, export/import, migrations, replay verification — note:
+- [x] M7.2 Save system behind `SaveStore` (`IndexedDbSaveStore`): autosave, 3 slots, export/import, migrations, replay verification — note: IndexedDB `game` persistence, autosave at game start/end turn/every 10 commands, three manual slots, Continue/Load, JSON save and replay import/export, v1→v2 envelope migration, snapshot validation with hash and replay verification, warned snapshot fallback on replay drift, storage/transaction/race handling, and AI cancellation on load (ADR-0031). `pnpm verify` green locally on 2026-09-22: 66 test files / 599 passed / 11 todo, 36 e2e on three viewports, initial gzip 169.1 kB / 350 kB, `sim:gate` 18 assertions / 0 failed / 1 accepted pending KI-005. This is task evidence, not an M7 gate or CI claim.
 - [ ] M7.3 Tutorial (UX 7.6) with spotlight + event-driven steps — note:
 - [ ] M7.4 Classic opacity mode (hidden values absent from the DOM) — note:
 - [ ] M7.5 Themes, text scale, pseudo-locale generation + one e2e run in pseudo-locale, final a11y pass — note:

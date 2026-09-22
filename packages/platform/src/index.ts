@@ -21,7 +21,7 @@ import { LocalIdentity, type IdentityProvider } from './identity/index.js';
 import { LocalLeaderboard, type LeaderboardService } from './leaderboard/index.js';
 import { LocalMatchmaker, type Matchmaker } from './matchmaker/index.js';
 import { WebPlatform, type Platform, type WebPlatformDeps } from './platform/index.js';
-import { MemorySaveStore, type SaveStore } from './saves/index.js';
+import { IndexedDbSaveStore, type SaveStore } from './saves/index.js';
 import { NullTelemetry, type Telemetry } from './telemetry/index.js';
 import { LocalTransport, type Transport } from './transport/index.js';
 
@@ -40,6 +40,7 @@ export interface LocalServicesDeps {
   /** UUID source, injected so the package itself never calls crypto (testable, engine-style purity). */
   newId: () => string;
   platform: WebPlatformDeps;
+  indexedDB?: () => IDBFactory | undefined;
 }
 
 export function createLocalServices(deps: LocalServicesDeps): PlatformServices {
@@ -47,7 +48,7 @@ export function createLocalServices(deps: LocalServicesDeps): PlatformServices {
     identity: new LocalIdentity(deps.newId),
     transport: new LocalTransport(),
     matchmaker: new LocalMatchmaker(deps.newId),
-    saves: new MemorySaveStore(),
+    saves: new IndexedDbSaveStore(deps.indexedDB ?? (() => undefined)),
     leaderboard: new LocalLeaderboard(),
     telemetry: new NullTelemetry(),
     platform: new WebPlatform(deps.platform),

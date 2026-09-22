@@ -1,9 +1,17 @@
+import { IDBFactory } from 'fake-indexeddb';
 import { describe, expect, it } from 'vitest';
 import type { SaveRecord } from '../types.js';
-import { MemorySaveStore, type SaveStore } from './index.js';
+import { MemorySaveStore, IndexedDbSaveStore, migrateSave, type SaveStore } from './index.js';
 
 const implementations: [string, () => SaveStore][] = [
   ['MemorySaveStore', () => new MemorySaveStore()],
+  [
+    'IndexedDbSaveStore',
+    () => {
+      const db = new IDBFactory();
+      return new IndexedDbSaveStore(() => db);
+    },
+  ],
 ];
 
 const rec = (id: string): SaveRecord => ({
@@ -24,7 +32,7 @@ describe.each(implementations)('SaveStore contract: %s', (_name, make) => {
     const s = make();
     expect(await s.list()).toEqual([]);
     await s.put(rec('a'));
-    expect(await s.get('a')).toEqual(rec('a'));
+    expect(await s.get('a')).toEqual(migrateSave(rec('a')));
     expect(await s.list()).toEqual([
       {
         id: 'a',
@@ -48,5 +56,9 @@ describe.each(implementations)('SaveStore contract: %s', (_name, make) => {
     const s = make();
     expect(await s.sync?.()).toEqual({ status: 'not-supported' });
   });
-  it.todo('schema migration: a schemaVersion < current record is migrated on get (M7.2)');
+  it('migrates v1 to v2 on get', async () => {
+    const s = make();
+    await s.put(rec('old'));
+    expect((await s.get('old'))?.schemaVersion).toBe(2);
+  });
 });

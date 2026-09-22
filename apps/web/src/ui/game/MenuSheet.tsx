@@ -1,4 +1,4 @@
-/** In-game menu (UX 7.2): save/load (M7), settings, help, quit, and the state hash for bug reports. */
+/** In-game menu (UX 7.2): save/load, settings, help, quit, and the state hash for bug reports. */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGame } from '../../store/gameStore';
@@ -21,12 +21,8 @@ export function MenuSheet() {
       data-testid="menu-sheet"
     >
       <h2 className="text-lg font-bold">{t('menu.heading')}</h2>
-      <Button disabled title={t('title.loadSoon')}>
-        {t('menu.save')}
-      </Button>
-      <Button disabled title={t('title.loadSoon')}>
-        {t('menu.load')}
-      </Button>
+      <Button onClick={() => go('saves')}>{t('menu.save')}</Button>
+      <Button onClick={() => go('saves')}>{t('menu.load')}</Button>
       <Button onClick={() => go('settings')} data-testid="menu-settings">
         {t('menu.settings')}
       </Button>

@@ -15,6 +15,7 @@ import { PassDeviceScreen } from './PassDeviceScreen';
 import { SettingsScreen } from './SettingsScreen';
 import { SetupScreen } from './SetupScreen';
 import { StatsScreen } from './StatsScreen';
+import { SaveScreen } from './SaveScreen';
 import { TitleScreen } from './TitleScreen';
 
 export interface ScreenEntry {
@@ -26,6 +27,7 @@ export interface ScreenEntry {
 
 export const SCREENS: Record<Screen, ScreenEntry> = {
   title: { component: TitleScreen },
+  saves: { component: SaveScreen },
   setup: { component: SetupScreen },
   settings: { component: SettingsScreen },
   stats: { component: StatsScreen },
