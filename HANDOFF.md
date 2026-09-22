@@ -1,145 +1,127 @@
 # Handoff
 
-State of the build after M5, its merged follow-up PR #16, the M6.5 UI slice and M6.1 content.
-Read `CLAUDE.md` first, then this file, then resume at the first unchecked task in `PROGRESS.md`
-(M6.2). M6.5 landed out of sequence because it completed the modern action surface already started
-by PR #16.
+State of the build after M6 and M7 closed on `task/local-save-load`. Read `CLAUDE.md` first, then
+this file, then resume at the first unchecked task in `PROGRESS.md` — **M8.1**.
 
 ## Where the build is
 
-| Area                                   | State                                                                       |
-| -------------------------------------- | --------------------------------------------------------------------------- |
-| `packages/shared`, `engine`, `content` | Complete through M1–M2 and the M5 modules; tags `m1`, `m2` local (KI-001)   |
-| `packages/ai`                          | M2.4–M2.5 plus the M5.9 modern coverage and three module scorers            |
-| `packages/sim`                         | Runner, bots (6), metrics, reports and gates complete                       |
-| Classic balance (M3)                   | **Closed** — tag `m3` (local). One target recorded unmet, not met: ADR-0026 |
-| `apps/web`                             | Classic playable; M6.5 modern UI complete                                   |
-| Modern systems (M5)                    | **Complete** — nine modules behind CityPack flags, tag `m5` (local)         |
-| M6                                     | M6.1 and M6.5 complete; M6.2–M6.4 and the M6 gate remain open               |
-| M7.2                                   | Local save/load complete in isolated task; M7 gate remains open             |
-| M7.1, M7.3–M8                          | Not started                                                                 |
+| Area                                   | State                                                                        |
+| -------------------------------------- | ---------------------------------------------------------------------------- |
+| `packages/shared`, `engine`, `content` | Complete through M6; the modern overlay lives in `modern-western/rules.json` |
+| `packages/ai`                          | M2.4–M2.5, M5.9, plus the two M6.3 scorer fixes (ADR-0034)                   |
+| `packages/sim`                         | Runner, 6 bots, metrics (now including the three bot rates), gates           |
+| Classic balance (M3)                   | Closed. One target recorded unmet: ADR-0026, KI-005                          |
+| Modern balance (M6)                    | **Closed.** 17 of 26 stage-2 targets met; nine recorded unmet, KI-008        |
+| `apps/web`                             | Classic and modern playable; audio, tutorial, opacity, themes, locale        |
+| M7                                     | **Closed** — M7.1–M7.5 all landed; tag `m7` local                            |
+| M8                                     | Not started                                                                  |
 
-The last milestone verification record is the M5 run in `PROGRESS.md`; do not reinterpret it as an
-M6 gate. The one thing to know before reading a gate run is that `lastGoalPct.career` remains an
-accepted pending classic assertion, recorded as structurally unreachable in ADR-0026 and KI-005.
-M6 cannot close until M6.2–M6.4 are complete and its own CI evidence exists.
-
-The isolated M6.1 completion branch passed `pnpm verify` locally on 2026-09-22: 63 test files / 578
-tests, 27 Playwright + axe checks, initial bundle 162.6 kB gzip of 350, and `sim:gate` 18
-assertions / 0 failed / 1 accepted pending (KI-005). No CI gate, merge, deployment or milestone tag
-is claimed by this content task.
-
-The isolated M6.5 completion branch passed `pnpm verify` locally on 2026-09-22: 62 test files / 573
-tests, 27 Playwright + axe checks across three viewports, bundle 156.7 kB gzip of 350, and
-`sim:gate` 18 assertions / 0 failed / 1 accepted pending (KI-005). This is task evidence, not an M6
-gate or tag.
-
-`origin/main` now contains M5 and PR #16. The prior statement that M5 was unmerged and the live build
-was M4-only was stale; this handoff does not claim a fresh deployment check.
+`pnpm verify` was green locally on 2026-09-23 at `ad32369`: 71 test files / 659 passed / 11 todo,
+51 Playwright + axe checks on three viewports with 0 serious or critical violations, initial bundle
+175.1 kB gzip of 350, and `sim:gate` 17 configs / 42 assertions / 0 failed / 8 accepted pending.
+There is still **no CI evidence** — nothing on this branch has been through a CI run, and the tags
+are local only.
 
 ## Branch and tags
 
-- `origin/main` was fetched at `4e3964d` (`Fix/ai loans modern actions (#16)`) before the M6.5
-  completion work started in its isolated worktree.
-- Tags `m1`…`m5` exist **locally only** — the session cannot push tags (KI-001). Their SHAs are in
-  the PROGRESS gate log; push them with `git push origin --tags` from a machine that can.
+- Everything is on `origin/task/local-save-load`, which starts from `origin/main` at `4e3964d`.
+- Tags `m6` (126b24b) and `m7` (ad32369) exist **locally only** (KI-001: this session cannot push
+  tags). `m0` is the only other tag in this clone — `m1`…`m5` were created in earlier sessions
+  elsewhere and never pushed, so their SHAs live in the PROGRESS gate log and nowhere else.
+- No PR was opened and nothing was merged to `main`; that is deliberately left to the human.
 
-## Resume here: M6 — modern pack and balance
+## What landed in M6
 
-M5 left `modern-western` carrying working content for every system, but only the content the rules
-needed. M6 is turning it into a complete pack and locking its balance targets.
+1. **M6.2** — `reports/modern-targets.json` holds all 23 target entries of BALANCE 9.5, derived from
+   the classic baseline and locked by sha256 in ADR-0033. `tools/lib/targets.test.ts` fails
+   `pnpm test` if the file changes, and re-derives every median band from the recorded baseline
+   medians, so tuning can never move the bar.
+2. **M6.3** — the first modern measurement **stalled 100% of games**: no winner at goals 50 in 300
+   weeks, every seat bankrupt, 10–15 wellbeing collapses a game. Seventeen iterations later the
+   suite reads a 48-week median (classic B = 40), 0.5% stalls and 53.8% seat bias.
+   `BALANCE_REPORT.md` has the iteration log and the nine targets still unmet, each with its
+   achieved value.
+3. **M6.4** — `sim/gates.json` went from 8 configs / 18 assertions to 17 / 42: every classic sanity
+   gate kept, nine modern configs added, and the eight unmet targets asserted with
+   `pending: { issue: KI-008, until: M8.5 }` so a gate run prints them and `--strict` fails on them.
 
-1. **M6.1 — complete.** `modern-western` now overrides the 16 location names and all 3+3 greetings
-   and farewells, the 46 inherited job titles, 11 degrees, meals and clothing. The ten missing
-   GDD 4.11 items are in `items.json`, with translations and visual entries. `AssetRegistry` resolves
-   their icons rather than falling back to the generic building. Five inherited management/trade
-   jobs received GDD 4.13 risk corrections; other jobs already fit their bands. The phone, laptop,
-   case, subscriptions, modern assets, loans and events were already present and were not rebuilt.
-   `packages/content/src/packs.ts` statically registered all edited pack files already, so no new
-   import was needed. Modern goldens were regenerated for the changed item roster/risk values;
-   Classic goldens did not change. ADR-0030 records provisional prices and the legacy hot-tub
-   overlay constraint. These item prices are not M6.2 target locks or M6.3 balance tuning.
-2. **M6.2** — write and lock `reports/modern-targets.json`, hash in an ADR.
-3. **M6.3** — the BALANCE 9.6 tuning loop until the 9.5 gates pass; `BALANCE_REPORT.md` is the
-   output. This is also where KI-005's career target is revisited for the modern ladder (ADR-0026).
-4. **M6.4** — add modern configs to `sim/gates.json`, keeping the classic sanity gates.
-5. **M6.5 — complete out of order.** PR #16 added the modern service sections, HUD totals, loan and
-   investment summaries, sparkline, transport selector and modern action labels. The completion
-   fixed default debt being mistaken for “no active loans”, displays the pack-defined wage
-   garnishment in the HUD and bank panel, exposes `StudyOnline`, and adds the GDD 4.11 retention
-   confirmation. The dialog traps and restores focus and blocks gameplay shortcuts behind it. The
-   cancellation request is bound to an engine-state hash: cancel/Escape sends no command, and a
-   game or turn change invalidates the pending request before it can dispatch.
+Two AI defects came out of the balance runs and are fixed under **ADR-0034**: the `wellbeing`
+scorer was a staircase with no gradient inside a band (a rest from 13 → 21 scored the same as not
+resting, so seats refused to work), and nothing credited buying a gadget that unlocks a system.
+The balance itself is a `modern-western` overlay under **ADR-0035** — GDD 4.5's wellbeing deltas are
+untouched; what changed is how fast rest pays them back, plus the wage, the happiness upkeep, the
+degree ladder and the wealth point value.
 
-## How the modern systems are put together
+## What landed in M7
 
-Each system is a `RuleModule` in `packages/engine/src/modules/`, carrying its own `flag`, its own
-slice and its own commands, listed in `MODERN_MODULES` (order 100–199):
+- **M7.1 audio** — `apps/web/src/audio/`. `AudioBus` with a `WebAudioBus` and the `NullAudioBus`
+  tests fall back to; all 14 SFX of AUDIO_SPEC 8.2 as recipes; the six moods of 8.3 as data. Sound
+  is driven only by `DomainEvent`s through `eventMap`, so the engine keeps no audio knowledge.
+  Music is a real lazy chunk (`music-*.js`, ~3 kB) and is plain WebAudio, not Tone.js (ADR-0036).
+- **M7.2 saves** — landed in the isolated task that started this branch; re-verified at the gate
+  rather than taken on trust (the classic and modern round trips in `saves.spec.ts` pass on all
+  three viewports).
+- **M7.3 tutorial** — `apps/web/src/tutorial/`. Ten scripted steps as data, each naming the element
+  it spotlights and the `DomainEvent` that advances it. The `tutorial` app flag now defaults on.
+- **M7.4 classic opacity** — an audit test that scans every number in `innerHTML`, attributes
+  included. It found one real leak (the modern wellbeing line) and it is fixed.
+- **M7.5 themes, locale, a11y** — the pseudo-locale is generated from the English bundle at startup,
+  so a key can never be missing from it. The contrast test reads the theme tokens out of the
+  stylesheet; it and the axe pass caught white-on-pale-blue at 2.54:1 on the dark theme's primary
+  button, now fixed with per-theme `--c-on-accent` / `--c-on-danger`.
 
-| Module          | Flag            | What it owns                                                      |
-| --------------- | --------------- | ----------------------------------------------------------------- |
-| `wellbeing`     | `wellbeing`     | The stat `ctx.addStat(…, 'wellbeing', …)` writes through, 4 bands |
-| `transport`     | `transport`     | Mode gating and pricing, transit pass, car, upkeep, breakdowns    |
-| `subscriptions` | `subscriptions` | Billing, drift, lapse, `grantsOf`/`hasGrant` for other modules    |
-| `online-study`  | `onlineStudy`   | `StudyOnline` and the doomscroll chance                           |
-| `delivery`      | `delivery`      | `OrderDelivery`, markup, food-club discount, lost orders          |
-| `rent-hikes`    | `rentHikes`     | Renewal notice and hike, the co-living roommate                   |
-| `gig`           | `gig`           | `GigSignup`/`GigShift`, weekly demand, driver car wear            |
-| `loans`         | `loans`         | Approval, APR, amortised payment, default, negative wealth        |
-| `modern-assets` | `modernAssets`  | The `drift` pricing model and its correlation weighting           |
+## Things to know before touching any of it
 
-Rules to keep, because breaking them costs a debugging session each:
+- **The `tutorial` and `audio` app flags default on.** Any e2e that is testing something else turns
+  the tutorial off with `?ff=-tutorial`, which is the flag registry's own mechanism. A spec that
+  starts a game without it will find the spotlight in the way.
+- **Modern content changes go in `modern-western/rules.json`**, which deep-merges over `classic`.
+  Changing a classic number means re-justifying it against the frozen classic baseline.
+- **`goals.careerDependabilityBp` must stay at or above 10000.** Below it the career goal caps under
+  100 and goals-100 becomes unwinnable; M6.3 found that the hard way.
+- **Balance runs are slow.** A modern Normal game is about 0.9 s and a goals-100 game about 5.7 s,
+  so `sim/stage2.json` is roughly 20 minutes on six workers. `sim/probe.json` is the inner loop —
+  24 games, about 5 seconds — and is what the tuning iterations actually used.
+- Everything else from the M5/M6 handoff still holds: nothing random in `cost()` or `validate()`,
+  modules talk through exported selectors only, `takeMoneyCascade` returns the shortfall, run
+  `pnpm gen:types` after adding a command, and any rule or content change moves the golden replays.
+- **Local runs need two things this sandbox lacks by default**: `pnpm` (installed under a scratch
+  prefix) and a Playwright browser. Use `PW_CHROMIUM_EXECUTABLE` pointing at an installed Chromium
+  (CLAUDE.md 1.9). Node 26 is fine now — ADR-0032 fixed the `localStorage` break that made 93 web
+  tests fail on it while CI's Node 22 stayed green.
 
-- **Nothing random in `cost()` or `validate()`.** They run inside `legalCommands` and
-  `previewCommand`, which are pure; a draw there also desynchronises replay, which is how the golden
-  tests catch it. Prices a preview can show are rolled at turn start into the module slice
-  (ADR-0028); risks that land afterwards go in `apply` or on the event, with `riskBp` in the preview.
-- **One module touches another only through exported selectors** (`carOf`, `breakCar`, `grantsOf`,
-  `defaultDebtOf`, `totalOwed`), never by reaching into `player.modules[x]`.
-- **`takeMoneyCascade` returns the shortfall**, not the amount taken.
-- `pnpm gen:types` scans `src/commands/*.ts` **and** `src/modules/*.ts`; run it after adding a
-  command or CI's `--check` will fail.
-- Adding content to `modern-western` usually means four files: the JSON, its i18n keys, its
-  `assets.registry.json` entry, and `packages/content/src/packs.ts`.
-- Changing any rule or content value changes the golden replays. Regenerate with
-  `UPDATE_GOLDEN=1 npx vitest run test/golden.test.ts --root packages/engine`, and say why in the
-  commit; classic's goldens did **not** move during M5, which is the check that classic is untouched.
+## Open issues worth reading first
 
-## Balance, as it stands
+- **KI-008** — the nine unmet stage-2 balance targets, with achieved values. Two are structural
+  (career repeats ADR-0026's classic result; collapse frequency is a cliff in the band, not a dial).
+  The one that looks like a defect rather than a tuning miss: the `viral` event family reads ~0.1
+  per 100 player-weeks while the other three families respond to weight as expected.
+- **KI-009** — the setup form's Start button cannot be clicked at 150% text on a phone viewport.
+  Three attempts are logged; the geometry says the button is on top and clickable, so it may be the
+  harness rather than the layout.
+- **KI-005** — classic career is never the last goal completed; accepted since M3.
+- **KI-001** — tags cannot be pushed from a build session.
 
-`BASELINE_REPORT.md` and `reports/baseline.json` are the stage-1 numbers for the shipped classic
-values (24 configs, 3,200 games). At goals 50 Normal×2: medians 28 < 40 < 62 < 83 across goal
-levels, seat bias 46.7%, stall 0.5%, last goal completed education 45.7% / wealth 42.2% /
-happiness 11.6% / career 0.5%.
+## Resume here: M8 — release
 
-Three 9.3 targets are recorded unmet, each with a reason rather than a plan:
-
-- **career last-completed** — structurally unreachable on `[SRC]` values (ADR-0026, KI-005);
-- **sim speed** — the spec-sized AI beam costs about a second a game (ADR-0016);
-- **stall rate** — lands on 0.5% against a "< 0.5%" target; the CI gate's tolerance is 2%.
-
-The M3.3 tuning that got happiness from 0% to 11.6% is worth reading before touching balance again:
-ADR-0025 (happiness decay and the ticket cap), ADR-0027 (why the stat needs headroom above the goal
-ceiling, and the two AI scorers the decay forced), ADR-0028 (turn-start pricing).
+1. **M8.1** — `score()` + `LocalLeaderboard` + the Stats board with scopes (16.7); `NAMING.md` final.
+   The `leaderboard` app flag is still off and still names M8.1, which is where it gets deleted.
+2. **M8.2** — README + `docs/EXTENDING.md` with executable examples.
+3. **M8.3** — the full e2e regression (4-seat hotseat modern game to week 10, save/load mid-game,
+   phone autoplay to a winner).
+4. **M8.4** — deploy to GitHub Pages with the post-deploy smoke test.
+5. **M8.5** — close-out: every open issue gets a severity and a workaround, and the eight `pending`
+   gate assertions are due here — either met or re-recorded.
 
 ## Commands
 
 ```bash
 pnpm verify                     # everything, in the order CI runs it
-pnpm sim:gate                   # 8 configs, ~5 min; --strict also fails on the pending target
-pnpm tsx packages/sim/cli.ts --config sim/stage1.json --workers 2 --out reports/stage1
+pnpm sim:gate                   # 17 configs, 42 assertions, ~3 min on six workers
+pnpm sim:gate --strict          # also fails on the 8 accepted pending targets
+pnpm tsx packages/sim/cli.ts --config sim/stage2.json --workers 6 --out reports/stage2
+pnpm tsx packages/sim/cli.ts --config sim/probe.json  --workers 6   # the tuning inner loop
 pnpm baseline                   # rewrites BASELINE_REPORT.md + reports/baseline.json
 UPDATE_GOLDEN=1 npx vitest run test/golden.test.ts --root packages/engine
-PW_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium-1194/chrome-linux/chrome pnpm test:e2e
+PW_CHROMIUM_EXECUTABLE=/path/to/chrome pnpm test:e2e
 ```
-
-Budget roughly 0.5–1 s per Normal game and 3–6 s per Hard or goals-100 game (ADR-0016): the full
-stage-1 suite is about two hours on two workers, so start it in the background and work alongside it.
-
-## M7.2 local save/load task (2026-09-22)
-
-The isolated `task/local-save-load` branch begins from M6.1's commit `a74d315`. It provides
-IndexedDB persistence behind `SaveStore`, autosave and three slots, Continue/Load, validated
-export/import, v1→v2 envelope migration, deterministic replay checks and checked snapshot fallback.
-ADR-0031 records the compatibility and failure choices. The task's local verification evidence is in its `PROGRESS.md` line. M7.1, M7.3–M7.5 and the M7 gate remain open.
-Do not infer an M6 or M7 milestone completion from this out-of-order task.
