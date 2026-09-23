@@ -461,3 +461,22 @@
   - Internship credit (modern `stats.degreeExperienceBonus` = 8): each degree adds experience, capped by the usual maximum. Classic keeps 0.
   - Stage-1 gains `seatbias-classic-50-normal-2` (Balanced vs Balanced, 200 games), and the 9.3 seat-bias gate reads it. The B-median rows are untouched, so the modern lock does not depend on it.
 - Consequences: no target changed. Probes at goals 50 (24 games each): LoanMax defaults 60%, StudyFirst wins 33–37%, CryptoAllIn wins 25% with 67% bankrupt. Ordinary seats can take student loans too, but the domain filter keeps a seat that can cover the principal from borrowing.
+
+## ADR-0045: The live site is smoke-tested after every deploy and rolled back on failure
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: M8.4 asks for a post-deploy smoke test against the live URL. The owner chose the scope and an automatic rollback in ADR-0037.
+- Decision: `deploy.yml` gains three pieces.
+  - **Deploy** stamps the deployed commit into `index.html` (`<meta name="build-sha">`, from `VITE_BUILD_SHA`; `dev` elsewhere) and keeps the built site as a 90-day `site` artifact.
+  - **Smoke** runs `playwright.live.config.ts` (desktop and phone, no local server) against the Pages URL. Checks:
+    - the HTML carries the deployed SHA, polled for up to 150 s while Pages publishes;
+    - every script and stylesheet `index.html` names returns 200, the title renders with no console errors, and no request leaves the site's origin;
+    - a deep link and an unknown path fall back to the app;
+    - a seeded classic game saved to a slot reads back the same HUD after a reload;
+    - the modern ruleset starts, and the title and board pass axe.
+
+    The public build has no debug hash hook, so the save round trip compares the HUD rather than a state hash; the full hash check stays in the CI e2e suite.
+
+  - **Rollback**, only if the smoke test fails after a successful deploy: redeploy the `site` artifact of the most recent deploy run that succeeded end to end, open an issue naming both runs, and exit non-zero so the run stays red.
+- Consequences: a broken build is live only for the minutes between deploy and rollback. The first deploy after this change has no earlier `site` artifact, so a rollback that early fails loudly instead of restoring; every later deploy has one. The smoke test also caught a real defect while being written: the site had no favicon, so every page load logged a 404. It now carries an inline SVG ring, which makes no request.

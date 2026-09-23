@@ -4,6 +4,8 @@ const port = 4173;
 
 export default defineConfig({
   testDir: 'apps/web/e2e',
+  // The live-URL smoke test runs only after a deploy (playwright.live.config.ts, M8.4).
+  testIgnore: '**/live/**',
   fullyParallel: true,
   retries: 1,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',

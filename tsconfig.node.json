@@ -9,6 +9,11 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["vitest.config.ts", "playwright.config.ts", "eslint.config.js"],
+  "include": [
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "playwright.live.config.ts",
+    "eslint.config.js"
+  ],
   "exclude": ["node_modules"]
 }
