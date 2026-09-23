@@ -168,6 +168,9 @@ export const winProximity: Scorer = {
   },
 };
 
+/** Weeks of loan instalments the seat keeps liquid (KI-008). */
+const RESERVE_WEEKS = 2;
+
 /** Survival: next-week food, rent covered, clothing for the job. */
 export const survival: Scorer = {
   id: 'survival',
@@ -203,7 +206,7 @@ export const survival: Scorer = {
     // the loan defaults (GDD 4.12). Money tied up in assets does not count (KI-008).
     const loans = p.modules.loans as { loans: { weeklyPayment: number }[] } | undefined;
     const instalments = loans?.loans.reduce((sum, l) => sum + l.weeklyPayment, 0) ?? 0;
-    if (instalments > 0 && p.cash + p.bank < instalments) v -= 0.4;
+    if (instalments > 0 && p.cash + p.bank < instalments * RESERVE_WEEKS) v -= 0.4;
     // Cash carried outside the bank is theft exposure; large balances belong in the bank.
     if (p.cash > 500) v -= Math.min(0.15, (p.cash - 500) / 10_000);
     return v;
