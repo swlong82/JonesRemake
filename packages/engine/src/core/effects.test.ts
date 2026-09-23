@@ -114,6 +114,8 @@ describe('effect DSL ops', () => {
       applyEffect(ctx, 0, { op: 'loseJob', chanceBp: 10_000, severanceWeeks: 2 }, 't'),
     ).toEqual(['severance:160', 'fired']);
     expect(ctx.player.job).toBeNull();
+    // Recorded so a quick rehire resumes the tenure (ADR-0047).
+    expect(ctx.player.layoff).toEqual({ hiredWeek: 1, week: ctx.week });
     expect(ctx.player.cash).toBe(360);
     expect(ctx.player.happiness).toBe(5);
     expect(applyEffect(ctx, 0, { op: 'loseJob', chanceBp: 10_000 }, 't')).toEqual([]);

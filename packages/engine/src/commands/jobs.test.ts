@@ -232,3 +232,28 @@ describe('human seat helper', () => {
     expect(humanSeat('Z', 30).goals.wealth).toBe(30);
   });
 });
+
+describe('layoff grace (ADR-0047)', () => {
+  const graced = {
+    ...pack,
+    rules: { ...pack.rules, goals: { ...pack.rules.goals, careerLayoffGraceWeeks: 4 } },
+  };
+  const rehired = (week: number, lostWeek: number, p = graced) => {
+    const s = patch(goInside(newGame('layoff'), 0, 'employment-office'), 0, (pl) => {
+      pl.job = null;
+      pl.layoff = { hiredWeek: 3, week: lostWeek };
+    });
+    const r = applyCommand({ ...s, week }, 0, { type: 'ApplyJob', jobId: 'burger-joint-cook' }, p);
+    return r.state.players[0]!;
+  };
+
+  it('a rehire within the grace resumes the lost tenure, less the weeks out of work', () => {
+    const p = rehired(12, 10);
+    expect(p.job?.hiredWeek).toBe(3 + 2);
+    expect(p.layoff).toBeUndefined();
+  });
+  it('after the grace, or where the pack grants none, tenure starts again', () => {
+    expect(rehired(15, 10).job?.hiredWeek).toBe(15);
+    expect(rehired(12, 10, pack).job?.hiredWeek).toBe(12);
+  });
+});

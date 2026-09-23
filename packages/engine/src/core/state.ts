@@ -122,6 +122,11 @@ export interface PlayerState {
   maxExperience: number;
   /** `hiredWeek`: start of continuous employment, kept across job changes (ADR-0040). */
   job: { jobId: JobId; wage: number; raises: number; hiredWeek: number } | null;
+  /**
+   * Set when an event lays the player off (ADR-0047): the `hiredWeek` the job had and the week it
+   * was lost. A rehire within the pack's `careerLayoffGraceWeeks` resumes that tenure.
+   */
+  layoff?: { hiredWeek: number; week: number } | null;
   degrees: DegreeId[];
   enrolled: Record<DegreeId, { lessonsLeft: number }>;
   home: {

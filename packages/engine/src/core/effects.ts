@@ -165,6 +165,8 @@ export function applyEffect(ctx: Ctx, seat: number, effect: EffectSpec, reason: 
         ctx.addMoney(seat, 'cash', pay, `${reason}:severance`);
         chips.push(`severance:${pay}`);
       }
+      // A layoff is not the player's doing: a quick rehire resumes the tenure (ADR-0047).
+      p.layoff = { hiredWeek: p.job.hiredWeek, week: ctx.week };
       p.job = null;
       ctx.addStat(seat, 'happiness', ctx.rules.happiness.fired, reason);
       ctx.emit({ type: 'Fired', seat, reason });

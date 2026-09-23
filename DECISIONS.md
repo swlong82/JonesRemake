@@ -489,3 +489,12 @@
 - Options: 1) let the validator ignore unused inherited keys; 2) let overlays delete keys; 3) document the limitation.
 - Decision: option 2, scoped to the two keyed files where it is needed. In an overlay's `i18n/en.json` and `assets.registry.json`, a key set to `null` deletes the inherited key; overlay schemas accept `null` there, and the merge drops the keys. A base pack may not use `null`, and other object files are unchanged: board squares and layout nodes use `null` as a real value (an empty square).
 - Consequences: `docs/EXTENDING.md` recipes 2 and 6 can retire content cleanly, and their examples prove it in CI. Option 1 would have hidden genuinely stale strings in every pack.
+
+## ADR-0047: An event layoff does not restart career tenure if the player is rehired quickly
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: career is capped by continuous employment (ADR-0040), and losing the job restarts the count. The modern `job-automated` event fires about 1.5 times per 100 player-weeks, so roughly every other player is laid off in a goals-50 game. A layoff then cost 20–30 weeks of career progress on a coin flip. It decided so many games that Hard beat Easy only 47% of the time in modern (target ≥ 80%) while Hard beat Easy every time in classic, which has no layoffs.
+- Options: 1) keep the reset; 2) make the event a pay cut instead of a job loss; 3) let a quick rehire resume the tenure.
+- Decision: option 3, driven by content. A `loseJob` event effect records the lost job's `hiredWeek` and the week of the layoff on the player (`layoff`). A hire within `rules.goals.careerLayoffGraceWeeks` of that week resumes the tenure: `hiredWeek` becomes the old start moved on by the weeks out of work. Classic sets no grace (default 0); modern sets 4. Being fired for low dependability or losing the job to a wellbeing collapse still restarts the count: those are the player's doing.
+- Consequences: the event keeps its bite (severance ends, the goal stalls and the weeks out of work do not count) without deciding the game. `PlayerState.layoff` is optional, so existing saves and classic games are unchanged.

@@ -77,6 +77,7 @@ export const PlayerStateSchema = z
       .object({ jobId: id, wage: nonneg, raises: nonneg, hiredWeek: nonneg })
       .strict()
       .nullable(),
+    layoff: z.object({ hiredWeek: nonneg, week: nonneg }).strict().nullable().optional(),
     degrees: z.array(id),
     enrolled: z.record(id, z.object({ lessonsLeft: nonneg }).strict()),
     home: z

@@ -33,6 +33,16 @@ export function luckPercent(ctx: Ctx, seat: number): number {
   );
 }
 
+/**
+ * Start of continuous employment for a hire off the street: this week, or — within the pack's grace
+ * after an event layoff — the lost job's start moved on by the weeks spent out of work (ADR-0047).
+ */
+function resumed(ctx: Ctx): number {
+  const off = ctx.player.layoff;
+  if (!off || ctx.week - off.week > ctx.rules.goals.careerLayoffGraceWeeks) return ctx.week;
+  return off.hiredWeek + (ctx.week - off.week);
+}
+
 export const applyJobHandler: CommandHandler<ApplyJobCommand> = {
   type: 'ApplyJob',
   schema: z.object({ type: z.literal('ApplyJob'), jobId: z.string() }).strict(),
@@ -67,7 +77,8 @@ export const applyJobHandler: CommandHandler<ApplyJobCommand> = {
     const wage = ctx.econ(job.baseWage);
     // `hiredWeek` is the start of continuous employment (ADR-0040): moving job to job keeps it,
     // so climbing the ladder does not restart the career tenure; only losing the job does.
-    p.job = { jobId: cmd.jobId, wage, raises: 0, hiredWeek: p.job?.hiredWeek ?? ctx.week };
+    p.job = { jobId: cmd.jobId, wage, raises: 0, hiredWeek: p.job?.hiredWeek ?? resumed(ctx) };
+    delete p.layoff;
     if (p.dependability < ctx.rules.stats.hireDependabilityFloor) {
       ctx.addDependabilityRaw(
         ctx.seat,

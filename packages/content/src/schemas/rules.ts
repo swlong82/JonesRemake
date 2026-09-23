@@ -73,6 +73,8 @@ export const rulesSchema = z
         careerTenureBpPerWeek: z.number().int().nonnegative().default(0),
         /** Probation (ADR-0040): tenure counts only after this many weeks in the job. */
         careerTenureDelayWeeks: z.number().int().nonnegative().default(0),
+        /** Weeks after an event layoff within which a rehire resumes tenure (ADR-0047). */
+        careerLayoffGraceWeeks: z.number().int().nonnegative().default(0),
       })
       .strict(),
     stats: z
