@@ -13,6 +13,8 @@ export interface Bot {
   personality: string;
   /** Return false to forbid a command for this bot. */
   allow(cmd: Command, state: GameState, seat: number, pack: CityPack): boolean;
+  /** Optional preference for commands the strategy must actually play (ADR-0044). */
+  prefer?(cmd: Command, state: GameState, seat: number, pack: CityPack): number;
 }
 
 const bots = new Map<string, Bot>();
@@ -39,6 +41,12 @@ export function botPlanOptions(bot: Bot, pack: CityPack): PlanOptions {
     difficulty: 'normal',
     personality: bot.personality,
     forbid: (cmd, state, seat) => !bot.allow(cmd, state, seat, pack),
+    ...(bot.prefer
+      ? {
+          bias: (cmd: Command, state: GameState, seat: number) =>
+            bot.prefer!(cmd, state, seat, pack),
+        }
+      : {}),
   };
 }
 
@@ -54,6 +62,16 @@ registerBot({
     const done = educationGoal(p, pack) >= p.goals.education;
     if (done) return true;
     return cmd.type !== 'Work' && cmd.type !== 'ApplyJob' && cmd.type !== 'AskRaise';
+  },
+  // With regular work off the table, a student loan is how the study gets paid for (ADR-0044).
+  prefer: (cmd, state, seat, pack) => {
+    const p = state.players[seat]!;
+    const student = pack.loans?.studentMax ?? 0;
+    if (student === 0 || educationGoal(p, pack) >= p.goals.education || p.cash + p.bank >= 300)
+      return 0;
+    if (cmd.type === 'TakeLoan') return cmd.principal === student ? 1 : 0;
+    if (cmd.type === 'Move') return pack.locationById[cmd.to]?.services.includes('loans') ? 0.8 : 0;
+    return 0;
   },
 });
 
@@ -103,5 +121,18 @@ registerBot({
     if (cmd.type === 'BuyAsset') return cmd.assetId === LOANMAX_ETF;
     if (cmd.type !== 'TakeLoan') return true;
     return cmd.principal === (pack.loans?.max ?? cmd.principal);
+  },
+  // Forbidding everything else is not enough: the loan-burden scorer makes an ordinary seat decline
+  // a loan it does not need, so LoanMax states its strategy as a preference (ADR-0044).
+  prefer: (cmd, _state, _seat, pack) => {
+    // The most it can borrow, on the longest term the bank offers (the smallest weekly payment).
+    if (
+      cmd.type === 'TakeLoan' &&
+      cmd.principal === (pack.loans?.max ?? cmd.principal) &&
+      cmd.termWeeks === Math.max(...(pack.loans?.terms ?? [cmd.termWeeks]))
+    )
+      return 1;
+    if (cmd.type === 'BuyAsset' && cmd.assetId === LOANMAX_ETF) return 0.15;
+    return 0;
   },
 });

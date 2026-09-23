@@ -26,6 +26,13 @@ export interface PlanOptions {
   personality: string;
   /** Strategy bots (BALANCE 9.4): commands for which this returns true are never considered. */
   forbid?: (cmd: Command, state: GameState, seat: number) => boolean;
+  /**
+   * Strategy bots (BALANCE 9.4, ADR-0044): a per-command preference added to the pre-rank and to
+   * the utility of every plan that contains the command (for `Move`, the pre-rank only). A bot that
+   * must *do* something (borrow the maximum, buy the ETF) needs this; forbidding the alternatives
+   * alone leaves the AI free to decline.
+   */
+  bias?: (cmd: Command, state: GameState, seat: number) => number;
   /** Debug hook: called once per depth with the ranked candidates and surviving beam. */
   trace?: (
     depth: number,
@@ -53,6 +60,8 @@ interface Node {
   commands: Command[];
   utility: number;
   done: boolean;
+  /** Sum of `PlanOptions.bias` over the plan's commands. */
+  bias?: number;
 }
 
 function scorerCtx(pack: CityPack, seat: number, opts: PlanOptions): ScorerCtx {
@@ -152,6 +161,19 @@ export function filterCandidates(
   return out;
 }
 
+/** Cash a seat without the uniform its job needs should hold before shopping for one. */
+const UNIFORM_CASH = 500;
+
+/** Commands that move money between cash, bank, debt and holdings rather than spend or earn it. */
+const TRANSFERS: ReadonlySet<Command['type']> = new Set<Command['type']>([
+  'Deposit',
+  'Withdraw',
+  'TakeLoan',
+  'RepayLoan',
+  'BuyAsset',
+  'SellAsset',
+]);
+
 /** Cheap heuristic for pre-ranking: preview money/hours plus category priors. */
 function quickScore(
   state: GameState,
@@ -182,8 +204,17 @@ function quickScore(
   const needClothes =
     curJob !== undefined && (bestTier < pack.uniformRank[curJob.uniformTier] || outfitWeeks <= 1);
   const rentSoon = p.home.paidThroughWeek + rentWeeks <= state.week + 1;
+  // Rent due or owed is a purchase that cannot wait either (ADR-0043).
+  const rentDue = p.home.debt > 0 || rentSoon ? p.home.rentLocked + p.home.debt : 0;
+  const shopping = Math.max(shoppingNeed(pack, p, needClothes, gap('happiness') > 0), rentDue);
+  // Balance-sheet moves (banking, loans, investments) change cash without changing what the seat
+  // is worth, so their cash delta is not a gain or a cost: counted as one, a loan ranked at +75 and
+  // took every branch at the bank, and a deposit ranked at −85 and was never tried (ADR-0043).
+  const transfer = TRANSFERS.has(cmd.type);
   let s =
-    pv.money / 200 + (pv.deltas.happiness ?? 0) * 0.05 + (pv.deltas.dependability ?? 0) * 0.02;
+    (transfer ? 0 : pv.money / 200) +
+    (pv.deltas.happiness ?? 0) * 0.05 +
+    (pv.deltas.dependability ?? 0) * 0.02;
   switch (cmd.type) {
     case 'Work':
       s += 0.6;
@@ -208,6 +239,10 @@ function quickScore(
       if (p.job && pack.jobById[p.job.jobId]?.workplaceId === cmd.to)
         s += 0.5 + 0.3 * gap('wealth') + 0.3 * gap('career');
       if (svc.includes('apply') && (!p.job || needLadder)) s += 0.5 + 0.3 * gap('career');
+      // A raise is worth a trip when wealth is short and the seat qualifies for a job paying 20%
+      // more; without this, a seat whose career goal was met stayed on its first wage (ADR-0043).
+      else if (svc.includes('apply') && gap('wealth') > 0 && betterPaidJob(pack, p))
+        s += 0.3 + 0.4 * gap('wealth');
       if (svc.includes('study') && gap('education') > 0)
         s += 0.2 * w.education + 0.4 + 0.4 * gap('education');
       if (svc.includes('rent') && (p.home.debt > 0 || rentSoon) && p.cash >= p.home.rentLocked)
@@ -230,20 +265,24 @@ function quickScore(
         s += 0.3;
       if (svc.includes('grocery') && p.food.fridgeUnits === 0) s += 0.1;
       if (svc.includes('rent') && p.home.paidThroughWeek + 4 <= state.week + 1) s += 0.3;
-      if (svc.includes('bank') && p.cash > 400) s += 0.2;
+      if (svc.includes('bank') && shopping > p.cash && p.bank >= shopping - p.cash) s += 0.8;
+      // The pull to the bank grows with the cash at risk of street theft (ADR-0043).
+      if (svc.includes('bank') && p.cash > 400) s += 0.2 + Math.min(0.6, p.cash / 5_000);
       if (loc?.kind === 'home') s += 0.1;
       s += pv.hours / 60;
       break;
     }
     case 'BuyItem': {
       const cl = pack.clothingById[cmd.itemId];
+      // The outfit the job needs is bought at its price, not pruned for it: without it the seat
+      // cannot work at all (ADR-0043).
       if (cl && needClothes && pack.uniformRank[cl.tier] >= pack.uniformRank[curJob.uniformTier])
-        s += 0.8;
+        s += 0.8 - pv.money / 200;
       const spec = pack.itemById[cmd.itemId];
       // A comfort durable raises every future relax; without one, a decaying happiness goal is
       // unreachable, so it outranks the immediate happinessOnBuy the base score already counts.
       if (spec?.comfort && gap('happiness') > 0 && relaxNet(pack, p) < 1)
-        s += 0.4 * gap('happiness');
+        s += 0.4 * gap('happiness') + 0.3 - pv.money / 200;
       // A gadget that unlocks a system the pack has switched on is worth more than the happiness
       // it hands over the counter: without it delivery, ride-hail and online study stay closed and
       // whole event families never reach the player (ADR-0034).
@@ -262,10 +301,15 @@ function quickScore(
       s += p.home.debt > 0 ? 0.8 : rentSoon ? 0.6 : 0.15;
       break;
     case 'Deposit':
-      s += p.cash > 300 && !rentSoon ? 0.2 : -0.1;
+      // Carried cash is theft exposure; the more of it, the sooner it belongs in the bank — except
+      // the shopping fund, which is why it was withdrawn.
+      s += p.cash > 300 && !rentSoon ? 0.2 + Math.min(0.6, p.cash / 5_000) : -0.1;
+      if (shopping > 0 && p.cash - cmd.amount < shopping) s -= 1.5;
       break;
     case 'Withdraw':
       s += rentSoon && p.cash < p.home.rentLocked ? 0.5 : -0.2;
+      // Cash for a purchase the seat cannot do without is worth fetching (ADR-0043).
+      if (shopping > p.cash && cmd.amount >= shopping - p.cash) s += 0.9;
       break;
     case 'Relax':
       s += 0.1 * ctx.personality.preferences.relaxWeight + 0.5 * gap('happiness');
@@ -346,9 +390,49 @@ function wantsGadgetAt(pack: CityPack, p: PlayerState, locId: string): boolean {
   });
 }
 
+/**
+ * Cash the seat should hold for a purchase it cannot do without (ADR-0043): the uniform its job
+ * needs, a comfort durable when relaxing alone cannot outrun the happiness decay, or a system gadget
+ * it lacks. 0 when there is none.
+ */
+function shoppingNeed(
+  pack: CityPack,
+  p: PlayerState,
+  needClothes: boolean,
+  unhappy: boolean,
+): number {
+  let need = needClothes ? UNIFORM_CASH : 0;
+  const unowned = (id: string): boolean =>
+    !p.items.some((it) => it.itemId === id && it.condition === 'ok');
+  if (unhappy && relaxNet(pack, p) < 1) {
+    const prices = pack.items.filter((i) => i.comfort && unowned(i.id)).map((i) => i.price);
+    if (prices.length > 0) need = Math.max(need, Math.min(...prices));
+  }
+  const gadgets = pack.items
+    .filter((i) => isSystemGadget(pack, i.id) && unowned(i.id))
+    .map((i) => i.price);
+  if (gadgets.length > 0) need = Math.max(need, Math.min(...gadgets));
+  return need;
+}
+
+/** True when the seat qualifies for a regular job paying at least 20% more than its own. */
+function betterPaidJob(pack: CityPack, p: PlayerState): boolean {
+  const wage = p.job?.wage ?? 0;
+  return pack.jobs.some(
+    (j) =>
+      !j.isGig &&
+      j.baseWage * 10 > wage * 12 &&
+      p.experience >= j.reqExperience &&
+      p.dependability >= j.reqDependability &&
+      j.reqDegrees.every((d) => p.degrees.includes(d)) &&
+      !p.turn.jobsTurnedDown.includes(j.id),
+  );
+}
+
 /** True when this location sells an affordable comfort durable the player does not own yet. */
 function sellsUnownedComfort(pack: CityPack, p: PlayerState, locId: string): boolean {
-  const spare = p.cash - p.home.rentLocked;
+  // Bank money counts: the ranker fetches it on the way (ADR-0043).
+  const spare = p.cash + p.bank - p.home.rentLocked;
   return pack.items.some(
     (i) =>
       i.comfort &&
@@ -380,20 +464,24 @@ export function planTurn(
         finished.push(node);
         continue;
       }
-      let legal = filterCandidates(
-        node.state,
-        seat,
-        pack,
-        legalCommands(node.state, seat, pack),
-        cfg,
-        ctx,
-      );
+      const all = legalCommands(node.state, seat, pack);
+      let legal = filterCandidates(node.state, seat, pack, all, cfg, ctx);
+      // A command a strategy bot actively prefers survives the domain pruning that keeps an
+      // ordinary seat from, say, borrowing money it does not need (ADR-0044).
+      if (opts.bias) {
+        const bias = opts.bias;
+        const kept = new Set(legal);
+        for (const c of all) if (!kept.has(c) && bias(c, node.state, seat) > 0) legal.push(c);
+      }
       if (opts.forbid) {
         const forbid = opts.forbid;
         legal = legal.filter((c) => c.type === 'EndTurn' || !forbid(c, node.state, seat));
       }
       const ranked = legal
-        .map((c) => ({ c, q: quickScore(node.state, seat, pack, c, ctx) }))
+        .map((c) => ({
+          c,
+          q: quickScore(node.state, seat, pack, c, ctx) + (opts.bias?.(c, node.state, seat) ?? 0),
+        }))
         .filter((x) => x.q !== Number.NEGATIVE_INFINITY)
         .sort((a, b) => b.q - a.q)
         .slice(0, cfg.branch);
@@ -432,10 +520,14 @@ export function planTurn(
             cmds.push(enter);
           }
         }
-        let util = stateValue(ctx, r.state) - base - STEP_PENALTY * cmds.length;
+        // A Move's bias steers the pre-rank only: counted in utility, a plan could farm it by walking
+        // back and forth.
+        const bias =
+          (node.bias ?? 0) + (c.type === 'Move' ? 0 : (opts.bias?.(c, node.state, seat) ?? 0));
+        let util = stateValue(ctx, r.state) - base - STEP_PENALTY * cmds.length + bias;
         if (cfg.noiseSigma > 0)
           util += (noise.normal('n', 10_000) / 10_000) * cfg.noiseSigma * NOISE_UNIT;
-        children.push({ state: r.state, commands: cmds, utility: util, done: false });
+        children.push({ state: r.state, commands: cmds, utility: util, done: false, bias });
       }
     }
     if (children.length === 0) break;

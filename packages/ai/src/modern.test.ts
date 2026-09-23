@@ -196,3 +196,25 @@ describe('M5.9: the AI plays the modern ruleset', () => {
     }, 30_000);
   });
 });
+
+describe('strategy bias (ADR-0044)', () => {
+  it('a preferred command is played even where the ordinary seat declines it', () => {
+    const s = goInside(
+      patch(modernGame('bias-loan'), 0, (p) => (p.cash = 5_000), modern),
+      0,
+      'bank',
+      modern,
+    );
+    const max = modern.loans!.studentMax;
+    const plain = runAiTurn(s, 0, modern, { difficulty: 'normal', personality: 'hustler' });
+    expect(plain.commands.some((c) => c.type === 'TakeLoan')).toBe(false);
+    const biased = runAiTurn(s, 0, modern, {
+      difficulty: 'normal',
+      personality: 'hustler',
+      bias: (c) => (c.type === 'TakeLoan' && c.principal === max ? 1 : 0),
+    });
+    expect(biased.commands).toContainEqual(
+      expect.objectContaining({ type: 'TakeLoan', principal: max }),
+    );
+  }, 30_000);
+});

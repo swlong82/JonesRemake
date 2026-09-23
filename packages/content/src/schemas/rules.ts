@@ -87,6 +87,8 @@ export const rulesSchema = z
         maxStatBase: z.number().int(),
         maxStatPerDegree: z.number().int(),
         degreeDependabilityBonus: z.number().int(),
+        /** Experience a graduation adds (ADR-0044, modern internship credit); 0 on classic. */
+        degreeExperienceBonus: z.number().int().nonnegative().default(0),
         hireDependabilityFloor: z.number().int(),
         firingDependabilityMargin: z.number().int(),
         statMin: z.number().int(),

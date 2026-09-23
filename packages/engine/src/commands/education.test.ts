@@ -110,6 +110,19 @@ describe('Study (GDD 4.7)', () => {
     expect(p.maxDependability).toBe(25);
     expect(p.stats.lessons).toBe(1);
   });
+  it("graduation adds the pack's internship experience when it has one (ADR-0044)", () => {
+    const credit = {
+      ...pack,
+      rules: { ...pack.rules, stats: { ...pack.rules.stats, degreeExperienceBonus: 8 } },
+    };
+    let s = run(atUni('intern'), 0, [{ type: 'Enroll', degreeId: 'trade-school' }]);
+    s = patch(s, 0, (p) => (p.enrolled['trade-school'] = { lessonsLeft: 1 }));
+    const before = s.players[0]!.experience;
+    const plain = applyCommand(s, 0, { type: 'Study', degreeId: 'trade-school' }, pack);
+    expect(plain.state.players[0]!.experience).toBe(before);
+    const r = applyCommand(s, 0, { type: 'Study', degreeId: 'trade-school' }, credit);
+    expect(r.state.players[0]!.experience).toBe(before + 8);
+  });
   it('rejects unknown degree, not enrolled, too few hours, wrong place', () => {
     const s = run(atUni('study2'), 0, [{ type: 'Enroll', degreeId: 'trade-school' }]);
     expect(applyCommand(s, 0, { type: 'Study', degreeId: 'nope' }, pack).events[0]).toMatchObject({

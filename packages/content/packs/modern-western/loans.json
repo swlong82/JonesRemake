@@ -11,5 +11,6 @@
   "missedFee": 25,
   "defaultAfter": 4,
   "garnishBp": 3000,
-  "maxActive": 2
+  "maxActive": 2,
+  "studentMax": 3000
 }

@@ -2,7 +2,8 @@
   "goals": {
     "educationPerDegree": 13,
     "careerTenureBpPerWeek": 35000,
-    "careerTenureDelayWeeks": 0
+    "careerTenureDelayWeeks": 0,
+    "educationBase": 2
   },
   "jobs": {
     "payPerSession": 30
@@ -21,5 +22,8 @@
       "burnout": 25,
       "collapse": 6
     }
+  },
+  "stats": {
+    "degreeExperienceBonus": 8
   }
 }

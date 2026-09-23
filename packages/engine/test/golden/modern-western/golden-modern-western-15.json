@@ -1121,56 +1121,56 @@
     {
       "seat": 0,
       "cmd": {
-        "type": "Move",
-        "to": "factory",
-        "mode": "transit"
+        "type": "TakeLoan",
+        "principal": 3000,
+        "termWeeks": 104
+      }
+    },
+    {
+      "seat": 0,
+      "cmd": {
+        "type": "BuyAsset",
+        "assetId": "savings",
+        "amount": 1000
+      }
+    },
+    {
+      "seat": 0,
+      "cmd": {
+        "type": "BuyAsset",
+        "assetId": "bonds",
+        "amount": 500
+      }
+    },
+    {
+      "seat": 0,
+      "cmd": {
+        "type": "BuyAsset",
+        "assetId": "gold-modern",
+        "amount": 1504
+      }
+    },
+    {
+      "seat": 0,
+      "cmd": {
+        "type": "SellAsset",
+        "assetId": "savings",
+        "amount": 1000
+      }
+    },
+    {
+      "seat": 0,
+      "cmd": {
+        "type": "BuyAsset",
+        "assetId": "tech-stock",
+        "amount": 500
       }
     },
     {
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "electronics-store",
-        "mode": "transit"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "appliance-depot",
-        "mode": "walk"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "university",
-        "mode": "walk"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "park",
-        "mode": "transit"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "secure-apartments",
-        "mode": "transit"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "employment-office",
+        "to": "discount-store",
         "mode": "transit"
       }
     },
@@ -1183,6 +1183,6 @@
       }
     }
   ],
-  "finalHash": "09ce3cc7d3d790",
+  "finalHash": "1fbb4caad2034b",
   "week": 5
 }

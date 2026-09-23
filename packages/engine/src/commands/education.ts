@@ -85,6 +85,9 @@ export function graduate(ctx: Ctx, seat: number, degreeId: string): void {
   recomputeMaxima(p, ctx.pack);
   ctx.addStat(seat, 'happiness', ctx.rules.happiness.graduation, 'graduation');
   ctx.addDependabilityRaw(seat, ctx.rules.stats.degreeDependabilityBonus, 'graduation');
+  // Internship credit (ADR-0044): 0 on classic; capped by the new experience maximum like any gain.
+  if (ctx.rules.stats.degreeExperienceBonus > 0)
+    ctx.addStat(seat, 'experience', ctx.rules.stats.degreeExperienceBonus, 'graduation');
   ctx.emit({ type: 'Graduated', seat, degreeId });
 }
 

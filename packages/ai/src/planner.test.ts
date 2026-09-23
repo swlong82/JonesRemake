@@ -8,7 +8,7 @@ import {
   stateHash,
   type Command,
 } from '@hustle-ring/engine';
-import { aiSeat, classic, makeConfig, newGame, patch } from '@hustle-ring/engine/testing';
+import { aiSeat, classic, goInside, makeConfig, newGame, patch } from '@hustle-ring/engine/testing';
 import type { Difficulty } from '@hustle-ring/shared';
 import {
   ASSET_TIER,
@@ -328,4 +328,30 @@ describe('runAiTurn and M2.4 acceptance', () => {
     }
     expect(hard / decided).toBeGreaterThanOrEqual(0.7);
   }, 600_000);
+});
+
+describe('pre-ranking treats balance-sheet moves as transfers (ADR-0043)', () => {
+  const opts = { difficulty: 'normal', personality: 'balanced' } as const;
+  it('banks a large cash balance instead of carrying it past the street-theft risk', () => {
+    let s = patch(newGame('transfer-deposit', [aiSeat('A'), aiSeat('B')]), 0, (p) => {
+      p.cash = 12_000;
+    });
+    s = goInside(s, 0, 'bank');
+    const r = runAiTurn(s, 0, pack, opts);
+    expect(r.commands.some((c) => c.type === 'Deposit')).toBe(true);
+    expect(r.state.players[0]!.bank).toBeGreaterThan(0);
+  });
+
+  it('withdraws cash for a uniform when the job cannot be worked without one', () => {
+    let s = patch(newGame('transfer-uniform', [aiSeat('A'), aiSeat('B')]), 0, (p) => {
+      p.cash = 40;
+      p.bank = 3_000;
+      p.job = { jobId: 'bank-branch-manager', wage: 18, raises: 0, hiredWeek: 1 };
+      p.clothing = [];
+    });
+    s = goInside(s, 0, 'bank');
+    const r = runAiTurn(s, 0, pack, opts);
+    const w = r.commands.find((c) => c.type === 'Withdraw') as { amount: number } | undefined;
+    expect(w?.amount).toBeGreaterThanOrEqual(500);
+  });
 });

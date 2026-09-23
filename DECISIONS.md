@@ -367,6 +367,11 @@
   - **Delivery**: one draft PR, opened at the start so that CI runs on every push, and marked ready for review only when release-ready.
 - Consequences: classic no longer matches ORIGINAL_REFERENCE on whichever anchors the career fix touches; each changed anchor is re-tagged from [SRC] and noted in `BALANCE_REPORT.md`. Every golden replay and baseline number is regenerated once in phase A, so phase B's tests are written against final rules. M8 may block on an owner decision, and only at the two points named above.
 
+- Owner decisions during phase A (2026-09-23):
+  - The title stays **Hustle Ring** (`NAMING.md` #1; M8.1 still lists four alternates).
+  - The same-week tie split in "last-completed" (ADR-0040) and StudyFirst's "every degree its education goal needs" reading (ADR-0041) are accepted.
+  - The 9.3/9.5 sim-speed target (< 200 ms/game; ADR-0016) is out of M8's scope: it is logged as a known limitation at close-out, not tuned.
+
 ## ADR-0038: Milestone tags point at `main`, not at the gate commit
 
 - Date: 2026-09-23
@@ -425,3 +430,34 @@
 - Consequences: the bar did not move for any target that does not depend on B. The four median bands follow the classic game, which got longer at every goal level because career now needs continuous employment.
 - Locked sha256 (reports/modern-targets.json): `3e00f8b8d96fbe5e45f59df67e6b71df887c71f0fdd7cc49e8687ef6722f8a76`
 - Locked sha256 (reports/baseline.json): `e731d23de5fcf2687a9a40c5fe438b320114e489e6423f332995893e324ccfec`
+
+## ADR-0043: The AI's pre-ranker treats banking, loans and investments as transfers, and fetches cash for a uniform
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: stalls (target < 0.5% at goals 50 in both packs, and 20% at modern goals 80) traced to four AI defects, all in the quick pre-ranker that picks which commands the beam search expands:
+  1. Every command started from `preview.money / 200`. A $17,000 deposit therefore ranked at −85 and was never expanded, so seats carried every dollar they earned and lost all of it to street theft. Theft takes all carried cash, with up to a 12% chance on each exit from the bank or grocery. Seats working at the grocery emptied their pockets every few weeks.
+  2. The same term ranked a $15,000 loan at +75, so at the bank all four branch slots went to `TakeLoan`, which the search then rejected, and nothing else was tried there.
+  3. The bank pull (+0.2) did not grow with the cash at risk.
+  4. A seat whose uniform wore out needed three steps to work again (withdraw, buy, work). `Withdraw` ranked −0.2 unless rent was due, so the seat stood idle while dependability drained to 0.
+- Decision: the six balance-sheet commands (`Deposit`, `Withdraw`, `TakeLoan`, `RepayLoan`, `BuyAsset`, `SellAsset`) take no cash term in the pre-rank; `stateValue` still judges them in full. A deposit and a move to the bank rank higher the more cash is carried (up to +0.6 at $3,000 and more). A seat without its uniform and under $500 in cash ranks a withdrawal of at least $500, and a trip to a bank that holds it, near the top.
+- Later in the same investigation, three more gaps were closed in the same pass:
+  - **A shopping need.** Cash for a needed uniform, a comfort durable when relaxing cannot outrun happiness decay, a missing system gadget, or rent due or owed now drives the withdrawal, the deposit hold and the pull to the bank. A needed outfit's or comfort durable's price is offset in the pre-rank, like a gadget's (ADR-0039).
+  - **Wage climbing.** The employment office pulls a seat whose wealth is short when it qualifies for a job paying at least 20% more. Before, a seat climbed only while its career goal needed it, and one whose career was already met stayed on its first wage.
+  - **Comfort affordability** counts money in the bank, since the ranker now fetches it on the way.
+- Consequences: both packs play differently and are re-measured. Modern goals 80 dropped from 20% stalls to 3 in 160 games in the probes, and classic goals 50 shows 0 stalls in 160. Modern also gets `educationBase` 2: six degrees reach education 80 instead of 79 one point short, which was the other half of the goals-80 stalls. With the richer AI, modern `wealthPointValue` is 185 and degrees take 13 lessons, keeping the goals-50 median near 39 weeks with every goal last-completed ≥ 14%.
+
+## ADR-0044: Strategy bots can prefer as well as forbid; modern students can borrow and gain experience from degrees; classic seat bias is measured on one personality
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: three BALANCE 9.4/9.5 targets stayed red for reasons in the harness and the modern economy, not in the tuning numbers:
+  - **LoanMax defaulted in 0% of games** (target 20–60%). Bots could only forbid commands. Once everything but the maximum loan was forbidden, the ordinary `loan-burden` scorer still declined the loan, so the bot never borrowed.
+  - **StudyFirst won 4%** (target 30–60%) and deadlocked. Barred from regular work until its education goal was met, it spent its starting cash on the first degree by week 4, could not pay the next fee or borrow without income, and idled for months. Once funded, it finished its degrees by week 15 with experience 10 and qualified only for a $4/hour job.
+  - **Classic "seat bias" paired different personalities.** `normal,normal` rotates personalities by seat, so classic's first-seat win rate was grinder against scholar, not turn order. The modern suite already pins `normal:balanced` on both seats for this reason.
+- Decision:
+  - `PlanOptions.bias` / `Bot.prefer`: a per-command preference added to the pre-rank and to plan utility (pre-rank only for `Move`, so walking back and forth cannot farm it). A command a bot prefers survives the domain filter. LoanMax prefers the maximum loan (+1) and the index ETF (+0.5). StudyFirst prefers the full student loan, and the bank, only while it is under its education goal and nearly broke.
+  - Student loans (modern `loans.studentMax` = 3,000): a seat that has not yet met its education goal may borrow up to that much with no income. The loan is flagged `student`; it accrues interest but asks for no payment while the seat is still studying, and its term runs on after the deferral.
+  - Internship credit (modern `stats.degreeExperienceBonus` = 8): each degree adds experience, capped by the usual maximum. Classic keeps 0.
+  - Stage-1 gains `seatbias-classic-50-normal-2` (Balanced vs Balanced, 200 games), and the 9.3 seat-bias gate reads it. The B-median rows are untouched, so the modern lock does not depend on it.
+- Consequences: no target changed. Probes at goals 50 (24 games each): LoanMax defaults 60%, StudyFirst wins 33–37%, CryptoAllIn wins 25% with 67% bankrupt. Ordinary seats can take student loans too, but the domain filter keeps a seat that can cover the principal from borrowing.

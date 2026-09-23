@@ -879,14 +879,8 @@
     {
       "seat": 0,
       "cmd": {
-        "type": "Exit"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
         "type": "Move",
-        "to": "low-housing",
+        "to": "discount-store",
         "mode": "walk"
       }
     },
@@ -895,6 +889,14 @@
       "cmd": {
         "type": "Move",
         "to": "discount-store",
+        "mode": "walk"
+      }
+    },
+    {
+      "seat": 1,
+      "cmd": {
+        "type": "Move",
+        "to": "appliance-depot",
         "mode": "walk"
       }
     },
@@ -979,26 +981,24 @@
       }
     },
     {
-      "seat": 1,
+      "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "discount-store",
-        "mode": "walk"
-      }
-    },
-    {
-      "seat": 1,
-      "cmd": {
-        "type": "Move",
-        "to": "factory",
+        "to": "rent-office",
         "mode": "walk"
       }
     },
     {
       "seat": 0,
       "cmd": {
+        "type": "Enter"
+      }
+    },
+    {
+      "seat": 0,
+      "cmd": {
         "type": "Move",
-        "to": "electronics-store",
+        "to": "university",
         "mode": "walk"
       }
     },
@@ -1118,15 +1118,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "discount-store",
-        "mode": "walk"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "clinic",
+        "to": "low-housing",
         "mode": "walk"
       }
     },
@@ -1134,7 +1126,15 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "secure-apartments",
+        "to": "employment-office",
+        "mode": "walk"
+      }
+    },
+    {
+      "seat": 1,
+      "cmd": {
+        "type": "Move",
+        "to": "low-housing",
         "mode": "walk"
       }
     },
@@ -1180,7 +1180,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "grocery",
+        "to": "park",
         "mode": "walk"
       }
     },
@@ -1188,11 +1188,11 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "park",
+        "to": "clinic",
         "mode": "walk"
       }
     }
   ],
-  "finalHash": "0048b27ab3da86",
+  "finalHash": "0e5f488dc04f44",
   "week": 5
 }

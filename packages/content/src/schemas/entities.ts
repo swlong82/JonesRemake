@@ -304,6 +304,11 @@ export const loansSchema = z
     defaultAfter: z.number().int().positive(),
     garnishBp: bpSchema,
     maxActive: z.number().int().positive(),
+    /**
+     * Student loans (ADR-0044): a seat that has not yet met its education goal may borrow up to this
+     * much whatever its income. 0 turns them off.
+     */
+    studentMax: dollarsSchema.default(0),
   })
   .strict();
 export type LoansSpec = z.infer<typeof loansSchema>;

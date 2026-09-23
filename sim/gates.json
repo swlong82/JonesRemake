@@ -28,11 +28,6 @@
           "max": 2,
           "note": "9.3 stall < 0.5% widened for sample size"
         },
-        "firstSeatWinPct": {
-          "min": 38,
-          "max": 62,
-          "note": "9.3 seat bias 45–55% ± sampling"
-        },
         "lastGoalPct.wealth": {
           "min": 5,
           "note": "9.3 each goal last ≥ 10% (widened)"
@@ -48,6 +43,22 @@
         "lastGoalPct.happiness": {
           "min": 5,
           "note": "9.3 each goal last ≥ 10% (widened); ADR-0025 happiness decay"
+        }
+      }
+    },
+    {
+      "id": "seatbias-classic-50-normal-2",
+      "pack": "classic",
+      "seats": 2,
+      "ai": "normal:balanced,normal:balanced",
+      "goals": 50,
+      "games": 120,
+      "seedBase": "gate-seatbias-classic-50",
+      "asserts": {
+        "firstSeatWinPct": {
+          "min": 38,
+          "max": 62,
+          "note": "9.3 seat bias 45–55% ± sampling; one personality against itself, so this is turn order alone (ADR-0044)"
         }
       }
     },
