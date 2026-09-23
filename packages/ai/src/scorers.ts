@@ -249,6 +249,46 @@ export const subscriptionDrain: Scorer = {
   },
 };
 
+/**
+ * Unlocks that gate a modern system's commands (GDD 4.3, 4.6, 4.7, 4.11). A gadget carrying one
+ * is the price of entry to that system, so it is valued for the access, not as a trinket.
+ */
+export const SYSTEM_UNLOCKS: ReadonlySet<string> = new Set([
+  'rideHail',
+  'delivery',
+  'gigDelivery',
+  'onlineStudy',
+]);
+
+/** True for an item whose unlocks open a modern system (`SYSTEM_UNLOCKS`). */
+export function isSystemGadget(pack: CityPack, itemId: string): boolean {
+  return pack.itemById[itemId]?.unlocks.some((u) => SYSTEM_UNLOCKS.has(u)) ?? false;
+}
+
+/**
+ * Gadget access (ADR-0039): a working phone or laptop keeps delivery, gigs, ride-hail and online
+ * study open, so it is worth more than the cash it cost — twice its price against the wealth
+ * target, capped. A broken one is worth nothing, which is what makes a repair worth its fee.
+ * Without this the search saw a $220 phone as a $220 loss, seats owned a working phone in 8% of
+ * player-weeks, and never repaired one (KI-008).
+ */
+export const gadgetAccess: Scorer = {
+  id: 'gadget-access',
+  weight: () => 1,
+  value: (ctx, _state, p) => {
+    const target = Math.max(1, p.goals.wealth * ctx.pack.wealthPointValue);
+    const counted = new Set<string>();
+    let v = 0;
+    for (const it of p.items) {
+      if (it.condition !== 'ok' || counted.has(it.itemId)) continue;
+      if (!isSystemGadget(ctx.pack, it.itemId)) continue;
+      counted.add(it.itemId);
+      v += (2 * (ctx.pack.itemById[it.itemId]?.price ?? 0)) / target;
+    }
+    return Math.min(0.3, v);
+  },
+};
+
 const registry = new Map<string, Scorer>();
 export function registerScorer(s: Scorer): void {
   registry.set(s.id, s);
@@ -269,6 +309,7 @@ for (const s of [
   wellbeing,
   loanBurden,
   subscriptionDrain,
+  gadgetAccess,
 ])
   registerScorer(s);
 

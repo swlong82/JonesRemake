@@ -17,7 +17,7 @@ import {
 } from '@hustle-ring/engine';
 import type { Difficulty } from '@hustle-ring/shared';
 import { ASSET_TIER, DIFFICULTY, type DifficultyConfig } from './config.js';
-import { stateValue, type ScorerCtx } from './scorers.js';
+import { isSystemGadget, stateValue, type ScorerCtx } from './scorers.js';
 import { aiSeed, sanitizeForAi } from './view.js';
 
 export interface PlanOptions {
@@ -226,6 +226,7 @@ function quickScore(
       // Where happiness decays, a shopping trip for a comfort durable is the only lasting fix.
       if (gap('happiness') > 0 && relaxNet(pack, p) < 1 && sellsUnownedComfort(pack, p, cmd.to))
         s += 0.3 * gap('happiness');
+      if (wantsGadgetAt(pack, p, cmd.to)) s += 0.3;
       if (svc.includes('meals') && p.food.mealPending === null && p.food.fridgeUnits === 0)
         s += 0.3;
       if (svc.includes('grocery') && p.food.fridgeUnits === 0) s += 0.1;
@@ -249,6 +250,10 @@ function quickScore(
       // whole event families never reach the player (ADR-0034).
       if (spec && spec.unlocks.length > 0 && !p.items.some((it) => it.itemId === spec.id))
         s += 0.35;
+      // A system gadget is bought as an asset: the pre-ranker must not prune it on its price
+      // before the search can weigh the access it buys (ADR-0039).
+      if (spec && isSystemGadget(pack, spec.id) && !p.items.some((it) => it.itemId === spec.id))
+        s += 0.6 - pv.money / 200;
       break;
     }
     case 'EatMeal':
@@ -283,6 +288,11 @@ function quickScore(
       break;
     case 'RepairCar':
       s += 0.4;
+      break;
+    case 'Repair':
+      // A broken phone or laptop shuts its systems until it is fixed (ADR-0039).
+      // Ranked near the top so the search always weighs it; `stateValue` makes the decision.
+      if (isSystemGadget(pack, cmd.itemId)) s += 1 - pv.money / 200;
       break;
     case 'Subscribe': {
       const sub = pack.subscriptionById[cmd.subId];
@@ -321,6 +331,20 @@ function relaxNet(pack: CityPack, p: PlayerState): number {
   for (const it of p.items)
     if (pack.itemById[it.itemId]?.comfort && it.condition === 'ok') comfort++;
   return Math.min(h.relaxMax, h.relaxBase + h.relaxPerComfort * comfort) - h.decayPerWeek;
+}
+
+/**
+ * True when this location can put a working system gadget in the player's hands: it repairs one
+ * they hold broken, or sells one they do not own, and they can pay for it on top of the rent.
+ */
+function wantsGadgetAt(pack: CityPack, p: PlayerState, locId: string): boolean {
+  const spare = p.cash - p.home.rentLocked;
+  return pack.items.some((i) => {
+    if (!isSystemGadget(pack, i.id) || !i.storeIds.includes(locId)) return false;
+    const owned = p.items.filter((it) => it.itemId === i.id);
+    if (owned.some((it) => it.condition === 'ok')) return false;
+    return owned.length > 0 ? i.repairCost <= spare : i.price <= spare;
+  });
 }
 
 /** True when this location sells an affordable comfort durable the player does not own yet. */

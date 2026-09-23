@@ -354,19 +354,11 @@
         },
         "eventsPer100PlayerWeeks.viral": {
           "min": 1,
-          "note": "9.5 every modern family fires; the family needs a smartphone the AI rarely owns — achieved 0 over 60 games at M6.3",
-          "pending": {
-            "issue": "KI-008",
-            "until": "M8.5"
-          }
+          "note": "9.5 every modern family fires ≥ 1 per 100 player-weeks at Chaos Modern; met once the AI valued gadgets (ADR-0039)"
         },
         "eventsPer100PlayerWeeks.gadget-breakdown": {
           "min": 1,
-          "note": "9.5 every modern family fires; both its events need a phone or laptop — achieved 0.12 at M6.3",
-          "pending": {
-            "issue": "KI-008",
-            "until": "M8.5"
-          }
+          "note": "9.5 every modern family fires ≥ 1 per 100 player-weeks at Chaos Modern; met once the AI valued gadgets (ADR-0039)"
         }
       }
     }
