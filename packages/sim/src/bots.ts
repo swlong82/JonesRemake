@@ -109,7 +109,7 @@ registerBot({
 });
 
 /** How strongly CryptoAllIn prefers its big buys (ADR-0044). */
-const CRYPTO_PREFERENCE = 0.2;
+const CRYPTO_PREFERENCE = 0.3;
 
 /** The pack's most volatile instrument. */
 function wildest(pack: CityPack): CityPack['assets'][number] | undefined {
