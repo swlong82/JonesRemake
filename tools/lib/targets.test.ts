@@ -12,7 +12,7 @@ import {
 const root = join(import.meta.dirname, '..', '..');
 const TARGETS = 'reports/modern-targets.json';
 const BASELINE = 'reports/baseline.json';
-const ADR = 'ADR-0042';
+const ADR = 'ADR-0048';
 
 const targetsBytes = readFileSync(join(root, TARGETS));
 const targets = JSON.parse(targetsBytes.toString('utf8')) as ModernTargets;

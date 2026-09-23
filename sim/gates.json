@@ -162,9 +162,9 @@
       "games": 60,
       "asserts": {
         "length.median": {
-          "min": 25,
-          "max": 47,
-          "note": "9.5 median within ±20% of classic B=36 (28–44, ADR-0042), widened ±3 weeks"
+          "min": 16,
+          "max": 32,
+          "note": "9.5 median within ±20% of classic B=24 (19–29, ADR-0048), widened ±3 weeks"
         },
         "stallRate": {
           "max": 2
@@ -181,9 +181,9 @@
       "games": 120,
       "asserts": {
         "length.median": {
-          "min": 35,
-          "max": 61,
-          "note": "9.5 median within ±20% of classic B=48 (38–58, ADR-0042), widened ±3 weeks"
+          "min": 23,
+          "max": 43,
+          "note": "9.5 median within ±20% of classic B=33 (26–40, ADR-0048), widened ±3 weeks"
         },
         "stallRate": {
           "max": 2,

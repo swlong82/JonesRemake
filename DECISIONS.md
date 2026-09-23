@@ -423,7 +423,7 @@
 ## ADR-0042: Modern targets re-derived from the re-run classic baseline, and re-locked
 
 - Date: 2026-09-23
-- Status: Accepted (supersedes ADR-0033's hashes, not its mechanism)
+- Status: Superseded by ADR-0048 (hashes only)
 - Context: ADR-0040 changes classic rules (continuous-employment tenure, happiness decay), so the stage-1 baseline was re-run (24 configs, 3,200 games). BALANCE 9.5 derives the modern median bands from classic B, and ADR-0033 locked `reports/modern-targets.json` to the old baseline's hash. ADR-0033 foresaw this case: "correcting a genuine mistake in the file needs a superseding ADR with a new hash".
 - Options: 1) keep the old targets against a baseline that no longer exists; 2) re-derive with the same derivation rules and re-lock.
 - Decision: option 2 (owner-approved in ADR-0037). Only the inputs change. Classic B medians move from 28/40/62/83 to 36/48/63/86, so the ±20% bands (rounded outward, unchanged rule) become 28–44, 38–58, 50–76 and 68–104. Every other target is byte-for-byte unchanged: the 9.5 verbatim values do not depend on B. `tools/lib/targets.test.ts` now reads the lock from this ADR.
@@ -498,3 +498,14 @@
 - Options: 1) keep the reset; 2) make the event a pay cut instead of a job loss; 3) let a quick rehire resume the tenure.
 - Decision: option 3, driven by content. A `loseJob` event effect records the lost job's `hiredWeek` and the week of the layoff on the player (`layoff`). A hire within `rules.goals.careerLayoffGraceWeeks` of that week resumes the tenure: `hiredWeek` becomes the old start moved on by the weeks out of work. Classic sets no grace (default 0); modern sets 4. Being fired for low dependability or losing the job to a wellbeing collapse still restarts the count: those are the player's doing.
 - Consequences: the event keeps its bite (severance ends, the goal stalls and the weeks out of work do not count) without deciding the game. `PlayerState.layoff` is optional, so existing saves and classic games are unchanged.
+
+## ADR-0048: Modern targets re-derived from the classic baseline of the fixed AI, and re-locked
+
+- Date: 2026-09-23
+- Status: Accepted (supersedes ADR-0042's hashes, not its mechanism)
+- Context: M8.0e found AI defects that shaped every measured game: seats starved in 40–80% of weeks, ended turns with hours left, stayed employed below the firing line, and scored goals before the week-start decay (commits on this branch; KI-008). Fixing them made games far shorter, so both packs were retuned (classic tenure 2.2/week after 8 weeks, relax base 1, $115 a wealth point; ADR-0047 layoff grace) and the stage-1 baseline was re-run: 25 configs, 3,400 games, every 9.3 target met except sim speed (out of scope, ADR-0037). BALANCE 9.5 derives the modern median bands from classic B.
+- Options: 1) keep targets derived from a baseline that no longer exists; 2) re-derive with the unchanged rules and re-lock.
+- Decision: option 2 (owner-approved in ADR-0037). Classic B medians move from 36/48/63/86 to 24/33/48/58, so the ±20% bands (rounded outward, unchanged rule) become 19–29, 26–40, 38–58 and 46–70. Every other target is unchanged: the 9.5 values do not depend on B. `tools/lib/targets.test.ts` reads the lock from this ADR.
+- Consequences: the bar moved only for the four median bands, which follow the classic game. No target was widened or relaxed.
+- Locked sha256 (reports/modern-targets.json): `25eb309f42340795270dea7a73bc68d659b46da77d8ea2cf0caa33ef753f4f31`
+- Locked sha256 (reports/baseline.json): `6c1b7c72cbfa603cbad494cb3b3b7bd6acc0879a47a02ff38710d33c353a1c62`

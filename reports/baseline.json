@@ -3,7 +3,7 @@
   "pack": "classic",
   "engineVersion": "0.2.0",
   "conditions": "2 sim workers on a shared 4-core sandbox, other build tasks running",
-  "gamesTotal": 3200,
+  "gamesTotal": 3400,
   "rows": [
     {
       "id": "classic-30-easy-2",
@@ -12,22 +12,22 @@
       "seats": 2,
       "games": 100,
       "weeks": {
-        "p10": 60,
-        "median": 126,
-        "p90": 246
+        "p10": 28,
+        "median": 43,
+        "p90": 88
       },
-      "stallRate": 66,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 58.82,
+      "stallRate": 0,
+      "bankruptcyRate": 97,
+      "firstSeatWinPct": 36,
       "lastGoalPct": {
-        "career": 0,
-        "education": 11.76,
-        "happiness": 75,
-        "wealth": 13.24
+        "career": 4,
+        "education": 11.5,
+        "happiness": 63,
+        "wealth": 21.5
       },
       "degreesMedian": 4,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 2543
+      "msPerGameMedian": 2783
     },
     {
       "id": "classic-30-easy-4",
@@ -36,22 +36,22 @@
       "seats": 4,
       "games": 100,
       "weeks": {
-        "p10": 61,
-        "median": 108,
-        "p90": 234
+        "p10": 26,
+        "median": 32,
+        "p90": 45
       },
-      "stallRate": 36,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 25,
+      "stallRate": 0,
+      "bankruptcyRate": 99,
+      "firstSeatWinPct": 13,
       "lastGoalPct": {
-        "career": 3.13,
-        "education": 12.5,
-        "happiness": 65.63,
-        "wealth": 18.75
+        "career": 3.83,
+        "education": 27.83,
+        "happiness": 44.67,
+        "wealth": 23.67
       },
-      "degreesMedian": 4,
+      "degreesMedian": 3,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 3609
+      "msPerGameMedian": 2179
     },
     {
       "id": "classic-30-normal-2",
@@ -60,22 +60,22 @@
       "seats": 2,
       "games": 200,
       "weeks": {
-        "p10": 29,
-        "median": 36,
-        "p90": 74
+        "p10": 23,
+        "median": 24,
+        "p90": 30
       },
-      "stallRate": 1,
-      "bankruptcyRate": 98,
-      "firstSeatWinPct": 58.59,
+      "stallRate": 0,
+      "bankruptcyRate": 48.5,
+      "firstSeatWinPct": 34,
       "lastGoalPct": {
-        "career": 20.96,
-        "education": 35.44,
-        "happiness": 35.1,
-        "wealth": 8.5
+        "career": 35.92,
+        "education": 37.67,
+        "happiness": 14.42,
+        "wealth": 12
       },
       "degreesMedian": 4,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 989
+      "msPerGameMedian": 1570
     },
     {
       "id": "classic-30-normal-4",
@@ -84,22 +84,22 @@
       "seats": 4,
       "games": 200,
       "weeks": {
-        "p10": 29,
-        "median": 32,
-        "p90": 53
+        "p10": 23,
+        "median": 24,
+        "p90": 27
       },
       "stallRate": 0,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 30.5,
+      "bankruptcyRate": 64,
+      "firstSeatWinPct": 17,
       "lastGoalPct": {
-        "career": 21.67,
-        "education": 45.67,
-        "happiness": 25.92,
-        "wealth": 6.75
+        "career": 33.92,
+        "education": 38.92,
+        "happiness": 16.58,
+        "wealth": 10.58
       },
       "degreesMedian": 3,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 1660
+      "msPerGameMedian": 2649
     },
     {
       "id": "classic-30-hard-2",
@@ -108,22 +108,22 @@
       "seats": 2,
       "games": 100,
       "weeks": {
-        "p10": 29,
-        "median": 29,
-        "p90": 33
+        "p10": 23,
+        "median": 24,
+        "p90": 26
       },
       "stallRate": 0,
-      "bankruptcyRate": 58,
-      "firstSeatWinPct": 42,
+      "bankruptcyRate": 21,
+      "firstSeatWinPct": 17,
       "lastGoalPct": {
-        "career": 62.67,
-        "education": 13.67,
-        "happiness": 15.5,
-        "wealth": 8.17
+        "career": 36.17,
+        "education": 47,
+        "happiness": 3.17,
+        "wealth": 13.67
       },
       "degreesMedian": 4,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 2010
+      "msPerGameMedian": 3734
     },
     {
       "id": "classic-30-hard-4",
@@ -132,22 +132,22 @@
       "seats": 4,
       "games": 100,
       "weeks": {
-        "p10": 29,
-        "median": 29,
-        "p90": 31
+        "p10": 23,
+        "median": 23,
+        "p90": 25
       },
       "stallRate": 0,
-      "bankruptcyRate": 81,
-      "firstSeatWinPct": 36,
+      "bankruptcyRate": 38,
+      "firstSeatWinPct": 16,
       "lastGoalPct": {
-        "career": 77.83,
-        "education": 8.33,
-        "happiness": 13.33,
-        "wealth": 0.5
+        "career": 47.5,
+        "education": 40,
+        "happiness": 1,
+        "wealth": 11.5
       },
-      "degreesMedian": 4,
+      "degreesMedian": 3,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 3883
+      "msPerGameMedian": 11230
     },
     {
       "id": "classic-50-easy-2",
@@ -156,22 +156,22 @@
       "seats": 2,
       "games": 100,
       "weeks": {
-        "p10": 101,
-        "median": 161,
-        "p90": 252
+        "p10": 41,
+        "median": 72,
+        "p90": 181
       },
-      "stallRate": 71,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 62.07,
+      "stallRate": 4,
+      "bankruptcyRate": 88,
+      "firstSeatWinPct": 40.63,
       "lastGoalPct": {
-        "career": 0,
-        "education": 5.17,
-        "happiness": 86.21,
-        "wealth": 8.62
+        "career": 3.13,
+        "education": 5.73,
+        "happiness": 65.63,
+        "wealth": 25.52
       },
       "degreesMedian": 6,
-      "winnerAllDegreesPct": 3.45,
-      "msPerGameMedian": 2413
+      "winnerAllDegreesPct": 0,
+      "msPerGameMedian": 4251
     },
     {
       "id": "classic-50-easy-4",
@@ -180,22 +180,22 @@
       "seats": 4,
       "games": 100,
       "weeks": {
-        "p10": 101,
-        "median": 139,
-        "p90": 220
+        "p10": 37,
+        "median": 51,
+        "p90": 75
       },
-      "stallRate": 50,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 18,
+      "stallRate": 0,
+      "bankruptcyRate": 97,
+      "firstSeatWinPct": 17,
       "lastGoalPct": {
-        "career": 1,
-        "education": 19,
-        "happiness": 68,
-        "wealth": 12
+        "career": 3,
+        "education": 11.5,
+        "happiness": 43.5,
+        "wealth": 42
       },
       "degreesMedian": 6,
-      "winnerAllDegreesPct": 2,
-      "msPerGameMedian": 5065
+      "winnerAllDegreesPct": 0,
+      "msPerGameMedian": 6136
     },
     {
       "id": "classic-50-normal-2",
@@ -204,22 +204,46 @@
       "seats": 2,
       "games": 200,
       "weeks": {
-        "p10": 37,
-        "median": 48,
-        "p90": 76
+        "p10": 32,
+        "median": 33,
+        "p90": 41
       },
-      "stallRate": 1,
-      "bankruptcyRate": 96,
-      "firstSeatWinPct": 44.95,
+      "stallRate": 0,
+      "bankruptcyRate": 49,
+      "firstSeatWinPct": 33.5,
       "lastGoalPct": {
-        "career": 21.97,
-        "education": 31.9,
-        "happiness": 32.41,
-        "wealth": 13.72
+        "career": 29.92,
+        "education": 21.33,
+        "happiness": 26.92,
+        "wealth": 21.83
       },
       "degreesMedian": 6,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 1249
+      "msPerGameMedian": 3482
+    },
+    {
+      "id": "seatbias-classic-50-normal-2",
+      "goals": 50,
+      "ai": "normal",
+      "seats": 2,
+      "games": 200,
+      "weeks": {
+        "p10": 32,
+        "median": 35,
+        "p90": 41
+      },
+      "stallRate": 0,
+      "bankruptcyRate": 40,
+      "firstSeatWinPct": 50,
+      "lastGoalPct": {
+        "career": 15.21,
+        "education": 43.04,
+        "happiness": 17.96,
+        "wealth": 23.79
+      },
+      "degreesMedian": 6,
+      "winnerAllDegreesPct": 0,
+      "msPerGameMedian": 3153
     },
     {
       "id": "classic-50-normal-4",
@@ -228,22 +252,22 @@
       "seats": 4,
       "games": 200,
       "weeks": {
-        "p10": 37,
-        "median": 40,
-        "p90": 53
+        "p10": 32,
+        "median": 33,
+        "p90": 37
       },
       "stallRate": 0,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 18,
+      "bankruptcyRate": 71,
+      "firstSeatWinPct": 21,
       "lastGoalPct": {
-        "career": 25.67,
-        "education": 44.33,
-        "happiness": 22,
-        "wealth": 8
+        "career": 40.58,
+        "education": 29.25,
+        "happiness": 16.08,
+        "wealth": 14.08
       },
       "degreesMedian": 5,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 2078
+      "msPerGameMedian": 7110
     },
     {
       "id": "classic-50-hard-2",
@@ -252,22 +276,22 @@
       "seats": 2,
       "games": 100,
       "weeks": {
-        "p10": 37,
-        "median": 37,
-        "p90": 41
+        "p10": 32,
+        "median": 34,
+        "p90": 39
       },
       "stallRate": 0,
-      "bankruptcyRate": 77,
-      "firstSeatWinPct": 50,
+      "bankruptcyRate": 57,
+      "firstSeatWinPct": 23,
       "lastGoalPct": {
-        "career": 74.33,
-        "education": 16.67,
-        "happiness": 5.17,
-        "wealth": 3.83
+        "career": 24.83,
+        "education": 33.83,
+        "happiness": 3,
+        "wealth": 38.33
       },
       "degreesMedian": 6,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 2518
+      "msPerGameMedian": 7056
     },
     {
       "id": "classic-50-hard-4",
@@ -276,22 +300,22 @@
       "seats": 4,
       "games": 100,
       "weeks": {
-        "p10": 37,
-        "median": 37,
-        "p90": 38
+        "p10": 32,
+        "median": 33,
+        "p90": 37
       },
       "stallRate": 0,
-      "bankruptcyRate": 88,
-      "firstSeatWinPct": 39,
+      "bankruptcyRate": 74,
+      "firstSeatWinPct": 11,
       "lastGoalPct": {
-        "career": 83.83,
-        "education": 11.33,
-        "happiness": 2.5,
-        "wealth": 2.33
+        "career": 27.5,
+        "education": 34.67,
+        "happiness": 2.67,
+        "wealth": 35.17
       },
-      "degreesMedian": 6,
+      "degreesMedian": 5,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 4989
+      "msPerGameMedian": 14894
     },
     {
       "id": "classic-80-easy-2",
@@ -300,22 +324,22 @@
       "seats": 2,
       "games": 100,
       "weeks": {
-        "p10": 155,
-        "median": 234,
-        "p90": 259
+        "p10": 60,
+        "median": 92,
+        "p90": 178
       },
-      "stallRate": 93,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 57.14,
+      "stallRate": 17,
+      "bankruptcyRate": 93,
+      "firstSeatWinPct": 44.58,
       "lastGoalPct": {
-        "career": 0,
-        "education": 14.29,
-        "happiness": 71.43,
-        "wealth": 14.29
+        "career": 1.81,
+        "education": 11.24,
+        "happiness": 44.98,
+        "wealth": 41.97
       },
-      "degreesMedian": 8,
+      "degreesMedian": 9,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 2218
+      "msPerGameMedian": 5913
     },
     {
       "id": "classic-80-easy-4",
@@ -324,22 +348,22 @@
       "seats": 4,
       "games": 100,
       "weeks": {
-        "p10": 180,
-        "median": 241,
-        "p90": 296
+        "p10": 56,
+        "median": 78,
+        "p90": 162
       },
-      "stallRate": 94,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 50,
+      "stallRate": 1,
+      "bankruptcyRate": 98,
+      "firstSeatWinPct": 14.14,
       "lastGoalPct": {
-        "career": 0,
-        "education": 8.33,
-        "happiness": 83.33,
-        "wealth": 8.33
+        "career": 1.01,
+        "education": 18.01,
+        "happiness": 47.31,
+        "wealth": 33.67
       },
-      "degreesMedian": 8,
+      "degreesMedian": 9,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 5278
+      "msPerGameMedian": 7994
     },
     {
       "id": "classic-80-normal-2",
@@ -348,22 +372,22 @@
       "seats": 2,
       "games": 200,
       "weeks": {
-        "p10": 51,
-        "median": 63,
-        "p90": 106
+        "p10": 46,
+        "median": 48,
+        "p90": 57
       },
-      "stallRate": 2,
-      "bankruptcyRate": 95.5,
-      "firstSeatWinPct": 39.8,
+      "stallRate": 0.5,
+      "bankruptcyRate": 42.5,
+      "firstSeatWinPct": 41.21,
       "lastGoalPct": {
-        "career": 5.61,
-        "education": 25.17,
-        "happiness": 28.49,
-        "wealth": 40.73
+        "career": 32.79,
+        "education": 13.94,
+        "happiness": 29.44,
+        "wealth": 23.83
       },
       "degreesMedian": 9,
-      "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 1624
+      "winnerAllDegreesPct": 0.5,
+      "msPerGameMedian": 4436
     },
     {
       "id": "classic-80-normal-4",
@@ -372,22 +396,22 @@
       "seats": 4,
       "games": 200,
       "weeks": {
-        "p10": 50,
-        "median": 60,
-        "p90": 85
+        "p10": 46,
+        "median": 47,
+        "p90": 52
       },
       "stallRate": 0,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 17,
+      "bankruptcyRate": 76,
+      "firstSeatWinPct": 26.5,
       "lastGoalPct": {
-        "career": 10.17,
-        "education": 33.25,
-        "happiness": 14.83,
-        "wealth": 41.75
+        "career": 39.5,
+        "education": 20.33,
+        "happiness": 20.92,
+        "wealth": 19.25
       },
-      "degreesMedian": 7,
+      "degreesMedian": 8,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 3169
+      "msPerGameMedian": 9304
     },
     {
       "id": "classic-80-hard-2",
@@ -396,22 +420,22 @@
       "seats": 2,
       "games": 100,
       "weeks": {
-        "p10": 49,
-        "median": 50,
-        "p90": 86
+        "p10": 46,
+        "median": 47,
+        "p90": 53
       },
-      "stallRate": 9,
-      "bankruptcyRate": 75,
-      "firstSeatWinPct": 58.24,
+      "stallRate": 0,
+      "bankruptcyRate": 53,
+      "firstSeatWinPct": 28,
       "lastGoalPct": {
-        "career": 61.54,
-        "education": 19.78,
-        "happiness": 9.34,
-        "wealth": 9.34
+        "career": 39,
+        "education": 16.83,
+        "happiness": 5.5,
+        "wealth": 38.67
       },
       "degreesMedian": 9,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 3717
+      "msPerGameMedian": 10074
     },
     {
       "id": "classic-80-hard-4",
@@ -420,22 +444,22 @@
       "seats": 4,
       "games": 100,
       "weeks": {
-        "p10": 49,
-        "median": 49,
-        "p90": 54
+        "p10": 46,
+        "median": 46,
+        "p90": 50
       },
       "stallRate": 0,
-      "bankruptcyRate": 89,
-      "firstSeatWinPct": 34,
+      "bankruptcyRate": 74,
+      "firstSeatWinPct": 20,
       "lastGoalPct": {
-        "career": 77.5,
-        "education": 16.5,
-        "happiness": 4,
-        "wealth": 2
+        "career": 43.17,
+        "education": 21.67,
+        "happiness": 2.17,
+        "wealth": 33
       },
-      "degreesMedian": 9,
+      "degreesMedian": 8,
       "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 6786
+      "msPerGameMedian": 22209
     },
     {
       "id": "classic-100-easy-2",
@@ -444,22 +468,22 @@
       "seats": 2,
       "games": 100,
       "weeks": {
-        "p10": 213,
-        "median": 288,
-        "p90": 288
+        "p10": 89,
+        "median": 143,
+        "p90": 254
       },
-      "stallRate": 98,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 50,
+      "stallRate": 22,
+      "bankruptcyRate": 94,
+      "firstSeatWinPct": 56.41,
       "lastGoalPct": {
-        "career": 0,
-        "education": 0,
-        "happiness": 100,
-        "wealth": 0
+        "career": 3.21,
+        "education": 7.26,
+        "happiness": 59.19,
+        "wealth": 30.34
       },
-      "degreesMedian": 9,
+      "degreesMedian": 11,
       "winnerAllDegreesPct": 100,
-      "msPerGameMedian": 2018
+      "msPerGameMedian": 9768
     },
     {
       "id": "classic-100-easy-4",
@@ -468,22 +492,22 @@
       "seats": 4,
       "games": 100,
       "weeks": {
-        "p10": 0,
-        "median": 0,
-        "p90": 0
+        "p10": 84,
+        "median": 110,
+        "p90": 178
       },
-      "stallRate": 100,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 0,
+      "stallRate": 8,
+      "bankruptcyRate": 99,
+      "firstSeatWinPct": 27.17,
       "lastGoalPct": {
-        "career": 0,
-        "education": 0,
-        "happiness": 0,
-        "wealth": 0
+        "career": 3.08,
+        "education": 12.14,
+        "happiness": 41.85,
+        "wealth": 42.93
       },
-      "degreesMedian": 8,
-      "winnerAllDegreesPct": 0,
-      "msPerGameMedian": 4875
+      "degreesMedian": 11,
+      "winnerAllDegreesPct": 100,
+      "msPerGameMedian": 13413
     },
     {
       "id": "classic-100-normal-2",
@@ -492,22 +516,22 @@
       "seats": 2,
       "games": 200,
       "weeks": {
-        "p10": 66,
-        "median": 86,
-        "p90": 124
+        "p10": 55,
+        "median": 58,
+        "p90": 76
       },
-      "stallRate": 3,
-      "bankruptcyRate": 99,
-      "firstSeatWinPct": 27.32,
+      "stallRate": 0,
+      "bankruptcyRate": 46,
+      "firstSeatWinPct": 47.5,
       "lastGoalPct": {
-        "career": 11.08,
-        "education": 12.46,
-        "happiness": 30.58,
-        "wealth": 45.88
+        "career": 20.25,
+        "education": 5.42,
+        "happiness": 42.5,
+        "wealth": 31.83
       },
       "degreesMedian": 11,
       "winnerAllDegreesPct": 100,
-      "msPerGameMedian": 2166
+      "msPerGameMedian": 5948
     },
     {
       "id": "classic-100-normal-4",
@@ -516,22 +540,22 @@
       "seats": 4,
       "games": 200,
       "weeks": {
-        "p10": 64,
-        "median": 81,
-        "p90": 112
+        "p10": 55,
+        "median": 56,
+        "p90": 63
       },
-      "stallRate": 0.5,
-      "bankruptcyRate": 100,
-      "firstSeatWinPct": 12.56,
+      "stallRate": 0,
+      "bankruptcyRate": 72.5,
+      "firstSeatWinPct": 31.5,
       "lastGoalPct": {
-        "career": 9.88,
-        "education": 16.25,
-        "happiness": 25.71,
-        "wealth": 48.16
+        "career": 27.25,
+        "education": 10.67,
+        "happiness": 33.92,
+        "wealth": 28.17
       },
-      "degreesMedian": 9,
+      "degreesMedian": 11,
       "winnerAllDegreesPct": 100,
-      "msPerGameMedian": 4246
+      "msPerGameMedian": 12061
     },
     {
       "id": "classic-100-hard-2",
@@ -540,22 +564,22 @@
       "seats": 2,
       "games": 100,
       "weeks": {
-        "p10": 57,
-        "median": 61,
-        "p90": 90
+        "p10": 55,
+        "median": 56,
+        "p90": 63
       },
       "stallRate": 0,
-      "bankruptcyRate": 70,
-      "firstSeatWinPct": 43,
+      "bankruptcyRate": 54,
+      "firstSeatWinPct": 31,
       "lastGoalPct": {
-        "career": 50.33,
-        "education": 3.5,
-        "happiness": 22.17,
-        "wealth": 24
+        "career": 24.67,
+        "education": 7.67,
+        "happiness": 23,
+        "wealth": 44.67
       },
       "degreesMedian": 11,
       "winnerAllDegreesPct": 100,
-      "msPerGameMedian": 4197
+      "msPerGameMedian": 12665
     },
     {
       "id": "classic-100-hard-4",
@@ -564,71 +588,71 @@
       "seats": 4,
       "games": 100,
       "weeks": {
-        "p10": 57,
-        "median": 58,
-        "p90": 69
+        "p10": 55,
+        "median": 56,
+        "p90": 61
       },
       "stallRate": 0,
-      "bankruptcyRate": 85,
-      "firstSeatWinPct": 30,
+      "bankruptcyRate": 83,
+      "firstSeatWinPct": 28,
       "lastGoalPct": {
-        "career": 47.17,
-        "education": 6.83,
-        "happiness": 22.5,
-        "wealth": 23.5
+        "career": 27.92,
+        "education": 7.42,
+        "happiness": 11.75,
+        "wealth": 52.92
       },
-      "degreesMedian": 11,
+      "degreesMedian": 10,
       "winnerAllDegreesPct": 100,
-      "msPerGameMedian": 8290
+      "msPerGameMedian": 25694
     }
   ],
   "gates": [
     {
       "gate": "Stall rate at goals 50 Normal×2",
       "target": "< 0.5%",
-      "achieved": "1%",
-      "pass": false
+      "achieved": "0%",
+      "pass": true
     },
     {
       "gate": "Median length grows with goal level",
       "target": "30 < 50 < 80 < 100",
-      "achieved": "36 < 48 < 63 < 86",
+      "achieved": "24 < 33 < 48 < 58",
       "pass": true
     },
     {
-      "gate": "Seat bias Normal×2 (goals 50)",
+      "gate": "Seat bias Normal×2 (goals 50, Balanced vs Balanced)",
       "target": "first seat 45–55%",
-      "achieved": "44.95%",
-      "pass": false
+      "achieved": "50%",
+      "pass": true
     },
     {
       "gate": "Goal last-completed: wealth (goals 50)",
       "target": "≥ 10% of games",
-      "achieved": "13.72%",
+      "achieved": "21.83%",
       "pass": true
     },
     {
       "gate": "Goal last-completed: happiness (goals 50)",
       "target": "≥ 10% of games",
-      "achieved": "32.41%",
+      "achieved": "26.92%",
       "pass": true
     },
     {
       "gate": "Goal last-completed: education (goals 50)",
       "target": "≥ 10% of games",
-      "achieved": "31.9%",
+      "achieved": "21.33%",
       "pass": true
     },
     {
       "gate": "Goal last-completed: career (goals 50)",
       "target": "≥ 10% of games",
-      "achieved": "21.97%",
+      "achieved": "29.92%",
       "pass": true
     },
     {
       "gate": "Sim speed, Normal AI",
       "target": "< 200 ms/game median",
-      "achieved": "4246 ms (worst Normal config)",
+      "achieved": "12061 ms (worst Normal config)",
       "pass": false,
       "note": "ADR-0016: the spec-sized AI beam costs ~1 s/game; sample sizes were reduced instead."
     },
