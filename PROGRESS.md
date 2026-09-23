@@ -18,7 +18,7 @@ Last updated: 2026-09-23 — see `HANDOFF.md` for the resume point.
 ## M1 — Engine core
 
 - [x] M1.1 Shared types, `ErrorCode` enum, `DomainEvent` union — note: `packages/shared/src/{ids,errors,events}.ts`; 46 codes, 56 event types, count-tested.
-- [x] M1.2 Seeded RNG with named streams — note: `core/rng.ts` xoshiro128** + cyrb128, lazy named streams in `RngState`; golden vectors + fast-check independence; `core/math.ts` mulDiv/Irwin–Hall.
+- [x] M1.2 Seeded RNG with named streams — note: `core/rng.ts` xoshiro128\*\* + cyrb128, lazy named streams in `RngState`; golden vectors + fast-check independence; `core/math.ts` mulDiv/Irwin–Hall.
 - [x] M1.3 `GameState`, `createGame`, `stateHash` — note: `core/{state,create,hash,clone,state-schema}.ts`; `create.test.ts` (key-order/JSON round-trip hash, GDD 4.1.6 start state, AI goal ranges).
 - [x] M1.4 `SequentialScheduler`, `AllGoalsRace`, `SimultaneousScheduler` stub — note: `core/scheduler.ts`; `scheduler.test.ts` (turn order, week wrap, win at turn start, 16.6 `test.todo` list, golden module order).
 - [x] M1.5 Start-of-turn pipeline in exact GDD order — note: modules `core-setup(0) → core-econ(10) → core-pending(20) → core-events(30) → core-decay(40)`; spy-module ordered test in `scheduler.test.ts`.
@@ -91,6 +91,13 @@ Last updated: 2026-09-23 — see `HANDOFF.md` for the resume point.
 
 ## M8 — Release
 
+Owner-reviewed scope: ADR-0037. Phase A closes every open issue before M8.1.
+
+- [ ] M8.0a KI-006 closed (stale) and KI-001 closed (milestone tags on `main` commits) — note:
+- [ ] M8.0b KI-009 fixed: real click on Start at 150% text on the phone viewport — note:
+- [ ] M8.0c KI-008 event defects: `viral` family never fires, `gadget-breakdown` rate — note:
+- [ ] M8.0d Career anchor (KI-005 + KI-008 career/wealth): both packs, re-baseline, re-lock modern targets — note:
+- [ ] M8.0e Remaining KI-008 targets (collapse, goals-80 median, Hard vs Easy, StudyFirst, LoanMax) — note:
 - [ ] M8.1 `score()` + `LocalLeaderboard` + Stats board UI with scopes (16.7); `NAMING.md` final — note:
 - [ ] M8.2 README + `docs/EXTENDING.md` recipes with executable examples (12.9) — note:
 - [ ] M8.3 Full e2e regression: 4-seat hotseat modern game to week 10, save/load mid-game, phone autoplay to a winner — note:
