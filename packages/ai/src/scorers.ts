@@ -199,6 +199,11 @@ export const survival: Scorer = {
       const weeks = p.clothing.reduce((m, c) => Math.max(m, c.weeksLeft), 0);
       if (weeks <= 1) v -= 0.1;
     }
+    // Loan instalments are debited from cash, then bank, at the next turn start; four misses and
+    // the loan defaults (GDD 4.12). Money tied up in assets does not count (KI-008).
+    const loans = p.modules.loans as { loans: { weeklyPayment: number }[] } | undefined;
+    const instalments = loans?.loans.reduce((sum, l) => sum + l.weeklyPayment, 0) ?? 0;
+    if (instalments > 0 && p.cash + p.bank < instalments) v -= 0.4;
     // Cash carried outside the bank is theft exposure; large balances belong in the bank.
     if (p.cash > 500) v -= Math.min(0.15, (p.cash - 500) / 10_000);
     return v;
