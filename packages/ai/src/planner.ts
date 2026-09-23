@@ -17,7 +17,7 @@ import {
   type PlayerState,
 } from '@hustle-ring/engine';
 import type { Difficulty } from '@hustle-ring/shared';
-import { ASSET_TIER, DIFFICULTY, type DifficultyConfig } from './config.js';
+import { ASSET_TIER, DIFFICULTY, HUNGRY_HOURS, type DifficultyConfig } from './config.js';
 import { isSystemGadget, stateValue, type ScorerCtx } from './scorers.js';
 import { aiSeed, sanitizeForAi } from './view.js';
 
@@ -207,6 +207,13 @@ function quickScore(
   // Rent due or owed is a purchase that cannot wait either (ADR-0043).
   const rentDue = p.home.debt > 0 || rentSoon ? p.home.rentLocked + p.home.debt : 0;
   const shopping = Math.max(shoppingNeed(pack, p, needClothes, gap('happiness') > 0), rentDue);
+  // Nothing to eat at the next week's start: starving costs a third of that week's hours and
+  // happiness, far more than any meal, so feeding outranks errands (KI-008).
+  const unfed =
+    p.food.fridgeUnits === 0 && p.food.unrefrigeratedUnits === 0 && p.food.mealPending === null;
+  // Any hour of the week will do for the meal, so the trip turns urgent only as the week runs out:
+  // made urgent from the first hour, it went ahead of relaxing at home and the seat never relaxed.
+  const hungry = unfed && p.hoursLeft <= HUNGRY_HOURS;
   // Balance-sheet moves (banking, loans, investments) change cash without changing what the seat
   // is worth, so their cash delta is not a gain or a cost: counted as one, a loan ranked at +75 and
   // took every branch at the bank, and a deposit ranked at −85 and was never tried (ADR-0043).
@@ -261,9 +268,8 @@ function quickScore(
       if (gap('happiness') > 0 && relaxNet(pack, p) < 1 && sellsUnownedComfort(pack, p, cmd.to))
         s += 0.3 * gap('happiness');
       if (wantsGadgetAt(pack, p, cmd.to)) s += 0.3;
-      if (svc.includes('meals') && p.food.mealPending === null && p.food.fridgeUnits === 0)
-        s += 0.3;
-      if (svc.includes('grocery') && p.food.fridgeUnits === 0) s += 0.1;
+      if (svc.includes('meals') && unfed) s += hungry ? 1.1 : 0.4;
+      if (svc.includes('grocery') && unfed) s += hungry ? 0.9 : 0.3;
       if (svc.includes('rent') && p.home.paidThroughWeek + 4 <= state.week + 1) s += 0.3;
       if (svc.includes('bank') && shopping > p.cash && p.bank >= shopping - p.cash) s += 0.8;
       if (
@@ -301,7 +307,10 @@ function quickScore(
       break;
     }
     case 'EatMeal':
-      s += p.food.mealPending === null && p.food.fridgeUnits === 0 ? 0.4 : -0.2;
+      s += unfed && pack.mealById[cmd.mealId]?.countsAsMeal ? 1 : -0.2;
+      break;
+    case 'BuyFood':
+      s += unfed ? 1 : 0;
       break;
     case 'PayRent':
       s += p.home.debt > 0 ? 0.8 : rentSoon ? 0.6 : 0.15;
@@ -368,7 +377,7 @@ function quickScore(
       s += 0.3;
       break;
     case 'OrderDelivery':
-      s += p.food.mealPending === null && p.food.fridgeUnits === 0 ? 0.3 : -0.3;
+      s += unfed ? 0.9 : -0.3;
       break;
     case 'EndTurn':
       s -= p.hoursLeft > 12 ? 0.5 : 0;
@@ -457,6 +466,21 @@ function sellsUnownedComfort(pack: CityPack, p: PlayerState, locId: string): boo
   );
 }
 
+/**
+ * Keeps only the best-ranked Move to each destination. Transport modes to one square rank within a
+ * hair of each other, and three of them took three of four branches: the fourth idea of the turn,
+ * relaxing at home or going to eat, was never searched (KI-008).
+ */
+function firstMovePerDestination(): (x: { c: Command }) => boolean {
+  const seen = new Set<string>();
+  return ({ c }) => {
+    if (c.type !== 'Move') return true;
+    if (seen.has(c.to)) return false;
+    seen.add(c.to);
+    return true;
+  };
+}
+
 export function planTurn(
   realState: GameState,
   seat: number,
@@ -499,6 +523,7 @@ export function planTurn(
         }))
         .filter((x) => x.q !== Number.NEGATIVE_INFINITY)
         .sort((a, b) => b.q - a.q)
+        .filter(firstMovePerDestination())
         .slice(0, cfg.branch);
       // EndTurn is always considered so every node can terminate.
       if (!ranked.some((x) => x.c.type === 'EndTurn'))

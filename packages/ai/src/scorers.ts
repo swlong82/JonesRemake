@@ -13,7 +13,7 @@ import {
   type PlayerState,
 } from '@hustle-ring/engine';
 import type { Difficulty } from '@hustle-ring/shared';
-import { DIFFICULTY } from './config.js';
+import { DIFFICULTY, HUNGRY_HOURS } from './config.js';
 
 export interface ScorerCtx {
   pack: CityPack;
@@ -135,7 +135,9 @@ export const survival: Scorer = {
     let v = 0;
     const fed =
       p.food.fridgeUnits > 0 || p.food.mealPending !== null || p.food.unrefrigeratedUnits > 0;
-    v += fed ? 0.1 : -0.15;
+    // Starving costs the next week a third of its hours and happiness besides (KI-008); with the
+    // week still young there is time to eat later, so the full cost bites as the hours run out.
+    v += fed ? 0.1 : p.hoursLeft > HUNGRY_HOURS ? -0.15 : -0.4;
     const due = p.home.paidThroughWeek + ctx.pack.rules.housing.rentWeeks;
     const weeksToDue = due - state.week;
     // Rent is paid in cash, so near the due week only cash on hand counts as covered.
