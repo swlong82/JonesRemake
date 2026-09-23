@@ -18,7 +18,11 @@ export * from './entitlements/index.js';
 
 import { AllUnlockedEntitlements, type Entitlements } from './entitlements/index.js';
 import { LocalIdentity, type IdentityProvider } from './identity/index.js';
-import { LocalLeaderboard, type LeaderboardService } from './leaderboard/index.js';
+import {
+  IndexedDbEntryStore,
+  LocalLeaderboard,
+  type LeaderboardService,
+} from './leaderboard/index.js';
 import { LocalMatchmaker, type Matchmaker } from './matchmaker/index.js';
 import { WebPlatform, type Platform, type WebPlatformDeps } from './platform/index.js';
 import { IndexedDbSaveStore, type SaveStore } from './saves/index.js';
@@ -49,7 +53,7 @@ export function createLocalServices(deps: LocalServicesDeps): PlatformServices {
     transport: new LocalTransport(),
     matchmaker: new LocalMatchmaker(deps.newId),
     saves: new IndexedDbSaveStore(deps.indexedDB ?? (() => undefined)),
-    leaderboard: new LocalLeaderboard(),
+    leaderboard: new LocalLeaderboard(new IndexedDbEntryStore(deps.indexedDB ?? (() => undefined))),
     telemetry: new NullTelemetry(),
     platform: new WebPlatform(deps.platform),
     entitlements: new AllUnlockedEntitlements(),

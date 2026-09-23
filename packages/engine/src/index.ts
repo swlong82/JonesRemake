@@ -37,6 +37,8 @@ export * from './core/goals.js';
 export * from './core/effects.js';
 export * from './core/events.js';
 export * from './core/scheduler.js';
+import { netWorthWith, scoreWith } from './core/score.js';
+export { netWorthWith, scoreWith } from './core/score.js';
 export {
   cloneState,
   endTurn,
@@ -86,6 +88,16 @@ export function engineFor(pack: CityPack): Engine {
 setEndTurnImpl((ctx) => {
   endTurn((ctx.engine as Engine | null) ?? engineFor(ctx.pack), ctx);
 });
+
+/** Leaderboard score of `seat` in a finished game (16.7); 0 unless that seat won. */
+export function score(state: GameState, seat: number, pack: CityPack): number {
+  return scoreWith(engineFor(pack), state, seat, pack);
+}
+
+/** Net worth: cash, bank, holdings and module contributions (car value, loans owed). */
+export function netWorth(state: GameState, seat: number, pack: CityPack): number {
+  return netWorthWith(engineFor(pack), state, seat, pack);
+}
 
 export function createGame(config: GameConfig, pack: CityPack): GameState {
   return createWithEngine(config, pack, engineFor(pack));
