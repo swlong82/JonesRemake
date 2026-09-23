@@ -3,7 +3,14 @@ import { describe, expect, it } from 'vitest';
 import type { CityPack } from '@hustle-ring/content';
 import { classic, humanSeat, newGame, patch } from '@hustle-ring/engine/testing';
 import type { PlayerState } from '@hustle-ring/engine';
-import { atTurnStart, goalHappiness, happinessUpkeep, winProximity } from './scorers.js';
+import {
+  atTurnStart,
+  firingLine,
+  goalHappiness,
+  happinessUpkeep,
+  keepsJob,
+  winProximity,
+} from './scorers.js';
 
 const pack = classic();
 const personality = pack.personalityById.balanced!;
@@ -99,5 +106,24 @@ describe('goals as the win check sees them (KI-008)', () => {
     expect(v(above)).toBe(1);
     const w = (s: typeof exactly) => winProximity.value(ctx, s, s.players[0]!);
     expect(w(above)).toBeGreaterThanOrEqual(w(exactly));
+  });
+});
+
+describe('a job the seat cannot work (KI-008)', () => {
+  const pack = classic();
+  const job = pack.jobs.find(
+    (j) => j.reqDependability > pack.rules.stats.firingDependabilityMargin,
+  )!;
+  const seat = (dependability: number) =>
+    patch(newGame('fired-line', [humanSeat('A'), humanSeat('B')]), 0, (p) => {
+      p.job = { jobId: job.id, wage: job.baseWage, raises: 0, hiredWeek: 1 };
+      p.dependability = dependability;
+    }).players[0]!;
+
+  it('is the job a shift would get the seat fired from', () => {
+    const line = firingLine(pack, seat(0));
+    expect(line).toBe(job.reqDependability - pack.rules.stats.firingDependabilityMargin);
+    expect(keepsJob(pack, seat(line))).toBe(true);
+    expect(keepsJob(pack, seat(line - 1))).toBe(false);
   });
 });

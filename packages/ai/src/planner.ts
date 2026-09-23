@@ -18,7 +18,7 @@ import {
 } from '@hustle-ring/engine';
 import type { Difficulty } from '@hustle-ring/shared';
 import { ASSET_TIER, DIFFICULTY, HUNGRY_HOURS, type DifficultyConfig } from './config.js';
-import { atTurnStart, isSystemGadget, stateValue, type ScorerCtx } from './scorers.js';
+import { atTurnStart, isSystemGadget, keepsJob, stateValue, type ScorerCtx } from './scorers.js';
 import { aiSeed, sanitizeForAi } from './view.js';
 
 export interface PlanOptions {
@@ -92,12 +92,13 @@ export function filterCandidates(
       }
       case 'ApplyJob': {
         const job = pack.jobById[c.jobId];
-        // Only trade up, unless the current job cannot be worked (uniform missing).
+        // Only trade up, unless the current job cannot be worked: the uniform is missing, or a
+        // shift would get the seat fired (KI-008).
         if (p.job && job && job.baseWage * 10 <= p.job.wage * 12) {
           const cur = pack.jobById[p.job.jobId];
           let best = 0;
           for (const cl of p.clothing) best = Math.max(best, pack.uniformRank[cl.tier]);
-          const canWork = !cur || best >= pack.uniformRank[cur.uniformTier];
+          const canWork = !cur || (best >= pack.uniformRank[cur.uniformTier] && keepsJob(pack, p));
           if (canWork) continue;
         }
         break;
@@ -247,7 +248,8 @@ function quickScore(
       const svc = loc?.services ?? [];
       if (p.job && pack.jobById[p.job.jobId]?.workplaceId === cmd.to)
         s += 0.5 + 0.3 * gap('wealth') + 0.3 * gap('career');
-      if (svc.includes('apply') && (!p.job || needLadder)) s += 0.5 + 0.3 * gap('career');
+      if (svc.includes('apply') && (!p.job || needLadder || !keepsJob(pack, p)))
+        s += 0.5 + 0.3 * gap('career');
       // A raise is worth a trip when wealth is short and the seat qualifies for a job paying 20%
       // more; without this, a seat whose career goal was met stayed on its first wage (ADR-0043).
       else if (svc.includes('apply') && gap('wealth') > 0 && betterPaidJob(pack, p))

@@ -172,13 +172,13 @@ describe('planTurn', () => {
     expect(
       filterCandidates(fed, 0, pack, cmds, DIFFICULTY.easy, ctx).some((c) => c.type === 'EatMeal'),
     ).toBe(false);
-    const employed = patch(s, 0, (p) => {
-      p.job = { jobId: 'factory-engineer', wage: 18, raises: 0, hiredWeek: 1 };
-      p.clothing.push({ tier: 'dress', weeksLeft: 5 });
-    });
-    expect(
+    const applying = (dependability: number) =>
       filterCandidates(
-        employed,
+        patch(s, 0, (p) => {
+          p.job = { jobId: 'factory-engineer', wage: 18, raises: 0, hiredWeek: 1 };
+          p.clothing.push({ tier: 'dress', weeksLeft: 5 });
+          p.dependability = dependability;
+        }),
         0,
         pack,
         [
@@ -187,8 +187,11 @@ describe('planTurn', () => {
         ],
         DIFFICULTY.easy,
         ctx,
-      ).map((c) => (c as { jobId: string }).jobId),
-    ).toEqual(['factory-general-manager']);
+      ).map((c) => (c as { jobId: string }).jobId);
+    // A job the seat can work: only trade up.
+    expect(applying(100)).toEqual(['factory-general-manager']);
+    // A job a shift would get the seat fired from is no job: stepping down is allowed (KI-008).
+    expect(applying(0)).toEqual(['burger-joint-cook', 'factory-general-manager']);
     expect(ASSET_TIER.crypto).toBe(3);
   });
   it('scorer registry accepts module scorers and stateValue sums weighted values', () => {
