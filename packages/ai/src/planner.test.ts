@@ -16,6 +16,7 @@ import {
   filterCandidates,
   planTurn,
   runAiTurn,
+  trimEarlyEnd,
   allScorers,
   registerScorer,
   stateValue,
@@ -371,5 +372,18 @@ describe('feeding (KI-008)', () => {
       );
       expect(eats, personality).toBe(true);
     }
+  });
+});
+
+describe('early turn ends (KI-008)', () => {
+  const end: Command = { type: 'EndTurn' };
+  const eat: Command = { type: 'EatMeal', mealId: 'burger' };
+  it('drops a closing EndTurn while the week still has hours in it', () => {
+    expect(trimEarlyEnd([eat, end], 40)).toEqual([eat]);
+  });
+  it('keeps it when the week is spent, or when ending is the whole plan', () => {
+    expect(trimEarlyEnd([eat, end], 12)).toEqual([eat, end]);
+    expect(trimEarlyEnd([end], 60)).toEqual([end]);
+    expect(trimEarlyEnd([eat], 60)).toEqual([eat]);
   });
 });

@@ -163,6 +163,8 @@ export function filterCandidates(
 
 /** Cash a seat without the uniform its job needs should hold before shopping for one. */
 const UNIFORM_CASH = 500;
+/** Hours left above which ending the turn is wasting the week (matches EndTurn's pre-rank). */
+const IDLE_HOURS = 12;
 
 /** Commands that move money between cash, bank, debt and holdings rather than spend or earn it. */
 const TRANSFERS: ReadonlySet<Command['type']> = new Set<Command['type']>([
@@ -380,7 +382,7 @@ function quickScore(
       s += unfed ? 0.9 : -0.3;
       break;
     case 'EndTurn':
-      s -= p.hoursLeft > 12 ? 0.5 : 0;
+      s -= p.hoursLeft > IDLE_HOURS ? 0.5 : 0;
       break;
     default:
       break;
@@ -479,6 +481,20 @@ function firstMovePerDestination(): (x: { c: Command }) => boolean {
     seen.add(c.to);
     return true;
   };
+}
+
+/**
+ * Drops a plan's closing EndTurn while the week still has hours in it (KI-008). Every step costs a
+ * little utility and the search stops at its depth, so a short plan that ends the turn could
+ * outscore one that walks on to work; a seat that took it idled whole weeks, let dependability decay
+ * to 0 and never met its career goal. The prefix is played and the turn planned again from there;
+ * a fresh plan that is only EndTurn still ends the turn, so this cannot loop.
+ */
+export function trimEarlyEnd(commands: Command[], hoursLeft: number): Command[] {
+  const last = commands[commands.length - 1];
+  if (commands.length > 1 && last?.type === 'EndTurn' && hoursLeft > IDLE_HOURS)
+    return commands.slice(0, -1);
+  return commands;
 }
 
 export function planTurn(
@@ -582,7 +598,11 @@ export function planTurn(
   const best = all[0];
   if (!best || best.commands.length === 0)
     return { commands: [{ type: 'EndTurn' }], utility: 0, expanded };
-  return { commands: best.commands, utility: best.utility, expanded };
+  return {
+    commands: trimEarlyEnd(best.commands, best.state.players[seat]!.hoursLeft),
+    utility: best.utility,
+    expanded,
+  };
 }
 
 export interface AiTurnResult {
