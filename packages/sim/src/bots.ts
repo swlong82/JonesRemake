@@ -98,12 +98,12 @@ registerBot({
     return cmd.assetId === wildest(pack)?.id;
   },
   // "Every spare dollar": allowed alone, the planner rarely chose crypto and the bot played as an
-  // ordinary seat, so the strategy is stated as a preference for buys of at least half its cash —
+  // ordinary seat, so the strategy is stated as a preference for buys of at least 80% of its cash —
   // rent money included, which is what makes it all-in (ADR-0044, ADR-0049).
   prefer: (cmd, state, seat, pack) =>
     cmd.type === 'BuyAsset' &&
     cmd.assetId === wildest(pack)?.id &&
-    cmd.amount * 2 >= (state.players[seat]?.cash ?? 0)
+    cmd.amount * 5 >= (state.players[seat]?.cash ?? 0) * 4
       ? CRYPTO_PREFERENCE
       : 0,
 });
