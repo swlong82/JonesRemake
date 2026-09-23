@@ -1,6 +1,7 @@
 /**
- * Leaderboard entry for a finished game (ROADMAP_SCAFFOLDS 16.7). Only a human winner gets one:
- * losers score 0, AI-only games are excluded, and so is any game a debug switch touched.
+ * Leaderboard entry for a finished game (ROADMAP_SCAFFOLDS 16.7). Only a human winner of a race
+ * gets one: losers score 0, AI-only games are excluded, solo practice has no rival to beat, and a
+ * game a debug switch touched is excluded.
  */
 import type { CityPack } from '@hustle-ring/content';
 import { score, type GameState } from '@hustle-ring/engine';
@@ -21,7 +22,7 @@ export function leaderboardEntry(
   pack: CityPack,
   finishedAt: string,
 ): ScoreEntry | null {
-  if (state.winner === null || state.debugTouched) return null;
+  if (state.winner === null || state.debugTouched || state.players.length < 2) return null;
   const winner = state.players[state.winner];
   if (winner?.controller !== 'human-local') return null;
   return {

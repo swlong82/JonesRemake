@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGame } from '../store/gameStore';
 import { Button } from '../ui/common/Button';
-import { stepKeys, TUTORIAL_STEPS } from './steps';
+import { anchorFor, stepKeys, TUTORIAL_STEPS } from './steps';
 import { useTutorial } from './useTutorial';
 
 interface Rect {
@@ -28,31 +28,36 @@ function measureAnchor(testid: string | null): Rect | null {
 }
 
 /**
- * The anchor's viewport rectangle. Measured during render for the first paint — the element is
- * already on screen, because the tutorial only ever points at something the game has drawn — and
- * re-measured from the resize and scroll listeners after that.
+ * The anchor's viewport rectangle, re-measured every animation frame while the tutorial is up. The
+ * layout moves under the spotlight — the travel sheet opening pushes the panel down, the phone
+ * layout reflows — and resize and scroll events alone left the ring drawn over the wrong place.
  */
 function useAnchorRect(testid: string | null): Rect | null {
   const [rect, setRect] = useState<Rect | null>(() => measureAnchor(testid));
-  // React's own "adjusting state when a prop changes" pattern: the previous value lives in state,
-  // so the new rectangle is ready for the first paint without an effect round trip.
   const [measuredFor, setMeasuredFor] = useState(testid);
   if (measuredFor !== testid) {
     setMeasuredFor(testid);
     setRect(measureAnchor(testid));
   }
   useEffect(() => {
-    const measure = (): void => {
-      setRect(measureAnchor(testid));
+    if (typeof globalThis.requestAnimationFrame !== 'function') return;
+    let frame = 0;
+    const tick = (): void => {
+      const next = measureAnchor(testid);
+      setRect((prev) => (sameRect(prev, next) ? prev : next));
+      frame = globalThis.requestAnimationFrame(tick);
     };
-    globalThis.addEventListener('resize', measure);
-    globalThis.addEventListener('scroll', measure, true);
+    frame = globalThis.requestAnimationFrame(tick);
     return () => {
-      globalThis.removeEventListener('resize', measure);
-      globalThis.removeEventListener('scroll', measure, true);
+      globalThis.cancelAnimationFrame(frame);
     };
   }, [testid]);
   return rect;
+}
+
+function sameRect(a: Rect | null, b: Rect | null): boolean {
+  if (a === null || b === null) return a === b;
+  return a.top === b.top && a.left === b.left && a.width === b.width && a.height === b.height;
 }
 
 const DIM = 'fixed bg-black/60 z-40';
@@ -66,7 +71,24 @@ export function Spotlight() {
   const observe = useTutorial((s) => s.observe);
   const log = useGame((s) => s.log);
   const step = active ? TUTORIAL_STEPS[index] : undefined;
-  const rect = useAnchorRect(step?.anchor ?? null);
+  const game = useGame((s) => s.state);
+  const pack = useGame((s) => s.pack);
+  const viewerSeat = useGame((s) => s.viewerSeat);
+  const travelOpen = useGame((s) => s.travelOpen);
+  const endTurnPending = useGame((s) => s.endTurnPending);
+  const me = game?.players[viewerSeat];
+  const anchor =
+    step && me
+      ? anchorFor(step, {
+          location: me.location,
+          inside: me.inside,
+          travelOpen,
+          endTurnPending,
+          jobWorkplace: me.job ? (pack?.jobById[me.job.jobId]?.workplaceId ?? null) : null,
+          home: pack?.locations.find((l) => l.homeTier === me.home.tier)?.id ?? null,
+        })
+      : (step?.anchor ?? null);
+  const rect = useAnchorRect(anchor);
 
   useEffect(() => {
     observe(log);
@@ -74,6 +96,8 @@ export function Spotlight() {
 
   if (!step) return null;
   const keys = stepKeys(step);
+  const viewportHeight = globalThis.innerHeight;
+  const cardAtTop = rect !== null && rect.top + rect.height / 2 > viewportHeight / 2;
   const manual = step.advance.kind === 'manual';
   const last = index === TUTORIAL_STEPS.length - 1;
 
@@ -104,11 +128,21 @@ export function Spotlight() {
         <div className={DIM} style={{ inset: 0 }} />
       )}
       <section
-        className="fixed inset-x-2 bottom-2 z-50 mx-auto flex max-w-sm flex-col gap-2 rounded-lg border border-line bg-surface-2 p-4 shadow-lg sm:inset-x-auto sm:right-4"
+        // The card never covers what it points at: it moves to the top when the spotlight is in the
+        // lower half of the screen (the End turn button sits under the default bottom position).
+        className={`fixed inset-x-2 ${cardAtTop ? 'top-2' : 'bottom-2'} z-50 mx-auto flex max-w-sm flex-col gap-2 rounded-lg border border-line bg-surface-2 p-4 shadow-lg sm:inset-x-auto sm:right-4`}
+        data-position={cardAtTop ? 'top' : 'bottom'}
         role="dialog"
         aria-modal="false"
         aria-label={t('tutorial.heading')}
         data-testid="tutorial-card"
+        // Escape leaves the tutorial when focus is on the card (skip is always on offer, UX 7.6);
+        // anywhere else Escape still belongs to the game, which closes its own sheets with it.
+        onKeyDown={(e) => {
+          if (e.key !== 'Escape') return;
+          e.stopPropagation();
+          skip();
+        }}
       >
         <p className="text-xs text-ink-muted" data-testid="tutorial-progress">
           {t('tutorial.progress', { current: index + 1, total: TUTORIAL_STEPS.length })}

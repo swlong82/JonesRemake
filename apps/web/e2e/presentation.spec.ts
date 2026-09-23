@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
+import { horizontalOverflow } from './layout';
 
 /**
  * M7.5: one e2e run in the pseudo-locale, the themes and the text scales, and the final a11y pass
@@ -25,25 +26,6 @@ async function clippedElements(page: Page): Promise<string[]> {
     }
     return bad;
   });
-}
-
-/**
- * Elements whose right edge passes the configured viewport. On a mobile viewport such a page is
- * zoomed out to fit, so `innerWidth` grows with it — the Playwright project's width is the truth.
- */
-async function horizontalOverflow(page: Page): Promise<string[]> {
-  const width = page.viewportSize()?.width ?? 0;
-  return page.evaluate((w) => {
-    const bad: string[] = [];
-    if (document.documentElement.scrollWidth > w + 1)
-      bad.push(`document: ${document.documentElement.scrollWidth}px > ${w}px`);
-    for (const el of Array.from(document.querySelectorAll<HTMLElement>('body *'))) {
-      const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.right > w + 1 && el.children.length === 0)
-        bad.push(`${el.tagName.toLowerCase()}#${el.id}: right ${Math.round(r.right)}px`);
-    }
-    return bad;
-  }, width);
 }
 
 async function setLanguageToPseudo(page: Page): Promise<void> {

@@ -92,10 +92,13 @@ describe('leaderboard entry (16.7)', () => {
     expect(e!.score).toBeGreaterThan(0);
   });
 
-  it('posts nothing for an AI winner or a game a debug switch touched', () => {
+  it('posts nothing for an AI winner, solo practice, or a game a debug switch touched', () => {
     expect(leaderboardEntry(finished('ai'), pack, 'x')).toBeNull();
     expect(leaderboardEntry(finished('human-local', true), pack, 'x')).toBeNull();
     expect(leaderboardEntry({ ...finished('human-local'), winner: null }, pack, 'x')).toBeNull();
+    // Solo practice: nobody to beat.
+    const solo = finished('human-local');
+    expect(leaderboardEntry({ ...solo, players: solo.players.slice(0, 1) }, pack, 'x')).toBeNull();
   });
 });
 
