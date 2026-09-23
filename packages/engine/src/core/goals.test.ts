@@ -16,10 +16,10 @@ describe('goal formulas (GDD 4.4)', () => {
   const base = newGame('goals');
   it.each([
     [0, 0, {}, 0],
-    [200, 0, {}, 2],
-    [10_000, 0, {}, 100],
-    [5_000, 4_999, {}, 99],
-    [50, 30, { gold: { units: 5000, costBasisCents: 0 } }, 5], // gold 100.00 → $500
+    [200, 0, {}, 1],
+    [11_500, 0, {}, 100],
+    [5_750, 5_749, {}, 99],
+    [50, 30, { gold: { units: 5000, costBasisCents: 0 } }, 5], // gold 100.00 → $500, $580 → 5
     [999_999, 0, {}, 100],
   ] as const)('wealth: cash %i bank %i investments → %i', (cash, bank, inv, expected) => {
     const s = patch(base, 0, (p) => {
@@ -31,7 +31,7 @@ describe('goal formulas (GDD 4.4)', () => {
   });
   it('wealth subtracts module contributions (loans) and floors at 0', () => {
     const s = patch(base, 0, (p) => (p.cash = 500));
-    expect(wealthGoal(s.players[0]!, s, pack, -300)).toBe(2);
+    expect(wealthGoal(s.players[0]!, s, pack, -300)).toBe(1);
     expect(wealthGoal(s.players[0]!, s, pack, -900)).toBe(0);
     expect(
       marketValue(
@@ -66,16 +66,17 @@ describe('goal formulas (GDD 4.4)', () => {
   });
   it.each([
     [1, 0],
-    [17, 0],
-    [30, 33],
-    [40, 58],
+    [11, 0],
+    [17, 13],
+    [30, 42],
+    [40, 64],
     [100, 100],
   ])('career tenure (ADR-0040): %i weeks in the job → at most %i', (week, expected) => {
     const s = patch(base, 0, (p) => {
       p.dependability = 80;
       p.job = { jobId: 'burger-joint-cook', wage: 4, raises: 0, hiredWeek: 1 };
     });
-    // Classic: 16 weeks' probation, then 2.5 career per week employed.
+    // Classic: 10 weeks' probation, then 2.2 career per week employed.
     expect(careerGoal(s.players[0]!, pack, week)).toBe(expected);
   });
   it('career tenure and offset are off for a pack that leaves them at 0', () => {
@@ -94,7 +95,7 @@ describe('goal formulas (GDD 4.4)', () => {
   });
   it('computeGoals bundles all four', () => {
     expect(computeGoals(base.players[0]!, base, pack, 0)).toEqual({
-      wealth: 2,
+      wealth: 1,
       happiness: 10,
       education: 1,
       career: 0,

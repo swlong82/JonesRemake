@@ -38,8 +38,8 @@
     "educationBase": 1,
     "educationPerDegree": 9,
     "careerDependabilityBp": 12500,
-    "careerTenureBpPerWeek": 25000,
-    "careerTenureDelayWeeks": 16
+    "careerTenureBpPerWeek": 22000,
+    "careerTenureDelayWeeks": 10
   },
   "stats": {
     "dependabilityDecay": 3,
@@ -62,7 +62,7 @@
     "refused": -1,
     "fired": -5,
     "graduation": 5,
-    "relaxBase": 2,
+    "relaxBase": 1,
     "relaxPerComfort": 1,
     "relaxMax": 7,
     "decayPerWeek": 5,

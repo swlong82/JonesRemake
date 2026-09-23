@@ -1,6 +1,6 @@
 {
   "id": "modern-western",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "currency": {
     "symbol": "$",
     "code": "USD"
@@ -17,7 +17,7 @@
     "modernAssets": true,
     "modernEvents": true
   },
-  "wealthPointValue": 185,
+  "wealthPointValue": 270,
   "extends": "classic",
   "titleKey": "title.modern-western"
 }

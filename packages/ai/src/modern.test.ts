@@ -180,8 +180,9 @@ describe('M5.9: the AI plays the modern ruleset', () => {
         0,
         (p) => {
           p.cash = 1_500;
-          // Fed, so the week's meal does not come first (KI-008).
+          // Fed and content, so neither the week's meal nor a comfort durable comes first (KI-008).
           p.food.mealPending = 'burger';
+          p.happiness = 100;
           p.items.push({
             uid: 'ph',
             itemId: 'smartphone',

@@ -1,7 +1,7 @@
 {
   "seed": "golden-classic-10",
   "packId": "classic",
-  "packVersion": "0.2.0",
+  "packVersion": "0.3.0",
   "seats": 2,
   "log": [
     {
@@ -1183,6 +1183,6 @@
       }
     }
   ],
-  "finalHash": "0b0257416b984f",
+  "finalHash": "0987f9c5faf995",
   "week": 5
 }

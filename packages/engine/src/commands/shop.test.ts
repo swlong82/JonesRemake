@@ -443,7 +443,8 @@ describe('BuyAsset / SellAsset (GDD 4.12)', () => {
     ]);
     const next = run(invested, 1, [{ type: 'EndTurn' }]);
     const goals = next.players[0]!.history.at(-1)!.goals;
-    expect(goals[0]).toBeGreaterThanOrEqual(23);
+    // $2,500 less fees and a week of market drift is still worth at least $2,300.
+    expect(goals[0]).toBeGreaterThanOrEqual(Math.floor(2_300 / pack.wealthPointValue));
   });
 });
 

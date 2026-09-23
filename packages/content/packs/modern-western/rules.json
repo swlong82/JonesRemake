@@ -1,17 +1,18 @@
 {
   "goals": {
     "educationPerDegree": 13,
-    "careerTenureBpPerWeek": 35000,
-    "careerTenureDelayWeeks": 0,
+    "careerTenureBpPerWeek": 25000,
+    "careerTenureDelayWeeks": 6,
     "educationBase": 2
   },
   "jobs": {
     "payPerSession": 30
   },
   "happiness": {
-    "decayPerWeek": 2,
-    "relaxBase": 7,
-    "relaxMax": 11
+    "decayPerWeek": 6,
+    "relaxBase": 1,
+    "relaxMax": 11,
+    "max": 110
   },
   "wellbeing": {
     "relaxBase": 20,
