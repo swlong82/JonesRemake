@@ -509,3 +509,16 @@
 - Consequences: the bar moved only for the four median bands, which follow the classic game. No target was widened or relaxed.
 - Locked sha256 (reports/modern-targets.json): `25eb309f42340795270dea7a73bc68d659b46da77d8ea2cf0caa33ef753f4f31`
 - Locked sha256 (reports/baseline.json): `6c1b7c72cbfa603cbad494cb3b3b7bd6acc0879a47a02ff38710d33c353a1c62`
+
+## ADR-0049: Modern retune after the AI fixes: wellbeing that can collapse, all-in crypto, liquid loan instalments
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: once the AI stopped starving and started relaxing for wellbeing (KI-008), no modern seat collapsed (target: 15–40% of Normal games, and at least 60% for NoRelax), CryptoAllIn played as an ordinary seat (47% wins, 2% bankrupt; target 15–40% wins and over 40% bankrupt), and LoanMax defaulted 85% of the time (target 20–60%). The old modern wellbeing numbers had been set to offset starvation that no longer happens.
+- Decision:
+  - **Wellbeing** returns to a profile with teeth: relax 8–16, drift 1 a week, unspent-hours bonus 2, no walking bonus, collapse below 20. Without the walking and idle-hour bonuses a seat cannot stay out of collapse without relaxing, which is what NoRelax exists to show.
+  - **Happiness:** start 0, decay 7, cap 120. The higher cap keeps goals 100 reachable after the week-start decay; start 0 and the steeper decay keep happiness from being the first goal done at goals 50.
+  - **Career** tenure starts after 6 weeks; **$255** a wealth point; degrees take **15** lessons.
+  - **CryptoAllIn** prefers buys of at least half its cash, rent included (weight 0.2, ADR-0044). Crypto's weekly volatility is 1500 bp: a bet that busts more often also has to boom sometimes.
+  - **AI:** the planner keeps two loan instalments in cash or bank, since instalments come out at the turn start and four misses default the loan (GDD 4.12).
+- Consequences (probes, 40–80 games): Normal games with a collapse ≈ 20%; NoRelax 100%; CryptoAllIn wins 20% with 52% bankrupt; LoanMax defaults 50%. Medians at goals 50/80/100 are 29/44/61 weeks, within ±20% of classic B, with every goal last-completed at least 10% at goals 50. More Normal seats now go bankrupt after a collapse (≈ 5–10%); the spec tracks that rate but sets no target for it. Stage 2 is the measurement of record.

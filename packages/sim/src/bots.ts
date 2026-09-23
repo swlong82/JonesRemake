@@ -98,20 +98,18 @@ registerBot({
     return cmd.assetId === wildest(pack)?.id;
   },
   // "Every spare dollar": allowed alone, the planner rarely chose crypto and the bot played as an
-  // ordinary seat, so the strategy is stated as a preference for the big buys (ADR-0044).
-  prefer: (cmd, state, seat, pack) => {
-    if (cmd.type !== 'BuyAsset' || cmd.assetId !== wildest(pack)?.id) return 0;
-    const p = state.players[seat];
-    // Spare means past the rent: the bot gambles its savings, not its roof.
-    const spare = p ? p.cash - p.home.rentLocked : 0;
-    if (process.env.CRYPTO_MODE === 'all')
-      return cmd.amount * 2 >= (p?.cash ?? 0) ? CRYPTO_PREFERENCE : 0;
-    return cmd.amount * 2 >= spare && cmd.amount <= spare ? CRYPTO_PREFERENCE : 0;
-  },
+  // ordinary seat, so the strategy is stated as a preference for buys of at least half its cash —
+  // rent money included, which is what makes it all-in (ADR-0044, ADR-0049).
+  prefer: (cmd, state, seat, pack) =>
+    cmd.type === 'BuyAsset' &&
+    cmd.assetId === wildest(pack)?.id &&
+    cmd.amount * 2 >= (state.players[seat]?.cash ?? 0)
+      ? CRYPTO_PREFERENCE
+      : 0,
 });
 
 /** How strongly CryptoAllIn prefers its big buys (ADR-0044). */
-const CRYPTO_PREFERENCE = Number(process.env.CRYPTO_PREF ?? 0.25);
+const CRYPTO_PREFERENCE = 0.2;
 
 /** The pack's most volatile instrument. */
 function wildest(pack: CityPack): CityPack['assets'][number] | undefined {
