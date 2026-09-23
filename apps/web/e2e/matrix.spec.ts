@@ -113,6 +113,9 @@ test.describe('setup and settings in combination (all-pairs)', () => {
       await configureSetup(page, c);
       expect(await horizontalOverflow(page)).toEqual([]);
       await page.getByTestId('start-game').click();
+      // Hotseat games open on the pass-the-device screen for the first human.
+      if (c.seats === 'two-humans' || c.seats === 'four-seats')
+        await page.getByTestId('ready').click();
       await expect(page.getByTestId('hud')).toBeVisible();
       await expect(page.locator('html')).toHaveAttribute(
         'lang',

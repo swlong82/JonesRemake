@@ -23,8 +23,11 @@ async function advance(page: Page): Promise<void> {
   }
 }
 
+/** The HUD week, or 0 while the HUD is not showing (the pass screen, a card). Never waits. */
 async function weekOf(page: Page): Promise<number> {
-  const text = (await page.getByTestId('week').textContent()) ?? '';
+  const week = page.getByTestId('week');
+  if (!(await week.isVisible())) return 0;
+  const text = (await week.textContent()) ?? '';
   return Number(/\d+/.exec(text)?.[0] ?? 0);
 }
 
@@ -51,6 +54,8 @@ test('four-seat hotseat modern game to week 10, with a save and load at week 5',
   }
   await page.getByTestId('seed').fill('regression-hotseat');
   await page.getByTestId('start-game').click();
+  // A hotseat game opens on the pass-the-device screen.
+  await page.getByTestId('ready').click();
   await expect(page.getByTestId('hud')).toBeVisible();
 
   await playToWeek(page, 5);
@@ -64,7 +69,8 @@ test('four-seat hotseat modern game to week 10, with a save and load at week 5',
   await page.keyboard.press('ControlOrMeta+s');
   await page.getByRole('button', { name: 'Save to Slot 1', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Game saved.');
-  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await expect(page.getByTestId('hud')).toBeVisible();
 
   await playToWeek(page, 10);
   expect(await weekOf(page)).toBeGreaterThanOrEqual(10);
@@ -74,6 +80,8 @@ test('four-seat hotseat modern game to week 10, with a save and load at week 5',
   await page.reload();
   await page.getByRole('button', { name: 'Load / Import' }).click();
   await page.getByRole('button', { name: 'Load Slot 1', exact: true }).click();
+  // The loaded hotseat game hands the device to the seat whose turn it is.
+  await page.getByTestId('ready').click();
   await expect(page.getByTestId('hud')).toBeVisible();
   expect(await page.getByTestId('hud').innerText()).toBe(saved);
 });
