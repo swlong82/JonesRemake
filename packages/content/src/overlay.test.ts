@@ -1,6 +1,8 @@
 import type { JsonValue } from '@hustle-ring/shared';
 import { describe, expect, it } from 'vitest';
 import { deepMerge, mergeArraysById, mergeFile, unwrapArrayFile } from './overlay.js';
+import { loadPack, lookupRawPack } from './packs.js';
+import { resolvePack } from './resolve.js';
 
 describe('overlay merge (EXTENSIBILITY 12.3)', () => {
   it('deep-merges objects, child wins on scalars', () => {
@@ -51,5 +53,52 @@ describe('overlay merge (EXTENSIBILITY 12.3)', () => {
   });
   it('overlay replaces a non-object base entry with the same id', () => {
     expect(deepMerge(1, { a: 1 })).toEqual({ a: 1 });
+  });
+});
+
+describe('key deletion in keyed overlays (ADR-0046)', () => {
+  const base = loadPack('modern-western');
+  const overlay = (files: Record<string, unknown>) =>
+    resolvePack('null-delete', (id) =>
+      id === 'null-delete'
+        ? {
+            'pack.json': {
+              id: 'null-delete',
+              version: '0.0.1',
+              currency: { symbol: '$', code: 'USD' },
+              featureFlags: {},
+              wealthPointValue: 185,
+              extends: 'modern-western',
+            },
+            ...files,
+          }
+        : lookupRawPack(id),
+    );
+
+  it('a null i18n or registry value removes the inherited key', () => {
+    const r = overlay({
+      'assets.json': [
+        { id: 'gold-modern', _remove: true },
+        {
+          ...base.assets.find((a) => a.id === 'gold-modern')!,
+          id: 'gold-two',
+          nameKey: 'asset.gold-two.name',
+        },
+      ],
+      'i18n/en.json': { 'asset.gold-modern.name': null, 'asset.gold-two.name': 'Gold Two' },
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.pack.i18n['asset.gold-modern.name']).toBeUndefined();
+    expect(r.pack.i18n['asset.gold-two.name']).toBe('Gold Two');
+  });
+
+  it('a base pack may not use null, and an unrelated file still may not', () => {
+    const r = resolvePack('bad-base', (id) =>
+      id === 'bad-base'
+        ? { ...lookupRawPack('classic'), 'i18n/en.json': { 'app.x': null } }
+        : lookupRawPack(id),
+    );
+    expect(r.ok).toBe(false);
   });
 });

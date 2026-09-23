@@ -1,0 +1,24 @@
+[
+  {
+    "id": "street-musician",
+    "family": "weekend",
+    "trigger": "weekend",
+    "weight": 1000,
+    "effects": [
+      {
+        "op": "stat",
+        "stat": "happiness",
+        "delta": 2
+      },
+      {
+        "op": "money",
+        "account": "cash",
+        "delta": -5,
+        "cascade": true
+      }
+    ],
+    "textKey": "event.street-musician",
+    "neutral": true,
+    "tone": "good"
+  }
+]

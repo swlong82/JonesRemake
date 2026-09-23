@@ -1,61 +1,75 @@
-# Hustle Ring (working title)
+# Hustle Ring
 
 A modern, browser-based remake of a 1991 life-sim board game: race rivals around a ring of
 city locations, juggling money, career, education and happiness in weekly turns. Built as a clean-room
 reimplementation with original names, art and text — see `docs/PRD.md` §2.6 for the IP-safety rules.
 
-**Status:** the classic ruleset is playable end to end in the browser — engine, classic content, AI
-rival, balance harness and the full web UI (ring board, HUD, location panel with action previews,
-event cards, log, phone layout, keyboard map, end screen) — and its balance baseline is measured and
-closed. The modern systems (wellbeing, transport, gig work, subscriptions, online study, delivery,
-rent hikes, loans, modern instruments) are implemented behind CityPack feature flags, which
-`modern-western` turns on and `classic` leaves off; that pack still needs its own names, flavour and
-balance pass (M6). The game lands milestone by milestone (`docs/MILESTONES.md`, M0→M8); this
-README's status line, `PROGRESS.md` and `HANDOFF.md` are updated per milestone.
-Live build: https://swlong82.github.io/JonesRemake/ (GitHub Pages; `deploy.yml` runs after CI on `main`).
+**Status:** release candidate for v1.0.0 (milestone M8). Two rulesets are playable and balanced
+against the spec's targets, with AI rivals at three difficulties, local hotseat, saves and replays, a
+tutorial, audio, themes and a local leaderboard. Everything runs in the browser; nothing leaves the
+device. `PROGRESS.md` has the task list, `HANDOFF.md` the resume point.
+Live build: https://swlong82.github.io/JonesRemake/ (GitHub Pages; `deploy.yml` runs after CI on
+`main` and smoke-tests the live site after every deploy).
 
-| Milestone | Scope                                   | Status |
-| --------- | --------------------------------------- | ------ |
-| M0        | Scaffold, CI, Pages deploy, spec pack   | done   |
-| M1        | Engine core (state, RNG, commands)      | done   |
-| M2        | Classic content pack + AI rival         | done   |
-| M3        | Sim harness + classic baseline          | done   |
-| M4        | Web UI, classic playable                | done   |
-| M5        | Modern systems (transport, gigs, loans) | done   |
-| M6        | Modern pack + balance                   | —      |
-| M7        | Polish: audio, save/replay, a11y        | —      |
-| M8        | Release: naming, leaderboard, docs      | —      |
+| Milestone | Scope                                          | Status      |
+| --------- | ---------------------------------------------- | ----------- |
+| M0        | Scaffold, CI, Pages deploy, spec pack          | done        |
+| M1        | Engine core (state, RNG, commands)             | done        |
+| M2        | Classic content pack + AI rival                | done        |
+| M3        | Sim harness + classic baseline                 | done        |
+| M4        | Web UI, classic playable                       | done        |
+| M5        | Modern systems (transport, gigs, loans)        | done        |
+| M6        | Modern pack + balance                          | done        |
+| M7        | Polish: audio, save/replay, tutorial, a11y     | done        |
+| M8        | Release: leaderboard, docs, regression, v1.0.0 | in progress |
 
 ## Play
 
-Open the Pages URL, press **New Game**, pick a city pack, choose seats (solo against an AI rival, or
-local hotseat up to four), set each goal level, and play weekly turns until someone meets all four
-goals. Full rules: `docs/GDD.md`.
+Open the Pages URL, press **New Game**, pick a city, choose seats (solo against AI rivals, or local
+hotseat for up to four), set each goal level, and play weekly turns until someone meets all four
+goals. First game? The tutorial walks you through one turn; replay it any time from **How to Play**.
+Full rules: `docs/GDD.md`.
 
-Two rulesets ship. **Classic** is the balanced one: sixteen locations, a job ladder, eleven degrees,
-a bounded market and weekend events. **Modern western** adds wellbeing, travel modes and cars, gig
-shifts, subscriptions that bill weekly and drift upward, online study you can doomscroll away,
-delivery, rent hikes, loans and six correlated instruments — all of it working, none of it balanced
-or renamed yet (M6), so treat it as a preview.
+Two rulesets ship:
+
+- **Classic** — sixteen locations, a job ladder, eleven degrees, a bounded market and weekend events.
+- **Modern City** — adds wellbeing (burn out and you lose a turn), travel modes and cars, gig
+  shifts, subscriptions that bill weekly and drift upward, online study you can doomscroll away,
+  delivery, rent hikes, loans (including student loans), six correlated instruments, and modern
+  events: layoffs, going viral, phishing, broken gadgets.
+
+The four goals are **wealth** (cash, savings and holdings), **happiness**, **education** (degrees)
+and **career** — which grows with your dependability _and_ with how long you have stayed employed, so
+job-hopping and getting fired both cost you.
 
 Each turn is one week of 60 hours. Click a ring square to open the travel sheet, **Enter** a
 location to use it, and pick actions from the panel — every action shows its cost and effect before
-you commit (`−6h · +$96 · Dependability +2`). Keyboard: `1`–`9`, `0`, `Q W E R T Y` travel to the
-square with that badge, `Enter` confirms, `L` the event log, `G` standings, `H` help, `Shift+E` ends
-the turn. Saves arrive in M7; the end screen exports a replay (seed + command log) you can keep.
+you commit (`−6h · +$96 · Dependability +2`).
+
+| Key                                   | Action                               |
+| ------------------------------------- | ------------------------------------ |
+| `1`–`9`, `0`, `Q` `W` `E` `R` `T` `Y` | Travel to the square with that badge |
+| `Enter`                               | Confirm                              |
+| `Shift+E`                             | End the turn                         |
+| `Ctrl/⌘+S`                            | Save and load                        |
+| `L` / `G` / `H`                       | Event log / standings / help         |
+
+The game autosaves at the start of a game, at every turn's end and every ten actions; three manual
+slots and JSON export/import sit behind **Save and load**. The end screen exports a replay (seed +
+command log), and a win against at least one rival posts a score to the device's leaderboard
+(**Stats**; local only and marked unverified).
 
 ### Feature flags
 
-Screens that are specified but not built are gated by app feature flags
+Screens that are specified but not yet built are gated by app feature flags
 (`apps/web/src/flags/appFlags.ts`, ADR-0017) — separate from the CityPack feature flags that gate
-rules per ruleset. All default off and each names the milestone that lands it; the flag is deleted
-when its milestone lands, as `gameBoard` and `endScreen` were in M4. What is left: `saves` (M7.2),
-`tutorial` (M7.3), `audio` (M7.1), `leaderboard` (M8.1) and `debugTools` (UX 7.9). Override for
-local development with a build env var or a query string:
+rules per ruleset. A flag is deleted when its milestone lands. Left: `tutorial` and `audio` (on by
+default) and `debugTools` (UX 7.9). Override for local development with a build env var or a query
+string:
 
 ```bash
-VITE_FF_AUDIO=on pnpm dev     # build-time
-# http://localhost:5173/?ff=audio,-saves   # per-visit; '-' turns one off
+VITE_FF_AUDIO=off pnpm dev    # build-time
+# http://localhost:5173/?ff=-tutorial   # per-visit; '-' turns one off
 ```
 
 `debugTools` additionally requires `VITE_DEBUG_ALLOWED=true`, so debug surfaces cannot be switched
@@ -77,6 +91,25 @@ Where to pick up work: `HANDOFF.md`, then the first unchecked task in `PROGRESS.
 Individual gates: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `pnpm check:banned`,
 `pnpm scaffold:check`, `pnpm build` (includes bundle budget), `pnpm sim:gate`.
 
+The post-deploy smoke test can be pointed at any build:
+`LIVE_URL=http://127.0.0.1:4174/JonesRemake/ pnpm exec playwright test --config playwright.live.config.ts`.
+
+### Extending
+
+`docs/EXTENDING.md` has ten recipes — a command, a location, an item, an event, a subscription, an
+investment asset, a city pack, a language, an AI personality, a rule module — each with a tested
+example under `examples/`. The v1 non-goals are typed stubs in `packages/platform`, each with a
+`REPLACE ME` README naming its contract, its v1 default and what replaces it:
+[identity](packages/platform/src/identity/README.md),
+[transport](packages/platform/src/transport/README.md),
+[matchmaker](packages/platform/src/matchmaker/README.md),
+[saves](packages/platform/src/saves/README.md),
+[leaderboard](packages/platform/src/leaderboard/README.md),
+[telemetry](packages/platform/src/telemetry/README.md),
+[platform](packages/platform/src/platform/README.md),
+[entitlements](packages/platform/src/entitlements/README.md), and the
+[city pack template](packages/content/packs/_template/README.md).
+
 ### Layout
 
 | Path                | What                                                                   |
@@ -89,6 +122,7 @@ Individual gates: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `
 | `packages/sim`      | Headless balance harness + CI gates                                    |
 | `apps/web`          | React + Vite SPA, SVG board, Zustand store, Playwright e2e             |
 | `tools/`            | Banned-terms scan, bundle budget, scaffold check, type generator       |
+| `examples/`         | Tested examples for every recipe in `docs/EXTENDING.md`                |
 | `docs/`             | The spec pack (source of truth)                                        |
 
 Dependency direction is lint-enforced: `shared ← platform`, `shared ← content ← engine ← ai ← sim`;

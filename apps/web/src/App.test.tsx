@@ -31,12 +31,13 @@ describe('<App /> router', () => {
 
   it('falls back to the Unavailable screen while a registered screen is gated off', () => {
     const original = SCREENS.stats;
-    SCREENS.stats = { flag: 'leaderboard', ...original };
+    SCREENS.stats = { flag: 'tutorial', ...original };
     try {
+      useFlags.getState().set('tutorial', false);
       useGame.getState().go('stats');
       render(<App />);
       expect(screen.getByTestId('unavailable')).toBeDefined();
-      expect(screen.getByTestId('unavailable-milestone').textContent).toContain('M8.1');
+      expect(screen.getByTestId('unavailable-milestone').textContent).toContain('M7.3');
     } finally {
       SCREENS.stats = original;
     }
@@ -44,9 +45,9 @@ describe('<App /> router', () => {
 
   it('renders a gated screen once its flag is on', () => {
     const original = SCREENS.stats;
-    SCREENS.stats = { flag: 'leaderboard', ...original };
+    SCREENS.stats = { flag: 'tutorial', ...original };
     try {
-      useFlags.getState().set('leaderboard', true);
+      useFlags.getState().set('tutorial', true);
       useGame.getState().go('stats');
       render(<App />);
       expect(screen.queryByTestId('unavailable')).toBeNull();

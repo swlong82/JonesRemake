@@ -145,6 +145,24 @@ importers:
         specifier: ^6.4.3
         version: 6.4.3(@types/node@22.20.3)(jiti@1.21.7)(tsx@4.23.13)(yaml@2.9.1)
 
+  examples:
+    dependencies:
+      '@hustle-ring/ai':
+        specifier: workspace:*
+        version: link:../packages/ai
+      '@hustle-ring/content':
+        specifier: workspace:*
+        version: link:../packages/content
+      '@hustle-ring/engine':
+        specifier: workspace:*
+        version: link:../packages/engine
+      '@hustle-ring/shared':
+        specifier: workspace:*
+        version: link:../packages/shared
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+
   packages/ai:
     dependencies:
       '@hustle-ring/content':

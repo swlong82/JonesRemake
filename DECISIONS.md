@@ -480,3 +480,12 @@
 
   - **Rollback**, only if the smoke test fails after a successful deploy: redeploy the `site` artifact of the most recent deploy run that succeeded end to end, open an issue naming both runs, and exit non-zero so the run stays red.
 - Consequences: a broken build is live only for the minutes between deploy and rollback. The first deploy after this change has no earlier `site` artifact, so a rollback that early fails loudly instead of restoring; every later deploy has one. The smoke test also caught a real defect while being written: the site had no favicon, so every page load logged a 404. It now carries an inline SVG ring, which makes no request.
+
+## ADR-0046: Keyed overlay files can delete an inherited key with `null`
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: while writing the "add a location" recipe for `docs/EXTENDING.md` (M8.2), its example could not be made valid. The ring board has exactly 16 squares, so a new location must take an existing one, and the displaced location has to go (`{ "id": …, "_remove": true }`, EXTENSIBILITY 12.3). Its strings and its visual stay behind in the inherited `i18n/en.json` and `assets.registry.json`, and the i18n validator rejects them as unused. Object files deep-merge, and there was no way to delete a key, so no overlay could ever retire a location, an asset or anything else with strings.
+- Options: 1) let the validator ignore unused inherited keys; 2) let overlays delete keys; 3) document the limitation.
+- Decision: option 2, scoped to the two keyed files where it is needed. In an overlay's `i18n/en.json` and `assets.registry.json`, a key set to `null` deletes the inherited key; overlay schemas accept `null` there, and the merge drops the keys. A base pack may not use `null`, and other object files are unchanged: board squares and layout nodes use `null` as a real value (an empty square).
+- Consequences: `docs/EXTENDING.md` recipes 2 and 6 can retire content cleanly, and their examples prove it in CI. Option 1 would have hidden genuinely stale strings in every pack.

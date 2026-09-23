@@ -1,0 +1,13 @@
+{
+  "name": "@hustle-ring/examples",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@hustle-ring/ai": "workspace:*",
+    "@hustle-ring/content": "workspace:*",
+    "@hustle-ring/engine": "workspace:*",
+    "@hustle-ring/shared": "workspace:*",
+    "zod": "^3.25.76"
+  }
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "green-bonds",
+    "nameKey": "asset.green-bonds.name",
+    "model": "drift",
+    "startCents": 10000,
+    "driftBp": 8,
+    "volBp": 60,
+    "econCorrBp": 1000,
+    "feeBp": 50,
+    "crashImmune": false,
+    "set": "modern"
+  },
+  {
+    "id": "gold-modern",
+    "_remove": true
+  }
+]

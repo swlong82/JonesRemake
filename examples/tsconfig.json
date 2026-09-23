@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist/types",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+    "resolveJsonModule": true,
+    "types": ["node"]
+  },
+  "include": ["**/*.ts", "**/*.json"],
+  "exclude": ["dist", "node_modules", "package.json", "tsconfig.json"],
+  "references": [
+    { "path": "../packages/shared" },
+    { "path": "../packages/content" },
+    { "path": "../packages/engine" },
+    { "path": "../packages/ai" }
+  ]
+}

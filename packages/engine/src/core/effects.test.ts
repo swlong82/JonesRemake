@@ -362,7 +362,8 @@ describe('economy tick (GDD 4.12, SEED_DATA 14.4)', () => {
     expect(phases.size).toBe(3);
     expect(ctx.state.market.history.gold!.length).toBe(26);
     expect(['boom', 'stable', 'recession']).toContain(ctx.state.news.phaseHint);
-  });
+    // ≈4 s alone; a loaded CI runner needs headroom (the KI-004 remedy). The 10k weeks stay.
+  }, 20_000);
   it('stepBounded reflects at both bounds', () => {
     const ctx = ctxFor('reflect');
     const gold = pack.assetById.gold!;
