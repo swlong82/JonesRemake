@@ -66,17 +66,17 @@ describe('goal formulas (GDD 4.4)', () => {
   });
   it.each([
     [1, 0],
-    [11, 0],
-    [17, 13],
-    [30, 42],
-    [40, 64],
+    [9, 0],
+    [17, 18],
+    [30, 46],
+    [40, 68],
     [100, 100],
   ])('career tenure (ADR-0040): %i weeks in the job → at most %i', (week, expected) => {
     const s = patch(base, 0, (p) => {
       p.dependability = 80;
       p.job = { jobId: 'burger-joint-cook', wage: 4, raises: 0, hiredWeek: 1 };
     });
-    // Classic: 10 weeks' probation, then 2.2 career per week employed.
+    // Classic: 8 weeks' probation, then 2.2 career per week employed.
     expect(careerGoal(s.players[0]!, pack, week)).toBe(expected);
   });
   it('career tenure and offset are off for a pack that leaves them at 0', () => {

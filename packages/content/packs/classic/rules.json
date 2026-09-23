@@ -39,7 +39,7 @@
     "educationPerDegree": 9,
     "careerDependabilityBp": 12500,
     "careerTenureBpPerWeek": 22000,
-    "careerTenureDelayWeeks": 10
+    "careerTenureDelayWeeks": 8
   },
   "stats": {
     "dependabilityDecay": 3,
