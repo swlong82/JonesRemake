@@ -4,7 +4,8 @@
     "careerTenureBpPerWeek": 25000,
     "careerTenureDelayWeeks": 6,
     "careerLayoffGraceWeeks": 4,
-    "educationBase": 2
+    "educationBase": 2,
+    "careerTenureWeeksPerDegree": 5
   },
   "jobs": {
     "payPerSession": 30

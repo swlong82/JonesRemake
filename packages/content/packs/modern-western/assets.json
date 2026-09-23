@@ -50,7 +50,7 @@
     "model": "drift",
     "startCents": 10000,
     "driftBp": 10,
-    "volBp": 1500,
+    "volBp": 1800,
     "econCorrBp": 4000,
     "feeBp": 200,
     "set": "modern"
