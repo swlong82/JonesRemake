@@ -266,6 +266,12 @@ function quickScore(
       if (svc.includes('grocery') && p.food.fridgeUnits === 0) s += 0.1;
       if (svc.includes('rent') && p.home.paidThroughWeek + 4 <= state.week + 1) s += 0.3;
       if (svc.includes('bank') && shopping > p.cash && p.bank >= shopping - p.cash) s += 0.8;
+      if (
+        svc.includes('invest') &&
+        shopping > p.cash + p.bank &&
+        Object.keys(p.investments).length > 0
+      )
+        s += 0.8;
       // The pull to the bank grows with the cash at risk of street theft (ADR-0043).
       if (svc.includes('bank') && p.cash > 400) s += 0.2 + Math.min(0.6, p.cash / 5_000);
       if (loc?.kind === 'home') s += 0.1;
@@ -306,14 +312,23 @@ function quickScore(
       s += p.cash > 300 && !rentSoon ? 0.2 + Math.min(0.6, p.cash / 5_000) : -0.1;
       if (shopping > 0 && p.cash - cmd.amount < shopping) s -= 1.5;
       break;
+    case 'SellAsset':
+      // Holdings are the last pocket: sold only when cash and bank cannot cover a need (ADR-0043).
+      if (shopping > p.cash + p.bank) s += 0.9;
+      break;
     case 'Withdraw':
       s += rentSoon && p.cash < p.home.rentLocked ? 0.5 : -0.2;
       // Cash for a purchase the seat cannot do without is worth fetching (ADR-0043).
       if (shopping > p.cash && cmd.amount >= shopping - p.cash) s += 0.9;
       break;
-    case 'Relax':
+    case 'Relax': {
       s += 0.1 * ctx.personality.preferences.relaxWeight + 0.5 * gap('happiness');
+      // When happiness is the goal furthest off, the relax session is the move the race turns on;
+      // ranked below errands, it was pruned and a goals-100 seat sat at 64 happiness for months.
+      const hGap = gap('happiness');
+      if (hGap > 0 && hGap >= Math.max(gap('wealth'), gap('education'), gap('career'))) s += 0.6;
       break;
+    }
     case 'GigShift':
       // Gig money is money; the planner values it through the preview like any other pay.
       s += 0.5 + 0.2 * gap('wealth');
