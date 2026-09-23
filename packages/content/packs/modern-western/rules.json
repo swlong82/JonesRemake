@@ -10,22 +10,27 @@
     "payPerSession": 30
   },
   "happiness": {
-    "decayPerWeek": 6,
+    "decayPerWeek": 7,
     "relaxBase": 1,
     "relaxMax": 11,
-    "max": 110
+    "max": 120
   },
   "wellbeing": {
-    "relaxBase": 20,
-    "relaxMax": 34,
-    "driftStep": 5,
+    "relaxBase": 8,
+    "relaxMax": 16,
+    "driftStep": 1,
     "bands": {
       "thrive": 70,
       "burnout": 25,
-      "collapse": 6
-    }
+      "collapse": 20
+    },
+    "unspentBonus": 2,
+    "walkTripBonus": 0
   },
   "stats": {
     "degreeExperienceBonus": 8
+  },
+  "start": {
+    "happiness": 0
   }
 }

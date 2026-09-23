@@ -91,6 +91,8 @@ describe('subscriptions module (GDD 4.11)', () => {
       (p) => {
         p.cash = 0;
         p.bank = 0;
+        // Clear of the 0 floor, so the lapse shows (the pack starts happiness at 0).
+        p.happiness = 50;
       },
       modern,
     );
@@ -98,7 +100,7 @@ describe('subscriptions module (GDD 4.11)', () => {
     expect(activeSubs(next.players[0]!)).toEqual([]);
     // Measured against the same week paid for, so the assertion is the lapse itself and not the
     // week's other happiness traffic (decay, the thrive band, the pack's own numbers).
-    const paid = endWeek(subscribed('broke', 'gym'));
+    const paid = endWeek(patch(subscribed('broke', 'gym'), 0, (p) => (p.happiness = 50), modern));
     expect(activeSubs(paid.players[0]!)).toEqual(['gym']);
     expect(next.players[0]!.happiness).toBe(
       paid.players[0]!.happiness + RULES.happiness.subscriptionLapsed,
