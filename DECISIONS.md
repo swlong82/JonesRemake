@@ -366,3 +366,12 @@
   - **M8.4**: a post-deploy smoke test against the live URL checks seven things: reachability with the build SHA, every asset returning 200, render with no console errors, no request to any origin other than the site's own, SPA deep-link/404 fallback, a seeded classic turn surviving save and reload (state hash matches), and a modern start plus axe. On failure the last known good build is redeployed, the workflow goes red and an issue is opened.
   - **Delivery**: one draft PR, opened at the start so that CI runs on every push, and marked ready for review only when release-ready.
 - Consequences: classic no longer matches ORIGINAL_REFERENCE on whichever anchors the career fix touches; each changed anchor is re-tagged from [SRC] and noted in `BALANCE_REPORT.md`. Every golden replay and baseline number is regenerated once in phase A, so phase B's tests are written against final rules. M8 may block on an owner decision, and only at the two points named above.
+
+## ADR-0038: Milestone tags point at `main`, not at the gate commit
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: PRs #13–#17 were squash-merged. That dropped the recorded gate commits of M1–M5 from every branch (`3569ae7`, `fe54f7e`, `037b1b2`, `c2ecf4e` and `903066e` no longer resolve), and the remote `m6`/`m7` tags point at branch commits outside `main`. The session cannot push tags (KI-001).
+- Options: 1) leave history as it is and tag only from now on; 2) move each milestone tag to the first `main` commit that contains its gate; 3) have CI create tags from the gate log.
+- Decision: option 2 (owner choice, ADR-0037). `m1`/`m2` → `1726af3`, `m4` → `b4c979d`, `m3`/`m5` → `a76efb2`, `m6`/`m7` → `f8afb46`, each checked against the ticked gate lines in that commit's `PROGRESS.md` and green in CI. `tools/retag-milestones.sh` applies the mapping and refuses any SHA that is not on `origin/main`. From now on only `main` commits are tagged, and the M8 PR merges with a merge commit.
+- Consequences: a tag no longer names the exact tree `pnpm verify` ran on. It names the first `main` tree that contains that work, and that tree passed CI itself. Where one squash commit held two gates (`m1`/`m2`, `m3`/`m5`, `m6`/`m7`), both tags share it. The original SHAs stay in the gate log's Notes column.

@@ -93,7 +93,7 @@ Last updated: 2026-09-23 — see `HANDOFF.md` for the resume point.
 
 Owner-reviewed scope: ADR-0037. Phase A closes every open issue before M8.1.
 
-- [ ] M8.0a KI-006 closed (stale) and KI-001 closed (milestone tags on `main` commits) — note:
+- [x] M8.0a KI-006 closed (stale) and KI-001 closed (milestone tags on `main` commits) — note: KI-006 was stale (M6.3 ran the suite). KI-001: every milestone mapped to a green `main` commit (ADR-0038), gate log corrected, `tools/retag-milestones.sh` for the owner to run (the session still gets 403 on tags).
 - [ ] M8.0b KI-009 fixed: real click on Start at 150% text on the phone viewport — note:
 - [ ] M8.0c KI-008 event defects: `viral` family never fires, `gadget-breakdown` rate — note:
 - [ ] M8.0d Career anchor (KI-005 + KI-008 career/wealth): both packs, re-baseline, re-lock modern targets — note:
@@ -107,13 +107,13 @@ Owner-reviewed scope: ADR-0037. Phase A closes every open issue before M8.1.
 
 ## Gate log
 
-| Milestone | Date       | Commit  | verify | CI      | Notes                                                                                                             |
-| --------- | ---------- | ------- | ------ | ------- | ----------------------------------------------------------------------------------------------------------------- |
-| M0        | 2026-09-17 | bb197bf | green  | green   | tag m0                                                                                                            |
-| M1        | 2026-09-17 | 3569ae7 | green  | pending | tag m1 (local, KI-001)                                                                                            |
-| M2        | 2026-09-17 | fe54f7e | green  | pending | tag m2 (local, KI-001)                                                                                            |
-| M4        | 2026-09-17 | c2ecf4e | green  | pending | tag m4 (local, KI-001); M3 gate still open                                                                        |
-| M3        | 2026-09-17 | 037b1b2 | green  | pending | tag m3 (local, KI-001); career target recorded per ADR-0026                                                       |
-| M5        | 2026-09-18 | 903066e | green  | pending | tag m5 (local, KI-001); nine modern systems behind flags                                                          |
-| M6        | 2026-09-22 | c3525d0 | green  | pending | tag m6 (local, KI-001) at the gate commit; verify ran at 126b24b; nine stage-2 targets recorded per KI-008        |
-| M7        | 2026-09-23 | 3454842 | green  | pending | tag m7 (local, KI-001) at the gate commit; verify ran at ad32369; audio, tutorial, opacity, themes, pseudo-locale |
+| Milestone | Date       | Commit  | verify | CI    | Notes                                                                                        |
+| --------- | ---------- | ------- | ------ | ----- | -------------------------------------------------------------------------------------------- |
+| M0        | 2026-09-17 | bb197bf | green  | green | tag m0                                                                                       |
+| M1        | 2026-09-17 | 1726af3 | green  | green | tag m1 → 1726af3 (#13), CI run 23; gate commit 3569ae7 lost in the squash (ADR-0038)         |
+| M2        | 2026-09-17 | 1726af3 | green  | green | tag m2 → 1726af3 (#13), CI run 23; gate commit fe54f7e lost in the squash (ADR-0038)         |
+| M4        | 2026-09-17 | b4c979d | green  | green | tag m4 → b4c979d (#14), CI run 25; gate commit c2ecf4e lost in the squash (ADR-0038)         |
+| M3        | 2026-09-17 | a76efb2 | green  | green | tag m3 → a76efb2 (#15), CI run 27; career target recorded per ADR-0026, reopened by ADR-0037 |
+| M5        | 2026-09-18 | a76efb2 | green  | green | tag m5 → a76efb2 (#15), CI run 27; gate commit 903066e lost in the squash (ADR-0038)         |
+| M6        | 2026-09-22 | f8afb46 | green  | green | tag m6 → f8afb46 (#17), CI run 31; nine stage-2 targets reopened by ADR-0037                 |
+| M7        | 2026-09-23 | f8afb46 | green  | green | tag m7 → f8afb46 (#17), CI run 31; audio, tutorial, opacity, themes, pseudo-locale           |

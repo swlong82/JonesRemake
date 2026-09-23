@@ -8,7 +8,8 @@
 - Repro: `git push origin refs/tags/m1` → `HTTP/1.1 403 Forbidden` from `git-receive-pack` (the session's egress policy only permits pushes to the working branch). Branch pushes succeed.
 - Attempts: 1) `git push --tags` 2) `git push origin m1` 3) `git push origin refs/tags/m1` with trace — all 403.
 - Mitigation: milestone tags (`m1`, `m2`, …) are created locally and listed in the PROGRESS gate log with their commit SHAs; the human pushes tags (`git push origin --tags`) or CI recreates them from the gate log. `git tag` names in this repo are still authoritative once pushed.
-- Status: open
+- Resolution (M8, ADR-0038): squash merges had dropped the `m1`–`m5` gate commits from every branch, and the remote `m6`/`m7` pointed at commits outside `main`. Every milestone now maps to the first `main` commit that contains its gate, each one green in CI (runs 23, 25, 27, 31). `tools/retag-milestones.sh` applies the mapping in one push from a clone with tag rights. From now on only `main` commits are tagged, and release PRs merge with a merge commit so their gate commit survives.
+- Status: fixed in M8 — the mapping and the gate log are corrected; the tags themselves land when the owner runs `tools/retag-milestones.sh`, which the session still cannot do (403 on `refs/tags/*`)
 
 ## KI-002: Game board, HUD, location panel and end screen are not implemented
 
@@ -59,7 +60,7 @@
 - Repro: `pnpm sim:gate` covers `classic` only; `sim/stage1.json` and `sim/gates.json` have no `modern-western` config, so the nine modern systems have been exercised by unit tests and a 200-turn AI self-play smoke test, never by a seeded suite.
 - Attempts: not a defect — M6.3 is the milestone that does it (BALANCE 9.5/9.6), with `reports/modern-targets.json` locked first at M6.2.
 - Mitigation: none needed for `classic`, which is unaffected: every modern module is gated by a CityPack flag that `classic` leaves off, and classic's golden replays did not move across the whole of M5.
-- Status: open — closes with M6.3.
+- Status: fixed in M6.3 — `sim/stage2.json` ran the modern suite (seventeen iterations logged in `BALANCE_REPORT.md`) and `sim/gates.json` has carried nine `modern-western` configs since M6.4. What that run left unmet is tracked in KI-008, not here.
 
 ## KI-007: `pnpm test` fails on Node 24+ because the runtime shadows jsdom's `localStorage`
 
