@@ -143,6 +143,20 @@ export const buyAssetHandler: CommandHandler<BuyAssetCommand> = {
   ai: { category: 'finance' },
 };
 
+/**
+ * Units a sale of `amount` dollars takes and the whole dollars it grosses. Preview and apply both
+ * use this: previewing the dollar amount directly skipped the round-down to whole units and could
+ * show a dollar the sale never paid.
+ */
+function saleOf(ctx: Ctx, cmd: SellAssetCommand): { units: number; gross: number } {
+  const h = ctx.player.investments[cmd.assetId];
+  const price = ctx.state.market.prices[cmd.assetId];
+  if (!h || price === undefined || price <= 0) return { units: 0, gross: 0 };
+  const wanted = Math.floor((cmd.amount * 100 * 1000) / price);
+  const units = Math.min(h.units, wanted);
+  return { units, gross: Math.floor(mulDiv(units, price, 1000) / 100) };
+}
+
 export const sellAssetHandler: CommandHandler<SellAssetCommand> = {
   type: 'SellAsset',
   schema: z
@@ -164,10 +178,7 @@ export const sellAssetHandler: CommandHandler<SellAssetCommand> = {
   apply: (ctx, cmd) => {
     const p = ctx.player;
     const h = p.investments[cmd.assetId]!;
-    const price = ctx.state.market.prices[cmd.assetId]!;
-    const wanted = Math.floor((cmd.amount * 100 * 1000) / price);
-    const units = Math.min(h.units, wanted);
-    const gross = Math.floor(mulDiv(units, price, 1000) / 100);
+    const { units, gross } = saleOf(ctx, cmd);
     const fee = assetFee(ctx, cmd.assetId, gross);
     h.units -= units;
     h.costBasisCents = h.units === 0 ? 0 : Math.max(0, h.costBasisCents - gross * 100);
@@ -179,8 +190,8 @@ export const sellAssetHandler: CommandHandler<SellAssetCommand> = {
     ctx.emit({ type: 'AssetSold', seat: ctx.seat, assetId: cmd.assetId, units });
   },
   preview: (ctx, cmd) => {
-    const value = Math.min(cmd.amount, holdingValue(ctx, ctx.seat, cmd.assetId));
-    return { money: value - assetFee(ctx, cmd.assetId, value) };
+    const { gross } = saleOf(ctx, cmd);
+    return { money: gross - assetFee(ctx, cmd.assetId, gross) };
   },
   candidates: (ctx) =>
     Object.keys(ctx.player.investments)

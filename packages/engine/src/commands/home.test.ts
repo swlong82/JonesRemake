@@ -52,7 +52,8 @@ describe('Relax (GDD 4.9, 3.3)', () => {
     });
     const r2 = applyCommand(maxed, 0, { type: 'Relax' }, pack);
     expect(r2.state.players[0]!.relaxation).toBe(50);
-    expect(r2.state.players[0]!.happiness).toBe(16);
+    // Start happiness 10 plus the pack's relax cap (base + 1 per comfort durable, capped).
+    expect(r2.state.players[0]!.happiness).toBe(10 + pack.rules.happiness.relaxMax);
   });
   it('in the park: base happiness only; rejected where there is no relax service or too few hours', () => {
     const park = goInside(newGame('park'), 0, 'park');

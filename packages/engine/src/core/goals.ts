@@ -37,9 +37,26 @@ export function educationGoal(p: PlayerState, pack: CityPack): number {
   return clamp(g.educationBase + g.educationPerDegree * p.degrees.length, 0, 100);
 }
 
-export function careerGoal(p: PlayerState, pack: CityPack): number {
+/** Career a dependability value is worth, before the job check (ADR-0040). */
+export function careerFromDependability(dependability: number, pack: CityPack): number {
+  const g = pack.rules.goals;
+  return clamp(
+    mulDiv(dependability, g.careerDependabilityBp, 10_000) - g.careerDependabilityOffset,
+    0,
+    100,
+  );
+}
+
+/** Career the current job's tenure allows by `week` (ADR-0040); 100 when the pack has no cap. */
+export function tenureCap(p: PlayerState, pack: CityPack, week: number): number {
+  const { careerTenureBpPerWeek: bp, careerTenureDelayWeeks: delay } = pack.rules.goals;
+  if (!p.job || bp === 0) return 100;
+  return clamp(mulDiv(week - p.job.hiredWeek - delay, bp, 10_000), 0, 100);
+}
+
+export function careerGoal(p: PlayerState, pack: CityPack, week: number): number {
   if (!p.job) return 0;
-  return clamp(mulDiv(p.dependability, pack.rules.goals.careerDependabilityBp, 10_000), 0, 100);
+  return Math.min(careerFromDependability(p.dependability, pack), tenureCap(p, pack, week));
 }
 
 export function happinessGoal(p: PlayerState): number {
@@ -56,7 +73,7 @@ export function computeGoals(
     wealth: wealthGoal(p, state, pack, moduleWealth),
     happiness: happinessGoal(p),
     education: educationGoal(p, pack),
-    career: careerGoal(p, pack),
+    career: careerGoal(p, pack, state.week),
   };
 }
 

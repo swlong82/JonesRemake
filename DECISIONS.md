@@ -315,7 +315,7 @@
 ## ADR-0033: Stage-2 modern targets are locked by file hash before any tuning
 
 - Date: 2026-09-22
-- Status: Accepted
+- Status: Superseded by ADR-0042 (the lock mechanism stands; the hashes moved)
 - Context: BALANCE 9.5 requires `reports/modern-targets.json` to be derived from the classic baseline and never edited after its first commit, "enforced by test comparing file hash to the one recorded in `DECISIONS.md`". The spec fixes the gate values but not the file's shape, which config each gate is measured on, how a ±20% band rounds, or where the three modern-only rates (bot bankruptcy, bot collapse, bot default) are read — `Summary` at M6.2 has none of them.
 - Options: 1) hash a canonical re-serialisation of the parsed JSON, so formatting changes are tolerated; 2) hash the bytes on disk; 3) keep the targets inside `sim/gates.json` and hash that.
 - Decision: option 2, over the exact bytes. `tools/lib/targets.test.ts` hashes `reports/modern-targets.json` and compares it to the `Locked sha256` line in this ADR, so any edit — including a reformat — fails `pnpm test`. The file also records the sha256 of the `reports/baseline.json` it was derived from, so a baseline re-run cannot silently re-point the targets. Median bands are the baseline median ±20% rounded **outward** to whole weeks, so rounding can only widen a band, never tighten one; `targetProblems` re-derives every band from the recorded baseline medians and fails if one disagrees. Each target names the `sim/gates.json` config it is measured on and a dotted `Summary` metric path; three of those paths (`botBankruptcyPct`, `botCollapsePct`, `botDefaultPct`) do not exist yet and are implemented with the M6.3 measurement runs, because tuning cannot be judged against a target nothing reports; M6.4 then writes the gate configs that read them. Sampling tolerance stays out of this file: the spec-level target is locked here, and BALANCE 9.7's ±3-point widening lives in `sim/gates.json` where the sample size is known.
@@ -384,3 +384,44 @@
 - Options: 1) give every modern seat a phone from the start (a content change that moves every balance number); 2) lower the families' conditions; 3) teach the AI what a gadget is worth.
 - Decision: option 3, because the events were correct and the AI was wrong. A `gadget-access` scorer values each working item whose unlocks gate a modern system (`rideHail`, `delivery`, `gigDelivery`, `onlineStudy`) at twice its price against the wealth target, capped at 0.3; a broken one is worth 0. The ranker offsets a wanted gadget's price so it is not pruned, ranks `Repair` of one near the top, and pulls a `Move` toward a store that sells or repairs one the seat can afford. `stateValue` still makes the decision.
 - Consequences: working-phone ownership rises from 8% to 67% of player-weeks; `viral` reaches 3.6 and `gadget-breakdown` 6.5 per 100 player-weeks. No classic item carries a system unlock, so classic AI behaviour is unchanged (a test asserts the scorer is inert there). Modern balance moves with this change and is re-measured in the M8 balance work.
+
+## ADR-0040: Career needs continuous employment, and goals that land in the same week share "last"
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: ADR-0037 requires KI-005 and the KI-008 career and wealth targets to be met, not amended. The career goal was `dependability × 1.25` and nothing else. Degrees and the job both raise the dependability ceiling (`maxDependability = 20 + job.reqDependability + 5 × degrees`), so the AI hit career 50 by week 29 of a 41-week classic game and career was last in 0–1.7% of games. Measured over 16 probes of 80–160 games each:
+  - **Caps and slopes do nothing.** A wage-rank cap, a steeper `dep × 2 − 50` map and a doubled dependability decay either left career early or stalled the higher goal levels. The AI grinds whatever gradient career offers.
+  - **Tenure works.** Career is also capped by time. It is the one goal besides education with a minimum duration the AI cannot compress, and that minimum is what lets it land last.
+  - **The metric had a bias.** `lastGoal` broke same-week ties by list order (wealth, happiness, education, career), so career could never win a tie and wealth won every one. In the probes, 6–13% of games had career tied for last.
+- Options: 1) retune `careerDependabilityBp` (ADR-0026: breaks goals 100); 2) cap career by job rank; 3) cap career by continuous employment; 4) keep the order tie-break.
+- Decision: option 3, plus a neutral tie rule.
+  - `rules.goals.careerTenureBpPerWeek` and `careerTenureDelayWeeks`: career ≤ (weeks employed − delay) × rate. `hiredWeek` now marks the start of _continuous_ employment and carries across job changes, so climbing the ladder never restarts it; losing the job does (firing, layoff, collapse). A per-job tenure was tried first and stalled 21% of classic goals-100 games, because the AI kept hopping to better jobs.
+  - Classic: rate 2.5/week after a 16-week probation (career 50 at about 36 weeks employed, 100 at about 56). Happiness decay 4 → 5 with `relaxMax` 6 → 7 and `max` 104 → 105, which keeps ADR-0027's "max = 100 + one week of decay" and the same net +2/week for a fully furnished seat at the top.
+  - Modern: rate 3.5/week and no probation. Other modern changes:
+    - `educationPerDegree` 12 → 13: four degrees reach 50.
+    - 12 lessons per degree (`modern-western/degrees.json`): a finer education knob than the degree count.
+    - happiness decay 1 → 2.
+    - `wealthPointValue` 160 → 200.
+  - `goalWeeks` is recorded per game. When several goals are met in the same final week, each gets 1/k of the "last-completed" credit. The target is unchanged; this removes a measurement artefact that could only ever count against career.
+  - `careerDependabilityOffset` (default 0) exists but no pack uses it: the offset probe is recorded here so nobody re-runs it.
+- Consequences: `careerDependabilityBp` keeps its [SRC] value 12500. The new rules are [ASSUMED], and classic departs from ORIGINAL_REFERENCE on happiness decay and `relaxMax`; `BALANCE_REPORT.md` lists each change. Measured at goals 50 Normal×2 (split ties): classic W 13.6 / H 25.1 / E 45.4 / C 15.8 (160 games, median 41 weeks, 0 stalls); modern W 28.9 / H 24.5 / E 18.7 / C 27.9 (160 games, median 41 weeks). Every classic golden replay and the stage-1 baseline are regenerated, and the modern targets are re-derived from the new baseline (ADR-0042).
+
+## ADR-0041: StudyFirst studies for its goal, and LoanMax invests the loan as 9.4 says
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: KI-008 recorded StudyFirst winning 0% (target 30–60%, "viable, not dominant") and LoanMax defaulting in 0–2.5% (target 20–60%). Both come down to the bot definitions rather than the rules. StudyFirst forbade regular work until the seat held **every** pack degree, which is 11 degrees and 110–132 lessons, against a goals-50 race that needs 4 (modern) or 6 (classic) of them and ends around week 40. Spec 9.4 describes LoanMax as "max loan, invest in ETF", but the bot never invested anything, so a normal wage serviced the loan and nothing could ever default.
+- Options: 1) keep both as written and record the targets unmet; 2) read StudyFirst's "all degrees" as all degrees its education goal needs, and implement LoanMax's ETF half.
+- Decision: option 2. StudyFirst forbids `Work`, `ApplyJob` and `AskRaise` until `educationGoal ≥` its education target. That is the strategy the bot exists to probe: education first, then a job. The other reading can only measure an impossible game. LoanMax may buy only `index-etf` and may never sell, mirroring CryptoAllIn's never-sell rule, on top of borrowing the maximum and never repaying early.
+- Consequences: the targets are unchanged; the bots now play the strategies 9.4 names. The StudyFirst reading is an interpretation of an ambiguous phrase and is flagged as such to the owner.
+
+## ADR-0042: Modern targets re-derived from the re-run classic baseline, and re-locked
+
+- Date: 2026-09-23
+- Status: Accepted (supersedes ADR-0033's hashes, not its mechanism)
+- Context: ADR-0040 changes classic rules (continuous-employment tenure, happiness decay), so the stage-1 baseline was re-run (24 configs, 3,200 games). BALANCE 9.5 derives the modern median bands from classic B, and ADR-0033 locked `reports/modern-targets.json` to the old baseline's hash. ADR-0033 foresaw this case: "correcting a genuine mistake in the file needs a superseding ADR with a new hash".
+- Options: 1) keep the old targets against a baseline that no longer exists; 2) re-derive with the same derivation rules and re-lock.
+- Decision: option 2 (owner-approved in ADR-0037). Only the inputs change. Classic B medians move from 28/40/62/83 to 36/48/63/86, so the ±20% bands (rounded outward, unchanged rule) become 28–44, 38–58, 50–76 and 68–104. Every other target is byte-for-byte unchanged: the 9.5 verbatim values do not depend on B. `tools/lib/targets.test.ts` now reads the lock from this ADR.
+- Consequences: the bar did not move for any target that does not depend on B. The four median bands follow the classic game, which got longer at every goal level because career now needs continuous employment.
+- Locked sha256 (reports/modern-targets.json): `3e00f8b8d96fbe5e45f59df67e6b71df887c71f0fdd7cc49e8687ef6722f8a76`
+- Locked sha256 (reports/baseline.json): `e731d23de5fcf2687a9a40c5fe438b320114e489e6423f332995893e324ccfec`

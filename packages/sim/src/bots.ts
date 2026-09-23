@@ -5,7 +5,7 @@
  * each one exists to find the exploit in a single modern system by playing only that system.
  */
 import type { CityPack } from '@hustle-ring/content';
-import type { Command, GameState } from '@hustle-ring/engine';
+import { educationGoal, type Command, type GameState } from '@hustle-ring/engine';
 import type { PlanOptions } from '@hustle-ring/ai';
 
 export interface Bot {
@@ -16,6 +16,9 @@ export interface Bot {
 }
 
 const bots = new Map<string, Bot>();
+
+/** The instrument LoanMax invests in (9.4). */
+export const LOANMAX_ETF = 'index-etf';
 
 export function registerBot(bot: Bot): void {
   bots.set(bot.id, bot);
@@ -39,13 +42,16 @@ export function botPlanOptions(bot: Bot, pack: CityPack): PlanOptions {
   };
 }
 
-/** All degrees before any regular work (9.4 StudyFirst). */
+/**
+ * All the degrees its education goal needs before any regular work (9.4 StudyFirst, ADR-0041):
+ * "all degrees" read as every pack degree would spend 100+ weeks on degrees no goal asks for.
+ */
 registerBot({
   id: 'StudyFirst',
   personality: 'scholar',
   allow: (cmd, state, seat, pack) => {
     const p = state.players[seat]!;
-    const done = p.degrees.length >= pack.degrees.length;
+    const done = educationGoal(p, pack) >= p.goals.education;
     if (done) return true;
     return cmd.type !== 'Work' && cmd.type !== 'ApplyJob' && cmd.type !== 'AskRaise';
   },
@@ -85,12 +91,16 @@ registerBot({
   allow: (cmd) => cmd.type !== 'EatMeal' && cmd.type !== 'BuyFood',
 });
 
-/** Borrows the most it can, as often as it can, and never repays early (9.4 LoanMax). */
+/**
+ * Borrows the most it can, as often as it can, never repays early, and puts its spare cash in the
+ * index ETF and leaves it there (9.4 LoanMax: "max loan, invest in ETF", ADR-0041).
+ */
 registerBot({
   id: 'LoanMax',
   personality: 'hustler',
   allow: (cmd, _state, _seat, pack) => {
-    if (cmd.type === 'RepayLoan') return false;
+    if (cmd.type === 'RepayLoan' || cmd.type === 'SellAsset') return false;
+    if (cmd.type === 'BuyAsset') return cmd.assetId === LOANMAX_ETF;
     if (cmd.type !== 'TakeLoan') return true;
     return cmd.principal === (pack.loans?.max ?? cmd.principal);
   },

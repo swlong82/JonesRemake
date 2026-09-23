@@ -43,11 +43,7 @@
         },
         "lastGoalPct.career": {
           "min": 5,
-          "note": "9.3 each goal last ≥ 10% (widened); structurally unreachable at goals 50 on [SRC] values — ADR-0026",
-          "pending": {
-            "issue": "KI-005",
-            "until": "M8.5"
-          }
+          "note": "9.3 each goal last ≥ 10% (widened); met by continuous-employment tenure (ADR-0040)"
         },
         "lastGoalPct.happiness": {
           "min": 5,
@@ -155,9 +151,9 @@
       "games": 60,
       "asserts": {
         "length.median": {
-          "min": 19,
-          "max": 37,
-          "note": "9.5 median within ±20% of classic B=28, widened ±3 weeks"
+          "min": 25,
+          "max": 47,
+          "note": "9.5 median within ±20% of classic B=36 (28–44, ADR-0042), widened ±3 weeks"
         },
         "stallRate": {
           "max": 2
@@ -174,9 +170,9 @@
       "games": 120,
       "asserts": {
         "length.median": {
-          "min": 29,
-          "max": 51,
-          "note": "9.5 median within ±20% of classic B=40, widened ±3 weeks"
+          "min": 35,
+          "max": 61,
+          "note": "9.5 median within ±20% of classic B=48 (38–58, ADR-0042), widened ±3 weeks"
         },
         "stallRate": {
           "max": 2,
@@ -197,19 +193,11 @@
         },
         "lastGoalPct.wealth": {
           "min": 5,
-          "note": "9.5 each goal last ≥ 10% (widened); education is the long pole — achieved 1.0% at M6.3",
-          "pending": {
-            "issue": "KI-008",
-            "until": "M8.5"
-          }
+          "note": "9.5 each goal last ≥ 10% (widened); met by ADR-0040"
         },
         "lastGoalPct.career": {
           "min": 5,
-          "note": "9.5 each goal last ≥ 10% (widened); the ADR-0026 structure carries over to modern — achieved 0.5%",
-          "pending": {
-            "issue": "KI-008",
-            "until": "M8.5"
-          }
+          "note": "9.5 each goal last ≥ 10% (widened); met by ADR-0040"
         },
         "collapseGamePct": {
           "min": 12,
@@ -233,11 +221,7 @@
       "asserts": {
         "winnerDifficultyPct.hard": {
           "min": 77,
-          "note": "9.5 Hard wins ≥ 80%, widened ±3 points; achieved 70% at M6.3 (95% with the seats swapped)",
-          "pending": {
-            "issue": "KI-008",
-            "until": "M8.5"
-          }
+          "note": "9.5 Hard wins ≥ 80%, widened ±3 points"
         }
       }
     },

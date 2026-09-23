@@ -7,6 +7,7 @@
 import type { CityPack } from '@hustle-ring/content';
 import {
   applyCommand,
+  careerFromDependability,
   computeGoals,
   legalCommands,
   previewCommand,
@@ -167,9 +168,7 @@ function quickScore(
     Math.max(0, 1 - g[goal] / Math.max(1, p.goals[goal]));
   const w = ctx.personality.weights;
   // Career potential the current job can ever reach; below target → the ladder must be climbed.
-  const potential = p.job
-    ? Math.floor((p.maxDependability * pack.rules.goals.careerDependabilityBp) / 10_000)
-    : 0;
+  const potential = p.job ? careerFromDependability(p.maxDependability, pack) : 0;
   const needLadder = potential < p.goals.career;
   const rentWeeks = pack.rules.housing.rentWeeks;
   // Uniform needs: the current job's tier vs the best outfit and how long it lasts.

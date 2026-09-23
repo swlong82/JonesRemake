@@ -2,18 +2,23 @@
   "$comment": "BALANCE_SPEC 9.5 stage-2 targets for `modern-western`, locked at M6.2. Derived from reports/baseline.json (stage 1, classic). This file MUST NOT be edited after its first commit: tools/lib/targets.test.ts compares its sha256 to the hash recorded in ADR-0033 (DECISIONS.md).",
   "spec": "BALANCE_SPEC 9.5 stage-2",
   "pack": "modern-western",
-  "lockedAt": "2026-09-22",
-  "adr": "ADR-0033",
+  "lockedAt": "2026-09-23",
+  "adr": "ADR-0042",
   "derivedFrom": {
     "file": "reports/baseline.json",
-    "sha256": "a4c20647acd5353ffcbb2112aca16a6574a1669788e2244c5a8e86379c1d4b13",
+    "sha256": "e731d23de5fcf2687a9a40c5fe438b320114e489e6423f332995893e324ccfec",
     "spec": "BALANCE_SPEC 9.3 stage-1",
     "pack": "classic",
     "gamesTotal": 3200
   },
   "baseline": {
     "source": "classic-<goals>-normal-2.length.median",
-    "medianLengthByGoal": { "30": 28, "50": 40, "80": 62, "100": 83 }
+    "medianLengthByGoal": {
+      "30": 36,
+      "50": 48,
+      "80": 63,
+      "100": 86
+    }
   },
   "toleranceNote": "±20% bounds are rounded outward to whole weeks so a target is never tightened by rounding. Sampling tolerances (BALANCE 9.7, ±3 points) are applied in sim/gates.json, not here: this file is the spec-level target.",
   "targets": [
@@ -22,36 +27,36 @@
       "gate": "Median length at goals 30 within ±20% of classic B",
       "config": "modern-30-normal-2",
       "metric": "length.median",
-      "min": 22,
-      "max": 34,
-      "derivation": "B=28 ±20% = 22.4–33.6, rounded outward"
+      "min": 28,
+      "max": 44,
+      "derivation": "B=36 ±20% = 28.8–43.2, rounded outward"
     },
     {
       "id": "median-50",
       "gate": "Median length at goals 50 within ±20% of classic B",
       "config": "modern-50-normal-2",
       "metric": "length.median",
-      "min": 32,
-      "max": 48,
-      "derivation": "B=40 ±20% = 32.0–48.0"
+      "min": 38,
+      "max": 58,
+      "derivation": "B=48 ±20% = 38.4–57.6, rounded outward"
     },
     {
       "id": "median-80",
       "gate": "Median length at goals 80 within ±20% of classic B",
       "config": "modern-80-normal-2",
       "metric": "length.median",
-      "min": 49,
-      "max": 75,
-      "derivation": "B=62 ±20% = 49.6–74.4, rounded outward"
+      "min": 50,
+      "max": 76,
+      "derivation": "B=63 ±20% = 50.4–75.6, rounded outward"
     },
     {
       "id": "median-100",
       "gate": "Median length at goals 100 within ±20% of classic B",
       "config": "modern-100-normal-2",
       "metric": "length.median",
-      "min": 66,
-      "max": 100,
-      "derivation": "B=83 ±20% = 66.4–99.6, rounded outward"
+      "min": 68,
+      "max": 104,
+      "derivation": "B=86 ±20% = 68.8–103.2, rounded outward"
     },
     {
       "id": "stall",

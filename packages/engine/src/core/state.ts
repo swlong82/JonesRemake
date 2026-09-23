@@ -120,6 +120,7 @@ export interface PlayerState {
   relaxation: number;
   maxDependability: number;
   maxExperience: number;
+  /** `hiredWeek`: start of continuous employment, kept across job changes (ADR-0040). */
   job: { jobId: JobId; wage: number; raises: number; hiredWeek: number } | null;
   degrees: DegreeId[];
   enrolled: Record<DegreeId, { lessonsLeft: number }>;

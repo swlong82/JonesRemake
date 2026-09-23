@@ -65,7 +65,9 @@ export const applyJobHandler: CommandHandler<ApplyJobCommand> = {
       return;
     }
     const wage = ctx.econ(job.baseWage);
-    p.job = { jobId: cmd.jobId, wage, raises: 0, hiredWeek: ctx.week };
+    // `hiredWeek` is the start of continuous employment (ADR-0040): moving job to job keeps it,
+    // so climbing the ladder does not restart the career tenure; only losing the job does.
+    p.job = { jobId: cmd.jobId, wage, raises: 0, hiredWeek: p.job?.hiredWeek ?? ctx.week };
     if (p.dependability < ctx.rules.stats.hireDependabilityFloor) {
       ctx.addDependabilityRaw(
         ctx.seat,

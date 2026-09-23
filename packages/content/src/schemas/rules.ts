@@ -60,6 +60,19 @@ export const rulesSchema = z
         educationBase: z.number().int(),
         educationPerDegree: z.number().int(),
         careerDependabilityBp: z.number().int().positive(),
+        /**
+         * Career = dependability × careerDependabilityBp / 10000 − careerDependabilityOffset
+         * (ADR-0040): the offset lets the pack line career up with the degree ladder at every goal
+         * level. 0 keeps career proportional to dependability.
+         */
+        careerDependabilityOffset: z.number().int().nonnegative().default(0),
+        /**
+         * Tenure (ADR-0040): career is also capped at weeks in the current job × this / 10000, so a
+         * new job starts its career over. 0 turns the cap off.
+         */
+        careerTenureBpPerWeek: z.number().int().nonnegative().default(0),
+        /** Probation (ADR-0040): tenure counts only after this many weeks in the job. */
+        careerTenureDelayWeeks: z.number().int().nonnegative().default(0),
       })
       .strict(),
     stats: z

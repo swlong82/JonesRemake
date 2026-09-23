@@ -5,7 +5,13 @@
  * Modules add their own scorers via `registerScorer`; a system with none is simply ignored.
  */
 import type { CityPack, PersonalitySpec } from '@hustle-ring/content';
-import { computeGoals, marketValue, type GameState, type PlayerState } from '@hustle-ring/engine';
+import {
+  careerFromDependability,
+  computeGoals,
+  marketValue,
+  type GameState,
+  type PlayerState,
+} from '@hustle-ring/engine';
 import type { Difficulty } from '@hustle-ring/shared';
 import { DIFFICULTY } from './config.js';
 
@@ -92,10 +98,7 @@ export const goalCareer: Scorer = {
     // Potential: dependability can be ground up to its job-defined maximum, so a better job is
     // worth half the career it unlocks even before the stat catches up.
     const potential = p.job
-      ? goalProgress(
-          Math.floor((p.maxDependability * ctx.pack.rules.goals.careerDependabilityBp) / 10_000),
-          p.goals.career,
-        )
+      ? goalProgress(careerFromDependability(p.maxDependability, ctx.pack), p.goals.career)
       : 0;
     const jobBonus = p.job ? 0.15 : -0.25;
     return prog + 0.5 * potential + jobBonus;

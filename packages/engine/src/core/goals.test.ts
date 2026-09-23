@@ -61,7 +61,36 @@ describe('goal formulas (GDD 4.4)', () => {
       p.dependability = dep;
       p.job = employed ? { jobId: 'burger-joint-cook', wage: 4, raises: 0, hiredWeek: 1 } : null;
     });
-    expect(careerGoal(s.players[0]!, pack)).toBe(expected);
+    // Measured long after hiring, so the tenure cap (ADR-0040) is out of the way.
+    expect(careerGoal(s.players[0]!, pack, 200)).toBe(expected);
+  });
+  it.each([
+    [1, 0],
+    [17, 0],
+    [30, 33],
+    [40, 58],
+    [100, 100],
+  ])('career tenure (ADR-0040): %i weeks in the job → at most %i', (week, expected) => {
+    const s = patch(base, 0, (p) => {
+      p.dependability = 80;
+      p.job = { jobId: 'burger-joint-cook', wage: 4, raises: 0, hiredWeek: 1 };
+    });
+    // Classic: 16 weeks' probation, then 2.5 career per week employed.
+    expect(careerGoal(s.players[0]!, pack, week)).toBe(expected);
+  });
+  it('career tenure and offset are off for a pack that leaves them at 0', () => {
+    const plain = {
+      ...pack,
+      rules: {
+        ...pack.rules,
+        goals: { ...pack.rules.goals, careerTenureBpPerWeek: 0, careerDependabilityOffset: 10 },
+      },
+    };
+    const s = patch(base, 0, (p) => {
+      p.dependability = 40;
+      p.job = { jobId: 'burger-joint-cook', wage: 4, raises: 0, hiredWeek: 1 };
+    });
+    expect(careerGoal(s.players[0]!, plain, 1)).toBe(40);
   });
   it('computeGoals bundles all four', () => {
     expect(computeGoals(base.players[0]!, base, pack, 0)).toEqual({

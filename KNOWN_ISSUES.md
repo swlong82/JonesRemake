@@ -50,7 +50,8 @@
 - Measured (120 games, `classic-50-normal-2`, after the M3.3 tuning): last goal completed is education 42.5%, wealth 40.8%, happiness 16.7%, career 0%. Full numbers per config in `BASELINE_REPORT.md`.
 - Attempts: 1) happiness — fixed: `rules.happiness.decayPerWeek` 4, headroom above the goal ceiling and `oncePerTurn` on both tickets took happiness from 0% to 16.7% (ADR-0025, ADR-0027). 2) career — `stats.workDependabilityGain` 2 → 1, the only [ASSUMED] value with leverage: 0.00%, worse. 3) career — proved structural: education 50 needs six degrees, six degrees grant +30 dependability and career is `dependability × 1.25`, all three [SRC], so career 50 is met long before the sixth degree (ADR-0026).
 - Mitigation: the career assertion stays asserted and `pending: { issue: KI-005, until: M6.3 }` in `sim/gates.json` (ADR-0019), so every gate run prints it and `pnpm sim:gate --strict` fails on it; the M3 gate records it per CLAUDE.md 1.5 instead of meeting it (ADR-0026). Only `careerDependabilityBp` 12500 → 10000 would meet it, at the cost of an ORIGINAL_REFERENCE [SRC] anchor.
-- Status: open, accepted — revisited for `modern-western` at M6.3. Not degenerate at every goal level: at goals 100 all four goals are last-completed between 18% and 42%.
+- Resolution (M8, ADR-0040): career is now also capped by continuous employment (16 weeks' probation, then 2.5 per week), so it has a minimum duration of its own, and goals met in the same week share "last" instead of the credit going to the first goal in the list. The re-run stage-1 baseline (3,200 games) has career last in 21.97% of classic goals-50 games (W 13.72, H 32.41, E 31.9), and the gate assertion is no longer pending.
+- Status: fixed in M8
 
 ## KI-006: The modern ruleset has never been balance-run
 

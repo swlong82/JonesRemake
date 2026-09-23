@@ -129,7 +129,14 @@ export function summarize(
       inc(winnerDifficulty, w.spec.difficulty);
       inc(winnerPersonality, w.spec.personality);
     } else inc(winnerBot, w.spec.bot);
-    if (r.lastGoal) inc(lastGoal, r.lastGoal);
+    // Goals that land in the same week share the credit (ADR-0040): a fixed tie-break order
+    // would hand every tie to the earliest goal in the list and never to career.
+    if (r.goalWeeks) {
+      const weeks = r.goalWeeks;
+      const last = Math.max(weeks.wealth, weeks.happiness, weeks.education, weeks.career);
+      const tied = (Object.keys(weeks) as (keyof typeof weeks)[]).filter((g) => weeks[g] === last);
+      for (const g of tied) lastGoal[g] = (lastGoal[g] ?? 0) + 1 / tied.length;
+    } else if (r.lastGoal) inc(lastGoal, r.lastGoal);
     if (w.degrees >= degreeCount) allDegrees++;
   }
   const summary: Summary = {
