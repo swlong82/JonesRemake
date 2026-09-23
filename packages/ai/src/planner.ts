@@ -18,7 +18,7 @@ import {
 } from '@hustle-ring/engine';
 import type { Difficulty } from '@hustle-ring/shared';
 import { ASSET_TIER, DIFFICULTY, HUNGRY_HOURS, type DifficultyConfig } from './config.js';
-import { isSystemGadget, stateValue, type ScorerCtx } from './scorers.js';
+import { atTurnStart, isSystemGadget, stateValue, type ScorerCtx } from './scorers.js';
 import { aiSeed, sanitizeForAi } from './view.js';
 
 export interface PlanOptions {
@@ -187,7 +187,7 @@ function quickScore(
   const p = state.players[seat]!;
   const pv = previewCommand(state, seat, cmd, pack);
   if (-pv.hours > p.hoursLeft) return Number.NEGATIVE_INFINITY;
-  const g = computeGoals(p, state, pack, 0);
+  const g = computeGoals(atTurnStart(p, pack), state, pack, 0);
   const gap = (goal: keyof typeof g): number =>
     Math.max(0, 1 - g[goal] / Math.max(1, p.goals[goal]));
   const w = ctx.personality.weights;

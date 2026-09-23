@@ -29,6 +29,20 @@ export interface Scorer {
   value(ctx: ScorerCtx, state: GameState, player: PlayerState): number;
 }
 
+/**
+ * The player as the win check will see them: goals are checked at the next turn start, after the
+ * week's happiness and dependability decay. Scored at the end of the turn instead, a seat at
+ * exactly 100 thought it had won, stopped pushing, and sat at 100/100/100/100 for weeks without
+ * ever meeting the goals-100 check (KI-008).
+ */
+export function atTurnStart(p: PlayerState, pack: CityPack): PlayerState {
+  return {
+    ...p,
+    happiness: Math.max(0, p.happiness - pack.rules.happiness.decayPerWeek),
+    dependability: Math.max(0, p.dependability - pack.rules.stats.dependabilityDecay),
+  };
+}
+
 function goalProgress(current: number, target: number): number {
   if (target <= 0) return 1;
   return Math.min(1.15, current / target);
@@ -59,7 +73,7 @@ export const goalWealth: Scorer = {
 export const goalHappiness: Scorer = {
   id: 'goal-gap:happiness',
   weight: (p) => p.weights.happiness,
-  value: (_ctx, _state, p) => goalProgress(p.happiness, p.goals.happiness),
+  value: (ctx, _state, p) => goalProgress(atTurnStart(p, ctx.pack).happiness, p.goals.happiness),
 };
 
 /**
@@ -93,7 +107,7 @@ export const goalCareer: Scorer = {
   id: 'goal-gap:career',
   weight: (p) => p.weights.career,
   value: (ctx, state, p) => {
-    const g = computeGoals(p, state, ctx.pack, 0);
+    const g = computeGoals(atTurnStart(p, ctx.pack), state, ctx.pack, 0);
     const prog = goalProgress(g.career, p.goals.career);
     // Potential: dependability can be ground up to its job-defined maximum, so a better job is
     // worth half the career it unlocks even before the stat catches up.
@@ -101,7 +115,13 @@ export const goalCareer: Scorer = {
       ? goalProgress(careerFromDependability(p.maxDependability, ctx.pack), p.goals.career)
       : 0;
     const jobBonus = p.job ? 0.15 : -0.25;
-    return prog + 0.5 * potential + jobBonus;
+    // Dependability counts on its own: while tenure caps the goal (ADR-0040) a shift adds nothing
+    // to it, and a seat that stopped working let dependability decay until it was fired and its
+    // tenure restarted — a loop that never met the career goal (KI-008).
+    const earned = p.job
+      ? goalProgress(careerFromDependability(p.dependability, ctx.pack), p.goals.career)
+      : 0;
+    return prog + 0.5 * potential + 0.3 * earned + jobBonus;
   },
 };
 
@@ -114,7 +134,7 @@ export const winProximity: Scorer = {
   id: 'win-proximity',
   weight: () => 2,
   value: (ctx, state, p) => {
-    const g = computeGoals(p, state, ctx.pack, 0);
+    const g = computeGoals(atTurnStart(p, ctx.pack), state, ctx.pack, 0);
     const worst = Math.min(
       goalProgress(g.wealth, p.goals.wealth),
       goalProgress(g.happiness, p.goals.happiness),
