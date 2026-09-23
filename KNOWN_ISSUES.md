@@ -61,6 +61,37 @@
 - Mitigation: none needed for `classic`, which is unaffected: every modern module is gated by a CityPack flag that `classic` leaves off, and classic's golden replays did not move across the whole of M5.
 - Status: open — closes with M6.3.
 
+## KI-007: `pnpm test` fails on Node 24+ because the runtime shadows jsdom's `localStorage`
+
+- Severity: major
+- Area: ci
+- Found in: M6 resume (verifying the M6.1/M6.5 `pnpm verify` claims on a Node 26 machine)
+- Repro: `pnpm test` on Node >= 24 → 93 of the 140 `apps/web` tests fail with `TypeError: Cannot read properties of undefined (reading 'clear')` at `globalThis.localStorage.clear()`. Node owns a built-in `globalThis.localStorage` that stays `undefined` without `--localstorage-file`, and the key existing stops vitest's jsdom environment from installing jsdom's own storage. CI pins Node 22 (`.nvmrc`), so CI never saw it although `engines.node` is `>= 22`.
+- Attempts: 1) copy `window.localStorage` onto the global — there is none, `globalThis === window` under the jsdom environment and the built-in shadows it; 2) install a `Storage`-shaped in-memory stand-in in `apps/web/src/test-setup.ts` when `globalThis.localStorage` is `undefined` — 140/140 web tests pass, and Node 22 is untouched because the branch never runs there.
+- Mitigation: none needed; fixed by the setup guard (ADR-0032). Local e2e on a machine whose Playwright cache lacks the pinned revision still needs `PW_CHROMIUM_EXECUTABLE` (CLAUDE.md 1.9); that is unrelated to this issue.
+- Status: fixed in M6 resume (`apps/web/src/test-setup.ts`, ADR-0032)
+
+## KI-008: Nine stage-2 modern balance targets are unmet after the tuning budget
+
+- Severity: minor (accepted)
+- Area: balance
+- Found in: M6.3 (`pnpm tsx packages/sim/cli.ts --config sim/stage2.json`)
+- Repro: run the stage-2 suite; 17 of the 26 targets locked in `reports/modern-targets.json` pass and these nine do not, with the achieved value beside each: wealth last-completed 1.0% and career last-completed 0.5% (target ≥ 10% each); Normal-AI collapse 71% (target 15–40%); median at goals 80 is 45 weeks (target 49–75); Hard beats Easy 70% one way round (target ≥ 80%; the swapped-seat config reads 95%); StudyFirst wins 0% (target 30–60%); LoanMax defaults in 0% of its games (target 20–60%); the `viral` family never appears in the family counts and `gadget-breakdown` fires 0.12 per 100 player-weeks (target ≥ 1 each, at Chaos Modern).
+- Attempts: 17 tuning iterations, logged one by one in `BALANCE_REPORT.md` with the value each produced. The ruleset went from 100% stalls and no winner at all to a 48-week median and 0.5% stalls; every remaining miss moves in the opposite direction to a target already met. Two were proved structural rather than under-tuned: career repeats classic's ADR-0026 result (degrees grant dependability, career is a multiple of dependability, so career lands with the degrees), and `careerDependabilityBp` below 10000 makes goals-100 unwinnable because career then caps under 100. Collapse frequency is a cliff in the band rather than a dial: bands 4/6/8 measured 0%/71%/96% on identical content.
+- Mitigation: the nine targets stay asserted in `sim/gates.json` with `pending: { issue: KI-008, until: M8.5 }` (the ADR-0019 mechanism), so every gate run prints them and `pnpm sim:gate --strict` fails on them; the M6 gate records them per CLAUDE.md 1.5 rather than meeting them. `classic` is unaffected — no classic file changed during M6.3 and its goldens and gate results did not move.
+- Status: open, accepted — the `viral` family reading zero while the other three respond to weight looks like a defect rather than a tuning miss, and is the one worth looking at first.
+
+## KI-009: The setup form's Start button cannot be clicked at 150% text on a phone viewport
+
+- Severity: minor
+- Area: web
+- Found in: M7.5 (the final a11y and text-scale pass)
+- Repro: on the `phone` Playwright project (485×1050 CSS px at a 24px root font), open Settings, set text scale 150%, go to New game and click Start. The click times out with `<label class="flex items-center gap-2">… from <div class="mt-2 grid gap-3 sm:grid-cols-2"> subtree intercepts pointer events`. Every other viewport, and the same form at 100% and 125%, are fine.
+- Measured: scrolled to the foot of the page the geometry is correct — the options grid ends at y = 94 and the button sits at y = 960–1026, and `document.elementFromPoint` at the button's centre returns the button itself. The interception only appears during Playwright's own scroll-then-hit-test, so the two disagree about where the button is on a page 3,308 px tall.
+- Attempts: 1) `scrollIntoViewIfNeeded()` before the click — still intercepted; 2) `scrollTo(0, document.body.scrollHeight)` first — still intercepted; 3) measured both boxes and the hit test at the click point, which say the button is on top and clickable. Three attempts, so CLAUDE.md 1.5 applies.
+- Mitigation: none needed for the a11y pass itself, which is what M7.5 is about — `presentation.spec.ts` now reaches the board first and turns the scale and theme up from the in-game menu, so the axe gate, the contrast check and the no-clipped-text check all still run on the board in the dark theme at 150% on all three viewports. Nothing is disabled and no assertion was weakened. A player on a phone can still start a game at 150%: the button is visible and on top, and only the automated click disagrees.
+- Status: open — worth a look at the setup form's grid at large root font sizes before release; it may be the harness rather than the layout.
+
 <!--
 ## KI-001: <title>
 - Severity: blocker | major | minor

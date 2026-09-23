@@ -27,10 +27,20 @@ export function handleGameKey(e: KeyboardEvent): void {
   if (!state || !pack) return;
 
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-    e.preventDefault(); // Manual save arrives with M7.2; swallow the browser's save dialog.
+    e.preventDefault();
+    store.go('saves');
     return;
   }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+  // A retention offer is modal: only its own buttons and Escape may act while it is open.
+  if (store.subscriptionCancelPending) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      store.cancelSubscriptionCancel();
+    }
+    return;
+  }
 
   if (e.key === 'Escape') {
     if (store.cards.length > 0) store.dismissCard();

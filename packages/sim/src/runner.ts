@@ -6,6 +6,7 @@ import { loadPack, type CityPack } from '@hustle-ring/content';
 import {
   computeGoals,
   createGame,
+  defaultDebtOf,
   type GameConfig,
   type GameState,
   type SeatConfig,
@@ -28,6 +29,10 @@ export interface SeatResult {
   jobTier: number;
   evicted: boolean;
   weeksInDebt: number;
+  /** Bankrupt by BALANCE 9.2's definition: evicted, or four weeks carrying rent debt. */
+  bankrupt: boolean;
+  /** True once the seat has ever defaulted on a loan (modern packs only). */
+  defaulted: boolean;
   collapses: number;
   eventsSuffered: number;
 }
@@ -128,6 +133,7 @@ export function runGame(spec: GameSpec, packArg?: CityPack): GameResult {
   let commands = 0;
   const eventsByFamily: Record<string, number> = {};
   const evicted = new Set<number>();
+  const defaulted = new Set<number>();
   const debtWeeks = new Map<number, number>();
   const wealthByWeek: number[] = [];
   let lastWeekSeen = 0;
@@ -145,6 +151,9 @@ export function runGame(spec: GameSpec, packArg?: CityPack): GameResult {
       eventsByFamily[fam] = (eventsByFamily[fam] ?? 0) + 1;
     }
     if (pl.home.debt > 0) debtWeeks.set(seat, (debtWeeks.get(seat) ?? 0) + 1);
+    // Default debt is only cleared by repayment, so "has ever defaulted" is a sticky observation
+    // of the loans slice rather than an event count (the AI turn result carries no events).
+    if (defaultDebtOf(pl) > 0) defaulted.add(seat);
     if (
       before.players[seat]!.home.tier === 'high' &&
       pl.home.tier === 'low' &&
@@ -162,6 +171,7 @@ export function runGame(spec: GameSpec, packArg?: CityPack): GameResult {
   const seats: SeatResult[] = state.players.map((p, i) => {
     const g = computeGoals(p, state, pack, 0);
     const job = p.job ? pack.jobById[p.job.jobId] : undefined;
+    const weeksInDebt = debtWeeks.get(i) ?? 0;
     return {
       seat: i,
       spec: spec.seats[i]!,
@@ -174,7 +184,9 @@ export function runGame(spec: GameSpec, packArg?: CityPack): GameResult {
       jobId: p.job?.jobId ?? null,
       jobTier: job?.tierIndex ?? -1,
       evicted: evicted.has(i),
-      weeksInDebt: debtWeeks.get(i) ?? 0,
+      weeksInDebt,
+      bankrupt: evicted.has(i) || weeksInDebt >= 4,
+      defaulted: defaulted.has(i),
       collapses: p.stats.collapses,
       eventsSuffered: p.stats.eventsSuffered,
     };

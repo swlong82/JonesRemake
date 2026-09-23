@@ -3,7 +3,7 @@ import { expectNoA11yViolations } from './axe';
 
 /** Menu screens (UX 7.1): title, setup, settings, stats, help. Board specs live in game.spec.ts. */
 test('menu screens are reachable and pass axe', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?ff=-tutorial');
 
   await page.getByTestId('new-game').click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('New game');
@@ -30,9 +30,10 @@ test('menu screens are reachable and pass axe', async ({ page }) => {
 test('an unfinished feature is still offered, but disabled with the milestone named', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/?ff=-tutorial');
   await page.getByTestId('how-to-play').click();
-  await expect(page.getByText('The guided tutorial arrives with milestone M7.')).toBeVisible();
+  // M7.3 landed the tutorial, so How to Play offers it instead of naming a milestone.
+  await expect(page.getByTestId('tutorial-start')).toBeVisible();
   await page.getByTestId('back').click();
   await page.getByTestId('stats').click();
   await expect(page.getByText('Local leaderboard arrives with milestone M8.')).toBeVisible();

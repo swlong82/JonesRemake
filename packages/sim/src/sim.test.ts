@@ -164,7 +164,9 @@ describe('metrics (9.2)', () => {
       jobTier: i === 0 ? 2 : -1,
       evicted: i === 1 && weeks > 40,
       weeksInDebt: 0,
-      collapses: 0,
+      bankrupt: i === 1 && weeks > 40,
+      defaulted: i === 1 && weeks >= 50,
+      collapses: i === 1 && weeks >= 40 ? 1 : 0,
       eventsSuffered: 1,
     })),
     wealthByWeek: [2, 4, 6],
@@ -209,6 +211,17 @@ describe('metrics (9.2)', () => {
     expect(perf.commandsPerGame).toBe(100);
     expect(perf.msPerGame.median).toBe(5);
   });
+  // BALANCE 9.5 reads three modern rates off the bot's own seat, not off the game: CryptoAllIn
+  // bankruptcy, NoRelax collapse and LoanMax default.
+  it('reports bot bankruptcy, collapse and default on the bot seat', () => {
+    // The bot seat is bankrupt in the two games past week 40, collapsed in three and defaulted in
+    // the one that reached week 50 — 4 bot seat-games in all.
+    expect(summary.botBankruptcyPct).toEqual({ NoRelax: 50 });
+    expect(summary.botCollapsePct).toEqual({ NoRelax: 75 });
+    expect(summary.botDefaultPct).toEqual({ NoRelax: 50 });
+    expect(metric(summary, 'botDefaultPct.NoRelax')).toBe(50);
+  });
+
   it('metric resolves dotted paths', () => {
     expect(metric(summary, 'length.median')).toBe(40);
     expect(metric(summary, 'lastGoalPct.career')).toBe(66.67);

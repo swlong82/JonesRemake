@@ -1,4 +1,18 @@
 {
+  "item:air-fryer": { "color": "cat-retail", "icon": "refrigerator", "shape": "rounded-rect" },
+  "item:bike": { "color": "cat-retail", "icon": "bike", "shape": "rounded-rect" },
+  "item:e-reader": { "color": "cat-retail", "icon": "book-open", "shape": "rounded-rect" },
+  "item:game-console": { "color": "cat-retail", "icon": "gamepad", "shape": "rounded-rect" },
+  "item:gym-card": { "color": "cat-retail", "icon": "dumbbell", "shape": "rounded-rect" },
+  "item:massage-chair": { "color": "cat-retail", "icon": "armchair", "shape": "rounded-rect" },
+  "item:noise-cancelling-headphones": {
+    "color": "cat-retail",
+    "icon": "headphones",
+    "shape": "rounded-rect"
+  },
+  "item:robot-vacuum": { "color": "cat-retail", "icon": "circle", "shape": "rounded-rect" },
+  "item:smart-tv": { "color": "cat-retail", "icon": "tv", "shape": "rounded-rect" },
+  "item:tablet": { "color": "cat-retail", "icon": "tablet", "shape": "rounded-rect" },
   "item:laptop": {
     "color": "cat-retail",
     "icon": "laptop",

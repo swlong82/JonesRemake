@@ -65,6 +65,7 @@ const SECTION_OF: Record<string, SectionId> = {
   MoveHome: 'move-home',
   Enroll: 'study',
   Study: 'study',
+  StudyOnline: 'study',
   Relax: 'relax',
   BuyItem: 'shop',
   Repair: 'shop',
@@ -124,6 +125,9 @@ export function jobTitle(id: string): string {
 }
 export function assetName(id: string): string {
   return tp(`asset.${id}.name`);
+}
+export function subscriptionName(id: string): string {
+  return tp(`sub.${id}.name`);
 }
 export function mealName(id: string): string {
   return tp(`meal.${id}.name`);
@@ -186,9 +190,9 @@ export function commandLabel(cmd: Command, t: Translate): string {
     case 'RepayLoan':
       return t('cmd.RepayLoan', { amount: cmd.amount });
     case 'Subscribe':
-      return t('cmd.Subscribe', { sub: tp(`sub.${cmd.subId}.name`) });
+      return t('cmd.Subscribe', { sub: subscriptionName(cmd.subId) });
     case 'Unsubscribe':
-      return t('cmd.Unsubscribe', { sub: tp(`sub.${cmd.subId}.name`) });
+      return t('cmd.Unsubscribe', { sub: subscriptionName(cmd.subId) });
     case 'BuyCar':
       return t(`cmd.BuyCar.${cmd.source}`);
     case 'OrderDelivery':

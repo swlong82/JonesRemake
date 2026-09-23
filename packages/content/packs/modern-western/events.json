@@ -6,7 +6,7 @@
     "flag": "modernEvents",
     "weight": {
       "*": [
-        150,
+        500,
         {
           "var": "player.automationRiskBp"
         },
@@ -44,7 +44,7 @@
     "family": "viral",
     "trigger": "turnStart",
     "flag": "modernEvents",
-    "weight": 120,
+    "weight": 500,
     "conditions": {
       "in": [
         "smartphone",
@@ -140,7 +140,14 @@
     "conditions": {
       ">": [
         {
-          "var": "player.bank"
+          "+": [
+            {
+              "var": "player.bank"
+            },
+            {
+              "var": "player.cash"
+            }
+          ]
         },
         50
       ]
@@ -176,8 +183,8 @@
             }
           ]
         },
-        100,
-        200
+        300,
+        600
       ]
     },
     "conditions": {
@@ -203,7 +210,7 @@
     "family": "gadget-breakdown",
     "trigger": "turnStart",
     "flag": "modernEvents",
-    "weight": 150,
+    "weight": 400,
     "conditions": {
       "in": [
         "laptop",

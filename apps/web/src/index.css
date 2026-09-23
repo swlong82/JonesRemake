@@ -13,8 +13,11 @@
   --c-line: #c9c9c2;
   --c-accent: #0b5fa5;
   --c-accent-strong: #084a80;
+  /* Text on a filled accent or danger surface; per theme, because the fills differ. */
+  --c-on-accent: #ffffff;
   --c-focus: #d55e00;
   --c-danger: #b3261e;
+  --c-on-danger: #ffffff;
   --c-ok: #1b7f3b;
   --c-warn: #8a5a00;
   --c-fallback: #888888;
@@ -49,8 +52,10 @@
     --c-line: #3a3f47;
     --c-accent: #5aa9e6;
     --c-accent-strong: #7fbcee;
+    --c-on-accent: #10161c;
     --c-focus: #ffb000;
     --c-danger: #ff6b61;
+    --c-on-danger: #1a0a08;
     --c-ok: #4fd18a;
     --c-warn: #f2c14e;
   }
@@ -65,8 +70,10 @@
   --c-line: #3a3f47;
   --c-accent: #5aa9e6;
   --c-accent-strong: #7fbcee;
+  --c-on-accent: #10161c;
   --c-focus: #ffb000;
   --c-danger: #ff6b61;
+  --c-on-danger: #1a0a08;
   --c-ok: #4fd18a;
   --c-warn: #f2c14e;
 }

@@ -1,6 +1,6 @@
 /**
  * Player settings (UX_SPEC 7.1 Settings) and local stats, persisted in localStorage. No cookies,
- * no network. IndexedDB saves arrive in M7.2 through the platform SaveStore.
+ * no network. Game saves use the platform SaveStore; settings continue to use localStorage.
  */
 import { create } from 'zustand';
 
@@ -116,7 +116,10 @@ export const useSettings = create<SettingsStore>((set, get) => ({
   },
 }));
 
-/** Apply theme + text scale to the document root (CSS variables drive the rest). */
+/**
+ * Apply theme, text scale and language to the document root (CSS variables drive the rest).
+ * `lang` matters to assistive technology and to the pseudo-locale check (M7.5).
+ */
 export function applyDocumentSettings(s: Settings): void {
   // Guarded for non-DOM hosts (the sim and unit tests import this module).
   if (typeof globalThis.document === 'undefined') return;
@@ -124,4 +127,5 @@ export function applyDocumentSettings(s: Settings): void {
   root.dataset.theme = s.theme;
   root.style.fontSize = `${s.textScale}%`;
   root.dataset.reducedMotion = s.reducedMotion ? 'true' : 'false';
+  root.lang = s.language === 'pseudo' ? 'en-XA' : 'en';
 }

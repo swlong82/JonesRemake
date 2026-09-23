@@ -5,7 +5,9 @@
  */
 import {
   computeGoals,
+  defaultDebtOf,
   loansOf,
+  totalOwed,
   weeklySubTotal,
   wellbeingBand,
   wellbeingOf,
@@ -17,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { PALETTE_HEX } from '../../assets/AssetRegistry';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
-import { hours, jobTitle } from './labels';
+import { hours, jobTitle, type Translate } from './labels';
 
 export const GOAL_IDS: GoalId[] = ['wealth', 'happiness', 'education', 'career'];
 
@@ -103,6 +105,16 @@ export function GoalBars({
   );
 }
 
+/**
+ * Wellbeing as the player is allowed to see it. Under classic opacity the band is named and the
+ * number is never rendered at all — UX 7.3's "hidden stats never shown" is about the DOM, not
+ * about CSS (M7.4).
+ */
+function wellbeingLine(value: number, opaque: boolean, pack: CityPack, t: Translate): string {
+  const band = t(`wellbeing.${wellbeingBand(value, pack)}`);
+  return opaque ? t('hud.wellbeingBand', { band }) : t('hud.wellbeingValue', { band, value });
+}
+
 export function Hud({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
@@ -117,7 +129,27 @@ export function Hud({ compact = false }: { compact?: boolean }) {
   const outfit = player.clothing[0];
   const subscriptions = weeklySubTotal(player);
   const loans = loansOf(player);
-  const loanDue = loans.reduce((total, loan) => total + loan.weeklyPayment, 0);
+  const defaultDebt = defaultDebtOf(player);
+  const loanDebt = totalOwed(player);
+  const activeLoanDebt = loanDebt - defaultDebt;
+  const loanDue = loans.reduce(
+    (total, loan) => total + Math.min(loan.weeklyPayment, loan.balance),
+    0,
+  );
+  const loanSummary =
+    loanDebt === 0
+      ? t('panel.noLoans')
+      : [
+          loanDue > 0 ? t('hud.loanDue', { amount: loanDue, outstanding: activeLoanDebt }) : null,
+          defaultDebt > 0
+            ? t('hud.loanDefault', {
+                amount: defaultDebt,
+                percent: (pack.loans?.garnishBp ?? 0) / 100,
+              })
+            : null,
+        ]
+          .filter((part): part is string => part !== null)
+          .join(' · ');
   const wellbeing = wellbeingOf(player);
 
   return (
@@ -183,11 +215,7 @@ export function Hud({ compact = false }: { compact?: boolean }) {
           </li>
           {wellbeing !== undefined && (
             <li data-testid="wellbeing">
-              {t('hud.wellbeing')}:{' '}
-              {t('hud.wellbeingValue', {
-                band: t(`wellbeing.${wellbeingBand(wellbeing, pack)}`),
-                value: wellbeing,
-              })}
+              {t('hud.wellbeing')}: {wellbeingLine(wellbeing, opaque, pack, t)}
             </li>
           )}
           {state.flags.subscriptions && (
@@ -197,8 +225,7 @@ export function Hud({ compact = false }: { compact?: boolean }) {
           )}
           {state.flags.loans && (
             <li data-testid="loan-due">
-              {t('hud.loans')}:{' '}
-              {loanDue > 0 ? t('hud.loanDue', { amount: loanDue }) : t('panel.noLoans')}
+              {t('hud.loans')}: {loanSummary}
             </li>
           )}
         </ul>
@@ -207,11 +234,7 @@ export function Hud({ compact = false }: { compact?: boolean }) {
         <ul className="flex flex-col gap-0.5 text-xs text-ink-muted">
           {wellbeing !== undefined && (
             <li data-testid="wellbeing">
-              {t('hud.wellbeing')}:{' '}
-              {t('hud.wellbeingValue', {
-                band: t(`wellbeing.${wellbeingBand(wellbeing, pack)}`),
-                value: wellbeing,
-              })}
+              {t('hud.wellbeing')}: {wellbeingLine(wellbeing, opaque, pack, t)}
             </li>
           )}
           {state.flags.subscriptions && (
@@ -221,8 +244,7 @@ export function Hud({ compact = false }: { compact?: boolean }) {
           )}
           {state.flags.loans && (
             <li data-testid="loan-due">
-              {t('hud.loans')}:{' '}
-              {loanDue > 0 ? t('hud.loanDue', { amount: loanDue }) : t('panel.noLoans')}
+              {t('hud.loans')}: {loanSummary}
             </li>
           )}
         </ul>

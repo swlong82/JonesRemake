@@ -186,7 +186,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "clothing-boutique",
+        "to": "burger-joint",
         "mode": "walk"
       }
     },
@@ -1189,6 +1189,6 @@
       }
     }
   ],
-  "finalHash": "121804fb4471a9",
+  "finalHash": "0f5c309d7ce4e4",
   "week": 6
 }

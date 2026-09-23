@@ -13,6 +13,8 @@ export default {
         line: 'var(--c-line)',
         accent: 'var(--c-accent)',
         'accent-strong': 'var(--c-accent-strong)',
+        'on-accent': 'var(--c-on-accent)',
+        'on-danger': 'var(--c-on-danger)',
         focus: 'var(--c-focus)',
         danger: 'var(--c-danger)',
         ok: 'var(--c-ok)',

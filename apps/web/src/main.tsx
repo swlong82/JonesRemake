@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { ServicesProvider } from './platform/Services';
 import { App } from './App';
 import { useGame } from './store/gameStore';
 import './i18n';
@@ -18,6 +19,8 @@ const root = document.getElementById('root');
 if (!root) throw new Error('#root missing');
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <ServicesProvider>
+      <App />
+    </ServicesProvider>
   </StrictMode>,
 );

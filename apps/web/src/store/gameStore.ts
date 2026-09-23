@@ -23,7 +23,8 @@ import { createAiClient, type AiClient } from '../ai/aiClient';
 import { loadPackStrings } from '../i18n';
 import { useSettings, type AiSpeed } from './settings';
 
-export type Screen = 'title' | 'setup' | 'settings' | 'stats' | 'game' | 'pass' | 'end' | 'help';
+export type Screen =
+  'title' | 'setup' | 'settings' | 'stats' | 'game' | 'pass' | 'end' | 'help' | 'saves';
 
 /** Events shown as modal cards (UX 7.5). */
 export const CARD_EVENTS = new Set<DomainEvent['type']>([
@@ -53,6 +54,14 @@ export interface TickerEntry {
   cmd: Command;
 }
 
+export type UnsubscribeCommand = Extract<Command, { type: 'Unsubscribe' }>;
+
+export interface SubscriptionCancelPending {
+  cmd: UnsubscribeCommand;
+  /** Engine-state snapshot that owned the offer; stale dialogs must never dispatch. */
+  stateHash: string;
+}
+
 export interface GameStore {
   screen: Screen;
   pack: CityPack | null;
@@ -76,7 +85,10 @@ export interface GameStore {
   helpOpen: boolean;
   /** End-turn confirmation is pending because hours are still left (UX 7.7). */
   endTurnPending: boolean;
+  /** The deliberately inconvenient second step in the subscription cancellation flow. */
+  subscriptionCancelPending: SubscriptionCancelPending | null;
   aiThinking: boolean;
+  loading: boolean;
   aiSkip: boolean;
   lastError: ErrorCode | null;
   debug: boolean;
@@ -84,6 +96,9 @@ export interface GameStore {
   aiClient: AiClient;
 
   go: (screen: Screen) => void;
+  beginLoad: () => number;
+  finishLoad: (token: number, loaded?: { state: GameState; pack: CityPack }) => boolean;
+  ownsLoad: (token: number) => boolean;
   startGame: (config: GameConfig, opts?: { debug?: boolean; autoplay?: boolean }) => void;
   dispatch: (cmd: Command) => boolean;
   selectLocation: (id: LocationId | null) => void;
@@ -97,6 +112,9 @@ export interface GameStore {
   /** End the turn, or ask first when more than `END_TURN_CONFIRM_HOURS` remain. */
   requestEndTurn: () => void;
   cancelEndTurn: () => void;
+  requestSubscriptionCancel: (cmd: UnsubscribeCommand) => boolean;
+  confirmSubscriptionCancel: () => boolean;
+  cancelSubscriptionCancel: () => void;
   toggleHelp: () => void;
   dismissCard: () => void;
   skipAi: () => void;
@@ -154,6 +172,8 @@ export const useGame = create<GameStore>((set, get) => ({
   menuOpen: false,
   helpOpen: false,
   endTurnPending: false,
+  subscriptionCancelPending: null,
+  loading: false,
   aiThinking: false,
   aiSkip: false,
   lastError: null,
@@ -162,7 +182,65 @@ export const useGame = create<GameStore>((set, get) => ({
   aiClient: createAiClient(),
 
   go(screen) {
-    set({ screen, helpOpen: false });
+    if (screen !== 'game' && screen !== 'pass') {
+      gameGeneration++;
+      get().aiClient.cancelPending();
+      set({ aiThinking: false, loading: false });
+    }
+    set({ screen, helpOpen: false, menuOpen: false });
+    if (screen === 'game') void get().runAiIfNeeded();
+  },
+  beginLoad() {
+    gameGeneration++;
+    get().aiClient.cancelPending();
+    set({ loading: true, aiThinking: false });
+    return gameGeneration;
+  },
+  ownsLoad(token) {
+    return token === gameGeneration && get().loading;
+  },
+  finishLoad(token, loaded) {
+    if (!get().ownsLoad(token)) return false;
+    if (!loaded) {
+      set({ loading: false });
+      void get().runAiIfNeeded();
+      return false;
+    }
+    const state = structuredClone(loaded.state);
+    const humans = humanSeats(state);
+    loadPackStrings(loaded.pack);
+    set({
+      state,
+      pack: loaded.pack,
+      loading: false,
+      aiThinking: false,
+      aiSkip: false,
+      log: [],
+      cards: [],
+      pendingCards: [],
+      ticker: [],
+      viewerSeat: humans.includes(state.activeSeat) ? state.activeSeat : (humans[0] ?? 0),
+      selectedLocation: null,
+      travelOpen: false,
+      travelMode: 'walk',
+      logOpen: false,
+      standingsOpen: false,
+      menuOpen: false,
+      helpOpen: false,
+      endTurnPending: false,
+      subscriptionCancelPending: null,
+      lastError: null,
+      debug: state.debugTouched,
+      autoplay: false,
+      screen:
+        state.winner !== null
+          ? 'end'
+          : humans.length > 1 && humans.includes(state.activeSeat)
+            ? 'pass'
+            : 'game',
+    });
+    void get().runAiIfNeeded();
+    return true;
   },
 
   startGame(config, opts = {}) {
@@ -188,6 +266,8 @@ export const useGame = create<GameStore>((set, get) => ({
       menuOpen: false,
       helpOpen: false,
       endTurnPending: false,
+      subscriptionCancelPending: null,
+      loading: false,
       aiThinking: false,
       aiSkip: false,
       pendingCards: [],
@@ -201,7 +281,7 @@ export const useGame = create<GameStore>((set, get) => ({
 
   dispatch(cmd) {
     const { state, pack } = get();
-    if (!state || !pack) return false;
+    if (!state || !pack || get().loading) return false;
     const seat = state.activeSeat;
     const r = applyCommand(state, seat, cmd, pack);
     const rejected = r.events.find((e) => e.type === 'CommandRejected');
@@ -230,6 +310,7 @@ export const useGame = create<GameStore>((set, get) => ({
       lastError: null,
       travelOpen: false,
       endTurnPending: false,
+      subscriptionCancelPending: null,
     };
     // Turn changed: hotseat privacy screen, or AI turn.
     if (next.activeSeat !== seat || next.winner !== null) {
@@ -321,6 +402,26 @@ export const useGame = create<GameStore>((set, get) => ({
   cancelEndTurn() {
     set({ endTurnPending: false });
   },
+  requestSubscriptionCancel(cmd) {
+    const { state, pack } = get();
+    if (!state || !pack || get().loading) return false;
+    const legal = legalCommands(state, state.activeSeat, pack).some(
+      (candidate) => candidate.type === 'Unsubscribe' && candidate.subId === cmd.subId,
+    );
+    if (!legal) return false;
+    set({ subscriptionCancelPending: { cmd, stateHash: stateHash(state) } });
+    return true;
+  },
+  confirmSubscriptionCancel() {
+    const { state, subscriptionCancelPending: pending } = get();
+    set({ subscriptionCancelPending: null });
+    if (!state) return false;
+    if (stateHash(state) !== pending?.stateHash) return false;
+    return get().dispatch(pending.cmd);
+  },
+  cancelSubscriptionCancel() {
+    set({ subscriptionCancelPending: null });
+  },
   toggleHelp() {
     set({ helpOpen: !get().helpOpen });
   },
@@ -344,7 +445,15 @@ export const useGame = create<GameStore>((set, get) => ({
   async runAiIfNeeded() {
     const g = get();
     const { state, pack } = g;
-    if (!state || !pack || state.winner !== null || g.aiThinking) return;
+    if (
+      !state ||
+      !pack ||
+      state.winner !== null ||
+      g.aiThinking ||
+      g.loading ||
+      g.screen !== 'game'
+    )
+      return;
     const seat = state.activeSeat;
     const player = state.players[seat];
     if (!player) return;
@@ -432,8 +541,10 @@ export const useGame = create<GameStore>((set, get) => ({
       pendingCards: [],
       ticker: [],
       log: [],
+      loading: false,
       aiThinking: false,
       aiSkip: false,
+      subscriptionCancelPending: null,
     });
   },
   rematch() {
@@ -452,7 +563,7 @@ export const useGame = create<GameStore>((set, get) => ({
     const next = structuredClone(state);
     next.debugTouched = true;
     fn(next);
-    set({ state: next });
+    set({ state: next, subscriptionCancelPending: null });
   },
 }));
 

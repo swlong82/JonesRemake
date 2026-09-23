@@ -1,0 +1,230 @@
+{
+  "$comment": "BALANCE_SPEC 9.5 stage-2 targets for `modern-western`, locked at M6.2. Derived from reports/baseline.json (stage 1, classic). This file MUST NOT be edited after its first commit: tools/lib/targets.test.ts compares its sha256 to the hash recorded in ADR-0033 (DECISIONS.md).",
+  "spec": "BALANCE_SPEC 9.5 stage-2",
+  "pack": "modern-western",
+  "lockedAt": "2026-09-22",
+  "adr": "ADR-0033",
+  "derivedFrom": {
+    "file": "reports/baseline.json",
+    "sha256": "a4c20647acd5353ffcbb2112aca16a6574a1669788e2244c5a8e86379c1d4b13",
+    "spec": "BALANCE_SPEC 9.3 stage-1",
+    "pack": "classic",
+    "gamesTotal": 3200
+  },
+  "baseline": {
+    "source": "classic-<goals>-normal-2.length.median",
+    "medianLengthByGoal": { "30": 28, "50": 40, "80": 62, "100": 83 }
+  },
+  "toleranceNote": "±20% bounds are rounded outward to whole weeks so a target is never tightened by rounding. Sampling tolerances (BALANCE 9.7, ±3 points) are applied in sim/gates.json, not here: this file is the spec-level target.",
+  "targets": [
+    {
+      "id": "median-30",
+      "gate": "Median length at goals 30 within ±20% of classic B",
+      "config": "modern-30-normal-2",
+      "metric": "length.median",
+      "min": 22,
+      "max": 34,
+      "derivation": "B=28 ±20% = 22.4–33.6, rounded outward"
+    },
+    {
+      "id": "median-50",
+      "gate": "Median length at goals 50 within ±20% of classic B",
+      "config": "modern-50-normal-2",
+      "metric": "length.median",
+      "min": 32,
+      "max": 48,
+      "derivation": "B=40 ±20% = 32.0–48.0"
+    },
+    {
+      "id": "median-80",
+      "gate": "Median length at goals 80 within ±20% of classic B",
+      "config": "modern-80-normal-2",
+      "metric": "length.median",
+      "min": 49,
+      "max": 75,
+      "derivation": "B=62 ±20% = 49.6–74.4, rounded outward"
+    },
+    {
+      "id": "median-100",
+      "gate": "Median length at goals 100 within ±20% of classic B",
+      "config": "modern-100-normal-2",
+      "metric": "length.median",
+      "min": 66,
+      "max": 100,
+      "derivation": "B=83 ±20% = 66.4–99.6, rounded outward"
+    },
+    {
+      "id": "stall",
+      "gate": "Stall rate < 0.5%",
+      "config": "modern-50-normal-2",
+      "metric": "stallRate",
+      "max": 0.5,
+      "derivation": "BALANCE 9.5 verbatim"
+    },
+    {
+      "id": "seat-bias",
+      "gate": "Seat bias 45–55%",
+      "config": "modern-50-normal-2",
+      "metric": "firstSeatWinPct",
+      "min": 45,
+      "max": 55,
+      "derivation": "BALANCE 9.5 verbatim"
+    },
+    {
+      "id": "hard-vs-easy",
+      "gate": "Hard vs Easy ≥ 80%",
+      "config": "modern-50-hard-vs-easy",
+      "metric": "winnerDifficultyPct.hard",
+      "min": 80,
+      "derivation": "BALANCE 9.5 verbatim; asserted in both seat orders"
+    },
+    {
+      "id": "last-goal-wealth",
+      "gate": "Wealth is last-completed ≥ 10%",
+      "config": "modern-50-normal-2",
+      "metric": "lastGoalPct.wealth",
+      "min": 10,
+      "derivation": "BALANCE 9.5 verbatim"
+    },
+    {
+      "id": "last-goal-happiness",
+      "gate": "Happiness is last-completed ≥ 10%",
+      "config": "modern-50-normal-2",
+      "metric": "lastGoalPct.happiness",
+      "min": 10,
+      "derivation": "BALANCE 9.5 verbatim"
+    },
+    {
+      "id": "last-goal-education",
+      "gate": "Education is last-completed ≥ 10%",
+      "config": "modern-50-normal-2",
+      "metric": "lastGoalPct.education",
+      "min": 10,
+      "derivation": "BALANCE 9.5 verbatim"
+    },
+    {
+      "id": "last-goal-career",
+      "gate": "Career is last-completed ≥ 10%",
+      "config": "modern-50-normal-2",
+      "metric": "lastGoalPct.career",
+      "min": 10,
+      "derivation": "BALANCE 9.5 verbatim; classic records 0.5% as structurally unreachable (ADR-0026, KI-005), and M6.3 is the milestone that revisits it on the modern ladder"
+    },
+    {
+      "id": "bot-gigonly-win",
+      "gate": "GigOnly win rate vs Normal < 25%",
+      "config": "modern-50-bot-GigOnly",
+      "metric": "botWinPct.GigOnly",
+      "max": 25,
+      "derivation": "BALANCE 9.5 verbatim"
+    },
+    {
+      "id": "bot-crypto-bankruptcy",
+      "gate": "CryptoAllIn bankruptcy rate > 40%",
+      "config": "modern-50-bot-CryptoAllIn",
+      "metric": "botBankruptcyPct.CryptoAllIn",
+      "min": 40,
+      "derivation": "BALANCE 9.5 verbatim, measured on the bot's own seat rather than the game"
+    },
+    {
+      "id": "bot-crypto-win",
+      "gate": "CryptoAllIn win rate 15–40%",
+      "config": "modern-50-bot-CryptoAllIn",
+      "metric": "botWinPct.CryptoAllIn",
+      "min": 15,
+      "max": 40,
+      "derivation": "BALANCE 9.5 verbatim"
+    },
+    {
+      "id": "bot-studyfirst-win",
+      "gate": "StudyFirst win rate 30–60% (viable, not dominant)",
+      "config": "modern-50-bot-StudyFirst",
+      "metric": "botWinPct.StudyFirst",
+      "min": 30,
+      "max": 60,
+      "derivation": "BALANCE 9.5 verbatim"
+    },
+    {
+      "id": "bot-norelax-collapse",
+      "gate": "NoRelax collapse rate ≥ 60% of games have ≥ 1 collapse",
+      "config": "modern-50-bot-NoRelax",
+      "metric": "botCollapsePct.NoRelax",
+      "min": 60,
+      "derivation": "BALANCE 9.5 verbatim, measured on the bot's own seat"
+    },
+    {
+      "id": "ai-collapse",
+      "gate": "Normal Balanced AI collapse 15–40% of games have ≥ 1 collapse",
+      "config": "modern-50-normal-2",
+      "metric": "collapseGamePct",
+      "min": 15,
+      "max": 40,
+      "derivation": "BALANCE 9.5 verbatim"
+    },
+    {
+      "id": "bot-loanmax-default",
+      "gate": "LoanMax default rate 20–60%",
+      "config": "modern-50-bot-LoanMax",
+      "metric": "botDefaultPct.LoanMax",
+      "min": 20,
+      "max": 60,
+      "derivation": "BALANCE 9.5 verbatim, measured on the bot's own seat"
+    },
+    {
+      "id": "no-bot-dominates",
+      "gate": "No bot beats Normal Balanced > 60%",
+      "config": "modern-50-bot-*",
+      "metric": "botWinPct.<bot>",
+      "max": 60,
+      "appliesTo": [
+        "StudyFirst",
+        "NoRelax",
+        "GigOnly",
+        "CryptoAllIn",
+        "DeliveryOnly",
+        "LoanMax"
+      ],
+      "derivation": "BALANCE 9.5 verbatim, one assertion per bot"
+    },
+    {
+      "id": "event-family-ai-layoffs",
+      "gate": "ai-layoffs fires ≥ 1 per 100 player-weeks at Chaos Modern",
+      "config": "modern-50-chaos",
+      "metric": "eventsPer100PlayerWeeks.ai-layoffs",
+      "min": 1,
+      "derivation": "BALANCE 9.5 verbatim, one assertion per modern family"
+    },
+    {
+      "id": "event-family-viral",
+      "gate": "viral fires ≥ 1 per 100 player-weeks at Chaos Modern",
+      "config": "modern-50-chaos",
+      "metric": "eventsPer100PlayerWeeks.viral",
+      "min": 1,
+      "derivation": "BALANCE 9.5 verbatim, one assertion per modern family"
+    },
+    {
+      "id": "event-family-scams",
+      "gate": "scams fires ≥ 1 per 100 player-weeks at Chaos Modern",
+      "config": "modern-50-chaos",
+      "metric": "eventsPer100PlayerWeeks.scams",
+      "min": 1,
+      "derivation": "BALANCE 9.5 verbatim, one assertion per modern family"
+    },
+    {
+      "id": "event-family-gadget-breakdown",
+      "gate": "gadget-breakdown fires ≥ 1 per 100 player-weeks at Chaos Modern",
+      "config": "modern-50-chaos",
+      "metric": "eventsPer100PlayerWeeks.gadget-breakdown",
+      "min": 1,
+      "derivation": "BALANCE 9.5 verbatim, one assertion per modern family"
+    },
+    {
+      "id": "sim-speed",
+      "gate": "Sim speed < 200 ms/game median with Normal AI",
+      "config": "modern-50-normal-2",
+      "metric": "perf.msPerGame.median",
+      "max": 200,
+      "derivation": "BALANCE 9.5 verbatim; classic already records this as unreachable at the spec-sized beam (ADR-0016), so it is carried as a measured-and-recorded target rather than a blocking one"
+    }
+  ]
+}

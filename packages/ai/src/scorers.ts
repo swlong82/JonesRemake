@@ -196,6 +196,10 @@ export const relaxation: Scorer = {
  * Wellbeing (GDD 4.5): a modern seat that lets it fall hits burnout and then a collapse, which
  * costs a whole turn. Personalities carry their own floor, and the scorer punishes being under it.
  * Packs without the system score 0, because the slice is not there.
+ *
+ * The score is continuous and strictly increasing in the stat (ADR-0034). A flat penalty per band
+ * gave the planner no gradient inside burnout: one rest that moved 13 → 21 scored exactly the same
+ * as resting not at all, so the seat stayed burnt out for the whole game.
  */
 export const wellbeing: Scorer = {
   id: 'wellbeing',
@@ -205,9 +209,12 @@ export const wellbeing: Scorer = {
     if (value === undefined) return 0;
     const floor = ctx.personality.preferences.wellbeingFloor;
     const bands = ctx.pack.rules.wellbeing.bands;
-    if (value < bands.collapse) return -1;
-    if (value < bands.burnout) return -0.5;
-    return Math.min(1, value / Math.max(1, floor)) * 0.5;
+    let v = Math.min(1, value / Math.max(1, floor)) * 0.15;
+    // Two ramps rather than two steps: a band edge is a slope, so recovering inside a band scores
+    // and a session that costs three points costs three points' worth of utility (ADR-0034).
+    if (value < bands.burnout) v -= (0.35 * (bands.burnout - value)) / Math.max(1, bands.burnout);
+    if (value < bands.collapse) v -= (2 * (bands.collapse - value)) / Math.max(1, bands.collapse);
+    return v;
   },
 };
 

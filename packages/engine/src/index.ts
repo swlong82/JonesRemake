@@ -26,6 +26,7 @@ import type { Command } from './commands/commands.generated.js';
 
 export { ENGINE_VERSION, STATE_SCHEMA_VERSION } from './core/version.js';
 export * from './core/state.js';
+export { GameStateSchema, GameConfigSchema } from './core/state-schema.js';
 export * from './core/rng.js';
 export * from './core/math.js';
 export * from './core/hash.js';
@@ -63,7 +64,7 @@ export * from './modules/index.js';
 export * from './modules/core-econ.js';
 export * from './modules/core-pending.js';
 export * from './modules/core-events.js';
-export { loansOf } from './modules/loans.js';
+export { defaultDebtOf, loansOf, totalOwed } from './modules/loans.js';
 export { weeklySubTotal } from './modules/subscriptions.js';
 export { wellbeingBand, wellbeingOf } from './modules/wellbeing.js';
 export { coreSetup } from './modules/core-setup.js';

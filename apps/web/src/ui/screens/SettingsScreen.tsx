@@ -112,6 +112,8 @@ export function SettingsScreen() {
             onChange={(e) => update({ language: e.target.value as 'en' | 'pseudo' })}
           >
             <option value="en">{t('settings.language.en')}</option>
+            {/* M7.5: the pseudo-locale is a layout test, generated from the English bundle. */}
+            <option value="pseudo">{t('settings.language.pseudo')}</option>
           </select>
         </Field>
         <Button

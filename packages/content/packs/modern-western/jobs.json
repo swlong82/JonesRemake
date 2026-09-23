@@ -28,5 +28,60 @@
     "gigRequires": ["rideHail", "car"],
     "gigPay": 60,
     "alwaysHire": true
+  },
+  {
+    "id": "burger-joint-assistant-manager",
+    "workplaceId": "burger-joint",
+    "titleKey": "job.burger-joint-assistant-manager.title",
+    "baseWage": 9,
+    "reqExperience": 25,
+    "reqDependability": 35,
+    "reqDegrees": ["junior-college"],
+    "uniformTier": "dress",
+    "automationRisk": 0.05
+  },
+  {
+    "id": "grocery-assistant-manager",
+    "workplaceId": "grocery",
+    "titleKey": "job.grocery-assistant-manager.title",
+    "baseWage": 11,
+    "reqExperience": 30,
+    "reqDependability": 40,
+    "reqDegrees": ["junior-college"],
+    "uniformTier": "dress",
+    "automationRisk": 0.05
+  },
+  {
+    "id": "clothing-boutique-assistant-manager",
+    "workplaceId": "clothing-boutique",
+    "titleKey": "job.clothing-boutique-assistant-manager.title",
+    "baseWage": 10,
+    "reqExperience": 28,
+    "reqDependability": 38,
+    "reqDegrees": ["junior-college"],
+    "uniformTier": "dress",
+    "automationRisk": 0.05
+  },
+  {
+    "id": "factory-machinist-s-helper",
+    "workplaceId": "factory",
+    "titleKey": "job.factory-machinist-s-helper.title",
+    "baseWage": 8,
+    "reqExperience": 18,
+    "reqDependability": 26,
+    "reqDegrees": ["pre-engineering"],
+    "uniformTier": "casual",
+    "automationRisk": 0.1
+  },
+  {
+    "id": "factory-shift-supervisor",
+    "workplaceId": "factory",
+    "titleKey": "job.factory-shift-supervisor.title",
+    "baseWage": 12,
+    "reqExperience": 32,
+    "reqDependability": 42,
+    "reqDegrees": ["junior-college"],
+    "uniformTier": "dress",
+    "automationRisk": 0.05
   }
 ]

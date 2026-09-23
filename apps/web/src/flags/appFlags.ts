@@ -9,7 +9,7 @@
  * Resolution order (last wins):
  *   1. registry default
  *   2. build env `VITE_FF_<ID>` = on|off|true|false|1|0
- *   3. URL query `?ff=audio,-saves` (`-` prefix turns a flag off)
+ *   3. URL query `?ff=audio,-tutorial` (`-` prefix turns a flag off)
  *
  * Flags marked `debugOnly` additionally require `VITE_DEBUG_ALLOWED === 'true'` (UX_SPEC 7.9);
  * without it they stay off however they are requested, so debug surfaces cannot be switched on in
@@ -17,7 +17,7 @@
  */
 import { create } from 'zustand';
 
-export const APP_FLAG_IDS = ['debugTools', 'saves', 'tutorial', 'audio', 'leaderboard'] as const;
+export const APP_FLAG_IDS = ['debugTools', 'tutorial', 'audio', 'leaderboard'] as const;
 
 export type AppFlagId = (typeof APP_FLAG_IDS)[number];
 export type AppFlags = Record<AppFlagId, boolean>;
@@ -42,9 +42,10 @@ export const APP_FLAGS: Record<AppFlagId, AppFlagSpec> = {
     labelKey: 'flag.debugTools',
     debugOnly: true,
   },
-  saves: { id: 'saves', default: false, milestone: 'M7.2', labelKey: 'flag.saves' },
-  tutorial: { id: 'tutorial', default: false, milestone: 'M7.3', labelKey: 'flag.tutorial' },
-  audio: { id: 'audio', default: false, milestone: 'M7.1', labelKey: 'flag.audio' },
+  // M7.3 landed the spotlight and the scripted steps, so the tutorial is on by default now.
+  tutorial: { id: 'tutorial', default: true, milestone: 'M7.3', labelKey: 'flag.tutorial' },
+  // M7.1 landed the bus, the recipes and the moods, so audio is on by default now.
+  audio: { id: 'audio', default: true, milestone: 'M7.1', labelKey: 'flag.audio' },
   leaderboard: {
     id: 'leaderboard',
     default: false,
@@ -72,12 +73,12 @@ function parseBool(raw: string | boolean | undefined): boolean | null {
   return null;
 }
 
-/** `VITE_FF_SAVES` — upper-cased flag id, so env keys stay shell-safe. */
+/** `VITE_FF_TUTORIAL` — upper-cased flag id, so env keys stay shell-safe. */
 export function envKeyFor(id: AppFlagId): string {
   return `VITE_FF_${id.toUpperCase()}`;
 }
 
-/** Parse `?ff=audio,-saves` into explicit on/off requests. */
+/** Parse `?ff=audio,-tutorial` into explicit on/off requests. */
 export function parseFlagQuery(search: string): Partial<AppFlags> {
   const out: Partial<AppFlags> = {};
   const params = new URLSearchParams(search);

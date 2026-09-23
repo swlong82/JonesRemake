@@ -1,0 +1,17 @@
+{
+  "$comment": "Fast inner-loop probe for the M6.3 tuning iterations (BALANCE 9.6): one modern config, small sample, short stall week. Not a gate — `sim/stage2.json` is the measurement suite and `sim/gates.json` is CI.",
+  "gamesPerConfig": 24,
+  "configs": [
+    {
+      "id": "probe-50-normal-2",
+      "pack": "modern-western",
+      "seats": 2,
+      "ai": "normal:balanced,normal:balanced",
+      "goals": 50,
+      "chaos": "modern",
+      "games": 24,
+      "stallWeek": 300
+    }
+  ],
+  "compare": []
+}

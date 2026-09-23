@@ -94,10 +94,15 @@ describe('subscriptions module (GDD 4.11)', () => {
       },
       modern,
     );
-    const happyBefore = broke.players[0]!.happiness;
     const next = endWeek(broke);
     expect(activeSubs(next.players[0]!)).toEqual([]);
-    expect(next.players[0]!.happiness).toBeLessThan(happyBefore);
+    // Measured against the same week paid for, so the assertion is the lapse itself and not the
+    // week's other happiness traffic (decay, the thrive band, the pack's own numbers).
+    const paid = endWeek(subscribed('broke', 'gym'));
+    expect(activeSubs(paid.players[0]!)).toEqual(['gym']);
+    expect(next.players[0]!.happiness).toBe(
+      paid.players[0]!.happiness + RULES.happiness.subscriptionLapsed,
+    );
   });
 
   it('cancelling means going back to where you signed up', () => {

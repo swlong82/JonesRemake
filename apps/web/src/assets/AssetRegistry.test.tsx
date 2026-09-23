@@ -13,6 +13,31 @@ describe('PlaceholderAssetRegistry', () => {
     for (const item of pack.items) expect(registry.has(itemKey(item.id))).toBe(true);
   });
 
+  it('renders every modern item with an intentional icon rather than the missing-icon fallback', () => {
+    const modern = loadPack('modern-western');
+    const modernRegistry = new PlaceholderAssetRegistry(modern.visuals);
+    const fallback = modernRegistry.icon('no-such-icon');
+    for (const id of [
+      'smartphone',
+      'laptop',
+      'phone-case',
+      'tablet',
+      'smart-tv',
+      'game-console',
+      'e-reader',
+      'noise-cancelling-headphones',
+      'air-fryer',
+      'robot-vacuum',
+      'massage-chair',
+      'bike',
+      'gym-card',
+    ]) {
+      const visual = modern.visuals[itemKey(id)];
+      expect(visual, id).toBeDefined();
+      expect(modernRegistry.icon(visual!.icon), id).not.toBe(fallback);
+    }
+  });
+
   it('never throws on an unknown key: icon and color fall back', () => {
     expect(registry.has('location:atlantis')).toBe(false);
     const Missing = registry.icon('no-such-icon');

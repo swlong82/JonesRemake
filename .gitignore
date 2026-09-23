@@ -6,6 +6,7 @@ coverage/
 reports/*
 !reports/.gitkeep
 !reports/baseline.json
+!reports/modern-targets.json
 playwright-report/
 test-results/
 blob-report/

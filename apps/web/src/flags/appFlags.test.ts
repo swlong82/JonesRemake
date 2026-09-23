@@ -17,8 +17,11 @@ describe('app feature flags', () => {
   it('defaults every unfinished feature to off', () => {
     const flags = resolveAppFlags();
     for (const id of APP_FLAG_IDS) expect(flags[id]).toBe(APP_FLAGS[id].default);
-    expect(flags.saves).toBe(false);
-    expect(DEFAULT_APP_FLAGS.audio).toBe(false);
+    expect(DEFAULT_APP_FLAGS.leaderboard).toBe(false);
+    // M7.1 and M7.3 landed audio and the tutorial, so their flags are on; each flag stays until
+    // its milestone is closed.
+    expect(DEFAULT_APP_FLAGS.audio).toBe(true);
+    expect(DEFAULT_APP_FLAGS.tutorial).toBe(true);
   });
 
   it('every flag names the milestone that removes it', () => {
@@ -28,19 +31,26 @@ describe('app feature flags', () => {
     }
   });
 
+  // `leaderboard` is the flag still waiting on its milestone, so it is the one that reads as off
+  // when nothing overrides it.
   it('reads build env overrides in every accepted spelling', () => {
-    expect(envKeyFor('saves')).toBe('VITE_FF_SAVES');
-    expect(resolveAppFlags({ env: { VITE_FF_SAVES: 'on' } }).saves).toBe(true);
-    expect(resolveAppFlags({ env: { VITE_FF_SAVES: 'true' } }).saves).toBe(true);
-    expect(resolveAppFlags({ env: { VITE_FF_SAVES: '1' } }).saves).toBe(true);
-    expect(resolveAppFlags({ env: { VITE_FF_SAVES: 'off' } }).saves).toBe(false);
-    expect(resolveAppFlags({ env: { VITE_FF_SAVES: 'nonsense' } }).saves).toBe(false);
-    expect(resolveAppFlags({ env: { VITE_FF_SAVES: true } }).saves).toBe(true);
+    expect(envKeyFor('leaderboard')).toBe('VITE_FF_LEADERBOARD');
+    const read = (v: string | boolean): boolean =>
+      resolveAppFlags({ env: { VITE_FF_LEADERBOARD: v } }).leaderboard;
+    expect(read('on')).toBe(true);
+    expect(read('true')).toBe(true);
+    expect(read('1')).toBe(true);
+    expect(read('off')).toBe(false);
+    expect(read('nonsense')).toBe(false);
+    expect(read(true)).toBe(true);
+    // A flag whose milestone has landed defaults on, and the same spellings still turn it off.
+    expect(resolveAppFlags({ env: { VITE_FF_TUTORIAL: 'off' } }).tutorial).toBe(false);
+    expect(resolveAppFlags({ env: {} }).tutorial).toBe(true);
   });
 
   it('parses the ff query, with a minus prefix turning a flag off', () => {
-    expect(parseFlagQuery('?ff=saves,-audio')).toEqual({ saves: true, audio: false });
-    expect(parseFlagQuery('?ff=audio&ff=saves')).toEqual({ audio: true, saves: true });
+    expect(parseFlagQuery('?ff=tutorial,-audio')).toEqual({ tutorial: true, audio: false });
+    expect(parseFlagQuery('?ff=audio&ff=tutorial')).toEqual({ audio: true, tutorial: true });
     expect(parseFlagQuery('?ff=')).toEqual({});
     expect(parseFlagQuery('?ff=notAFlag')).toEqual({});
     expect(parseFlagQuery('')).toEqual({});
@@ -48,10 +58,10 @@ describe('app feature flags', () => {
 
   it('lets the query override the build env', () => {
     const flags = resolveAppFlags({
-      env: { VITE_FF_SAVES: 'on' },
-      search: '?ff=-saves',
+      env: { VITE_FF_TUTORIAL: 'on' },
+      search: '?ff=-tutorial',
     });
-    expect(flags.saves).toBe(false);
+    expect(flags.tutorial).toBe(false);
   });
 
   it('keeps debug-only flags off unless the build allows debug', () => {
@@ -67,12 +77,12 @@ describe('app feature flags', () => {
   });
 
   it('exposes a store that can flip a non-debug flag and reset', () => {
-    expect(useFlags.getState().flags.saves).toBe(false);
-    useFlags.getState().set('saves', true);
-    expect(useFlags.getState().flags.saves).toBe(true);
+    expect(useFlags.getState().flags.leaderboard).toBe(false);
+    useFlags.getState().set('leaderboard', true);
+    expect(useFlags.getState().flags.leaderboard).toBe(true);
     useFlags.getState().set('debugTools', true);
     expect(useFlags.getState().flags.debugTools).toBe(false);
     useFlags.getState().reset({ env: {}, search: '' });
-    expect(useFlags.getState().flags.saves).toBe(false);
+    expect(useFlags.getState().flags.leaderboard).toBe(false);
   });
 });
