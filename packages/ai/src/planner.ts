@@ -164,6 +164,8 @@ export function filterCandidates(
 
 /** Cash a seat without the uniform its job needs should hold before shopping for one. */
 const UNIFORM_CASH = 500;
+/** Wellbeing above the burnout line below which relaxing starts to rank as urgent. */
+const WELLBEING_CUSHION = 10;
 /** Hours left above which ending the turn is wasting the week (matches EndTurn's pre-rank). */
 const IDLE_HOURS = 12;
 
@@ -340,6 +342,13 @@ function quickScore(
       // ranked below errands, it was pruned and a goals-100 seat sat at 64 happiness for months.
       const hGap = gap('happiness');
       if (hGap > 0 && hGap >= Math.max(gap('wealth'), gap('education'), gap('career'))) s += 0.6;
+      // Relaxing is also the cure for wellbeing (GDD 4.5). Ranked on happiness alone, a seat whose
+      // happiness goal was met never relaxed and lived in burnout until it collapsed (KI-008).
+      const wb = (p.modules.wellbeing as { value?: number } | undefined)?.value;
+      if (wb !== undefined) {
+        const worry = pack.rules.wellbeing.bands.burnout + WELLBEING_CUSHION;
+        if (wb < worry) s += (0.9 * (worry - wb)) / worry;
+      }
       break;
     }
     case 'GigShift':

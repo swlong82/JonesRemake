@@ -229,3 +229,20 @@ describe('strategy bias (ADR-0044)', () => {
     );
   }, 30_000);
 });
+
+describe('wellbeing (KI-008)', () => {
+  it('a burnt-out seat relaxes even when its happiness goal is met', () => {
+    const s = patch(
+      modernGame('burnt-out'),
+      0,
+      (p) => {
+        p.happiness = 100;
+        p.food.mealPending = 'burger';
+        (p.modules.wellbeing as { value: number }).value = 12;
+      },
+      modern,
+    );
+    const r = runAiTurn(s, 0, modern, { difficulty: 'normal', personality: 'balanced' });
+    expect(r.commands.some((c) => c.type === 'Relax')).toBe(true);
+  }, 30_000);
+});
