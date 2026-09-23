@@ -165,7 +165,7 @@ export function filterCandidates(
 /** Cash a seat without the uniform its job needs should hold before shopping for one. */
 const UNIFORM_CASH = 500;
 /** Wellbeing above the burnout line below which relaxing starts to rank as urgent. */
-const WELLBEING_CUSHION = 10;
+const WELLBEING_CUSHION = 0;
 /** Hours left above which ending the turn is wasting the week (matches EndTurn's pre-rank). */
 const IDLE_HOURS = 12;
 
