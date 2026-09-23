@@ -348,10 +348,28 @@ describe('pre-ranking treats balance-sheet moves as transfers (ADR-0043)', () =>
       p.bank = 3_000;
       p.job = { jobId: 'bank-branch-manager', wage: 18, raises: 0, hiredWeek: 1 };
       p.clothing = [];
+      p.food.mealPending = 'burger';
     });
     s = goInside(s, 0, 'bank');
     const r = runAiTurn(s, 0, pack, opts);
     const w = r.commands.find((c) => c.type === 'Withdraw') as { amount: number } | undefined;
     expect(w?.amount).toBeGreaterThanOrEqual(500);
+  });
+});
+
+describe('feeding (KI-008)', () => {
+  it('an unfed seat with money gets a meal in before the week ends', () => {
+    for (const personality of PERSONALITIES) {
+      const s = patch(newGame(`feed-${personality}`, [aiSeat('A'), aiSeat('B')]), 0, (p) => {
+        p.cash = 400;
+        p.food = { fridgeUnits: 0, unrefrigeratedUnits: 0, mealPending: null };
+      });
+      const r = runAiTurn(s, 0, pack, { difficulty: 'normal', personality });
+      // A meal, groceries or a delivery: whichever it is, the next week does not start starving.
+      const eats = r.commands.some(
+        (c) => c.type === 'EatMeal' || c.type === 'BuyFood' || c.type === 'OrderDelivery',
+      );
+      expect(eats, personality).toBe(true);
+    }
   });
 });

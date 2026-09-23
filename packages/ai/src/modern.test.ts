@@ -180,6 +180,8 @@ describe('M5.9: the AI plays the modern ruleset', () => {
         0,
         (p) => {
           p.cash = 1_500;
+          // Fed, so the week's meal does not come first (KI-008).
+          p.food.mealPending = 'burger';
           p.items.push({
             uid: 'ph',
             itemId: 'smartphone',
@@ -200,7 +202,15 @@ describe('M5.9: the AI plays the modern ruleset', () => {
 describe('strategy bias (ADR-0044)', () => {
   it('a preferred command is played even where the ordinary seat declines it', () => {
     const s = goInside(
-      patch(modernGame('bias-loan'), 0, (p) => (p.cash = 5_000), modern),
+      patch(
+        modernGame('bias-loan'),
+        0,
+        (p) => {
+          p.cash = 5_000;
+          p.food.mealPending = 'burger';
+        },
+        modern,
+      ),
       0,
       'bank',
       modern,
