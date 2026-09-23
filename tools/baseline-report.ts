@@ -37,7 +37,11 @@ function engineVersion(): string {
 }
 
 const runs = readdirSync(inDir, { withFileTypes: true })
-  .filter((e) => e.isDirectory() && e.name.startsWith(`${pack}-`))
+  // `seatbias-<pack>-…` is the same-personality run the seat-bias gate reads (ADR-0044).
+  .filter(
+    (e) =>
+      e.isDirectory() && (e.name.startsWith(`${pack}-`) || e.name.startsWith(`seatbias-${pack}-`)),
+  )
   .map((e) => ({
     summary: JSON.parse(readFileSync(join(inDir, e.name, 'summary.json'), 'utf8')) as StageSummary,
     perf: JSON.parse(readFileSync(join(inDir, e.name, 'perf.json'), 'utf8')) as StagePerf,
