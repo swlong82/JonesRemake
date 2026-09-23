@@ -257,3 +257,26 @@ describe('layoff grace (ADR-0047)', () => {
     expect(rehired(12, 10, pack).job?.hiredWeek).toBe(12);
   });
 });
+
+describe('graduate entry (ADR-0050)', () => {
+  const credited = {
+    ...pack,
+    rules: { ...pack.rules, goals: { ...pack.rules.goals, careerTenureWeeksPerDegree: 5 } },
+  };
+  const hired = (week: number, degrees: string[], p = credited) => {
+    const s = patch(goInside(newGame('graduate'), 0, 'employment-office'), 0, (pl) => {
+      pl.job = null;
+      pl.degrees = degrees;
+    });
+    const r = applyCommand({ ...s, week }, 0, { type: 'ApplyJob', jobId: 'burger-joint-cook' }, p);
+    return r.state.players[0]!.job?.hiredWeek;
+  };
+
+  it('each degree held at a fresh hire counts as weeks already served', () => {
+    expect(hired(20, ['trade-school', 'junior-college'])).toBe(10);
+  });
+  it('never before week 0, and nothing where the pack grants no credit', () => {
+    expect(hired(8, ['trade-school', 'junior-college'])).toBe(0);
+    expect(hired(20, ['trade-school', 'junior-college'], pack)).toBe(20);
+  });
+});

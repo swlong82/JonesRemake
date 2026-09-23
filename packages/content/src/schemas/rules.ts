@@ -75,6 +75,8 @@ export const rulesSchema = z
         careerTenureDelayWeeks: z.number().int().nonnegative().default(0),
         /** Weeks after an event layoff within which a rehire resumes tenure (ADR-0047). */
         careerLayoffGraceWeeks: z.number().int().nonnegative().default(0),
+        /** Tenure weeks each degree held is worth at a fresh hire: graduate entry (ADR-0050). */
+        careerTenureWeeksPerDegree: z.number().int().nonnegative().default(0),
       })
       .strict(),
     stats: z

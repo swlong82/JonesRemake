@@ -34,12 +34,17 @@ export function luckPercent(ctx: Ctx, seat: number): number {
 }
 
 /**
- * Start of continuous employment for a hire off the street: this week, or — within the pack's grace
- * after an event layoff — the lost job's start moved on by the weeks spent out of work (ADR-0047).
+ * Start of continuous employment for a hire off the street: this week less the graduate-entry credit
+ * of the degrees held (ADR-0050), or — within the pack's grace after an event layoff — the lost
+ * job's start moved on by the weeks spent out of work (ADR-0047).
  */
 function resumed(ctx: Ctx): number {
   const off = ctx.player.layoff;
-  if (!off || ctx.week - off.week > ctx.rules.goals.careerLayoffGraceWeeks) return ctx.week;
+  if (!off || ctx.week - off.week > ctx.rules.goals.careerLayoffGraceWeeks) {
+    // Graduate entry (ADR-0050): each degree held counts as weeks already served.
+    const credit = ctx.player.degrees.length * ctx.rules.goals.careerTenureWeeksPerDegree;
+    return Math.max(0, ctx.week - credit);
+  }
   return off.hiredWeek + (ctx.week - off.week);
 }
 

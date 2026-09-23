@@ -522,3 +522,12 @@
   - **CryptoAllIn** prefers buys of at least half its cash, rent included (weight 0.2, ADR-0044). Crypto's weekly volatility is 1500 bp: a bet that busts more often also has to boom sometimes.
   - **AI:** the planner keeps two loan instalments in cash or bank, since instalments come out at the turn start and four misses default the loan (GDD 4.12).
 - Consequences (probes, 40–80 games): Normal games with a collapse ≈ 20%; NoRelax 100%; CryptoAllIn wins 20% with 52% bankrupt; LoanMax defaults 50%. Medians at goals 50/80/100 are 29/44/61 weeks, within ±20% of classic B, with every goal last-completed at least 10% at goals 50. More Normal seats now go bankrupt after a collapse (≈ 5–10%); the spec tracks that rate but sets no target for it. Stage 2 is the measurement of record.
+
+## ADR-0050: Graduate entry: degrees held at a fresh hire count toward career tenure
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: career is capped by continuous employment (ADR-0040). BALANCE 9.4's StudyFirst earns every degree its education goal needs before any regular work, so its tenure clock starts around week 17 while a Normal seat wins near week 28. Stage 2 measured StudyFirst at 11.7% wins (target 30–60%, "viable, not dominant"). A larger student loan and a larger experience bonus per degree did not move it: the clock is the binding constraint.
+- Options: 1) widen the target (not allowed, ADR-0037); 2) make degrees count toward career directly (changes every game); 3) credit degrees only when the tenure clock starts from scratch.
+- Decision: option 3, driven by content. At a hire off the street, `hiredWeek` is set back by `rules.goals.careerTenureWeeksPerDegree` weeks per degree held, never before week 0. A job change (continuous employment) and a rehire within the layoff grace (ADR-0047) are unaffected. Classic sets 0.
+- Consequences: studying first becomes a real route to the career goal. Ordinary seats take their first job before any degree, so the credit mostly reaches them when they are hired again after a firing or a collapse, which it softens a little.
