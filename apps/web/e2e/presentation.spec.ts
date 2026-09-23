@@ -27,6 +27,25 @@ async function clippedElements(page: Page): Promise<string[]> {
   });
 }
 
+/**
+ * Elements whose right edge passes the configured viewport. On a mobile viewport such a page is
+ * zoomed out to fit, so `innerWidth` grows with it — the Playwright project's width is the truth.
+ */
+async function horizontalOverflow(page: Page): Promise<string[]> {
+  const width = page.viewportSize()?.width ?? 0;
+  return page.evaluate((w) => {
+    const bad: string[] = [];
+    if (document.documentElement.scrollWidth > w + 1)
+      bad.push(`document: ${document.documentElement.scrollWidth}px > ${w}px`);
+    for (const el of Array.from(document.querySelectorAll<HTMLElement>('body *'))) {
+      const r = el.getBoundingClientRect();
+      if (r.width > 0 && r.right > w + 1 && el.children.length === 0)
+        bad.push(`${el.tagName.toLowerCase()}#${el.id}: right ${Math.round(r.right)}px`);
+    }
+    return bad;
+  }, width);
+}
+
 async function setLanguageToPseudo(page: Page): Promise<void> {
   await page.getByTestId('settings').click();
   await page.locator('#language').selectOption('pseudo');
@@ -60,19 +79,19 @@ test('themes and the largest text scale keep the board readable and accessible',
   page,
 }) => {
   await page.goto('/?ff=-tutorial');
-  await page.getByTestId('new-game').click();
-  await page.getByTestId('seed').fill('e2e-scale');
-  await page.getByTestId('start-game').click();
-  await expect(page.getByTestId('hud')).toBeVisible();
-
-  // The scale and theme are turned up once the board is up, because the setup form cannot be
-  // driven at 150% on a phone (KI-009).
-  await page.getByTestId('menu-btn').click();
-  await page.getByTestId('menu-settings').click();
+  await page.getByTestId('settings').click();
   await page.locator('#theme').selectOption('dark');
   await page.locator('#textScale').selectOption('150');
+  expect(await horizontalOverflow(page)).toEqual([]);
   await page.getByTestId('back').click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+  // KI-009: at 150% on a phone the setup form used to be wider than the screen, so mobile
+  // Chromium zoomed the page out and a real click on Start missed. It must fit, and be clickable.
+  await page.getByTestId('new-game').click();
+  expect(await horizontalOverflow(page)).toEqual([]);
+  await page.getByTestId('seed').fill('e2e-scale');
+  await page.getByTestId('start-game').click();
   await expect(page.getByTestId('hud')).toBeVisible();
 
   // UX 7.8's axe gate, on the board, in the dark theme, at 150% text.

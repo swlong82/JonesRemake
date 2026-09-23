@@ -94,7 +94,7 @@ Last updated: 2026-09-23 — see `HANDOFF.md` for the resume point.
 Owner-reviewed scope: ADR-0037. Phase A closes every open issue before M8.1.
 
 - [x] M8.0a KI-006 closed (stale) and KI-001 closed (milestone tags on `main` commits) — note: KI-006 was stale (M6.3 ran the suite). KI-001: every milestone mapped to a green `main` commit (ADR-0038), gate log corrected, `tools/retag-milestones.sh` for the owner to run (the session still gets 403 on tags).
-- [ ] M8.0b KI-009 fixed: real click on Start at 150% text on the phone viewport — note:
+- [x] M8.0b KI-009 fixed: real click on Start at 150% text on the phone viewport — note: the page overflowed to 557px (inputs' and grid items' `min-width: auto`), so mobile Chromium zoomed it out. The inputs can shrink now, and the overflow check plus a real click run on all three viewports. e2e 51/51, web 191/191.
 - [ ] M8.0c KI-008 event defects: `viral` family never fires, `gadget-breakdown` rate — note:
 - [ ] M8.0d Career anchor (KI-005 + KI-008 career/wealth): both packs, re-baseline, re-lock modern targets — note:
 - [ ] M8.0e Remaining KI-008 targets (collapse, goals-80 median, Hard vs Easy, StudyFirst, LoanMax) — note:

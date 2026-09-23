@@ -311,7 +311,9 @@ export function SetupScreen() {
               onChange={(e) => setSeed(e.target.value)}
               data-testid="seed"
             />
-            <Button onClick={() => setSeed(randomSeed())}>{t('setup.randomSeed')}</Button>
+            <Button className="shrink-0" onClick={() => setSeed(randomSeed())}>
+              {t('setup.randomSeed')}
+            </Button>
           </div>
         </Field>
         <Field label={t('setup.chaos')} htmlFor="chaos">

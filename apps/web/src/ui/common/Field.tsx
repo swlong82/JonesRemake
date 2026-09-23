@@ -12,7 +12,7 @@ export function Field({
   hint?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex min-w-0 flex-col gap-1">
       <label htmlFor={htmlFor} className="text-sm font-medium">
         {label}
       </label>

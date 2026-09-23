@@ -91,7 +91,9 @@
 - Measured: scrolled to the foot of the page the geometry is correct — the options grid ends at y = 94 and the button sits at y = 960–1026, and `document.elementFromPoint` at the button's centre returns the button itself. The interception only appears during Playwright's own scroll-then-hit-test, so the two disagree about where the button is on a page 3,308 px tall.
 - Attempts: 1) `scrollIntoViewIfNeeded()` before the click — still intercepted; 2) `scrollTo(0, document.body.scrollHeight)` first — still intercepted; 3) measured both boxes and the hit test at the click point, which say the button is on top and clickable. Three attempts, so CLAUDE.md 1.5 applies.
 - Mitigation: none needed for the a11y pass itself, which is what M7.5 is about — `presentation.spec.ts` now reaches the board first and turns the scale and theme up from the in-game menu, so the axe gate, the contrast check and the no-clipped-text check all still run on the board in the dark theme at 150% on all three viewports. Nothing is disabled and no assertion was weakened. A player on a phone can still start a game at 150%: the button is visible and on top, and only the automated click disagrees.
-- Status: open — worth a look at the setup form's grid at large root font sizes before release; it may be the harness rather than the layout.
+- Root cause (M8): the layout, not the harness. At a 24px root font the seed text field's intrinsic width (`size=20` at 24px) and the grid and flex items' default `min-width: auto` made the setup page 557px wide on a 390px screen. Mobile Chromium zooms a page that overflows out to fit its content, which is why the attempts above measured a 485px viewport and why Playwright's hit test missed.
+- Fix: `.input` gets `min-w-0 max-w-full`, `Field` gets `min-w-0`, and the seed row's button `shrink-0`. `presentation.spec.ts` now sets the dark theme and 150% text from the title screen, asserts that nothing on Settings or Setup extends past the configured viewport width, and clicks Start for real, with no `force`, on all three viewports.
+- Status: fixed in M8
 
 <!--
 ## KI-001: <title>
