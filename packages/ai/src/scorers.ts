@@ -187,8 +187,13 @@ export const survival: Scorer = {
     // Rent is paid in cash, so near the due week only cash on hand counts as covered.
     const covered =
       weeksToDue <= 1 ? p.cash >= p.home.rentLocked : p.cash + p.bank >= p.home.rentLocked;
-    if (p.home.debt > 0) v -= 0.5 + Math.min(0.5, p.home.debt / 1000);
-    else if (weeksToDue <= 1 && !covered) v -= 0.35;
+    if (p.home.debt > 0) {
+      v -= 0.5 + Math.min(0.5, p.home.debt / 1000);
+      // Paying debt from the bank takes four steps (bank, withdraw, rent office, pay) and only the
+      // last one scored, so the search pruned the trip and seats sat in debt beside a full account
+      // until they were ruled bankrupt (KI-008). Cash in hand that covers it is half the way.
+      if (p.cash >= p.home.debt) v += 0.3;
+    } else if (weeksToDue <= 1 && !covered) v -= 0.35;
     else if (weeksToDue > ctx.pack.rules.housing.rentWeeks) v += 0.1;
     if (p.job) {
       const job = ctx.pack.jobById[p.job.jobId];
