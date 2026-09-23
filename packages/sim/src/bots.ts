@@ -95,12 +95,22 @@ registerBot({
   personality: 'hustler',
   allow: (cmd, _state, _seat, pack) => {
     if (cmd.type !== 'BuyAsset') return cmd.type !== 'SellAsset';
-    const wildest = [...pack.assets].sort(
-      (a, b) => b.volBp - a.volBp || b.maxMoveBp - a.maxMoveBp,
-    )[0];
-    return cmd.assetId === wildest?.id;
+    return cmd.assetId === wildest(pack)?.id;
   },
+  // "Every spare dollar": allowed alone, the planner rarely chose crypto and the bot played as an
+  // ordinary seat, so the strategy is stated as a preference for the big buys (ADR-0044).
+  prefer: (cmd, state, seat, pack) =>
+    cmd.type === 'BuyAsset' &&
+    cmd.assetId === wildest(pack)?.id &&
+    cmd.amount * 2 >= (state.players[seat]?.cash ?? 0)
+      ? 0.5
+      : 0,
 });
+
+/** The pack's most volatile instrument. */
+function wildest(pack: CityPack): CityPack['assets'][number] | undefined {
+  return [...pack.assets].sort((a, b) => b.volBp - a.volBp || b.maxMoveBp - a.maxMoveBp)[0];
+}
 
 /** Never cooks and never walks to a counter: everything arrives (9.4 DeliveryOnly). */
 registerBot({
