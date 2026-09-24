@@ -275,8 +275,8 @@ describe('graduate entry (ADR-0050)', () => {
   it('each degree held at a fresh hire counts as weeks already served', () => {
     expect(hired(20, ['trade-school', 'junior-college'])).toBe(10);
   });
-  it('never before week 0, and nothing where the pack grants no credit', () => {
-    expect(hired(8, ['trade-school', 'junior-college'])).toBe(0);
+  it('may reach back before week 0, and gives nothing where the pack grants no credit', () => {
+    expect(hired(8, ['trade-school', 'junior-college'])).toBe(-2);
     expect(hired(20, ['trade-school', 'junior-college'], pack)).toBe(20);
   });
 });
