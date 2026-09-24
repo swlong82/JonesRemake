@@ -25,6 +25,7 @@ import { hours } from '../game/labels';
 import { useIsPhone } from '../game/useIsPhone';
 import { useKeyboard } from '../game/useKeyboard';
 import { InteriorHeader } from '../scene/InteriorScene';
+import { PhoneScene } from '../scene/PhoneScene';
 import { SceneGameScreen } from '../scene/SceneGameScreen';
 
 function LiveRegion() {
@@ -56,8 +57,8 @@ export function GameScreen() {
   const sceneUi = useFlags((f) => f.flags.sceneUi);
   useKeyboard();
   if (!state) return null;
-  // The illustrated scene (ART_SPEC 17.9) replaces the ring on desktop and tablet; phones keep
-  // the list layout until M9.9.
+  // The illustrated scene (ART_SPEC 17.9) replaces the ring on desktop and tablet; phones get
+  // the pannable scene with a list toggle (M9.9).
   if (sceneUi && !phone) {
     return (
       <>
@@ -95,7 +96,13 @@ export function GameScreen() {
           {t('hud.menu')}
         </Button>
       </div>
-      {phone ? (
+      {phone && sceneUi ? (
+        <div className="flex flex-col gap-3">
+          <PhoneScene />
+          <h2 className="text-sm font-semibold text-ink-muted">{t('phone.actions')}</h2>
+          {side}
+        </div>
+      ) : phone ? (
         <div className="flex flex-col gap-3">
           {expanded ? (
             <div className="flex flex-col items-center gap-2">

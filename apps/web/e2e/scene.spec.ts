@@ -1,7 +1,7 @@
 /**
  * Scene UI (ART_SPEC 17.9, M9.6–M9.8) behind the `sceneUi` flag: the city block, the HUD bar,
  * interiors, travel from a building, the avatar picker and the axe gate on every viewport.
- * Phones keep the list layout until M9.9, with the cropped room header of M9.8.
+ * Phones get the pannable map with a list toggle (M9.9) and the cropped room header (M9.8).
  */
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
@@ -20,11 +20,21 @@ async function startScene(page: Page): Promise<void> {
 test('the scene board travels by building and passes axe', async ({ page }) => {
   await startScene(page);
   if (isPhone(page)) {
-    // Phones keep the list layout (M9.9) with a cropped room header while inside (M9.8).
-    await expect(page.getByTestId('phone-locations')).toBeVisible();
-    await expect(page.getByTestId('scene-screen')).toHaveCount(0);
+    // Phones get the pannable map with a list toggle (M9.9) and a cropped room header (M9.8).
     await expect(page.getByTestId('interior-header')).toBeVisible();
     await expect(page.getByTestId('host-speech')).not.toBeEmpty();
+    await expect(page.getByTestId('phone-scene')).toBeVisible();
+    await expectNoA11yViolations(page);
+    await page.getByTestId('exit').click();
+    const box = await page.getByTestId('square-rent-office').boundingBox();
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+    await page.getByTestId('square-rent-office').click();
+    await expect(page.getByTestId('travel-sheet')).toBeVisible();
+    await page.getByTestId('travel-cancel').click();
+    await page.getByTestId('phone-view-list').click();
+    await expect(page.getByTestId('phone-locations')).toBeVisible();
+    await expect(page.getByTestId('phone-scene')).toHaveCount(0);
     await expectNoA11yViolations(page);
     return;
   }

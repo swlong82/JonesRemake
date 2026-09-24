@@ -554,5 +554,10 @@
   "scene.details": "Details",
   "setup.avatar": "Avatar",
   "setup.avatarN": "Avatar {{n}}",
-  "scene.inside": "Inside {{name}}"
+  "scene.inside": "Inside {{name}}",
+  "phone.view": "Show the city as",
+  "phone.viewScene": "Map",
+  "phone.viewList": "List",
+  "phone.zoomIn": "Zoom in",
+  "phone.zoomOut": "Zoom out"
 }
