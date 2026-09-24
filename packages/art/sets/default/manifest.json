@@ -1,0 +1,1347 @@
+{
+  "schemaVersion": 1,
+  "id": "default",
+  "name": "Default",
+  "version": "0.1.0",
+  "license": "MIT",
+  "stage": {
+    "width": 1600,
+    "height": 1000
+  },
+  "tintKeys": {
+    "primary": "#FF00FF",
+    "secondary": "#00FFFF"
+  },
+  "theme": {
+    "font": "system",
+    "palette": {
+      "surface": "#fff8ec",
+      "surface2": "#ffffff",
+      "ink": "#2b2118",
+      "inkMuted": "#5c4d3f",
+      "line": "#e3d3bb",
+      "accent": "#2f6fb5",
+      "onAccent": "#ffffff",
+      "focus": "#d4570f",
+      "danger": "#b3261e",
+      "onDanger": "#ffffff"
+    },
+    "frames": {
+      "panel": "frame:panel",
+      "button": "frame:button"
+    }
+  },
+  "board": {
+    "slots": [
+      {
+        "rect": {
+          "x": 50,
+          "y": 40,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 330,
+          "y": 320
+        },
+        "label": {
+          "x": 140,
+          "y": 224
+        }
+      },
+      {
+        "rect": {
+          "x": 307.5,
+          "y": 40,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 397.5,
+          "y": 320
+        },
+        "label": {
+          "x": 397.5,
+          "y": 224
+        }
+      },
+      {
+        "rect": {
+          "x": 565,
+          "y": 40,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 655,
+          "y": 320
+        },
+        "label": {
+          "x": 655,
+          "y": 224
+        }
+      },
+      {
+        "rect": {
+          "x": 822.5,
+          "y": 40,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 912.5,
+          "y": 320
+        },
+        "label": {
+          "x": 912.5,
+          "y": 224
+        }
+      },
+      {
+        "rect": {
+          "x": 1080,
+          "y": 40,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 1170,
+          "y": 320
+        },
+        "label": {
+          "x": 1170,
+          "y": 224
+        }
+      },
+      {
+        "rect": {
+          "x": 1337.5,
+          "y": 40,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 1270,
+          "y": 320
+        },
+        "label": {
+          "x": 1427.5,
+          "y": 224
+        }
+      },
+      {
+        "rect": {
+          "x": 1370,
+          "y": 265,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 1270,
+          "y": 355
+        },
+        "label": {
+          "x": 1460,
+          "y": 449
+        }
+      },
+      {
+        "rect": {
+          "x": 1370,
+          "y": 522.5,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 1270,
+          "y": 612.5
+        },
+        "label": {
+          "x": 1460,
+          "y": 706.5
+        }
+      },
+      {
+        "rect": {
+          "x": 1370,
+          "y": 780,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 1270,
+          "y": 680
+        },
+        "label": {
+          "x": 1460,
+          "y": 964
+        }
+      },
+      {
+        "rect": {
+          "x": 1112.5,
+          "y": 780,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 1202.5,
+          "y": 680
+        },
+        "label": {
+          "x": 1202.5,
+          "y": 964
+        }
+      },
+      {
+        "rect": {
+          "x": 855,
+          "y": 780,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 945,
+          "y": 680
+        },
+        "label": {
+          "x": 945,
+          "y": 964
+        }
+      },
+      {
+        "rect": {
+          "x": 597.5,
+          "y": 780,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 687.5,
+          "y": 680
+        },
+        "label": {
+          "x": 687.5,
+          "y": 964
+        }
+      },
+      {
+        "rect": {
+          "x": 340,
+          "y": 780,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 430,
+          "y": 680
+        },
+        "label": {
+          "x": 430,
+          "y": 964
+        }
+      },
+      {
+        "rect": {
+          "x": 82.5,
+          "y": 780,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 330,
+          "y": 680
+        },
+        "label": {
+          "x": 172.5,
+          "y": 964
+        }
+      },
+      {
+        "rect": {
+          "x": 50,
+          "y": 555,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 330,
+          "y": 645
+        },
+        "label": {
+          "x": 140,
+          "y": 739
+        }
+      },
+      {
+        "rect": {
+          "x": 50,
+          "y": 297.5,
+          "width": 180,
+          "height": 180
+        },
+        "door": {
+          "x": 330,
+          "y": 387.5
+        },
+        "label": {
+          "x": 140,
+          "y": 481.5
+        }
+      }
+    ],
+    "path": [
+      {
+        "x": 330,
+        "y": 320
+      },
+      {
+        "x": 397.5,
+        "y": 320
+      },
+      {
+        "x": 655,
+        "y": 320
+      },
+      {
+        "x": 912.5,
+        "y": 320
+      },
+      {
+        "x": 1170,
+        "y": 320
+      },
+      {
+        "x": 1270,
+        "y": 320
+      },
+      {
+        "x": 1270,
+        "y": 355
+      },
+      {
+        "x": 1270,
+        "y": 612.5
+      },
+      {
+        "x": 1270,
+        "y": 680
+      },
+      {
+        "x": 1202.5,
+        "y": 680
+      },
+      {
+        "x": 945,
+        "y": 680
+      },
+      {
+        "x": 687.5,
+        "y": 680
+      },
+      {
+        "x": 430,
+        "y": 680
+      },
+      {
+        "x": 330,
+        "y": 680
+      },
+      {
+        "x": 330,
+        "y": 645
+      },
+      {
+        "x": 330,
+        "y": 387.5
+      }
+    ]
+  },
+  "assets": {
+    "avatar:player-1:cheer:s": {
+      "file": "avatar.player-1.cheer.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:idle:e": {
+      "file": "avatar.player-1.idle.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:idle:n": {
+      "file": "avatar.player-1.idle.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:idle:s": {
+      "file": "avatar.player-1.idle.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:idle:w": {
+      "file": "avatar.player-1.idle.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:slump:s": {
+      "file": "avatar.player-1.slump.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:walk1:e": {
+      "file": "avatar.player-1.walk1.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:walk1:n": {
+      "file": "avatar.player-1.walk1.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:walk1:s": {
+      "file": "avatar.player-1.walk1.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:walk1:w": {
+      "file": "avatar.player-1.walk1.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:walk2:e": {
+      "file": "avatar.player-1.walk2.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:walk2:n": {
+      "file": "avatar.player-1.walk2.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:walk2:s": {
+      "file": "avatar.player-1.walk2.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-1:walk2:w": {
+      "file": "avatar.player-1.walk2.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:cheer:s": {
+      "file": "avatar.player-2.cheer.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:idle:e": {
+      "file": "avatar.player-2.idle.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:idle:n": {
+      "file": "avatar.player-2.idle.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:idle:s": {
+      "file": "avatar.player-2.idle.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:idle:w": {
+      "file": "avatar.player-2.idle.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:slump:s": {
+      "file": "avatar.player-2.slump.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:walk1:e": {
+      "file": "avatar.player-2.walk1.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:walk1:n": {
+      "file": "avatar.player-2.walk1.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:walk1:s": {
+      "file": "avatar.player-2.walk1.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:walk1:w": {
+      "file": "avatar.player-2.walk1.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:walk2:e": {
+      "file": "avatar.player-2.walk2.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:walk2:n": {
+      "file": "avatar.player-2.walk2.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:walk2:s": {
+      "file": "avatar.player-2.walk2.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-2:walk2:w": {
+      "file": "avatar.player-2.walk2.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:cheer:s": {
+      "file": "avatar.player-3.cheer.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:idle:e": {
+      "file": "avatar.player-3.idle.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:idle:n": {
+      "file": "avatar.player-3.idle.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:idle:s": {
+      "file": "avatar.player-3.idle.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:idle:w": {
+      "file": "avatar.player-3.idle.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:slump:s": {
+      "file": "avatar.player-3.slump.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:walk1:e": {
+      "file": "avatar.player-3.walk1.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:walk1:n": {
+      "file": "avatar.player-3.walk1.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:walk1:s": {
+      "file": "avatar.player-3.walk1.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:walk1:w": {
+      "file": "avatar.player-3.walk1.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:walk2:e": {
+      "file": "avatar.player-3.walk2.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:walk2:n": {
+      "file": "avatar.player-3.walk2.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:walk2:s": {
+      "file": "avatar.player-3.walk2.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-3:walk2:w": {
+      "file": "avatar.player-3.walk2.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:cheer:s": {
+      "file": "avatar.player-4.cheer.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:idle:e": {
+      "file": "avatar.player-4.idle.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:idle:n": {
+      "file": "avatar.player-4.idle.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:idle:s": {
+      "file": "avatar.player-4.idle.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:idle:w": {
+      "file": "avatar.player-4.idle.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:slump:s": {
+      "file": "avatar.player-4.slump.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:walk1:e": {
+      "file": "avatar.player-4.walk1.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:walk1:n": {
+      "file": "avatar.player-4.walk1.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:walk1:s": {
+      "file": "avatar.player-4.walk1.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:walk1:w": {
+      "file": "avatar.player-4.walk1.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:walk2:e": {
+      "file": "avatar.player-4.walk2.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:walk2:n": {
+      "file": "avatar.player-4.walk2.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:walk2:s": {
+      "file": "avatar.player-4.walk2.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-4:walk2:w": {
+      "file": "avatar.player-4.walk2.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:cheer:s": {
+      "file": "avatar.player-5.cheer.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:idle:e": {
+      "file": "avatar.player-5.idle.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:idle:n": {
+      "file": "avatar.player-5.idle.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:idle:s": {
+      "file": "avatar.player-5.idle.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:idle:w": {
+      "file": "avatar.player-5.idle.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:slump:s": {
+      "file": "avatar.player-5.slump.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:walk1:e": {
+      "file": "avatar.player-5.walk1.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:walk1:n": {
+      "file": "avatar.player-5.walk1.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:walk1:s": {
+      "file": "avatar.player-5.walk1.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:walk1:w": {
+      "file": "avatar.player-5.walk1.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:walk2:e": {
+      "file": "avatar.player-5.walk2.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:walk2:n": {
+      "file": "avatar.player-5.walk2.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:walk2:s": {
+      "file": "avatar.player-5.walk2.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-5:walk2:w": {
+      "file": "avatar.player-5.walk2.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:cheer:s": {
+      "file": "avatar.player-6.cheer.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:idle:e": {
+      "file": "avatar.player-6.idle.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:idle:n": {
+      "file": "avatar.player-6.idle.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:idle:s": {
+      "file": "avatar.player-6.idle.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:idle:w": {
+      "file": "avatar.player-6.idle.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:slump:s": {
+      "file": "avatar.player-6.slump.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:walk1:e": {
+      "file": "avatar.player-6.walk1.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:walk1:n": {
+      "file": "avatar.player-6.walk1.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:walk1:s": {
+      "file": "avatar.player-6.walk1.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:walk1:w": {
+      "file": "avatar.player-6.walk1.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:walk2:e": {
+      "file": "avatar.player-6.walk2.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:walk2:n": {
+      "file": "avatar.player-6.walk2.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:walk2:s": {
+      "file": "avatar.player-6.walk2.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:player-6:walk2:w": {
+      "file": "avatar.player-6.walk2.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:cheer:s": {
+      "file": "avatar.rival-balanced.cheer.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:idle:e": {
+      "file": "avatar.rival-balanced.idle.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:idle:n": {
+      "file": "avatar.rival-balanced.idle.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:idle:s": {
+      "file": "avatar.rival-balanced.idle.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:idle:w": {
+      "file": "avatar.rival-balanced.idle.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:slump:s": {
+      "file": "avatar.rival-balanced.slump.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:walk1:e": {
+      "file": "avatar.rival-balanced.walk1.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:walk1:n": {
+      "file": "avatar.rival-balanced.walk1.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:walk1:s": {
+      "file": "avatar.rival-balanced.walk1.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:walk1:w": {
+      "file": "avatar.rival-balanced.walk1.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:walk2:e": {
+      "file": "avatar.rival-balanced.walk2.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:walk2:n": {
+      "file": "avatar.rival-balanced.walk2.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:walk2:s": {
+      "file": "avatar.rival-balanced.walk2.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-balanced:walk2:w": {
+      "file": "avatar.rival-balanced.walk2.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:cheer:s": {
+      "file": "avatar.rival-grinder.cheer.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:idle:e": {
+      "file": "avatar.rival-grinder.idle.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:idle:n": {
+      "file": "avatar.rival-grinder.idle.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:idle:s": {
+      "file": "avatar.rival-grinder.idle.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:idle:w": {
+      "file": "avatar.rival-grinder.idle.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:slump:s": {
+      "file": "avatar.rival-grinder.slump.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:walk1:e": {
+      "file": "avatar.rival-grinder.walk1.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:walk1:n": {
+      "file": "avatar.rival-grinder.walk1.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:walk1:s": {
+      "file": "avatar.rival-grinder.walk1.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:walk1:w": {
+      "file": "avatar.rival-grinder.walk1.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:walk2:e": {
+      "file": "avatar.rival-grinder.walk2.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:walk2:n": {
+      "file": "avatar.rival-grinder.walk2.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:walk2:s": {
+      "file": "avatar.rival-grinder.walk2.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-grinder:walk2:w": {
+      "file": "avatar.rival-grinder.walk2.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:cheer:s": {
+      "file": "avatar.rival-hustler.cheer.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:idle:e": {
+      "file": "avatar.rival-hustler.idle.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:idle:n": {
+      "file": "avatar.rival-hustler.idle.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:idle:s": {
+      "file": "avatar.rival-hustler.idle.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:idle:w": {
+      "file": "avatar.rival-hustler.idle.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:slump:s": {
+      "file": "avatar.rival-hustler.slump.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:walk1:e": {
+      "file": "avatar.rival-hustler.walk1.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:walk1:n": {
+      "file": "avatar.rival-hustler.walk1.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:walk1:s": {
+      "file": "avatar.rival-hustler.walk1.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:walk1:w": {
+      "file": "avatar.rival-hustler.walk1.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:walk2:e": {
+      "file": "avatar.rival-hustler.walk2.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:walk2:n": {
+      "file": "avatar.rival-hustler.walk2.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:walk2:s": {
+      "file": "avatar.rival-hustler.walk2.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-hustler:walk2:w": {
+      "file": "avatar.rival-hustler.walk2.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:cheer:s": {
+      "file": "avatar.rival-scholar.cheer.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:idle:e": {
+      "file": "avatar.rival-scholar.idle.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:idle:n": {
+      "file": "avatar.rival-scholar.idle.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:idle:s": {
+      "file": "avatar.rival-scholar.idle.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:idle:w": {
+      "file": "avatar.rival-scholar.idle.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:slump:s": {
+      "file": "avatar.rival-scholar.slump.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:walk1:e": {
+      "file": "avatar.rival-scholar.walk1.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:walk1:n": {
+      "file": "avatar.rival-scholar.walk1.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:walk1:s": {
+      "file": "avatar.rival-scholar.walk1.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:walk1:w": {
+      "file": "avatar.rival-scholar.walk1.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:walk2:e": {
+      "file": "avatar.rival-scholar.walk2.e.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:walk2:n": {
+      "file": "avatar.rival-scholar.walk2.n.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:walk2:s": {
+      "file": "avatar.rival-scholar.walk2.s.svg",
+      "width": 64,
+      "height": 96
+    },
+    "avatar:rival-scholar:walk2:w": {
+      "file": "avatar.rival-scholar.walk2.w.svg",
+      "width": 64,
+      "height": 96
+    },
+    "board:background": {
+      "file": "board.background.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "building:appliance-depot": {
+      "file": "building.appliance-depot.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:bank": {
+      "file": "building.bank.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:burger-joint": {
+      "file": "building.burger-joint.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:clinic": {
+      "file": "building.clinic.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:clothing-boutique": {
+      "file": "building.clothing-boutique.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:discount-store": {
+      "file": "building.discount-store.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:electronics-store": {
+      "file": "building.electronics-store.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:employment-office": {
+      "file": "building.employment-office.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:factory": {
+      "file": "building.factory.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:grocery": {
+      "file": "building.grocery.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:low-housing": {
+      "file": "building.low-housing.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:park": {
+      "file": "building.park.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:pawn-shop": {
+      "file": "building.pawn-shop.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:rent-office": {
+      "file": "building.rent-office.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:secure-apartments": {
+      "file": "building.secure-apartments.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:university": {
+      "file": "building.university.svg",
+      "width": 240,
+      "height": 240
+    },
+    "frame:button": {
+      "file": "frame.button.svg",
+      "width": 96,
+      "height": 96
+    },
+    "frame:panel": {
+      "file": "frame.panel.svg",
+      "width": 96,
+      "height": 96
+    },
+    "host:appliance-depot": {
+      "file": "host.appliance-depot.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:bank": {
+      "file": "host.bank.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:burger-joint": {
+      "file": "host.burger-joint.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:clinic": {
+      "file": "host.clinic.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:clothing-boutique": {
+      "file": "host.clothing-boutique.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:discount-store": {
+      "file": "host.discount-store.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:electronics-store": {
+      "file": "host.electronics-store.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:employment-office": {
+      "file": "host.employment-office.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:factory": {
+      "file": "host.factory.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:grocery": {
+      "file": "host.grocery.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:low-housing": {
+      "file": "host.low-housing.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:park": {
+      "file": "host.park.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:pawn-shop": {
+      "file": "host.pawn-shop.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:rent-office": {
+      "file": "host.rent-office.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:secure-apartments": {
+      "file": "host.secure-apartments.svg",
+      "width": 400,
+      "height": 600
+    },
+    "host:university": {
+      "file": "host.university.svg",
+      "width": 400,
+      "height": 600
+    },
+    "interior:appliance-depot": {
+      "file": "interior.appliance-depot.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:bank": {
+      "file": "interior.bank.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:burger-joint": {
+      "file": "interior.burger-joint.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:clinic": {
+      "file": "interior.clinic.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:clothing-boutique": {
+      "file": "interior.clothing-boutique.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:discount-store": {
+      "file": "interior.discount-store.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:electronics-store": {
+      "file": "interior.electronics-store.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:employment-office": {
+      "file": "interior.employment-office.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:factory": {
+      "file": "interior.factory.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:grocery": {
+      "file": "interior.grocery.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:low-housing": {
+      "file": "interior.low-housing.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:park": {
+      "file": "interior.park.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:pawn-shop": {
+      "file": "interior.pawn-shop.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:rent-office": {
+      "file": "interior.rent-office.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:secure-apartments": {
+      "file": "interior.secure-apartments.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "interior:university": {
+      "file": "interior.university.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "ui:newspaper-masthead": {
+      "file": "ui.newspaper-masthead.svg",
+      "width": 1200,
+      "height": 200
+    },
+    "ui:setup": {
+      "file": "ui.setup.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "ui:title": {
+      "file": "ui.title.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "weekend:negative": {
+      "file": "weekend.negative.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "weekend:neutral": {
+      "file": "weekend.neutral.svg",
+      "width": 1600,
+      "height": 1000
+    },
+    "weekend:positive": {
+      "file": "weekend.positive.svg",
+      "width": 1600,
+      "height": 1000
+    }
+  }
+}
