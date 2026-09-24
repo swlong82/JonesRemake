@@ -213,11 +213,7 @@
         "collapseGamePct": {
           "min": 12,
           "max": 43,
-          "note": "9.5 Normal AI collapse 15–40%, widened ±3 points; achieved 71% at M6.3",
-          "pending": {
-            "issue": "KI-008",
-            "until": "M8.5"
-          }
+          "note": "9.5 Normal AI collapse 15–40%, widened ±3 points; met by the Normal wellbeing weight and wellbeing profile (ADR-0049)"
         }
       }
     },
@@ -267,7 +263,7 @@
         "botWinPct.CryptoAllIn": {
           "min": 10,
           "max": 48,
-          "note": "9.5 win rate 15–40%; widened further than ±3 points because 40 games is one bot seat per game — the 60-game stage-2 measurement reads 35%"
+          "note": "9.5 win rate 15–40%; widened further than ±3 points because 40 games is one bot seat per game — the 60-game stage-2 measurement reads 27% (ADR-0049)"
         }
       }
     },
@@ -317,11 +313,7 @@
         "botDefaultPct.LoanMax": {
           "min": 17,
           "max": 63,
-          "note": "9.5 default rate 20–60%, widened ±3 points; achieved 0% at M6.3 — the tuned wage services the loan",
-          "pending": {
-            "issue": "KI-008",
-            "until": "M8.5"
-          }
+          "note": "9.5 default rate 20–60%, widened ±3 points; met once the AI keeps two instalments liquid (ADR-0049)"
         },
         "botWinPct.LoanMax": {
           "max": 63,
