@@ -553,5 +553,6 @@
   "scene.hud": "Player status",
   "scene.details": "Details",
   "setup.avatar": "Avatar",
-  "setup.avatarN": "Avatar {{n}}"
+  "setup.avatarN": "Avatar {{n}}",
+  "scene.inside": "Inside {{name}}"
 }

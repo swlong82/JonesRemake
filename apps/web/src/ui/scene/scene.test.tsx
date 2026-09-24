@@ -50,6 +50,11 @@ afterEach(() => {
   useFlags.getState().reset({ env: {}, search: '' });
 });
 
+/** Players start inside their home (GDD 4.1.6); step out to see the block. */
+function stepOut(): void {
+  useGame.getState().dispatch({ type: 'Exit' });
+}
+
 describe('stage geometry', () => {
   it('converts stage units to percentages', () => {
     expect(pctX(800)).toBe('50%');
@@ -66,6 +71,7 @@ describe('stage geometry', () => {
 
 describe('scene board (ART_SPEC 17.9)', () => {
   it('replaces the ring with the scene while the flag is on', () => {
+    stepOut();
     render(<GameScreen />);
     expect(screen.getByTestId('scene-screen')).toBeDefined();
     expect(screen.queryByTestId('board')).toBeNull();
@@ -84,6 +90,7 @@ describe('scene board (ART_SPEC 17.9)', () => {
   });
 
   it('labels every square like the ring board and marks the current one', () => {
+    stepOut();
     render(<GameScreen />);
     const here = screen.getByTestId('square-low-housing');
     expect(here.getAttribute('aria-current')).toBe('true');
@@ -93,6 +100,7 @@ describe('scene board (ART_SPEC 17.9)', () => {
   });
 
   it('opens travel from a square in the park, and the full HUD from the bar', () => {
+    stepOut();
     render(<GameScreen />);
     fireEvent.click(screen.getByTestId('square-bank'));
     const sheets = screen.getByTestId('scene-sheets');
@@ -106,6 +114,7 @@ describe('scene board (ART_SPEC 17.9)', () => {
 
   it('puts the sheets below the stage on narrower screens', () => {
     stubMatchMedia(false);
+    stepOut();
     render(<GameScreen />);
     expect(screen.queryByTestId('scene-sheets')).toBeNull();
     expect(
@@ -122,6 +131,45 @@ describe('scene board (ART_SPEC 17.9)', () => {
       board: { ...pack.board, locationAt: pack.board.locationAt.slice(0, 5) },
     };
     expect(layoutFor(registry, small)).toEqual(defaultBoardLayout(5));
+  });
+});
+
+describe('interiors (ART_SPEC 17.9, M9.8)', () => {
+  it('shows the room, the host, the greeting and the panel while inside', () => {
+    render(<GameScreen />);
+    const room = screen.getByTestId('scene-interior');
+    expect(room.getAttribute('aria-label')).toBe('Inside Low-Cost Housing');
+    expect(room.querySelector('img[data-art-key="interior:low-housing"]')).not.toBeNull();
+    expect(room.querySelector('img[data-art-key="host:low-housing"]')).not.toBeNull();
+    expect(screen.getByTestId('host-speech').textContent.length).toBeGreaterThan(0);
+    expect(
+      within(screen.getByTestId('interior-panel')).getByTestId('location-panel'),
+    ).toBeDefined();
+    expect(screen.queryByTestId('scene-board')).toBeNull();
+    // Leaving returns to the block, with the outside panel in the park.
+    fireEvent.click(screen.getByTestId('exit'));
+    expect(screen.getByTestId('scene-board')).toBeDefined();
+    expect(within(screen.getByTestId('scene-sheets')).getByTestId('enter')).toBeDefined();
+    fireEvent.click(screen.getByTestId('enter'));
+    expect(screen.getByTestId('scene-interior')).toBeDefined();
+  });
+
+  it('gives phones a cropped room header above the panel', () => {
+    Object.defineProperty(globalThis, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: (query: string) => ({
+        matches: query.includes('max-width'),
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }),
+    });
+    render(<GameScreen />);
+    expect(screen.queryByTestId('scene-screen')).toBeNull();
+    expect(screen.getByTestId('interior-header')).toBeDefined();
+    fireEvent.click(screen.getByTestId('exit'));
+    expect(screen.queryByTestId('interior-header')).toBeNull();
   });
 });
 

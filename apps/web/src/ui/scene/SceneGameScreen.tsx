@@ -21,20 +21,14 @@ import { TravelSheet } from '../game/TravelSheet';
 import { useIsWide } from '../game/useIsPhone';
 import { AvatarLayer, HudAvatar } from './Avatars';
 import { BoardScene, layoutFor } from './BoardScene';
+import { InteriorScene } from './InteriorScene';
 import { SceneHudBar } from './SceneHudBar';
 
 function Sheet({ children }: { children: ReactNode }) {
   return <div className="w-full max-w-[360px] shrink-0 empty:hidden">{children}</div>;
 }
 
-export function SceneGameScreen({
-  debug,
-  interior,
-}: {
-  debug: boolean;
-  /** Interior scene while the active player is inside a location (M9.8). */
-  interior?: ReactNode;
-}) {
+export function SceneGameScreen({ debug }: { debug: boolean }) {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
@@ -48,7 +42,7 @@ export function SceneGameScreen({
   const registry = artRegistryFor(pack);
   const player = state.players[state.activeSeat];
   const yourTurn = player?.controller === 'human-local';
-  const showInterior = yourTurn && player.inside && interior !== undefined;
+  const showInterior = yourTurn && player.inside;
 
   const sheets = [
     details && <Hud key="hud" />,
@@ -74,7 +68,7 @@ export function SceneGameScreen({
         data-testid="scene-stage"
       >
         {showInterior ? (
-          interior
+          <InteriorScene registry={registry} />
         ) : (
           <BoardScene registry={registry}>
             <AvatarLayer registry={registry} layout={layoutFor(registry, pack)} />
