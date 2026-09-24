@@ -531,3 +531,48 @@
 - Options: 1) widen the target (not allowed, ADR-0037); 2) make degrees count toward career directly (changes every game); 3) credit degrees only when the tenure clock starts from scratch.
 - Decision: option 3, driven by content. At a hire off the street, `hiredWeek` is set back by `rules.goals.careerTenureWeeksPerDegree` weeks per degree held, if need be to before week 0 (a floor at week 0 capped the credit at a tie with a seat hired in week 1). A job change (continuous employment) and a rehire within the layoff grace (ADR-0047) are unaffected. Classic sets 0.
 - Consequences: modern sets 5 weeks a degree and 12 experience a degree (was 8): the credit maxes out at a week-0 start, so what remains is the late wage, and a better first job closes it. Studying first becomes a real route to the career goal (probe: StudyFirst 5% → 32% wins, together with the AI now paying rent debt from the bank). Ordinary seats take their first job before any degree, so the credit mostly reaches them when they are hired again after a firing or a collapse, which it softens a little.
+
+## ADR-0051: Scene UI with modern-cartoon SVG art sets replaces the placeholder ring
+
+- Date: 2026-09-24
+- Status: Accepted (owner interview, 2026-09-24)
+- Context: v1.0.0 plays the classic rules on an abstract ring of coloured tiles. Next to the 1991 original it lacks what made the original readable and charming: a city block you walk around, a building front per location, an interior with a host behind the counter, and a character. The spec made all visuals code-drawn placeholders (CLAUDE.md 1.3, PRD 2.4 #17), so real art had nowhere to go.
+- Options: art form: raster pixel art, SVG files, code-drawn only, hybrid. Direction: retro-flat, pixel-grid SVG, modern cartoon, two themes. Board: city block in 3/4 view, top-down map, one painted background, reskinned ring. Interiors: a scene and host per location, shared interiors by category, portrait only, none. Characters: frame-swap SVGs, rigged parts, Lottie, static plus bob.
+- Decision: modern-cartoon **SVG files** in swappable **art sets** (`packages/art`, section 17), a **city block in 3/4 view** whose geometry the art set owns by ring index, an **interior scene with a host** for every location, **frame-swap** avatars (idle, walk1, walk2 × 4 directions, plus cheer and slump). Humans pick one of six avatars, recoloured through **key-colour substitution** and marked with a shape badge. Each AI personality has its own rival avatar. Text is never baked into art. The 1.3 invariant and PRD 2.3/2.4 are amended in `SPEC_PACK.md` (17.10).
+- Consequences: art becomes data that an artist can deliver file by file with no code change. The slot catalog (about 250 files for two packs) is generated as labelled wireframes (`pnpm art:placeholders`), so the scene UI can be built and tested before anything is drawn. Modern cartoon trades some classic flavour for a look that suits the satire. PRD 2.6 still applies to every file.
+
+## ADR-0052: User art packs are local, sanitized, and rendered only as images
+
+- Date: 2026-09-24
+- Status: Accepted (owner interview, 2026-09-24)
+- Context: the owner wants players to customise the art or bring their own, including AI-generated art. An SVG can carry script, event handlers, external references (which would break the no-network rule, CLAUDE.md 1.3) and huge node counts.
+- Options: import: zip art pack, per-slot replace, template export, build-time only. Safety: sanitize and render as `<img>`, sanitize and inline, rasterize on import. Tint: key-colour substitution, inline bundled art only, CSS hue-rotate.
+- Decision: import a **zip art pack** (manifest + SVGs) that `extends` the default set and falls back per key. It is validated with the bundled-set schema, **sanitized with an allowlist** (17.6) and stored on the device by `ArtPackStore` (IndexedDB). All art, bundled or user, renders as `<img>` from a static or `blob:` URL; tint is applied by replacing the manifest's key colours in the SVG text before the blob is made (17.4).
+- Consequences: one render path for every set. An `<img>` SVG cannot script or fetch, so the sanitizer is a second line of defence, not the only one. A user set's theme must pass the same contrast checks (17.7), and a failing theme is rejected. No template export in M9 (not chosen).
+
+## ADR-0053: Scene layout, phone mode and rollout behind `sceneUi`
+
+- Date: 2026-09-24
+- Status: Accepted (owner interview, 2026-09-24)
+- Context: the city-block scene needs a new game-screen layout, a phone answer for a 16:10 picture on a 390 px screen, a WCAG 2.2 AA story for an image-based board, and a way to land over several PRs without breaking `main`.
+- Options: desktop: full-bleed scene with a HUD bar, scene with a sidebar, drawers. Phone: pan/zoom plus a list toggle, list-first, forced landscape. A11y: hotspot buttons with a text layer, labels baked into art, a separate accessible mode. Rollout: flag then replace, keep both, replace directly. Loading: lazy per scene plus a service worker, preload all, inline.
+- Decision: a **full-bleed 16:10 stage with a bottom HUD bar**, standings and log as overlays. On phone, **pan/zoom plus a toggle to the existing location list**. **Hotspot `<button>`s** over each slot keep the 7.7 keyboard map and 7.8 labels; names are text plates. Art loads **lazily per scene**, is precached by a service worker, and has its own byte budget. Theme chrome (palette, bundled OFL font, 9-slice frames) comes from the art set. Everything ships behind app flag **`sceneUi`** (default off) until the M9 gate; the ring board is deleted one milestone later.
+- Consequences: e2e runs both UIs while the flag exists. The location list stays for good as the accessible alternative. The initial JS budget (350 kB) is unaffected because art files are static assets.
+
+## ADR-0054: The art theme replaces the system and light themes under the scene UI; Dark stays dark
+
+- Date: 2026-09-24
+- Status: Accepted
+- Context: 17.7 applies the art set's palette as the app's colour tokens, but Settings already offers System, Light and Dark (M7.5), and an art set carries a single palette. The spec does not say which wins.
+- Options: 1) the art palette always wins under `sceneUi`; 2) add an "Art set" theme option; 3) the art palette replaces System and Light, and an explicit Dark keeps the dark tokens.
+- Decision: option 3. It needs no new setting, and a player who asked for Dark (often for comfort or light sensitivity) keeps it. Tokens the art palette does not define (`ok`, `warn`, category colours) keep their light values; `surface-3` and `accent-strong` are shades of the art palette. The bundled font is Nunito (OFL-1.1, `@fontsource/nunito`, 400 and 700), served from the app's own origin.
+- Consequences: under System with a dark OS preference, the scene UI shows the art palette. Contrast is guaranteed by `art:check` (17.7) for every set, so no combination drops below AA. Revisit if an art set ever ships a dark variant.
+
+## ADR-0055: The chosen avatar is an optional, presentation-only field on the seat config
+
+- Date: 2026-09-24
+- Status: Accepted
+- Context: M9.7 lets a human pick one of six avatars (17.3). The choice has to survive save, load and replay, and the spec does not say where it lives.
+- Options: 1) web-only state beside the save; 2) an optional `SeatConfig.avatar` in the engine config; 3) a `PlayerState` field.
+- Decision: option 2. `GameConfig` is already saved, replayed and schema-checked, and no rule reads the field, so the engine stays rule-identical. Only a chosen avatar is written; AI seats never carry one (they show `rival-<personality>`), and a seat without one shows `player-<seat + 1>`.
+- Consequences: saves and replays from before M9.7 load unchanged, and every golden replay is untouched (none sets the field). The schema accepts lowercase ids up to 32 characters; whether the id exists in the active art set is the UI's concern, and an unknown id renders wireframes.

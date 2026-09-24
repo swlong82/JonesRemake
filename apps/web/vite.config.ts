@@ -10,6 +10,9 @@ export default defineConfig({
   base: process.env.VITE_BASE_PATH ?? '/',
   plugins: [react()],
   build: {
+    // Art-set files stay separate hashed files, never data URLs in the JS bundle, so art does not
+    // count against the initial budget and a service worker can precache them (ART_SPEC 17.8).
+    assetsInlineLimit: (file) => (file.includes('/packages/art/sets/') ? false : undefined),
     manifest: true,
     sourcemap: true,
     target: 'es2022',

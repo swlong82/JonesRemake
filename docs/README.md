@@ -32,6 +32,7 @@ This doc is the complete, self-sufficient input for Claude Code (CC) to build a 
 | 14 | `docs/SEED_DATA.md` | Concrete classic job/item/event/market tables |
 | 15 | `docs/BUILD_READINESS.md` | Toolchain files, scripts, seeds, CI budgets, amendments |
 | 16 | `docs/ROADMAP_SCAFFOLDS.md` | v1 non-goals as stubs, multi-city world, MMO + leaderboard plan |
+| 17 | `docs/ART_SPEC.md` | Art sets: slots, manifest, placeholders, user import, scene UI (M9) |
 
 **Precedence when docs conflict:** GDD > STATE_MODEL > BALANCE_SPEC > EXTENSIBILITY > ROADMAP_SCAFFOLDS > ARCHITECTURE > CONTENT_SCHEMAS > UX_SPEC > SEED_DATA > ORIGINAL_REFERENCE > BUILD_READINESS > PRD. ORIGINAL_REFERENCE governs only the `classic` ruleset values; GDD governs all rules.
 

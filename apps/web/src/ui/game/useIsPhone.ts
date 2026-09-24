@@ -1,4 +1,4 @@
-/** Phone layout breakpoint (UX 7.2: < 768px). Falls back to the wide layout without matchMedia. */
+/** Layout breakpoints (UX 7.2: phone < 768px). Without matchMedia the wide layout is assumed. */
 import { useEffect, useState } from 'react';
 
 export const PHONE_QUERY = '(max-width: 767px)';
@@ -8,19 +8,35 @@ export function matchesPhone(): boolean {
   return globalThis.matchMedia(PHONE_QUERY).matches;
 }
 
+/** Wide enough for the scene's sheets to open inside the park (ART_SPEC 17.9). */
+export const WIDE_QUERY = '(min-width: 1024px)';
+
+function matches(query: string, fallback: boolean): boolean {
+  if (typeof globalThis.matchMedia !== 'function') return fallback;
+  return globalThis.matchMedia(query).matches;
+}
+
 export function useIsPhone(): boolean {
-  const [phone, setPhone] = useState(matchesPhone);
+  return useMediaQuery(PHONE_QUERY, false);
+}
+
+export function useIsWide(): boolean {
+  return useMediaQuery(WIDE_QUERY, true);
+}
+
+export function useMediaQuery(query: string, fallback: boolean): boolean {
+  const [value, setValue] = useState(() => matches(query, fallback));
   useEffect(() => {
     if (typeof globalThis.matchMedia !== 'function') return;
-    const mq = globalThis.matchMedia(PHONE_QUERY);
+    const mq = globalThis.matchMedia(query);
     const onChange = (): void => {
-      setPhone(mq.matches);
+      setValue(mq.matches);
     };
     mq.addEventListener('change', onChange);
     onChange();
     return () => {
       mq.removeEventListener('change', onChange);
     };
-  }, []);
-  return phone;
+  }, [query]);
+  return value;
 }

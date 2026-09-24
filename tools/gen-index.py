@@ -6,11 +6,11 @@ from pathlib import Path
 root = Path(__file__).resolve().parent.parent
 ms = (root / 'docs/MILESTONES.md').read_text()
 DOCS = ('CLAUDE.md', 'GDD', 'PRD', 'ARCHITECTURE', 'CONTENT_SCHEMAS', 'UX_SPEC', 'AUDIO_SPEC', 'BALANCE_SPEC',
-        'STATE_MODEL', 'SEED_DATA', 'EXTENSIBILITY', 'ROADMAP_SCAFFOLDS', 'BUILD_READINESS', 'ORIGINAL_REFERENCE')
+        'STATE_MODEL', 'SEED_DATA', 'EXTENSIBILITY', 'ROADMAP_SCAFFOLDS', 'BUILD_READINESS', 'ORIGINAL_REFERENCE', 'ART_SPEC')
 doc_by_sec = {1: 'CLAUDE.md', 2: 'PRD.md', 3: 'ORIGINAL_REFERENCE.md', 4: 'GDD.md', 5: 'ARCHITECTURE.md',
               6: 'CONTENT_SCHEMAS.md', 7: 'UX_SPEC.md', 8: 'AUDIO_SPEC.md', 9: 'BALANCE_SPEC.md', 10: 'MILESTONES.md',
               12: 'EXTENSIBILITY.md', 13: 'STATE_MODEL.md', 14: 'SEED_DATA.md', 15: 'BUILD_READINESS.md',
-              16: 'ROADMAP_SCAFFOLDS.md'}
+              16: 'ROADMAP_SCAFFOLDS.md', 17: 'ART_SPEC.md'}
 rows, cur = [], None
 for line in ms.splitlines():
     m = re.match(r'^## (M\d+) — ', line)

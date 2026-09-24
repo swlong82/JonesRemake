@@ -5,7 +5,9 @@
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { artRegistryFor } from '../../assets/art/artRegistry';
 import { useDebugBoot } from '../../debug/useDebugBoot';
+import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { AiTicker } from '../game/AiTicker';
@@ -22,6 +24,8 @@ import { TravelSheet } from '../game/TravelSheet';
 import { hours } from '../game/labels';
 import { useIsPhone } from '../game/useIsPhone';
 import { useKeyboard } from '../game/useKeyboard';
+import { InteriorHeader } from '../scene/InteriorScene';
+import { SceneGameScreen } from '../scene/SceneGameScreen';
 
 function LiveRegion() {
   const { t } = useTranslation();
@@ -40,6 +44,7 @@ function LiveRegion() {
 export function GameScreen() {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
+  const pack = useGame((s) => s.pack);
   const travelOpen = useGame((s) => s.travelOpen);
   const logOpen = useGame((s) => s.logOpen);
   const standingsOpen = useGame((s) => s.standingsOpen);
@@ -48,8 +53,20 @@ export function GameScreen() {
   const phone = useIsPhone();
   const debug = useDebugBoot();
   const [expanded, setExpanded] = useState(false);
+  const sceneUi = useFlags((f) => f.flags.sceneUi);
   useKeyboard();
   if (!state) return null;
+  // The illustrated scene (ART_SPEC 17.9) replaces the ring on desktop and tablet; phones keep
+  // the list layout until M9.9.
+  if (sceneUi && !phone) {
+    return (
+      <>
+        <LiveRegion />
+        <EventCards />
+        <SceneGameScreen debug={debug} />
+      </>
+    );
+  }
   // While a rival is playing, the panel and travel sheet would act on the AI's seat: show the
   // ticker instead (the keyboard map is gated the same way).
   const yourTurn = state.players[state.activeSeat]?.controller === 'human-local';
@@ -61,6 +78,7 @@ export function GameScreen() {
       {standingsOpen && <Standings />}
       {menuOpen && <MenuSheet />}
       <AiTicker />
+      {sceneUi && yourTurn && pack && <InteriorHeader registry={artRegistryFor(pack)} />}
       {yourTurn && <LocationPanel />}
       {debug && <DebugPanel />}
       {logOpen && <LogDrawer />}

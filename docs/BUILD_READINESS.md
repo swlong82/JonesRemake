@@ -35,8 +35,10 @@
     "sim:smoke": "tsx packages/sim/cli.ts --games 200 --seats 2 --ai normal,normal --goals 50",
     "sim:gate": "tsx packages/sim/cli.ts --config sim/gates.json --assert",
     "check:banned": "tsx tools/check-banned.ts",
+    "art:check": "tsx tools/art-check.ts",
+    "art:placeholders": "tsx tools/art-placeholders.ts",
     "budget": "tsx tools/bundle-budget.ts --max-gzip-kb 350",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm gen:types --check && pnpm check:banned && pnpm build && pnpm test:e2e && pnpm sim:gate"
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm gen:types --check && pnpm check:banned && pnpm art:check && pnpm build && pnpm test:e2e && pnpm sim:gate"
   }
 }
 ```

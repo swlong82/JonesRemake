@@ -23,6 +23,11 @@ export const SeatConfigSchema = z
       .object({ difficulty: z.enum(['easy', 'normal', 'hard']), personality: id })
       .strict()
       .optional(),
+    avatar: z
+      .string()
+      .regex(/^[a-z0-9-]+$/)
+      .max(32)
+      .optional(),
   })
   .strict();
 

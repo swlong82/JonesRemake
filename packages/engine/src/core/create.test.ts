@@ -102,6 +102,13 @@ describe('createGame (GDD 4.1.6)', () => {
   it('conforms to the GameState Zod schema', () => {
     expect(GameStateSchema.safeParse(s).success).toBe(true);
   });
+  it('keeps an optional presentation-only avatar id on the seat (ART_SPEC 17.3)', () => {
+    const g = newGame('avatar', [{ ...humanSeat(), avatar: 'player-3' }]);
+    expect(g.config.seats[0]!.avatar).toBe('player-3');
+    expect(GameStateSchema.safeParse(g).success).toBe(true);
+    const bad = newGame('avatar', [{ ...humanSeat(), avatar: 'Not An Id' }]);
+    expect(GameStateSchema.safeParse(bad).success).toBe(false);
+  });
 });
 
 describe('stateHash (M1.3 AC)', () => {

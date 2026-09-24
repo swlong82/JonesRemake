@@ -75,7 +75,7 @@ Unknown flag ids fail validation. UI hides features whose flag is off (no disabl
 ## 12.5 UI service registry
 
 - `locations.json.services[]` ids map to panel components in `ServiceRegistry`: `work`, `apply`, `raise`, `gig`, `shop:<catalogId>`, `meals`, `grocery`, `bank`, `invest`, `loans`, `rent`, `move-home`, `study`, `relax`, `subscriptions`, `transit-pass`, `cars`, `pawn`, `lottery`, `news`, `clinic`. New location with existing services = content only; new service = one component + register.
-- `AssetRegistry` keyed by string; swapping placeholder art for real art = new registry implementation, no component edits.
+- `AssetRegistry` keyed by string; swapping placeholder art for real art = new registry implementation, no component edits. Art-set keys, manifests and the `ArtRegistry` are specified in section 17.
 - Panels never import engine internals; they call `legalCommands`/`previewCommand`/`dispatch` only.
 
 ## 12.6 AI scorer registry

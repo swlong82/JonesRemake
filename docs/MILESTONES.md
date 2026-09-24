@@ -1,4 +1,4 @@
-# 10. docs/MILESTONES.md — M0 to M8
+# 10. docs/MILESTONES.md — M0 to M9
 
 Each milestone ends with `pnpm verify` green, CI green, `PROGRESS.md` updated, tag `m<N>`. Tasks are ordered; AC = acceptance criteria (each becomes at least one automated test unless marked *manual-free check*, which CC verifies by script output).
 
@@ -89,3 +89,20 @@ AC (e2e): start 2-seat classic game (human + AI) on all 3 viewports; human compl
 - [ ] M8.3 Full e2e regression: 4-seat hotseat (2 human + 2 AI) modern game to week 10 via scripted inputs; save/load mid-game; phone layout full game via autoplay to winner.
 - [ ] M8.4 Deploy to GitHub Pages; post-deploy smoke test against live URL in workflow.
 - [ ] M8.5 Close-out: `KNOWN_ISSUES.md` reviewed, every open item has severity and workaround; tag `v1.0.0`.
+
+## M9 — Scene UI and art sets (section 17)
+
+- [ ] M9.1 Spec amendments (17, 17.10) + ADRs; this task list in `PROGRESS.md`.
+- [ ] M9.2 `packages/art`: manifest schema, slot catalog, SVG sanitizer, key-colour tint, set validator (17.2–17.4, 17.6). AC: invalid-manifest fixtures fail with path-specific messages; sanitizer rejects every 17.6 attack fixture; tint replaces only key colours.
+- [ ] M9.3 `pnpm art:placeholders` + default set wireframes + `pnpm art:check` in `verify` (17.3, 17.8). AC: default set covers every slot of every playable pack; regenerating is byte-stable; real art (no placeholder marker) is never overwritten.
+- [ ] M9.4 Web `ArtRegistry`: static URLs, tint blobs, wireframe fallback per key; app flag `sceneUi` (default off) (17.5, 17.9). AC: unknown key and failed load fall back, never throw.
+- [ ] M9.5 Theme from art set: palette tokens, bundled OFL fonts, 9-slice frames (17.7). AC: contrast ≥ 4.5:1 checked for every set; failing user sets are rejected.
+- [ ] M9.6 Scene board + HUD bar + overlays (17.9, UX 7.2). AC: hotspot per square keeps the 7.7 keyboard map and 7.8 labels; axe 0 serious/critical on 3 viewports.
+- [ ] M9.7 Avatars: picker in setup, tint, path walking with frame swap, reduced-motion jump (17.3). AC: walk duration proportional to squares; reduced motion shows no intermediate frames.
+- [ ] M9.8 Interiors: scene + host + speech bubble + in-scene action panel; phone cropped header (17.9). AC: every location opens its interior; greeting text from i18n.
+- [ ] M9.9 Phone: pan/zoom scene + list toggle (17.9). AC: list mode reachable in one tap; targets ≥ 44 px.
+- [ ] M9.10 Title, setup, weekend recap, newspaper screens (17.3, 17.9).
+- [ ] M9.11 Lazy loading + service-worker precache + art budget in `build` (17.8). AC: initial JS budget unchanged; offline reload renders the board.
+- [ ] M9.12 Art-pack zip import: `ArtPackStore` (16.1) on IndexedDB, import screen with per-file report, Settings picker, per-key fallback to the base set (17.6). AC: malicious fixtures rejected; partial pack falls back per key.
+- [ ] M9.13 Default set drawn: every slot's placeholder replaced (tracked by `art:check --report`).
+- [ ] M9 gate: `sceneUi` default on; `pnpm verify` green; ring board removed in the next milestone (17.9).

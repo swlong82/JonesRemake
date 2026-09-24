@@ -17,7 +17,7 @@
  */
 import { create } from 'zustand';
 
-export const APP_FLAG_IDS = ['debugTools', 'tutorial', 'audio'] as const;
+export const APP_FLAG_IDS = ['debugTools', 'tutorial', 'audio', 'sceneUi'] as const;
 
 export type AppFlagId = (typeof APP_FLAG_IDS)[number];
 export type AppFlags = Record<AppFlagId, boolean>;
@@ -46,6 +46,8 @@ export const APP_FLAGS: Record<AppFlagId, AppFlagSpec> = {
   tutorial: { id: 'tutorial', default: true, milestone: 'M7.3', labelKey: 'flag.tutorial' },
   // M7.1 landed the bus, the recipes and the moods, so audio is on by default now.
   audio: { id: 'audio', default: true, milestone: 'M7.1', labelKey: 'flag.audio' },
+  // City-block scene, interiors and avatars (ART_SPEC 17.9); on at the M9 gate (ADR-0053).
+  sceneUi: { id: 'sceneUi', default: false, milestone: 'M9', labelKey: 'flag.sceneUi' },
 };
 
 export const DEFAULT_APP_FLAGS: AppFlags = Object.fromEntries(
