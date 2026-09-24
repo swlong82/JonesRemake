@@ -6,20 +6,23 @@ import { expectNoA11yViolations } from './axe';
  * load in the middle, and a phone game played to a winner on autoplay.
  */
 
-/** Move play along: pass the device, dismiss a card, or end the turn — whichever is showing. */
+/**
+ * Move play along: pass the device, dismiss a card, or end the turn — whichever is showing. Clicks
+ * carry a timeout so a screen swapped mid-click is retried rather than waited on for ever.
+ */
 async function advance(page: Page): Promise<void> {
   if (await page.getByTestId('ready').isVisible()) {
-    await page.getByTestId('ready').click();
+    await page.getByTestId('ready').click({ timeout: 5_000 });
     return;
   }
   if (await page.getByTestId('event-dismiss').isVisible()) {
-    await page.getByTestId('event-dismiss').click();
+    await page.getByTestId('event-dismiss').click({ timeout: 5_000 });
     return;
   }
   if (await page.getByTestId('end-turn').isVisible()) {
-    await page.getByTestId('end-turn').click();
+    await page.getByTestId('end-turn').click({ timeout: 5_000 });
     if (await page.getByTestId('end-turn-confirm').isVisible())
-      await page.getByTestId('end-turn-confirm').click();
+      await page.getByTestId('end-turn-confirm').click({ timeout: 5_000 });
   }
 }
 
@@ -55,7 +58,7 @@ test('four-seat hotseat modern game to week 10, with a save and load at week 5',
   await page.getByTestId('seed').fill('regression-hotseat');
   await page.getByTestId('start-game').click();
   // A hotseat game opens on the pass-the-device screen.
-  await page.getByTestId('ready').click();
+  await page.getByTestId('ready').click({ timeout: 5_000 });
   await expect(page.getByTestId('hud')).toBeVisible();
 
   await playToWeek(page, 5);
@@ -81,7 +84,7 @@ test('four-seat hotseat modern game to week 10, with a save and load at week 5',
   await page.getByRole('button', { name: 'Load / Import' }).click();
   await page.getByRole('button', { name: 'Load Slot 1', exact: true }).click();
   // The loaded hotseat game hands the device to the seat whose turn it is.
-  await page.getByTestId('ready').click();
+  await page.getByTestId('ready').click({ timeout: 5_000 });
   await expect(page.getByTestId('hud')).toBeVisible();
   expect(await page.getByTestId('hud').innerText()).toBe(saved);
 });

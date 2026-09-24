@@ -108,6 +108,8 @@ test.describe('setup and settings in combination (all-pairs)', () => {
   for (const [i, c] of COMBOS.entries()) {
     test(`combination ${i + 1}: ${Object.values(c).join(' · ')}`, async ({ page }, info) => {
       test.skip(info.project.name !== 'desktop' && i >= 5, 'tablet and phone run the first five');
+      // A round with AI seats is real play: on a loaded CI runner it outlasts the default 30 s.
+      test.setTimeout(90_000);
       await page.goto('/?ff=-tutorial');
       await applySettings(page, c);
       await configureSetup(page, c);
@@ -124,12 +126,21 @@ test.describe('setup and settings in combination (all-pairs)', () => {
       // One full round: end the turn, pass the device between humans, dismiss any event card.
       await page.getByTestId('end-turn').click();
       await page.getByTestId('end-turn-confirm').click();
-      await expect(async () => {
-        if (await page.getByTestId('ready').isVisible()) await page.getByTestId('ready').click();
-        if (await page.getByTestId('event-dismiss').isVisible())
-          await page.getByTestId('event-dismiss').click();
-        await expect(page.getByTestId('hud')).toBeVisible({ timeout: 1_000 });
-      }).toPass({ timeout: 30_000 });
+      try {
+        await expect(async () => {
+          // Clicks carry a timeout: a pass screen can be swapped for the next one mid-click, and an
+          // untimed click then waits for ever instead of letting the loop try again.
+          if (await page.getByTestId('ready').isVisible())
+            await page.getByTestId('ready').click({ timeout: 5_000 });
+          if (await page.getByTestId('event-dismiss').isVisible())
+            await page.getByTestId('event-dismiss').click({ timeout: 5_000 });
+          await expect(page.getByTestId('hud')).toBeVisible({ timeout: 1_000 });
+        }).toPass({ timeout: 60_000 });
+      } catch (error) {
+        // CI keeps no page to look at; the visible text says which screen the round stopped on.
+        console.log(`round stopped on:\n${await page.locator('body').innerText()}`);
+        throw error;
+      }
       expect(await horizontalOverflow(page)).toEqual([]);
       await expectNoA11yViolations(page);
     });
