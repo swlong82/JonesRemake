@@ -16,5 +16,7 @@ m4 b4c979d
 m5 a76efb2
 m6 f8afb46
 m7 f8afb46
+m8 03caf07
+v1.0.0 03caf07
 MAP
-git push --force origin m1 m2 m3 m4 m5 m6 m7
+git push --force origin m1 m2 m3 m4 m5 m6 m7 m8 v1.0.0

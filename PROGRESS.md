@@ -1,6 +1,6 @@
 # Progress
 
-Current milestone: M8 (release) — every task done on the release PR; the gate closes when it merges to `main` and the owner pushes `v1.0.0`
+Current milestone: M0–M8 complete — v1.0.0 released (`main` @ 03caf07); tags `m8`/`v1.0.0` await the owner's push (KI-001)
 Last updated: 2026-09-24 — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
@@ -101,19 +101,20 @@ Owner-reviewed scope: ADR-0037. Phase A closes every open issue before M8.1.
 - [x] M8.1 `score()` + `LocalLeaderboard` + Stats board UI with scopes (16.7); `NAMING.md` final — note: engine `score()`/`netWorth()`, platform `LocalLeaderboard` over an IndexedDB entry store with global, season and pack (optionally per season) scopes — league scopes are reserved and hold nothing locally, Stats board with scope and city pickers; an end screen submits once per game and never for AI winners, debug-touched or solo games. Title "Hustle Ring" (owner's pick).
 - [x] M8.2 README + `docs/EXTENDING.md` recipes with executable examples (12.9) — note: ten recipes, each backed by an overlay in `examples/` that CI resolves and plays (16 tests); null key deletion for keyed overlay files (ADR-0046) so a recipe can retire a location.
 - [x] M8.3 Full e2e regression: 4-seat hotseat modern game to week 10, save/load mid-game, phone autoplay to a winner — note: `regression.spec.ts` covers both; `matrix.spec.ts` plays an all-pairs set of 19 setup/settings combinations (full on desktop, five on tablet and phone) and `tutorial-paths.spec.ts` walks the tutorial by keyboard and by pointer (ADR-0037 scope). The matrix caught a HUD overflow on long pseudo-locale strings, fixed. e2e 103 passed.
-- [x] M8.4 Deploy to GitHub Pages; post-deploy smoke test against the live URL in the workflow — note: `deploy.yml` stamps the build SHA, smoke-tests the live URL on desktop and phone (assets, deep links, save round trip, modern start, axe) and rolls back to the last good `site` artifact on failure (ADR-0045). The first live run happens when the release PR merges to `main`.
+- [x] M8.4 Deploy to GitHub Pages; post-deploy smoke test against the live URL in the workflow — note: `deploy.yml` stamps the build SHA, smoke-tests the live URL on desktop and phone (assets, deep links, save round trip, modern start, axe) and rolls back to the last good `site` artifact on failure (ADR-0045). First live run on 03caf07: deploy and smoke green, rollback skipped.
 - [x] M8.5 Close-out: `KNOWN_ISSUES.md` reviewed, every open item has severity and workaround; tag `v1.0.0` — note: KI-001/005/006/008/009 fixed; open: KI-010 (sim speed, known limitation) and KI-011 (Easy AI stalls at high goals), both minor with mitigations. `m8` and `v1.0.0` go on the merge commit, pushed by the owner (`git tag -a v1.0.0 <merge-sha> -m v1.0.0 && git tag -a m8 <merge-sha> -m m8 && git push origin v1.0.0 m8`), together with `tools/retag-milestones.sh` for m1–m7; the session cannot push tags (KI-001).
-- [ ] M8 gate: `pnpm verify` green in CI, `DEFINITION OF DONE` (CLAUDE.md 1.8) met — note: `pnpm verify` green locally at 0c19d88 (728 unit tests, 103 e2e, bundle 180.1 kB of 350, `sim:gate` 42 assertions / 0 failed / 0 pending) and CI green on the same commit. Ticks when PR #18 merges to `main` with a merge commit, the Pages deploy and live smoke test pass, and the owner pushes `m8` / `v1.0.0` (HANDOFF.md).
+- [x] M8 gate: `pnpm verify` green in CI, `DEFINITION OF DONE` (CLAUDE.md 1.8) met — note: `pnpm verify` green locally at 0c19d88 (728 unit tests, 103 e2e, bundle 180.1 kB of 350, `sim:gate` 42 assertions / 0 failed / 0 pending); PR #18 CI green on its head and merged to `main` as 03caf07; `main` CI run 75 green on 03caf07, then the Pages deploy (run 35949106103) and its first live smoke test passed, no rollback. Definition of done: M0–M8 criteria met, deployed to Pages by `deploy.yml`, README explains play and dev setup, `BASELINE_REPORT.md` and `BALANCE_REPORT.md` committed.
 
 ## Gate log
 
-| Milestone | Date       | Commit  | verify | CI    | Notes                                                                                        |
-| --------- | ---------- | ------- | ------ | ----- | -------------------------------------------------------------------------------------------- |
-| M0        | 2026-09-17 | bb197bf | green  | green | tag m0                                                                                       |
-| M1        | 2026-09-17 | 1726af3 | green  | green | tag m1 → 1726af3 (#13), CI run 23; gate commit 3569ae7 lost in the squash (ADR-0038)         |
-| M2        | 2026-09-17 | 1726af3 | green  | green | tag m2 → 1726af3 (#13), CI run 23; gate commit fe54f7e lost in the squash (ADR-0038)         |
-| M4        | 2026-09-17 | b4c979d | green  | green | tag m4 → b4c979d (#14), CI run 25; gate commit c2ecf4e lost in the squash (ADR-0038)         |
-| M3        | 2026-09-17 | a76efb2 | green  | green | tag m3 → a76efb2 (#15), CI run 27; career target recorded per ADR-0026, reopened by ADR-0037 |
-| M5        | 2026-09-18 | a76efb2 | green  | green | tag m5 → a76efb2 (#15), CI run 27; gate commit 903066e lost in the squash (ADR-0038)         |
-| M6        | 2026-09-22 | f8afb46 | green  | green | tag m6 → f8afb46 (#17), CI run 31; nine stage-2 targets reopened by ADR-0037                 |
-| M7        | 2026-09-23 | f8afb46 | green  | green | tag m7 → f8afb46 (#17), CI run 31; audio, tutorial, opacity, themes, pseudo-locale           |
+| Milestone | Date       | Commit  | verify | CI    | Notes                                                                                               |
+| --------- | ---------- | ------- | ------ | ----- | --------------------------------------------------------------------------------------------------- |
+| M0        | 2026-09-17 | bb197bf | green  | green | tag m0                                                                                              |
+| M1        | 2026-09-17 | 1726af3 | green  | green | tag m1 → 1726af3 (#13), CI run 23; gate commit 3569ae7 lost in the squash (ADR-0038)                |
+| M2        | 2026-09-17 | 1726af3 | green  | green | tag m2 → 1726af3 (#13), CI run 23; gate commit fe54f7e lost in the squash (ADR-0038)                |
+| M4        | 2026-09-17 | b4c979d | green  | green | tag m4 → b4c979d (#14), CI run 25; gate commit c2ecf4e lost in the squash (ADR-0038)                |
+| M3        | 2026-09-17 | a76efb2 | green  | green | tag m3 → a76efb2 (#15), CI run 27; career target recorded per ADR-0026, reopened by ADR-0037        |
+| M5        | 2026-09-18 | a76efb2 | green  | green | tag m5 → a76efb2 (#15), CI run 27; gate commit 903066e lost in the squash (ADR-0038)                |
+| M6        | 2026-09-22 | f8afb46 | green  | green | tag m6 → f8afb46 (#17), CI run 31; nine stage-2 targets reopened by ADR-0037                        |
+| M7        | 2026-09-23 | f8afb46 | green  | green | tag m7 → f8afb46 (#17), CI run 31; audio, tutorial, opacity, themes, pseudo-locale                  |
+| M8        | 2026-09-24 | 03caf07 | green  | green | tags m8 and v1.0.0 → 03caf07 (#18, squash), CI run 75; release — every 9.3/9.5 target but sim speed |
