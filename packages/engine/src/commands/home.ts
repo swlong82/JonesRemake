@@ -135,12 +135,8 @@ export const requestExtensionHandler: CommandHandler<RequestExtensionCommand> = 
       ctx.emit({ type: 'RentDue', seat: ctx.seat });
     } else {
       p.home.extensionsBlocked = true;
-      ctx.emit({
-        type: 'CommandRejected',
-        seat: ctx.seat,
-        cmdType: 'RequestExtension',
-        code: 'ERR_EXTENSION_DENIED',
-      });
+      // An outcome, not a rejection: the command was legal and its hour is spent (KI-012).
+      ctx.emit({ type: 'ExtensionDenied', seat: ctx.seat });
     }
   },
   preview: (ctx) => ({

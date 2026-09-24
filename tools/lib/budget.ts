@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
@@ -43,4 +43,25 @@ export function checkBudget(
   const files = gzipKb(distDir, initialFiles(manifest));
   const totalKb = files.reduce((s, f) => s + f.kb, 0);
   return { ok: totalKb <= maxKb, totalKb, files };
+}
+
+/** Art-set files the build emitted (ART_SPEC 17.8): manifest keys under `packages/art/sets/`. */
+export function artFiles(manifest: Manifest): string[] {
+  return Object.entries(manifest)
+    .filter(([key]) => key.includes('packages/art/sets/'))
+    .map(([, chunk]) => chunk.file)
+    .sort();
+}
+
+/** Raw bytes of the emitted art against the per-set budget (1.5 MB by default). */
+export function checkArtBudget(
+  distDir: string,
+  maxKb: number,
+): { ok: boolean; totalKb: number; count: number } {
+  const manifest = JSON.parse(
+    readFileSync(join(distDir, '.vite', 'manifest.json'), 'utf8'),
+  ) as Manifest;
+  const files = artFiles(manifest);
+  const totalKb = files.reduce((s, f) => s + statSync(join(distDir, f)).size, 0) / 1024;
+  return { ok: totalKb <= maxKb, totalKb, count: files.length };
 }

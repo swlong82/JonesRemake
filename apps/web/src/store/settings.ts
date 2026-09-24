@@ -19,6 +19,8 @@ export interface Settings {
   classicOpacityDefault: boolean;
   language: 'en' | 'pseudo';
   tutorialSeen: boolean;
+  /** Active art set (ART_SPEC 17.6): `default` or an imported pack's id. */
+  artSet: string;
 }
 
 export interface LocalStats {
@@ -39,6 +41,7 @@ export const DEFAULT_SETTINGS: Settings = {
   classicOpacityDefault: false,
   language: 'en',
   tutorialSeen: false,
+  artSet: 'default',
 };
 
 export const DEFAULT_STATS: LocalStats = {

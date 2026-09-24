@@ -25,6 +25,7 @@ describe('scaffold:check (ROADMAP_SCAFFOLDS 16)', () => {
   it('the real platform package is healthy', () => {
     const stubs = listStubs(resolve(import.meta.dirname, '../../packages/platform/src'));
     expect(stubs.map((s) => s.area)).toEqual([
+      'artpacks',
       'entitlements',
       'identity',
       'leaderboard',

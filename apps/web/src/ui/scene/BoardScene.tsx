@@ -3,7 +3,7 @@
  * square and the walking avatars. Every square is a real `<button>` over its building that keeps
  * the ring board's label, keyboard key and click behaviour (UX 7.7, 7.8); the art is decorative.
  */
-import { defaultBoardLayout, type BoardLayout } from '@hustle-ring/art';
+import { defaultBoardLayout, type BoardLayout, type Rect } from '@hustle-ring/art';
 import type { CityPack } from '@hustle-ring/content';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +18,18 @@ export function layoutFor(registry: ArtRegistry, pack: CityPack): BoardLayout {
   const n = pack.board.locationAt.length;
   const layout = registry.board();
   return layout?.slots.length === n && layout.path.length === n ? layout : defaultBoardLayout(n);
+}
+
+/** Each square's button reaches a little past its building, so it stays ≥ 44 px on a phone. */
+const HIT_MARGIN = 12;
+
+export function hitArea(r: Rect): Rect {
+  return {
+    x: r.x - HIT_MARGIN,
+    y: r.y - HIT_MARGIN,
+    width: r.width + 2 * HIT_MARGIN,
+    height: r.height + 2 * HIT_MARGIN,
+  };
 }
 
 export function BoardScene({
@@ -80,21 +92,29 @@ export function BoardScene({
               aria-current={isHere ? 'true' : undefined}
               data-testid={`square-${locId}`}
               className={`rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus ${ring}`}
-              style={rectStyle(slot.rect)}
+              style={rectStyle(hitArea(slot.rect))}
               onClick={() => (isHere ? selectLocation(locId) : openTravel(locId))}
             />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute -translate-x-1/2 whitespace-nowrap rounded-md border border-line bg-surface-2 px-1.5 text-[clamp(9px,0.9vw,14px)] font-semibold leading-tight text-ink shadow-sm"
-              style={{ left: pctX(slot.label.x), top: pctY(slot.label.y) }}
-            >
-              <span className="mr-1 text-ink-muted">{ringKeyFor(index)}</span>
-              {locationName(locId)}
-            </span>
           </div>
         );
       })}
       {children}
+      {/* Name plates last, so a passing avatar never hides a location's name. */}
+      {pack.board.locationAt.map((locId, index) => {
+        const slot = layout.slots[index];
+        if (locId === null || !slot) return null;
+        return (
+          <span
+            key={locId}
+            aria-hidden="true"
+            className="pointer-events-none absolute -translate-x-1/2 whitespace-nowrap rounded-md border border-line bg-surface-2 px-1.5 text-[clamp(9px,0.9vw,14px)] font-semibold leading-tight text-ink shadow-sm"
+            style={{ left: pctX(slot.label.x), top: pctY(slot.label.y) }}
+          >
+            <span className="mr-1 text-ink-muted">{ringKeyFor(index)}</span>
+            {locationName(locId)}
+          </span>
+        );
+      })}
     </div>
   );
 }

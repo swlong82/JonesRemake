@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { checkBudget, initialFiles, type Manifest } from './budget.js';
+import { artFiles, checkArtBudget, checkBudget, initialFiles, type Manifest } from './budget.js';
 
 function fakeDist(entryBytes: number, lazyBytes: number): string {
   const dir = mkdtempSync(join(tmpdir(), 'budget-'));
@@ -54,5 +54,25 @@ describe('bundle budget (PRD 2.5)', () => {
     const r = checkBudget(fakeDist(400 * 1024, 0), 350);
     expect(r.ok).toBe(false);
     expect(r.totalKb).toBeGreaterThan(350);
+  });
+});
+
+describe('art budget (ART_SPEC 17.8)', () => {
+  it('sums the emitted art-set files only', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'art-budget-'));
+    mkdirSync(join(dir, '.vite'), { recursive: true });
+    mkdirSync(join(dir, 'assets'), { recursive: true });
+    writeFileSync(join(dir, 'assets/a.svg'), 'x'.repeat(2048));
+    writeFileSync(join(dir, 'assets/b.svg'), 'x'.repeat(1024));
+    writeFileSync(join(dir, 'assets/logo.svg'), 'x'.repeat(4096));
+    const manifest: Manifest = {
+      '../../packages/art/sets/default/files/a.svg': { file: 'assets/a.svg' },
+      '../../packages/art/sets/default/files/b.svg': { file: 'assets/b.svg' },
+      'src/logo.svg': { file: 'assets/logo.svg' },
+    };
+    writeFileSync(join(dir, '.vite/manifest.json'), JSON.stringify(manifest));
+    expect(artFiles(manifest)).toEqual(['assets/a.svg', 'assets/b.svg']);
+    expect(checkArtBudget(dir, 3)).toEqual({ ok: true, totalKb: 3, count: 2 });
+    expect(checkArtBudget(dir, 2).ok).toBe(false);
   });
 });

@@ -27,6 +27,7 @@ function setup(overrides: Partial<ArtRegistryDeps> = {}, user?: ArtManifest) {
     makeObjectUrl: vi.fn(
       (svg: string) => `blob:tinted:${svg.length}:${svg.includes('#FF00FF') ? 'key' : 'ok'}`,
     ),
+    preload: vi.fn(),
     ...overrides,
   };
   const sets = new Map([['default', DEFAULT_ART_SET]]);
@@ -109,6 +110,30 @@ describe('ArtRegistry (ART_SPEC 17.5)', () => {
     const url = await a.url('building:bank');
     expect(url).not.toBe(a.wireframe('building:bank'));
     expect(url.length).toBeGreaterThan(0);
+  });
+});
+
+describe('prefetch (ART_SPEC 17.8)', () => {
+  it('preloads plain files, warms tinted blobs and skips wireframes', async () => {
+    const { registry, deps } = setup();
+    await registry.prefetch([
+      { key: 'interior:bank' },
+      { key: AVATAR, tint: 'p2' },
+      { key: 'moon:base' },
+    ]);
+    expect(deps.preload).toHaveBeenCalledTimes(1);
+    expect(deps.preload).toHaveBeenCalledWith('/art/interior.bank.svg');
+    expect(deps.fetchText).toHaveBeenCalledTimes(1);
+    // The tinted blob is cached: rendering it later does not fetch again.
+    await registry.url(AVATAR, 'p2');
+    expect(deps.fetchText).toHaveBeenCalledTimes(1);
+  });
+
+  it('tells its own keys from optional fallbacks', () => {
+    const { registry } = setup();
+    expect(registry.hasOwn('weekend:neutral')).toBe(true);
+    expect(registry.hasOwn('weekend:road-trip')).toBe(false);
+    expect(registry.has('weekend:road-trip')).toBe(true);
   });
 });
 

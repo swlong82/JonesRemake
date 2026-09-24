@@ -3,6 +3,11 @@ import { expectNoA11yViolations } from './axe';
 import { horizontalOverflow } from './layout';
 
 /**
+ * Ring-board spec: it pins `-sceneUi` while the ring still exists (removed in M10); the scene UI,
+ * on by default since the M9 gate, has its own specs (`scene`, `artpacks`, `offline`).
+ */
+
+/**
  * M8.3 (ADR-0037): menu and setup options in combination. A full Cartesian product is thousands of
  * games, so this covers every *pair* of option values at least once (all-pairs), generated
  * deterministically below. The whole matrix runs on the desktop project; tablet and phone run the
@@ -110,7 +115,7 @@ test.describe('setup and settings in combination (all-pairs)', () => {
       test.skip(info.project.name !== 'desktop' && i >= 5, 'tablet and phone run the first five');
       // A round with AI seats is real play: on a loaded CI runner it outlasts the default 30 s.
       test.setTimeout(90_000);
-      await page.goto('/?ff=-tutorial');
+      await page.goto('/?ff=-tutorial,-sceneUi');
       await applySettings(page, c);
       await configureSetup(page, c);
       expect(await horizontalOverflow(page)).toEqual([]);

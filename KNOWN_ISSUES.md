@@ -126,9 +126,9 @@
 - Found in: M9.7 (`pnpm test`), pre-existing since M1.7
 - Repro: in `packages/engine/src/core/replay.test.ts`, run the property "never negative hours, NaN, or schema violations" with `numRuns: 3000`; fast-check finds counterexample `[8290, 111]` (`randomPlay('prop-8290', 111)`): "legal command RequestExtension was rejected".
 - Cause: `RequestExtension` is legal and applies (hours are spent), but a denial rolled from `extensionApproveBp` emits `CommandRejected` with `ERR_EXTENSION_DENIED` (`packages/engine/src/commands/home.ts`). The property reads every `CommandRejected` as a legality mismatch, so a chance denial fails it.
-- Attempts: none in M9; out of scope for the scene UI.
-- Mitigation: re-run. Proposed fix: emit a dedicated outcome event (e.g. `ExtensionDenied`) for the chance denial and keep `CommandRejected` for real validation failures; the property test then stays strict.
-- Status: open
+- Also affected: importing a replay-only export refused any replay containing a `CommandRejected` (`apps/web/src/save/codec.ts`), so a game in which an extension was denied could not be re-imported, and a full save of such a game loaded with a replay warning.
+- Fix: the chance denial emits a new domain event `ExtensionDenied` (ADR-0059); `CommandRejected` is kept for validation failures. The property test stays strict; regression tests replay `prop-8290`/111 and import a replay containing a denial; a 3,000-run property search finds no counterexample.
+- Status: fixed in M9 (before the gate)
 
 <!--
 ## KI-001: <title>

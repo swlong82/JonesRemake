@@ -4,6 +4,55 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 One entry per milestone (see `docs/MILESTONES.md`).
 
+## [Unreleased]
+
+M9 — scene UI and art sets (`docs/ART_SPEC.md`, ADR-0051…0060). The scene UI is the default since the
+M9 gate; `?ff=-sceneUi` shows the v1 ring board until M10 removes it.
+
+### Added
+
+- M9.1 Spec section 17 (`docs/ART_SPEC.md`) and the M9 plan, from an owner interview.
+- M9.2 `packages/art`: art-set manifest schema, slot catalog derived from the packs, allowlist SVG
+  sanitizer, key-colour tint, theme contrast check, set validator and set-chain resolution.
+- M9.3 `pnpm art:placeholders` and `pnpm art:check` (part of `pnpm verify`); wireframes for every
+  slot.
+- M9.4 Web `ArtRegistry`: art as hashed static files (never inlined), tinted `blob:` URLs, wireframe
+  fallback.
+- M9.5 Art-set theme: palette tokens, the bundled Nunito font (OFL), 9-slice frames.
+- M9.6 City-block board with a button per building (same labels and keys as the ring), a HUD bar
+  with a clock and goal meters, sheets beside the stage.
+- M9.7 Avatars: a picker in New Game (optional `SeatConfig.avatar`), rival avatars per
+  personality, walking along the street with frame swaps, reduced-motion jumps.
+- M9.8 Interiors: every location's room, host and greeting, with the action panel in the room; a
+  cropped room header on phones.
+- M9.9 Phone map with pan, pinch zoom and a Map/List toggle.
+- M9.10 Title key art, setup banner, weekend recap scenes with the avatar's mood, and a newspaper
+  page for the economy hint bought with `ReadNews` (which had no page before).
+- M9.11 Offline play: a generated service worker precaches the build and its art (production
+  builds, always on); art is prefetched when idle; `pnpm budget` checks the art budget.
+- M9.12 Art packs: import a `.zip` in Settings, see a per-issue report, switch and delete packs;
+  stored on the device by the new platform `ArtPackStore`.
+- M9.13 The default art set, drawn: 16 building fronts, the board, 16 interiors, 16 hosts, 10
+  avatars × 14 frames, weekend, title, setup, masthead and frames (`tools/art-default`,
+  `pnpm art:draw`).
+
+- M9 gate (ADR-0060): the scene UI is on by default; the tutorial runs on it (its spotlight finds
+  the HUD bar and points at Leave while the block is off screen); the phone map shows the whole
+  block at 1× with square buttons of at least 44 px.
+
+### Changed
+
+- The HUD reads "Turn: <name>" (was "<name>'s turn", which gave "You's turn"); the title tagline
+  no longer says "Placeholder art". Both apply with or without the flag.
+
+### Fixed
+
+- Settings → Art packs no longer widens the page on a phone at 150 % text.
+- KI-012: a rent extension denied by chance was reported as a rejected command, so a replay export
+  of such a game could not be imported, full saves loaded with a replay warning, and an engine
+  property test failed in about 3.5% of runs. It is now an `ExtensionDenied` event with its own
+  card and log line (ADR-0059). Applies with or without the flag.
+
 ## [1.0.0] — 2026-09-24
 
 The release milestone (M8, ADR-0037). Engine 0.3.0; `classic` and `modern-western` content 0.3.0.

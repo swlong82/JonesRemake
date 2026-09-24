@@ -38,7 +38,7 @@ describe('ErrorCode (STATE_MODEL 13.3)', () => {
 
 describe('DomainEvent (STATE_MODEL 13.4)', () => {
   it('lists 56 unique event types', () => {
-    expect(DOMAIN_EVENT_TYPES).toHaveLength(56);
+    expect(DOMAIN_EVENT_TYPES).toHaveLength(57);
     expect(new Set(DOMAIN_EVENT_TYPES).size).toBe(DOMAIN_EVENT_TYPES.length);
   });
   it('events carry seq and week', () => {

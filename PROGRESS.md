@@ -1,7 +1,7 @@
 # Progress
 
-Current milestone: M9 — Scene UI and art sets (ART_SPEC 17). M0–M8 complete — v1.0.0 released (`main` @ 03caf07); tags `m8`/`v1.0.0` await the owner's push (KI-001)
-Last updated: 2026-09-24 — see `HANDOFF.md` for the resume point.
+Current milestone: M10 — retire the ring board (ART_SPEC 17.9). M9 complete: the scene UI is the default (ADR-0060). v1.0.0 = `main` @ 03caf07; tags await the owner (KI-001)
+Last updated: 2026-09-24 — M9 gate closed locally (KI-012 fixed, `sceneUi` on by default); see `HANDOFF.md`.
 
 ## M0 — Scaffold and CI
 
@@ -111,29 +111,35 @@ Owner interview 2026-09-24: ADR-0051…0053.
 
 - [x] M9.1 Spec amendments (17, 17.10) + ADRs; this task list — note: `SPEC_PACK.md` gains section 17 (`docs/ART_SPEC.md`) and amends 1.2, 1.3, 2.3, 2.4, 5.1, 5.6, 10, 12.5, 15.2, 16.1; split and index scripts know section 17; ADR-0051…0053 record the owner interview.
 - [x] M9.2 `packages/art`: manifest schema, slot catalog, SVG sanitizer, key-colour tint, set validator (17.2–17.4, 17.6) — note: `schema/catalog/sanitize/tint/contrast/validate/resolve/placeholder/generate.ts`; the sanitizer is an allowlist check that rejects rather than rewrites (19 attack fixtures), one validator for bundled and user sets; new `art` boundary layer (`shared ← art`), coverage held to the content bar. 39 tests, 98.8% lines.
-- [x] M9.3 `pnpm art:placeholders` + default set wireframes + `pnpm art:check` in `verify` (17.3, 17.8) — note: 197 slots from every bundled pack (16 locations × building/interior/host, 6 player + 4 rival avatars × 14 frames, weekend, ui, frames), 836 kB of 1.5 MB; `tools/lib/art.ts` shared I/O with jsdom as the node `DOMParser`; a tools test fails on drift between the catalog and the committed set; artist guide in `packages/art/README.md`.
+- [x] M9.3 `pnpm art:placeholders` + default set wireframes + `pnpm art:check` in `verify` (17.3, 17.8) — note: 197 slots from every bundled pack (16 locations × building/interior/host, 6 player + 4 rival avatars × 14 frames, weekend, ui, frames), ≈ 167 kB of wireframes (1.5 MB budget); `tools/lib/art.ts` shared I/O with jsdom as the node `DOMParser`; a tools test fails on drift between the catalog and the committed set; artist guide in `packages/art/README.md`.
 - [x] M9.4 Web `ArtRegistry`: static URLs, tint blobs, wireframe fallback per key; app flag `sceneUi` (17.5, 17.9) — note: `apps/web/src/assets/art/{artRegistry,useArtUrl}.ts`; bundled files come from an eager `?url` glob that `vite.config.ts` keeps out of the JS (197 hashed files, no data URLs; +9 kB gzip once wired in); tinted blobs cached per (file, colour), failed fetches not cached; nothing throws. `sceneUi` is off and nothing renders the registry yet (M9.6).
 - [x] M9.5 Theme from art set: palette tokens, bundled OFL fonts, 9-slice frames (17.7) — note: `assets/art/{artTheme,useArtTheme}.ts` set the `index.css` tokens, `--font-ui` and `.art-frame` border images from the active set while `sceneUi` is on; an explicit Dark theme keeps dark tokens (ADR-0054). Nunito (OFL) bundled via `@fontsource/nunito`; `ART_FONTS` gains `nunito`, the default set uses it.
 - [x] M9.6 Scene board + HUD bar + overlays (17.9, UX 7.2) — note: `ui/scene/{BoardScene,SceneHudBar,SceneGameScreen,ArtImage,geometry}`; a `<button>` per square over its building keeps the ring labels, `aria-current` and the 7.7 key map; name plates are HTML text; sheets open in the park (≥ 1024 px) or under the stage, never over a square; HUD bar with a draining clock, money, goals and a Details sheet for the full HUD. `scene.spec.ts` on 3 viewports with axe; phones keep the list until M9.9.
 - [x] M9.7 Avatars: picker in setup, tint, path walking with frame swap, reduced-motion jump (17.3) — note: optional presentation-only `SeatConfig.avatar` (ADR-0055; goldens untouched); `ui/scene/{walk.ts,Avatars.tsx,AvatarPicker.tsx}` — the short way round (tie clockwise), 180 ms a square, walk1/walk2 every 120 ms, facing from the segment, idle facing the viewer on arrival; reduced motion (setting or OS) jumps with no intermediate frame; key-colour tint plus the code-drawn shape badge; rivals show `rival-<personality>`; picker only for human seats while `sceneUi` is on.
 - [x] M9.8 Interiors: scene + host + speech bubble + in-scene action panel; phone cropped header (17.9) — note: `ui/scene/InteriorScene.tsx`; while the active human is inside, the stage swaps to `interior:<id>` + `host:<id>` with the greeting (`locationQuip`) in a speech bubble and the location panel in the right 40%; leaving returns to the block. Phones (list layout) get a cropped room strip with host and greeting above the panel. `scene.spec.ts` covers home → block → bank interior and the avatar picker on 3 viewports with axe.
-- [ ] M9.9 Phone: pan/zoom scene + list toggle (17.9)
-- [ ] M9.10 Title, setup, weekend recap, newspaper screens (17.3, 17.9)
-- [ ] M9.11 Lazy loading + service-worker precache + art budget in `build` (17.8)
-- [ ] M9.12 Art-pack zip import: `ArtPackStore`, import screen with per-file report, Settings picker, per-key fallback (17.6)
-- [ ] M9.13 Default set drawn: every placeholder replaced (`pnpm art:check --report`)
-- [ ] M9 gate: `sceneUi` default on; `pnpm verify` green in CI; ring board removed in the next milestone
+- [x] M9.9 Phone: pan/zoom scene + list toggle (17.9) — note: `ui/scene/{PhoneScene.tsx,panZoom.ts}`; the stage fills a 4:3 viewport at scale 1 (buildings ≥ 44 px), drag pans, pinch or ± buttons zoom (1–3×), a drag never counts as a tap, the view opens centred on the active player; Map/List toggle (`aria-pressed`) keeps the location list one tap away. e2e checks the 44 px target on the phone viewport.
+- [x] M9.10 Title, setup, weekend recap, newspaper screens (17.3, 17.9) — note: title key art behind an opaque menu panel, setup banner; a weekend event card shows `weekend:<id>` (else the picture for its tone) with the avatar cheering, slumping or standing by; the newspaper — bought with `ReadNews`, which had no page before — shows the masthead, "The Daily Hustle" as text, the headline for the hinted phase and this week’s economy stories, never whether the hint is accurate. All behind `sceneUi`; e2e on desktop and tablet with axe.
+- [x] M9.11 Lazy loading + service-worker precache + art budget in `build` (17.8) — note: `hustle-ring-sw` Vite plugin writes `sw.js` (204 files: app, 197 art files, Latin Nunito), network-first pages, cache-first assets (ADR-0056); `useScenePrefetch` fetches interiors, hosts, weekend art and tinted walk frames when idle; `pnpm budget` adds the art budget (≤ 1536 kB; 167 kB of wireframes now) beside the unchanged 350 kB JS budget; `offline.spec.ts` reloads offline and draws the board with art.
+- [x] M9.12 Art-pack zip import: `ArtPackStore`, import screen with per-file report, Settings picker, per-key fallback (17.6) — note: platform area `artpacks` (`ArtPackStore`, memory + IndexedDB, contract test, REPLACE ME README; `scaffold:check` now 9 areas); `assets/art/{importPack,artPackLibrary}.ts` read zips with fflate (≤ 400 entries, ≤ 4 MB, UTF-8), validate with the bundled-set validator at user limits, store, activate; `installArtSets` versions the registries and revokes old blob URLs; Settings → Art packs (under `sceneUi`) lists, switches, imports and deletes with a per-issue report (ADR-0057). e2e imports a partial pack, plays with it, and refuses one with a script.
+- [x] M9.13 Default set drawn: every placeholder replaced (`pnpm art:check --report`) — note: `tools/art-default/` draws all 197 slots deterministically in a modern-cartoon style (16 building fronts with pictogram signs, the board background around the set’s own layout, 16 interiors with the right 40% calm, 16 hosts in uniform, 10 avatars × 14 frames with key-colour shirts and trousers, three weekend moods, title, setup, masthead, frames); no text, no names; `pnpm art:draw` rewrites wireframes and its own output only; 591 kB of 1.5 MB, largest file 27 kB. `art:check --report` shows 197/197 drawn; a tools test fails if the committed set drifts from the generator.
+- [x] M9 gate: `sceneUi` default on; `pnpm verify` green in CI; ring board removed in the next milestone — note: `sceneUi` defaults on (ADR-0060); the tutorial runs on the scene (spotlight resolves `hud` → `scene-hud` and a hidden square → Leave), the phone map fits the whole block at 1× with ≥ 44 px square buttons, a Settings overflow at 150 % on phones is fixed; tutorial, saves, presentation (both UIs), scene, art-pack, offline and live-smoke specs pass on three viewports; `game`, `matrix` and `regression` pin `-sceneUi` until M10. KI-012 fixed first (ADR-0059). `pnpm verify` green locally; CI on the PR. Tag `m9` awaits the owner (KI-001).
+
+## M10 — Retire the ring board (ART_SPEC 17.9)
+
+- [ ] M10.1 Port `game`, `matrix` and `regression` e2e to the scene; delete the ring board, the mini ring and the `sceneUi` flag
+- [ ] M10 gate: `pnpm verify` green in CI, tag `m10`
 
 ## Gate log
 
-| Milestone | Date       | Commit  | verify | CI    | Notes                                                                                               |
-| --------- | ---------- | ------- | ------ | ----- | --------------------------------------------------------------------------------------------------- |
-| M0        | 2026-09-17 | bb197bf | green  | green | tag m0                                                                                              |
-| M1        | 2026-09-17 | 1726af3 | green  | green | tag m1 → 1726af3 (#13), CI run 23; gate commit 3569ae7 lost in the squash (ADR-0038)                |
-| M2        | 2026-09-17 | 1726af3 | green  | green | tag m2 → 1726af3 (#13), CI run 23; gate commit fe54f7e lost in the squash (ADR-0038)                |
-| M4        | 2026-09-17 | b4c979d | green  | green | tag m4 → b4c979d (#14), CI run 25; gate commit c2ecf4e lost in the squash (ADR-0038)                |
-| M3        | 2026-09-17 | a76efb2 | green  | green | tag m3 → a76efb2 (#15), CI run 27; career target recorded per ADR-0026, reopened by ADR-0037        |
-| M5        | 2026-09-18 | a76efb2 | green  | green | tag m5 → a76efb2 (#15), CI run 27; gate commit 903066e lost in the squash (ADR-0038)                |
-| M6        | 2026-09-22 | f8afb46 | green  | green | tag m6 → f8afb46 (#17), CI run 31; nine stage-2 targets reopened by ADR-0037                        |
-| M7        | 2026-09-23 | f8afb46 | green  | green | tag m7 → f8afb46 (#17), CI run 31; audio, tutorial, opacity, themes, pseudo-locale                  |
-| M8        | 2026-09-24 | 03caf07 | green  | green | tags m8 and v1.0.0 → 03caf07 (#18, squash), CI run 75; release — every 9.3/9.5 target but sim speed |
+| Milestone | Date       | Commit  | verify | CI    | Notes                                                                                                    |
+| --------- | ---------- | ------- | ------ | ----- | -------------------------------------------------------------------------------------------------------- |
+| M0        | 2026-09-17 | bb197bf | green  | green | tag m0                                                                                                   |
+| M1        | 2026-09-17 | 1726af3 | green  | green | tag m1 → 1726af3 (#13), CI run 23; gate commit 3569ae7 lost in the squash (ADR-0038)                     |
+| M2        | 2026-09-17 | 1726af3 | green  | green | tag m2 → 1726af3 (#13), CI run 23; gate commit fe54f7e lost in the squash (ADR-0038)                     |
+| M4        | 2026-09-17 | b4c979d | green  | green | tag m4 → b4c979d (#14), CI run 25; gate commit c2ecf4e lost in the squash (ADR-0038)                     |
+| M3        | 2026-09-17 | a76efb2 | green  | green | tag m3 → a76efb2 (#15), CI run 27; career target recorded per ADR-0026, reopened by ADR-0037             |
+| M5        | 2026-09-18 | a76efb2 | green  | green | tag m5 → a76efb2 (#15), CI run 27; gate commit 903066e lost in the squash (ADR-0038)                     |
+| M6        | 2026-09-22 | f8afb46 | green  | green | tag m6 → f8afb46 (#17), CI run 31; nine stage-2 targets reopened by ADR-0037                             |
+| M7        | 2026-09-23 | f8afb46 | green  | green | tag m7 → f8afb46 (#17), CI run 31; audio, tutorial, opacity, themes, pseudo-locale                       |
+| M8        | 2026-09-24 | 03caf07 | green  | green | tags m8 and v1.0.0 → 03caf07 (#18, squash), CI run 75; release — every 9.3/9.5 target but sim speed      |
+| M9        | 2026-09-24 | (PR)    | green  | on PR | scene UI default (ADR-0060); M9.1–M9.8 in #20, M9.9–M9.13 + gate in the follow-up PR; tag m9 after merge |

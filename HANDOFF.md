@@ -1,10 +1,34 @@
 # Handoff
 
-State of the build after M8 (release). PR #18 merged to `main` as **03caf07** (squash), which is
-v1.0.0. Read `CLAUDE.md` first, then this file. Every milestone M0–M8 is done; `PROGRESS.md` has
-the gate log.
+State of the build after M9 (scene UI and art sets). v1.0.0 is `main` @ 03caf07; M9.1–M9.8 merged
+as PR #20; M9.9–M9.13, the KI-012 fix and the M9 gate are on `claude/stoic-goldberg-yr35m8`. Read
+`CLAUDE.md` first, then this file; `PROGRESS.md` has the task notes and the gate log,
+`docs/ART_SPEC.md` the M9 contract.
 
-## Where the build is
+## Resume point: M10
+
+The scene UI is the default (ADR-0060). M10 retires the ring board:
+
+1. Port the e2e specs still pinned to `?ff=-sceneUi` — `game`, `matrix`, `regression` — to the
+   scene (the `hud()` locator helper in `tutorial.spec.ts` is the pattern).
+2. Delete `ui/game/Board.tsx`, the phone mini ring and the `sceneUi` flag; the location list stays.
+3. `pnpm verify` green in CI; tag `m9` (and later `m10`) — tags still need the owner (KI-001).
+
+KI-012 is fixed (ADR-0059). No issue is open against M9.
+
+## M9 at a glance
+
+| Area        | Where                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------- |
+| Contract    | `docs/ART_SPEC.md` (SPEC_PACK §17), ADR-0051…0058                                        |
+| Art sets    | `packages/art` (schema, catalog, sanitizer, tint, validator), `sets/default/`            |
+| Default art | `tools/art-default/` + `pnpm art:draw`; hand-drawn files are never overwritten           |
+| Web         | `apps/web/src/assets/art/` (registry, theme, prefetch, import), `apps/web/src/ui/scene/` |
+| Offline     | `apps/web/sw/template.js` + the `hustle-ring-sw` plugin in `vite.config.ts`              |
+| User packs  | Settings → Art packs; stored by `packages/platform/src/artpacks` (IndexedDB)             |
+| Checks      | `pnpm art:check [--report]`, `pnpm budget` (JS 350 kB, art 1536 kB), e2e scene specs     |
+
+## Where the build is (v1.0.0)
 
 | Area            | State                                                                                    |
 | --------------- | ---------------------------------------------------------------------------------------- |

@@ -9,6 +9,7 @@ import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { GoalBars } from '../game/Hud';
 import { hours } from '../game/labels';
+import { NewspaperButton } from './Newspaper';
 
 /** Hours left as a draining clock face. */
 export function SceneClock({ left, total }: { left: number; total: number }) {
@@ -50,7 +51,15 @@ export function SceneClock({ left, total }: { left: number; total: number }) {
   );
 }
 
-export function SceneHudBar({ avatar, onDetails }: { avatar?: ReactNode; onDetails: () => void }) {
+export function SceneHudBar({
+  avatar,
+  onDetails,
+  onNewspaper,
+}: {
+  avatar?: ReactNode;
+  onDetails: () => void;
+  onNewspaper: () => void;
+}) {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
@@ -96,6 +105,7 @@ export function SceneHudBar({ avatar, onDetails }: { avatar?: ReactNode; onDetai
         />
       </div>
       <div className="flex flex-wrap gap-2">
+        <NewspaperButton onClick={onNewspaper} />
         <Button onClick={onDetails} data-testid="hud-details-btn">
           {t('scene.details')}
         </Button>
@@ -105,7 +115,7 @@ export function SceneHudBar({ avatar, onDetails }: { avatar?: ReactNode; onDetai
         <Button onClick={toggleLog} data-testid="scene-log-btn">
           {t('log.heading')}
         </Button>
-        <Button onClick={toggleMenu} data-testid="scene-menu-btn">
+        <Button onClick={toggleMenu} data-testid="menu-btn">
           {t('hud.menu')}
         </Button>
       </div>

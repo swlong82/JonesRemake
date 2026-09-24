@@ -576,3 +576,48 @@
 - Options: 1) web-only state beside the save; 2) an optional `SeatConfig.avatar` in the engine config; 3) a `PlayerState` field.
 - Decision: option 2. `GameConfig` is already saved, replayed and schema-checked, and no rule reads the field, so the engine stays rule-identical. Only a chosen avatar is written; AI seats never carry one (they show `rival-<personality>`), and a seat without one shows `player-<seat + 1>`.
 - Consequences: saves and replays from before M9.7 load unchanged, and every golden replay is untouched (none sets the field). The schema accepts lowercase ids up to 32 characters; whether the id exists in the active art set is the UI's concern, and an unknown id renders wireframes.
+
+## ADR-0056: A generated service worker precaches the whole build; pages are network-first
+
+- Date: 2026-09-24
+- Status: Accepted
+- Context: 17.8 asks for art to be precached for offline play (M9.11). The spec does not fix the caching strategy, the scope of the precache, or when the worker is registered.
+- Options: 1) a library (Workbox); 2) a small hand-written worker filled in at build time; strategies: cache-first everywhere, or network-first for pages and cache-first for hashed assets.
+- Decision: option 2, no new dependency. The `hustle-ring-sw` Vite plugin writes `sw.js` from `apps/web/sw/template.js` with every emitted file except source maps, the build manifest and non-Latin font subsets, and a version hashed from that list; old caches are deleted on activation. Pages are network-first (a new deploy always wins, so the M8.4 fresh-deploy check is unaffected) with the cached shell as the offline fallback; other same-origin GETs are cache-first with `ignoreVary` (module scripts send an `Origin` header the precache request did not). Only production builds register it.
+- Consequences: the first visit downloads the art set (≤ 1.5 MB, checked by `pnpm budget`) in the background; later visits and offline reloads need no network. Scene art is also prefetched when the browser is idle (interiors, hosts, weekend pictures, each player's tinted walk frames).
+
+## ADR-0057: Art-pack zips: fflate, pack limits, and re-import by id
+
+- Date: 2026-09-24
+- Status: Accepted
+- Context: M9.12 imports user art packs (17.6). The spec fixes the per-file SVG limits but not the zip reader, the limits of a whole pack, or what a second import with the same id does.
+- Options: reader — write one, `JSZip`, `fflate`; same id — refuse, rename, replace.
+- Decision: `fflate` (MIT, synchronous, small). A pack may hold at most 400 entries and 4 MB unpacked, checked on the declared sizes before anything is inflated; entries other than `manifest.json` and `files/*.svg` (optionally under one shared top folder) are ignored and listed. Text must be UTF-8. A manifest without `extends` gets `extends: "default"`; the id `default` is reserved. Re-importing an id replaces the stored pack, and the imported pack becomes the active set. Packs are stored by `ArtPackStore` (new platform area `artpacks`, IndexedDB database `art-packs`) and re-validated against the manifest schema on every load.
+- Consequences: the import screen reports every issue with its path, so an artist can fix a pack without guesswork. The limits sit well above the bundled set (≈ 200 files, ≤ 1.5 MB). Stored packs survive app updates; one whose manifest no longer parses is skipped, not deleted.
+
+## ADR-0058: Scene sheets open beside the stage, not in the park
+
+- Date: 2026-09-24
+- Status: Accepted (amends ADR-0053 and ART_SPEC 17.9)
+- Context: with the drawn board (M9.13) the park-centred sheets turned out to cover the street, so an avatar standing at a bottom-row door vanished behind the travel sheet or the location panel. The park interior alone is too short for a panel.
+- Options: 1) keep the park and shrink sheets to the lawn (a scrolling 180-px box); 2) draw avatars over the sheets; 3) a column beside the stage on wide screens.
+- Decision: option 3. At ≥ 1024 px the sheets stack in a 360-px column right of the stage (the stage keeps its 16:10 ratio and its height budget); narrower screens keep them under the stage. Name plates render after the avatars so a passing figure never hides a name, and avatars stand on the near half of the road.
+- Consequences: nothing ever covers a square or an avatar. The stage is up to 360 px narrower on wide screens, which the height-bound sizing mostly absorbs. The HUD's "{{name}}'s turn" became "Turn: {{name}}", which also fixes "You's turn" for the default seat name.
+
+## ADR-0059: A chance-denied rent extension is an `ExtensionDenied` event, not a rejection
+
+- Date: 2026-09-24
+- Status: Accepted (fixes KI-012)
+- Context: `RequestExtension` is legal and spends its hour, then rolls against `extensionApproveBp`. A denial emitted `CommandRejected`, which every consumer reads as "this command was invalid": the engine's property test failed (≈ 3.5% of runs), replay-only imports refused such a game, full saves loaded with a replay warning, and the AI treated the outcome as an illegal move.
+- Options: 1) teach each consumer to ignore this one `CommandRejected`; 2) a dedicated outcome event.
+- Decision: option 2. `ExtensionDenied { seat }` joins the `DomainEvent` union (57 types). It is a start-of-action card (UX 7.5) with its own title and text, a log line, the `error` sound, and an AI surprise that triggers a re-plan. `CommandRejected` again means only a failed validation.
+- Consequences: no state or golden replay changes (the event count per command is the same, and no golden replay requests an extension). Replays and saves that contain a denial now verify.
+
+## ADR-0060: M9 gate — the scene UI is the default; the ring stays behind `-sceneUi` until M10
+
+- Date: 2026-09-24
+- Status: Accepted
+- Context: the M9 gate turns `sceneUi` on by default (17.9). Flipping it exposed three gaps: the tutorial spotlights `hud` and a destination square, but the desktop scene shows a HUD bar (`scene-hud`) and, because a turn starts inside home, no squares until the player leaves; the phone map opened centred on the player and could clip the square a step points at; and the Art packs section overflowed a phone at 150 % text.
+- Options: rewrite the tutorial script for the scene, or keep the script and resolve its anchors in the scene; for phones, auto-pan to each anchor, or fit the whole block at 1×.
+- Decision: keep the script. The spotlight resolves `hud` to `scene-hud` when the full HUD is closed, and a `square-*` anchor to Leave (`exit`) while the squares are off screen. The phone map fits the whole block at 1× (16:10 viewport); each square's button reaches 12 stage units past its building so it stays ≥ 44 px, and zoom and pan remain. The scene bar's menu button is `menu-btn`, like the ring header's. The Art packs fieldset and file input may shrink (`min-w-0`). The flag's removal moves to M10, which ports `game`, `matrix` and `regression` (still pinned to `-sceneUi`) and deletes the ring board.
+- Consequences: the tutorial, saves, presentation (both UIs), scene, art-pack, offline and live-smoke specs pass on three viewports with the scene as default; the old ring stays one query string away for comparison and for the pinned specs.

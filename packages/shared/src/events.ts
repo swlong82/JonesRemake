@@ -65,6 +65,8 @@ export type DomainEventBody =
   | { type: 'Spoiled'; seat: number }
   | { type: 'RentPaid'; seat: number; months: number }
   | { type: 'RentDue'; seat: number }
+  /** A legal extension request the landlord turned down by chance (not a validation failure). */
+  | { type: 'ExtensionDenied'; seat: number }
   | { type: 'RentDebt'; seat: number }
   | { type: 'Evicted'; seat: number }
   | { type: 'HomeMoved'; seat: number; tier: HomeTier }
@@ -127,6 +129,7 @@ export const DOMAIN_EVENT_TYPES = [
   'Spoiled',
   'RentPaid',
   'RentDue',
+  'ExtensionDenied',
   'RentDebt',
   'Evicted',
   'HomeMoved',

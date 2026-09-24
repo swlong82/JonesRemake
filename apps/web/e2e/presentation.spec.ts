@@ -3,6 +3,19 @@ import { expectNoA11yViolations } from './axe';
 import { horizontalOverflow } from './layout';
 
 /**
+ * Both UIs run every check: the scene (default since the M9 gate) and the ring board, which stays
+ * behind `-sceneUi` until M10 removes it.
+ */
+const UIS = [
+  { name: 'scene', ff: '-tutorial' },
+  { name: 'ring', ff: '-tutorial,-sceneUi' },
+] as const;
+
+function hud(page: Page) {
+  return page.locator('[data-testid="scene-hud"], [data-testid="hud"]').first();
+}
+
+/**
  * M7.5: one e2e run in the pseudo-locale, the themes and the text scales, and the final a11y pass
  * (UX_SPEC 7.8). The pseudo-locale run is the layout test: every string is bracketed, accented and
  * about 40% longer, so anything that only fits English overflows here.
@@ -34,49 +47,51 @@ async function setLanguageToPseudo(page: Page): Promise<void> {
   await page.getByTestId('back').click();
 }
 
-test('the interface survives the pseudo-locale without clipping, and still passes axe', async ({
-  page,
-}) => {
-  await page.goto('/?ff=-tutorial');
-  await setLanguageToPseudo(page);
+for (const ui of UIS) {
+  test(`${ui.name}: the interface survives the pseudo-locale without clipping, and still passes axe`, async ({
+    page,
+  }) => {
+    await page.goto(`/?ff=${ui.ff}`);
+    await setLanguageToPseudo(page);
 
-  // Every visible string is now bracketed, so an untranslated one would stand out.
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('⟦');
-  await expect(page.locator('html')).toHaveAttribute('lang', 'en-XA');
-  expect(await clippedElements(page)).toEqual([]);
-  await expectNoA11yViolations(page);
+    // Every visible string is now bracketed, so an untranslated one would stand out.
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('⟦');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en-XA');
+    expect(await clippedElements(page)).toEqual([]);
+    await expectNoA11yViolations(page);
 
-  await page.getByTestId('new-game').click();
-  expect(await clippedElements(page)).toEqual([]);
-  await page.getByTestId('seed').fill('e2e-pseudo');
-  await page.getByTestId('start-game').click();
-  await expect(page.getByTestId('hud')).toBeVisible();
+    await page.getByTestId('new-game').click();
+    expect(await clippedElements(page)).toEqual([]);
+    await page.getByTestId('seed').fill('e2e-pseudo');
+    await page.getByTestId('start-game').click();
+    await expect(hud(page)).toBeVisible();
 
-  // The board is the densest screen, and the pack's own strings are pseudo-localised too.
-  expect(await clippedElements(page)).toEqual([]);
-  await expectNoA11yViolations(page);
-});
+    // The board is the densest screen, and the pack's own strings are pseudo-localised too.
+    expect(await clippedElements(page)).toEqual([]);
+    await expectNoA11yViolations(page);
+  });
 
-test('themes and the largest text scale keep the board readable and accessible', async ({
-  page,
-}) => {
-  await page.goto('/?ff=-tutorial');
-  await page.getByTestId('settings').click();
-  await page.locator('#theme').selectOption('dark');
-  await page.locator('#textScale').selectOption('150');
-  expect(await horizontalOverflow(page)).toEqual([]);
-  await page.getByTestId('back').click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  test(`${ui.name}: themes and the largest text scale keep the board readable and accessible`, async ({
+    page,
+  }) => {
+    await page.goto(`/?ff=${ui.ff}`);
+    await page.getByTestId('settings').click();
+    await page.locator('#theme').selectOption('dark');
+    await page.locator('#textScale').selectOption('150');
+    expect(await horizontalOverflow(page)).toEqual([]);
+    await page.getByTestId('back').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
-  // KI-009: at 150% on a phone the setup form used to be wider than the screen, so mobile
-  // Chromium zoomed the page out and a real click on Start missed. It must fit, and be clickable.
-  await page.getByTestId('new-game').click();
-  expect(await horizontalOverflow(page)).toEqual([]);
-  await page.getByTestId('seed').fill('e2e-scale');
-  await page.getByTestId('start-game').click();
-  await expect(page.getByTestId('hud')).toBeVisible();
+    // KI-009: at 150% on a phone the setup form used to be wider than the screen, so mobile
+    // Chromium zoomed the page out and a real click on Start missed. It must fit, and be clickable.
+    await page.getByTestId('new-game').click();
+    expect(await horizontalOverflow(page)).toEqual([]);
+    await page.getByTestId('seed').fill('e2e-scale');
+    await page.getByTestId('start-game').click();
+    await expect(hud(page)).toBeVisible();
 
-  // UX 7.8's axe gate, on the board, in the dark theme, at 150% text.
-  await expectNoA11yViolations(page);
-  expect(await clippedElements(page)).toEqual([]);
-});
+    // UX 7.8's axe gate, on the board, in the dark theme, at 150% text.
+    await expectNoA11yViolations(page);
+    expect(await clippedElements(page)).toEqual([]);
+  });
+}

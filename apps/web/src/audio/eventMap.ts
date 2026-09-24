@@ -28,6 +28,7 @@ const BY_TYPE: Partial<Record<DomainEvent['type'], SfxId>> = {
   Spoiled: 'eventBad',
   RentPaid: 'cashOut',
   RentDue: 'alarm',
+  ExtensionDenied: 'error',
   RentDebt: 'alarm',
   Evicted: 'eventBad',
   HomeMoved: 'eventGood',
