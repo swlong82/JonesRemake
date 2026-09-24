@@ -263,9 +263,20 @@ export const relaxation: Scorer = {
  * gave the planner no gradient inside burnout: one rest that moved 13 → 21 scored exactly the same
  * as resting not at all, so the seat stayed burnt out for the whole game.
  */
+/**
+ * How much each difficulty minds its wellbeing. Normal is not Hard: the Normal AI is meant to
+ * overwork into a collapse now and then (BALANCE 9.5: 15–40% of games), so it weighs the stat
+ * below Hard and above Easy.
+ */
+const WELLBEING_WEIGHT: Record<Difficulty, number> = {
+  easy: 0.5,
+  normal: 0.7,
+  hard: 1,
+};
+
 export const wellbeing: Scorer = {
   id: 'wellbeing',
-  weight: (_p, d) => (d === 'easy' ? 0.5 : 1),
+  weight: (_p, d) => WELLBEING_WEIGHT[d],
   value: (ctx, _state, p) => {
     const value = (p.modules.wellbeing as { value?: number } | undefined)?.value;
     if (value === undefined) return 0;
