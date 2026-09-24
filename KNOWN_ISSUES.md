@@ -97,6 +97,26 @@
 - Fix: `.input` gets `min-w-0 max-w-full`, `Field` gets `min-w-0`, and the seed row's button `shrink-0`. `presentation.spec.ts` now sets the dark theme and 150% text from the title screen, asserts that nothing on Settings or Setup extends past the configured viewport width, and clicks Start for real, with no `force`, on all three viewports.
 - Status: fixed in M8
 
+## KI-010: Simulation is slower than the 9.3 sim-speed target
+
+- Severity: minor (known limitation, out of scope for v1.0 by owner decision)
+- Area: balance
+- Found in: M3.3; re-measured at M8.0e
+- Repro: `pnpm baseline` reports the worst Normal-AI config at about 12 s per game (target < 200 ms/game median); stage 2 reads 2.7–10 s per game depending on goal level.
+- Attempts: none in M8. The owner ruled sim speed out of scope for the release; the planner's beam search (width × depth × branch previews per command) dominates the cost.
+- Mitigation: the suites run in worker threads (`--workers`); CI gate game counts are reduced (ADR-0016) and fit the job budget. Balance results are unaffected — only wall time.
+- Status: open — known limitation, candidate for a post-1.0 performance pass (planner memoisation, cheaper previews)
+
+## KI-011: The Easy AI sometimes never finishes a high-goal game
+
+- Severity: minor
+- Area: ai
+- Found in: M8.0e stage-1 re-run
+- Repro: `sim/stage1.json` Easy×2 configs: stall rate 3% at goals 50, 11% at goals 80, 24% at goals 100 (2 seats); Normal and Hard stall 0% at every level.
+- Attempts: not investigated in M8 beyond the measurement: Easy plans three commands deep with heavy score noise by design (GDD 4.14), and no 9.3/9.5 target covers Easy self-play.
+- Mitigation: a human playing against Easy AIs is unaffected — the game ends when anyone wins, and Easy is the tutorial and practice opponent. Stall detection ends a stalled simulated game at week 300.
+- Status: open — minor; revisit if players report Easy opponents that never finish
+
 <!--
 ## KI-001: <title>
 - Severity: blocker | major | minor
