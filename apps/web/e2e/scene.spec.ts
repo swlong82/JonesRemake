@@ -84,3 +84,38 @@ test('the avatar picker records the chosen avatar', async ({ page }) => {
     'avatar:player-4:idle:s',
   );
 });
+
+test('title art, newspaper and weekend recap', async ({ page }) => {
+  test.skip(isPhone(page), 'the desktop scene covers these; the phone shares the components');
+  await page.goto('/?ff=sceneUi,-tutorial');
+  await expect(page.getByTestId('title-art')).toBeVisible();
+  await expectNoA11yViolations(page);
+  await page.getByTestId('new-game').click();
+  await expect(page.getByTestId('setup-art')).toBeVisible();
+  await page.getByTestId('seed').fill('e2e-paper');
+  await page.getByTestId('start-game').click();
+
+  // Buy this week's paper at the grocery (ring key W) and read it.
+  await page.getByTestId('exit').click();
+  await page.keyboard.press('w');
+  await page.getByTestId('travel-go').click();
+  await page.getByTestId('enter').click();
+  await page.getByTestId('action-ReadNews').click();
+  await page.getByTestId('newspaper-btn').click();
+  await expect(page.getByTestId('news-headline')).not.toBeEmpty();
+  await expectNoA11yViolations(page);
+  await page.getByTestId('newspaper-close').click();
+
+  // Next week opens with the weekend, shown as a small scene.
+  await page.getByTestId('end-turn').click();
+  const confirm = page.getByTestId('end-turn-confirm');
+  if (await confirm.isVisible()) await confirm.click();
+  for (let i = 0; i < 4; i++) {
+    await expect(page.getByTestId('event-modal')).toBeVisible({ timeout: 20_000 });
+    if (await page.getByTestId('weekend-recap').isVisible()) break;
+    await page.getByTestId('event-dismiss').click();
+  }
+  await expect(page.getByTestId('weekend-recap')).toBeVisible();
+  await expect(page.getByTestId('weekend-avatar')).toBeVisible();
+  await expectNoA11yViolations(page);
+});

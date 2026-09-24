@@ -559,5 +559,16 @@
   "phone.viewScene": "Map",
   "phone.viewList": "List",
   "phone.zoomIn": "Zoom in",
-  "phone.zoomOut": "Zoom out"
+  "phone.zoomOut": "Zoom out",
+  "news.open": "Newspaper",
+  "news.close": "Fold the paper",
+  "news.name": "The Daily Hustle",
+  "news.edition": "Week {{week}} edition",
+  "news.headline.boom": "Boom times: hiring signs everywhere",
+  "news.headline.stable": "Steady as she goes, say the experts",
+  "news.headline.recession": "Belts tighten as the city slows down",
+  "news.body.boom": "Analysts expect wages and prices to keep climbing next week.",
+  "news.body.stable": "Analysts expect a quiet week for wages, prices and the markets.",
+  "news.body.recession": "Analysts expect lower wages, cheaper rents and a nervous market.",
+  "news.disclaimer": "Forecasts are opinions. Opinions are sometimes wrong."
 }

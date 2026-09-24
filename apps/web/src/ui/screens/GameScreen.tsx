@@ -25,6 +25,7 @@ import { hours } from '../game/labels';
 import { useIsPhone } from '../game/useIsPhone';
 import { useKeyboard } from '../game/useKeyboard';
 import { InteriorHeader } from '../scene/InteriorScene';
+import { Newspaper, NewspaperButton } from '../scene/Newspaper';
 import { PhoneScene } from '../scene/PhoneScene';
 import { SceneGameScreen } from '../scene/SceneGameScreen';
 
@@ -54,6 +55,7 @@ export function GameScreen() {
   const phone = useIsPhone();
   const debug = useDebugBoot();
   const [expanded, setExpanded] = useState(false);
+  const [paper, setPaper] = useState(false);
   const sceneUi = useFlags((f) => f.flags.sceneUi);
   useKeyboard();
   if (!state) return null;
@@ -99,6 +101,8 @@ export function GameScreen() {
       {phone && sceneUi ? (
         <div className="flex flex-col gap-3">
           <PhoneScene />
+          <NewspaperButton onClick={() => setPaper((p) => !p)} />
+          {paper && <Newspaper onClose={() => setPaper(false)} />}
           <h2 className="text-sm font-semibold text-ink-muted">{t('phone.actions')}</h2>
           {side}
         </div>

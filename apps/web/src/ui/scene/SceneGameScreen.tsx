@@ -22,6 +22,7 @@ import { useIsWide } from '../game/useIsPhone';
 import { AvatarLayer, HudAvatar } from './Avatars';
 import { BoardScene, layoutFor } from './BoardScene';
 import { InteriorScene } from './InteriorScene';
+import { Newspaper } from './Newspaper';
 import { SceneHudBar } from './SceneHudBar';
 
 function Sheet({ children }: { children: ReactNode }) {
@@ -37,6 +38,7 @@ export function SceneGameScreen({ debug }: { debug: boolean }) {
   const standingsOpen = useGame((s) => s.standingsOpen);
   const menuOpen = useGame((s) => s.menuOpen);
   const [details, setDetails] = useState(false);
+  const [paper, setPaper] = useState(false);
   const wide = useIsWide();
   if (!state || !pack) return null;
   const registry = artRegistryFor(pack);
@@ -46,6 +48,7 @@ export function SceneGameScreen({ debug }: { debug: boolean }) {
 
   const sheets = [
     details && <Hud key="hud" />,
+    paper && <Newspaper key="paper" onClose={() => setPaper(false)} />,
     yourTurn && travelOpen && <TravelSheet key="travel" />,
     standingsOpen && <Standings key="standings" />,
     menuOpen && <MenuSheet key="menu" />,
@@ -96,6 +99,7 @@ export function SceneGameScreen({ debug }: { debug: boolean }) {
       <SceneHudBar
         avatar={<HudAvatar registry={registry} />}
         onDetails={() => setDetails((d) => !d)}
+        onNewspaper={() => setPaper((p) => !p)}
       />
     </div>
   );

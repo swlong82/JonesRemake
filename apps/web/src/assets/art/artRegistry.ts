@@ -87,6 +87,11 @@ export class ArtRegistry {
     return resolveAsset(key, this.chain, this.catalog) !== undefined;
   }
 
+  /** Whether a set in the chain defines exactly this key (no optional fallback). */
+  hasOwn(key: string): boolean {
+    return this.chain.some((set) => key in set.assets);
+  }
+
   /** Synchronous `data:` URL of the slot's wireframe; always available. */
   wireframe(key: string): string {
     const spec = slotSpecFor(key, this.catalog) ?? { ...UNKNOWN_SLOT, key };
