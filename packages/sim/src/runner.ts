@@ -45,6 +45,8 @@ export interface GameResult {
   stalled: boolean;
   /** Goal the winner completed last (by first week each goal was met). */
   lastGoal: GoalId | null;
+  /** Winner's first-stayed-met week per goal; null when nobody won. */
+  goalWeeks: Record<GoalId, number> | null;
   seats: SeatResult[];
   /** Winner's p50-able wealth trajectory: wealth goal value per week. */
   wealthByWeek: number[];
@@ -84,13 +86,12 @@ export function planOptionsFor(spec: SeatSpec, pack: CityPack): PlanOptions {
   return botPlanOptions(getBot(spec.bot), pack);
 }
 
-function lastGoalCompleted(state: GameState, seat: number): GoalId | null {
+/** First week from which each of the seat's goals stayed met until the end (wealth, happiness, education, career). */
+export function goalMetWeeks(state: GameState, seat: number): Record<GoalId, number> | null {
   const p = state.players[seat];
   if (!p) return null;
-  const ids: GoalId[] = ['wealth', 'happiness', 'education', 'career'];
   const targets = [p.goals.wealth, p.goals.happiness, p.goals.education, p.goals.career];
-  // First week from which each goal stayed met until the end.
-  const firstMet = ids.map((_, gi) => {
+  const firstMet = GOAL_ORDER.map((_, gi) => {
     let week = state.week;
     for (let i = p.history.length - 1; i >= 0; i--) {
       const h = p.history[i]!;
@@ -99,9 +100,22 @@ function lastGoalCompleted(state: GameState, seat: number): GoalId | null {
     }
     return week;
   });
-  let best = 0;
-  for (let i = 1; i < 4; i++) if (firstMet[i]! > firstMet[best]!) best = i;
-  return ids[best]!;
+  return {
+    wealth: firstMet[0]!,
+    happiness: firstMet[1]!,
+    education: firstMet[2]!,
+    career: firstMet[3]!,
+  };
+}
+
+const GOAL_ORDER: GoalId[] = ['wealth', 'happiness', 'education', 'career'];
+
+function lastGoalCompleted(state: GameState, seat: number): GoalId | null {
+  const weeks = goalMetWeeks(state, seat);
+  if (!weeks) return null;
+  let best: GoalId = 'wealth';
+  for (const g of GOAL_ORDER) if (weeks[g] > weeks[best]) best = g;
+  return best;
 }
 
 export function runGame(spec: GameSpec, packArg?: CityPack): GameResult {
@@ -198,6 +212,7 @@ export function runGame(spec: GameSpec, packArg?: CityPack): GameResult {
     winner: state.winner,
     stalled: state.winner === null,
     lastGoal: state.winner === null ? null : lastGoalCompleted(state, state.winner),
+    goalWeeks: state.winner === null ? null : goalMetWeeks(state, state.winner),
     seats,
     wealthByWeek,
     eventsByFamily,

@@ -6,7 +6,7 @@ import { classic, goInside, newGame, patch, run } from '../testing.js';
 const pack = classic();
 
 describe('Relax (GDD 4.9, 3.3)', () => {
-  it('at home: 6h, relaxation +3 (max 50), happiness +2 +1 per comfort durable (max +6), once per turn', () => {
+  it('at home: 6h, relaxation +3 (max 50), happiness +1 +1 per comfort durable (max +7), once per turn', () => {
     const s = patch(newGame('relax'), 0, (p) => {
       p.items.push({
         uid: 'tv',
@@ -25,7 +25,7 @@ describe('Relax (GDD 4.9, 3.3)', () => {
     });
     expect(previewCommand(s, 0, { type: 'Relax' }, pack)).toMatchObject({
       hours: -12,
-      deltas: { happiness: 3, relaxation: 3 },
+      deltas: { happiness: 2, relaxation: 3 },
     });
     const r = applyCommand(s, 0, { type: 'Relax' }, pack);
     expect(r.events.map((e) => e.type)).toEqual([
@@ -35,7 +35,7 @@ describe('Relax (GDD 4.9, 3.3)', () => {
       'Relaxed',
     ]);
     expect(r.state.players[0]!.relaxation).toBe(13);
-    expect(r.state.players[0]!.happiness).toBe(13);
+    expect(r.state.players[0]!.happiness).toBe(12);
     expect(applyCommand(r.state, 0, { type: 'Relax' }, pack).events[0]).toMatchObject({
       code: 'ERR_ALREADY_RELAXED',
     });
@@ -52,12 +52,13 @@ describe('Relax (GDD 4.9, 3.3)', () => {
     });
     const r2 = applyCommand(maxed, 0, { type: 'Relax' }, pack);
     expect(r2.state.players[0]!.relaxation).toBe(50);
-    expect(r2.state.players[0]!.happiness).toBe(16);
+    // Start happiness 10 plus the pack's relax cap (base + 1 per comfort durable, capped).
+    expect(r2.state.players[0]!.happiness).toBe(10 + pack.rules.happiness.relaxMax);
   });
   it('in the park: base happiness only; rejected where there is no relax service or too few hours', () => {
     const park = goInside(newGame('park'), 0, 'park');
     const r = applyCommand(park, 0, { type: 'Relax' }, pack);
-    expect(r.state.players[0]!.happiness).toBe(12);
+    expect(r.state.players[0]!.happiness).toBe(10 + pack.rules.happiness.relaxBase);
     const bank = goInside(newGame('park'), 0, 'bank');
     expect(applyCommand(bank, 0, { type: 'Relax' }, pack).events[0]).toMatchObject({
       code: 'ERR_NOT_AT_LOCATION',

@@ -33,6 +33,21 @@ export function luckPercent(ctx: Ctx, seat: number): number {
   );
 }
 
+/**
+ * Start of continuous employment for a hire off the street: this week less the graduate-entry credit
+ * of the degrees held, which may reach before week 0 (ADR-0050); or — within the pack's grace after
+ * an event layoff — the lost job's start moved on by the weeks spent out of work (ADR-0047).
+ */
+function resumed(ctx: Ctx): number {
+  const off = ctx.player.layoff;
+  if (!off || ctx.week - off.week > ctx.rules.goals.careerLayoffGraceWeeks) {
+    // Graduate entry (ADR-0050): each degree held counts as weeks already served.
+    const credit = ctx.player.degrees.length * ctx.rules.goals.careerTenureWeeksPerDegree;
+    return ctx.week - credit;
+  }
+  return off.hiredWeek + (ctx.week - off.week);
+}
+
 export const applyJobHandler: CommandHandler<ApplyJobCommand> = {
   type: 'ApplyJob',
   schema: z.object({ type: z.literal('ApplyJob'), jobId: z.string() }).strict(),
@@ -65,7 +80,10 @@ export const applyJobHandler: CommandHandler<ApplyJobCommand> = {
       return;
     }
     const wage = ctx.econ(job.baseWage);
-    p.job = { jobId: cmd.jobId, wage, raises: 0, hiredWeek: ctx.week };
+    // `hiredWeek` is the start of continuous employment (ADR-0040): moving job to job keeps it,
+    // so climbing the ladder does not restart the career tenure; only losing the job does.
+    p.job = { jobId: cmd.jobId, wage, raises: 0, hiredWeek: p.job?.hiredWeek ?? resumed(ctx) };
+    delete p.layoff;
     if (p.dependability < ctx.rules.stats.hireDependabilityFloor) {
       ctx.addDependabilityRaw(
         ctx.seat,

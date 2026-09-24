@@ -6,7 +6,7 @@ import { useFlags } from '../flags/appFlags';
 import { useGame } from '../store/gameStore';
 import { useSettings } from '../store/settings';
 import { Spotlight } from './Spotlight';
-import { advancesOn, stepKeys, TUTORIAL_STEPS, TUTORIAL_STEP_IDS } from './steps';
+import { advancesOn, anchorFor, stepKeys, TUTORIAL_STEPS, TUTORIAL_STEP_IDS } from './steps';
 import { tutorialConfig } from './startTutorial';
 import { useTutorial } from './useTutorial';
 
@@ -148,5 +148,39 @@ describe('spotlight', () => {
     render(<Spotlight />);
     expect(screen.queryByTestId('tutorial-next')).toBeNull();
     expect(screen.getByTestId('tutorial-skip')).toBeTruthy();
+  });
+});
+
+describe('anchorFor (UX 7.6: the input a step needs includes getting there)', () => {
+  const view = {
+    location: 'low-housing',
+    inside: true,
+    travelOpen: false,
+    endTurnPending: false,
+    jobWorkplace: 'burger-joint',
+    home: 'low-housing',
+  };
+  const step = (id: string) => TUTORIAL_STEPS.find((s) => s.id === id)!;
+
+  it('follows a travel step from the square, through the sheet, to the door', () => {
+    expect(anchorFor(step('travel'), view)).toBe('square-employment-office');
+    expect(anchorFor(step('travel'), { ...view, travelOpen: true })).toBe('travel-sheet');
+    expect(
+      anchorFor(step('travel'), { ...view, location: 'employment-office', inside: false }),
+    ).toBe('location-panel');
+  });
+
+  it('resolves the job and home destinations from the viewer', () => {
+    expect(anchorFor(step('work'), view)).toBe('square-burger-joint');
+    expect(anchorFor(step('work'), { ...view, location: 'burger-joint' })).toBe('location-panel');
+    expect(anchorFor(step('relax'), { ...view, location: 'bank' })).toBe('square-low-housing');
+    // No job yet: nothing to travel to, so the step's own anchor.
+    expect(anchorFor(step('work'), { ...view, jobWorkplace: null })).toBe('location-panel');
+  });
+
+  it('leaves steps without a destination on their own anchor', () => {
+    expect(anchorFor(step('welcome'), { ...view, travelOpen: true })).toBe('hud');
+    expect(anchorFor(step('endTurn'), view)).toBe('end-turn');
+    expect(anchorFor(step('endTurn'), { ...view, endTurnPending: true })).toBe('end-turn-dialog');
   });
 });

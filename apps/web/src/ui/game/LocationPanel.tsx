@@ -375,7 +375,12 @@ export function LocationPanel() {
       <SubscriptionCancelDialog />
 
       {confirmEnd ? (
-        <div role="alertdialog" aria-label={t('panel.endTurn')} className="flex flex-col gap-2">
+        <div
+          role="alertdialog"
+          aria-label={t('panel.endTurn')}
+          className="flex flex-col gap-2"
+          data-testid="end-turn-dialog"
+        >
           <p className="text-sm">{t('panel.endTurnConfirm', { hours: hours(halfHoursLeft) })}</p>
           <div className="flex gap-2">
             <Button

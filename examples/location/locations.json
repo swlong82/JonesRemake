@@ -1,0 +1,13 @@
+[
+  {
+    "id": "coworking-space",
+    "kind": "filler",
+    "services": ["relax"],
+    "open": "always",
+    "category": "service"
+  },
+  {
+    "id": "park",
+    "_remove": true
+  }
+]

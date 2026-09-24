@@ -1,0 +1,7 @@
+{
+  "app.title": "Hustle Ring",
+  "stats.heading": "Estadísticas",
+  "stats.weeks": "{{n}} semanas",
+  "end.heading": "¡{{name}} gana en la semana {{week}}!",
+  "stats.unverified": "Sin verificar — solo local"
+}

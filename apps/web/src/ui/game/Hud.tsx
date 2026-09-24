@@ -173,7 +173,7 @@ export function Hud({ compact = false }: { compact?: boolean }) {
       </div>
       <div className="flex items-center gap-4">
         <HoursRing left={player.hoursLeft} total={pack.rules.time.weekHours} />
-        <dl className="grid grow grid-cols-2 gap-x-3 gap-y-1 text-sm">
+        <dl className="grid min-w-0 grow grid-cols-2 gap-x-3 gap-y-1 break-words text-sm">
           <dt className="text-ink-muted">{t('hud.cash')}</dt>
           <dd className="text-right font-semibold tabular-nums" data-testid="cash">
             {t('panel.preview.money', { n: player.cash })}
@@ -249,7 +249,7 @@ export function Hud({ compact = false }: { compact?: boolean }) {
           )}
         </ul>
       )}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button className="grow" onClick={toggleStandings} data-testid="standings-btn">
           {t('hud.standings')}
         </Button>

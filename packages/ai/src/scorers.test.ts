@@ -3,7 +3,14 @@ import { describe, expect, it } from 'vitest';
 import type { CityPack } from '@hustle-ring/content';
 import { classic, humanSeat, newGame, patch } from '@hustle-ring/engine/testing';
 import type { PlayerState } from '@hustle-ring/engine';
-import { happinessUpkeep } from './scorers.js';
+import {
+  atTurnStart,
+  firingLine,
+  goalHappiness,
+  happinessUpkeep,
+  keepsJob,
+  winProximity,
+} from './scorers.js';
 
 const pack = classic();
 const personality = pack.personalityById.balanced!;
@@ -65,5 +72,58 @@ describe('happiness-upkeep scorer', () => {
 
   it('is weighted by the personality happiness weight', () => {
     expect(happinessUpkeep.weight(personality, 'normal')).toBe(personality.weights.happiness);
+  });
+});
+
+describe('goals as the win check sees them (KI-008)', () => {
+  const pack = classic();
+  const ctx = {
+    pack,
+    seat: 0,
+    personality: pack.personalities[0]!,
+    difficulty: 'normal' as const,
+  };
+  const at = (happiness: number) =>
+    patch(newGame('turn-start', [humanSeat('A'), humanSeat('B')]), 0, (p) => {
+      p.happiness = happiness;
+      p.goals = { wealth: 100, happiness: 100, education: 100, career: 100 };
+    });
+
+  it('projects the next turn start: happiness and dependability after their weekly decay', () => {
+    const s = at(100);
+    const p = atTurnStart(s.players[0]!, pack);
+    expect(p.happiness).toBe(100 - pack.rules.happiness.decayPerWeek);
+    expect(p.dependability).toBe(
+      Math.max(0, s.players[0]!.dependability - pack.rules.stats.dependabilityDecay),
+    );
+  });
+
+  it('a happiness of exactly the goal is not yet met, so the seat keeps pushing past it', () => {
+    const exactly = at(100);
+    const above = at(100 + pack.rules.happiness.decayPerWeek);
+    const v = (s: typeof exactly) => goalHappiness.value(ctx, s, s.players[0]!);
+    expect(v(exactly)).toBeLessThan(1);
+    expect(v(above)).toBe(1);
+    const w = (s: typeof exactly) => winProximity.value(ctx, s, s.players[0]!);
+    expect(w(above)).toBeGreaterThanOrEqual(w(exactly));
+  });
+});
+
+describe('a job the seat cannot work (KI-008)', () => {
+  const pack = classic();
+  const job = pack.jobs.find(
+    (j) => j.reqDependability > pack.rules.stats.firingDependabilityMargin,
+  )!;
+  const seat = (dependability: number) =>
+    patch(newGame('fired-line', [humanSeat('A'), humanSeat('B')]), 0, (p) => {
+      p.job = { jobId: job.id, wage: job.baseWage, raises: 0, hiredWeek: 1 };
+      p.dependability = dependability;
+    }).players[0]!;
+
+  it('is the job a shift would get the seat fired from', () => {
+    const line = firingLine(pack, seat(0));
+    expect(line).toBe(job.reqDependability - pack.rules.stats.firingDependabilityMargin);
+    expect(keepsJob(pack, seat(line))).toBe(true);
+    expect(keepsJob(pack, seat(line - 1))).toBe(false);
   });
 });

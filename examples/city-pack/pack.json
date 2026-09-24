@@ -1,0 +1,12 @@
+{
+  "id": "harbor-town",
+  "version": "0.1.0",
+  "currency": {
+    "symbol": "$",
+    "code": "USD"
+  },
+  "featureFlags": {},
+  "wealthPointValue": 150,
+  "titleKey": "title.harbor-town",
+  "extends": "modern-western"
+}

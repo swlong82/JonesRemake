@@ -109,9 +109,10 @@ describe('gig module (GDD 4.6)', () => {
     const employed = patch(
       rider('dual'),
       0,
-      (p) => {
+      (p, st) => {
         p.job = { jobId: 'burger-joint-cook', wage: 4, raises: 0, hiredWeek: 1 };
         p.dependability = 40;
+        st.week = 10; // past the first weeks of tenure (ADR-0040)
       },
       modern,
     );

@@ -1,6 +1,6 @@
 {
   "id": "classic",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "currency": { "symbol": "$", "code": "USD" },
   "featureFlags": {
     "transport": false,
@@ -16,7 +16,7 @@
     "simultaneousTurns": false,
     "online": false
   },
-  "wealthPointValue": 100,
+  "wealthPointValue": 115,
   "priceScale": 1000,
   "schemaVersion": 1,
   "titleKey": "title.classic"

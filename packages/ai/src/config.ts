@@ -59,3 +59,6 @@ export const ASSET_TIER: Record<string, number> = {
   'penny-stocks': 3,
   crypto: 3,
 };
+
+/** Hours left in the week below which an unfed seat must go and eat (planner and `survival`). */
+export const HUNGRY_HOURS = 999;

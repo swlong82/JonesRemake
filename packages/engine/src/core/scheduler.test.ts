@@ -59,6 +59,8 @@ describe('SequentialScheduler (GDD 4.2)', () => {
       p.job = { jobId: 'burger-joint-cook', wage: 4, raises: 0, hiredWeek: 1 };
       p.dependability = 20;
       p.happiness = 30;
+      // Hired this week, so career tenure (ADR-0040) is still 0; the test is about win timing.
+      p.goals.career = 0;
     });
     expect(s.winner).toBeNull();
     s = run(s, 0, [{ type: 'EndTurn' }]);

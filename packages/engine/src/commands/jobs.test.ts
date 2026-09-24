@@ -232,3 +232,51 @@ describe('human seat helper', () => {
     expect(humanSeat('Z', 30).goals.wealth).toBe(30);
   });
 });
+
+describe('layoff grace (ADR-0047)', () => {
+  const graced = {
+    ...pack,
+    rules: { ...pack.rules, goals: { ...pack.rules.goals, careerLayoffGraceWeeks: 4 } },
+  };
+  const rehired = (week: number, lostWeek: number, p = graced) => {
+    const s = patch(goInside(newGame('layoff'), 0, 'employment-office'), 0, (pl) => {
+      pl.job = null;
+      pl.layoff = { hiredWeek: 3, week: lostWeek };
+    });
+    const r = applyCommand({ ...s, week }, 0, { type: 'ApplyJob', jobId: 'burger-joint-cook' }, p);
+    return r.state.players[0]!;
+  };
+
+  it('a rehire within the grace resumes the lost tenure, less the weeks out of work', () => {
+    const p = rehired(12, 10);
+    expect(p.job?.hiredWeek).toBe(3 + 2);
+    expect(p.layoff).toBeUndefined();
+  });
+  it('after the grace, or where the pack grants none, tenure starts again', () => {
+    expect(rehired(15, 10).job?.hiredWeek).toBe(15);
+    expect(rehired(12, 10, pack).job?.hiredWeek).toBe(12);
+  });
+});
+
+describe('graduate entry (ADR-0050)', () => {
+  const credited = {
+    ...pack,
+    rules: { ...pack.rules, goals: { ...pack.rules.goals, careerTenureWeeksPerDegree: 5 } },
+  };
+  const hired = (week: number, degrees: string[], p = credited) => {
+    const s = patch(goInside(newGame('graduate'), 0, 'employment-office'), 0, (pl) => {
+      pl.job = null;
+      pl.degrees = degrees;
+    });
+    const r = applyCommand({ ...s, week }, 0, { type: 'ApplyJob', jobId: 'burger-joint-cook' }, p);
+    return r.state.players[0]!.job?.hiredWeek;
+  };
+
+  it('each degree held at a fresh hire counts as weeks already served', () => {
+    expect(hired(20, ['trade-school', 'junior-college'])).toBe(10);
+  });
+  it('may reach back before week 0, and gives nothing where the pack grants no credit', () => {
+    expect(hired(8, ['trade-school', 'junior-college'])).toBe(-2);
+    expect(hired(20, ['trade-school', 'junior-college'], pack)).toBe(20);
+  });
+});

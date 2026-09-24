@@ -1,7 +1,7 @@
 {
   "seed": "golden-modern-western-19",
   "packId": "modern-western",
-  "packVersion": "0.1.0",
+  "packVersion": "0.3.0",
   "seats": 2,
   "log": [
     {
@@ -1111,32 +1111,24 @@
     {
       "seat": 0,
       "cmd": {
-        "type": "Move",
-        "to": "clinic",
-        "mode": "walk"
+        "type": "TakeLoan",
+        "principal": 500,
+        "termWeeks": 104
       }
     },
     {
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "bank",
-        "mode": "walk"
+        "to": "electronics-store",
+        "mode": "transit"
       }
     },
     {
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "grocery",
-        "mode": "walk"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "discount-store",
+        "to": "university",
         "mode": "walk"
       }
     },
@@ -1152,15 +1144,15 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "secure-apartments",
-        "mode": "walk"
+        "to": "low-housing",
+        "mode": "transit"
       }
     },
     {
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "appliance-depot",
+        "to": "rent-office",
         "mode": "walk"
       }
     },
@@ -1176,19 +1168,27 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "grocery",
+        "to": "rent-office",
         "mode": "walk"
       }
     },
     {
-      "seat": 1,
+      "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "rent-office",
-        "mode": "walk"
+        "to": "clinic",
+        "mode": "transit"
+      }
+    },
+    {
+      "seat": 0,
+      "cmd": {
+        "type": "Move",
+        "to": "electronics-store",
+        "mode": "transit"
       }
     }
   ],
-  "finalHash": "0f5c309d7ce4e4",
+  "finalHash": "04a67b0ed51617",
   "week": 6
 }

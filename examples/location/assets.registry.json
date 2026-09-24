@@ -1,0 +1,8 @@
+{
+  "location:coworking-space": {
+    "shape": "rounded-rect",
+    "color": "cat-service",
+    "icon": "desk"
+  },
+  "location:park": null
+}

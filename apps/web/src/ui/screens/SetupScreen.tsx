@@ -296,8 +296,12 @@ export function SetupScreen() {
         <Button onClick={() => preset(30)} data-testid="preset-quick">
           {t('setup.preset.quick')}
         </Button>
-        <Button onClick={() => preset(50)}>{t('setup.preset.standard')}</Button>
-        <Button onClick={() => preset(80)}>{t('setup.preset.marathon')}</Button>
+        <Button onClick={() => preset(50)} data-testid="preset-standard">
+          {t('setup.preset.standard')}
+        </Button>
+        <Button onClick={() => preset(80)} data-testid="preset-marathon">
+          {t('setup.preset.marathon')}
+        </Button>
       </div>
 
       <h2 className="mt-6 text-xl font-semibold">{t('setup.options')}</h2>
@@ -311,7 +315,9 @@ export function SetupScreen() {
               onChange={(e) => setSeed(e.target.value)}
               data-testid="seed"
             />
-            <Button onClick={() => setSeed(randomSeed())}>{t('setup.randomSeed')}</Button>
+            <Button className="shrink-0" onClick={() => setSeed(randomSeed())}>
+              {t('setup.randomSeed')}
+            </Button>
           </div>
         </Field>
         <Field label={t('setup.chaos')} htmlFor="chaos">
@@ -353,6 +359,7 @@ export function SetupScreen() {
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
+              data-testid="solo-practice"
               checked={soloPractice}
               onChange={(e) => setSoloPractice(e.target.checked)}
             />

@@ -129,6 +129,22 @@ describe('evaluate93', () => {
     expect(failed).not.toContain('Goal last-completed: education (goals 50)');
   });
 
+  it('reads seat bias from the same-personality run when there is one (ADR-0044)', () => {
+    const rows = [
+      buildRow(summary('classic-50-normal-2', { length: spread(45), firstSeatWinPct: 40 }), perf),
+      buildRow(
+        summary('seatbias-classic-50-normal-2', { length: spread(45), firstSeatWinPct: 52 }),
+        perf,
+      ),
+    ];
+    const seat = evaluate93(sortRows(rows)).find((g) => g.gate.startsWith('Seat bias'));
+    expect(seat).toMatchObject({
+      gate: 'Seat bias Normal×2 (goals 50, Balanced vs Balanced)',
+      achieved: '52%',
+      pass: true,
+    });
+  });
+
   it('reports n/a rather than throwing when a config is missing', () => {
     const gates = evaluate93([]);
     expect(gates.some((g) => g.achieved.includes('n/a'))).toBe(true);

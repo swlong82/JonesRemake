@@ -12,7 +12,7 @@ import {
 const root = join(import.meta.dirname, '..', '..');
 const TARGETS = 'reports/modern-targets.json';
 const BASELINE = 'reports/baseline.json';
-const ADR = 'ADR-0033';
+const ADR = 'ADR-0048';
 
 const targetsBytes = readFileSync(join(root, TARGETS));
 const targets = JSON.parse(targetsBytes.toString('utf8')) as ModernTargets;
@@ -32,9 +32,9 @@ describe('lockedHashFrom', () => {
       '## ADR-0034: after',
       '',
     ].join('\n');
-    expect(lockedHashFrom(md, ADR, TARGETS)).toBe('b'.repeat(64));
+    expect(lockedHashFrom(md, 'ADR-0033', TARGETS)).toBe('b'.repeat(64));
     expect(lockedHashFrom(md, 'ADR-9999', TARGETS)).toBeNull();
-    expect(lockedHashFrom('## ADR-0033: no hash here', ADR, TARGETS)).toBeNull();
+    expect(lockedHashFrom('## ADR-0033: no hash here', 'ADR-0033', TARGETS)).toBeNull();
   });
 });
 

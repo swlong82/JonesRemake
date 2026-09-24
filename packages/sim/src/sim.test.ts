@@ -118,7 +118,7 @@ describe('bots (M3.2)', () => {
     registerBot({ id: 'TestBot', personality: 'balanced', allow: () => true });
     expect(botIds()).toContain('TestBot');
   });
-  it('NoRelax forbids Relax; StudyFirst forbids work until every degree is held', () => {
+  it('NoRelax forbids Relax; StudyFirst forbids work until its education goal is met', () => {
     const s = newGame('bots', [aiSeat('A')]);
     const noRelax = botPlanOptions(getBot('NoRelax'), pack);
     expect(noRelax.forbid!({ type: 'Relax' }, s, 0)).toBe(true);
@@ -126,11 +126,19 @@ describe('bots (M3.2)', () => {
     const study = botPlanOptions(getBot('StudyFirst'), pack);
     expect(study.forbid!({ type: 'Work', hours: 12 }, s, 0)).toBe(true);
     expect(study.forbid!({ type: 'Study', degreeId: 'trade-school' }, s, 0)).toBe(false);
-    const graduated = {
+    // Education 50 on classic is six degrees (1 + 9 × 6); five are not enough (ADR-0041).
+    const withDegrees = (n: number) => ({
       ...s,
-      players: [{ ...s.players[0]!, degrees: pack.degrees.map((d) => d.id) }],
-    };
-    expect(study.forbid!({ type: 'Work', hours: 12 }, graduated, 0)).toBe(false);
+      players: [
+        {
+          ...s.players[0]!,
+          goals: { ...s.players[0]!.goals, education: 50 },
+          degrees: pack.degrees.slice(0, n).map((d) => d.id),
+        },
+      ],
+    });
+    expect(study.forbid!({ type: 'Work', hours: 12 }, withDegrees(5), 0)).toBe(true);
+    expect(study.forbid!({ type: 'Work', hours: 12 }, withDegrees(6), 0)).toBe(false);
   });
 });
 
@@ -148,6 +156,7 @@ describe('metrics (9.2)', () => {
     winner,
     stalled: winner === null,
     lastGoal,
+    goalWeeks: null,
     seats: [0, 1].map((i) => ({
       seat: i,
       spec:
@@ -442,5 +451,25 @@ describe('M5.9 modern strategy bots (BALANCE 9.4)', () => {
       ),
     ).toBe(false);
     expect(loanMax.allow({ type: 'RepayLoan', amount: 100 }, {} as never, 0, modern)).toBe(false);
+    // "max loan, invest in ETF" (9.4): the ETF only, and never sold.
+    expect(
+      loanMax.allow(
+        { type: 'BuyAsset', assetId: 'index-etf', amount: 100 },
+        {} as never,
+        0,
+        modern,
+      ),
+    ).toBe(true);
+    expect(
+      loanMax.allow({ type: 'BuyAsset', assetId: 'crypto', amount: 100 }, {} as never, 0, modern),
+    ).toBe(false);
+    expect(
+      loanMax.allow(
+        { type: 'SellAsset', assetId: 'index-etf', amount: 100 },
+        {} as never,
+        0,
+        modern,
+      ),
+    ).toBe(false);
   }, 30_000);
 });

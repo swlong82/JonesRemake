@@ -2,9 +2,9 @@
 import { describe, expect, it } from 'vitest';
 import { loadPack } from '@hustle-ring/content';
 import { createGame, legalCommands, type GameState } from '@hustle-ring/engine';
-import { aiSeat, makeConfig, patch } from '@hustle-ring/engine/testing';
+import { aiSeat, goInside, makeConfig, patch } from '@hustle-ring/engine/testing';
 import { runAiTurn } from './index.js';
-import { loanBurden, subscriptionDrain, wellbeing } from './scorers.js';
+import { gadgetAccess, loanBurden, subscriptionDrain, wellbeing } from './scorers.js';
 
 const modern = loadPack('modern-western');
 const classicPack = loadPack('classic');
@@ -141,4 +141,108 @@ describe('M5.9: the AI plays the modern ruleset', () => {
     );
     expect(loanBurden.value(ctx, defaulted, defaulted.players[0]!)).toBeLessThan(0);
   });
+
+  describe('gadget access (ADR-0039)', () => {
+    const ctx = (pack = modern) => ({
+      pack,
+      seat: 0,
+      personality: pack.personalityById.balanced!,
+      difficulty: 'normal' as const,
+    });
+    const withItem = (itemId: string, condition: 'ok' | 'broken', pack = modern): GameState =>
+      patch(
+        pack === modern ? modernGame('gadget') : createGame(makeConfig('gadget'), pack),
+        0,
+        (p) => {
+          p.items.push({ uid: itemId, itemId, condition, boughtWeek: 1, boughtAt: 'x' });
+        },
+        pack,
+      );
+
+    it('values a working phone, and a broken one not at all', () => {
+      const ok = withItem('smartphone', 'ok');
+      const broken = withItem('smartphone', 'broken');
+      expect(gadgetAccess.value(ctx(), ok, ok.players[0]!)).toBeGreaterThan(0);
+      expect(gadgetAccess.value(ctx(), broken, broken.players[0]!)).toBe(0);
+      expect(gadgetAccess.value(ctx(), ok, ok.players[0]!)).toBeLessThanOrEqual(0.3);
+    });
+
+    it('is inert on classic, whose durables open no modern system', () => {
+      for (const itemId of ['refrigerator', 'computer', 'hot-tub']) {
+        const s = withItem(itemId, 'ok', classicPack);
+        expect(gadgetAccess.value(ctx(classicPack), s, s.players[0]!)).toBe(0);
+      }
+    });
+
+    it('repairs a broken phone when standing in a store that fixes it', () => {
+      let s = patch(
+        modernGame('gadget-repair'),
+        0,
+        (p) => {
+          p.cash = 1_500;
+          // Fed and content, so neither the week's meal nor a comfort durable comes first (KI-008).
+          p.food.mealPending = 'burger';
+          p.happiness = 100;
+          p.items.push({
+            uid: 'ph',
+            itemId: 'smartphone',
+            condition: 'broken',
+            boughtWeek: 1,
+            boughtAt: 'electronics-store',
+          });
+        },
+        modern,
+      );
+      s = goInside(s, 0, 'electronics-store', modern);
+      const r = runAiTurn(s, 0, modern, { difficulty: 'normal', personality: 'balanced' });
+      expect(r.commands).toContainEqual({ type: 'Repair', itemId: 'smartphone' });
+    }, 30_000);
+  });
+});
+
+describe('strategy bias (ADR-0044)', () => {
+  it('a preferred command is played even where the ordinary seat declines it', () => {
+    const s = goInside(
+      patch(
+        modernGame('bias-loan'),
+        0,
+        (p) => {
+          p.cash = 5_000;
+          p.food.mealPending = 'burger';
+        },
+        modern,
+      ),
+      0,
+      'bank',
+      modern,
+    );
+    const max = modern.loans!.studentMax;
+    const plain = runAiTurn(s, 0, modern, { difficulty: 'normal', personality: 'hustler' });
+    expect(plain.commands.some((c) => c.type === 'TakeLoan')).toBe(false);
+    const biased = runAiTurn(s, 0, modern, {
+      difficulty: 'normal',
+      personality: 'hustler',
+      bias: (c) => (c.type === 'TakeLoan' && c.principal === max ? 1 : 0),
+    });
+    expect(biased.commands).toContainEqual(
+      expect.objectContaining({ type: 'TakeLoan', principal: max }),
+    );
+  }, 30_000);
+});
+
+describe('wellbeing (KI-008)', () => {
+  it('a burnt-out seat relaxes even when its happiness goal is met', () => {
+    const s = patch(
+      modernGame('burnt-out'),
+      0,
+      (p) => {
+        p.happiness = 100;
+        p.food.mealPending = 'burger';
+        (p.modules.wellbeing as { value: number }).value = 12;
+      },
+      modern,
+    );
+    const r = runAiTurn(s, 0, modern, { difficulty: 'normal', personality: 'balanced' });
+    expect(r.commands.some((c) => c.type === 'Relax')).toBe(true);
+  }, 30_000);
 });

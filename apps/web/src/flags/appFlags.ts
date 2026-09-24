@@ -17,7 +17,7 @@
  */
 import { create } from 'zustand';
 
-export const APP_FLAG_IDS = ['debugTools', 'tutorial', 'audio', 'leaderboard'] as const;
+export const APP_FLAG_IDS = ['debugTools', 'tutorial', 'audio'] as const;
 
 export type AppFlagId = (typeof APP_FLAG_IDS)[number];
 export type AppFlags = Record<AppFlagId, boolean>;
@@ -46,12 +46,6 @@ export const APP_FLAGS: Record<AppFlagId, AppFlagSpec> = {
   tutorial: { id: 'tutorial', default: true, milestone: 'M7.3', labelKey: 'flag.tutorial' },
   // M7.1 landed the bus, the recipes and the moods, so audio is on by default now.
   audio: { id: 'audio', default: true, milestone: 'M7.1', labelKey: 'flag.audio' },
-  leaderboard: {
-    id: 'leaderboard',
-    default: false,
-    milestone: 'M8.1',
-    labelKey: 'flag.leaderboard',
-  },
 };
 
 export const DEFAULT_APP_FLAGS: AppFlags = Object.fromEntries(

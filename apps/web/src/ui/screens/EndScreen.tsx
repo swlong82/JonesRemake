@@ -3,8 +3,12 @@
  * stats, with Rematch (same seats, new seed), New game and a local replay export. The export is a
  * Blob download — nothing leaves the device (CLAUDE.md 1.3).
  */
+import { loadPack } from '@hustle-ring/content';
 import type { GameState } from '@hustle-ring/engine';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { gameKey, leaderboardEntry } from '../../leaderboard/entry';
+import { useServices } from '../../platform/Services';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { GoalChart } from '../game/GoalChart';
@@ -39,6 +43,62 @@ function download(name: string, text: string): void {
   URL.revokeObjectURL(url);
 }
 
+/** Games already submitted this session, so a re-render or remount never posts twice. */
+const submitted = new Map<string, { score: number; rank: number; total: number } | 'failed'>();
+
+type ScoreStatus = { score: number; rank: number; total: number } | 'failed' | null;
+
+/** Posts the human winner's score to the local board once, then shows it with its rank (16.7). */
+function ScoreLine({ state }: { state: GameState }) {
+  const { t } = useTranslation();
+  const { leaderboard } = useServices();
+  const key = gameKey(state);
+  // Decided at render: a game with no entry (AI winner, debug switches) never reaches the board.
+  const entry = useMemo(
+    () => leaderboardEntry(state, loadPack(state.packId), new Date().toISOString()),
+    [state],
+  );
+  const [status, setStatus] = useState<ScoreStatus>(() => submitted.get(key) ?? null);
+  useEffect(() => {
+    if (!entry || submitted.has(key)) return;
+    let live = true;
+    submitted.set(key, 'failed');
+    leaderboard
+      .submit(entry)
+      .then(async () => {
+        const rank = await leaderboard.myRank('global', entry.playerId);
+        const result = { score: entry.score, rank: rank?.rank ?? 1, total: rank?.total ?? 1 };
+        submitted.set(key, result);
+        if (live) setStatus(result);
+      })
+      .catch(() => {
+        if (live) setStatus('failed');
+      });
+    return () => {
+      live = false;
+    };
+  }, [entry, key, leaderboard]);
+  if (!entry)
+    return (
+      <p className="text-ink-muted" data-testid="end-score">
+        {t('end.scoreNone')}
+      </p>
+    );
+  if (status === null) return null;
+  if (status === 'failed')
+    return (
+      <p role="alert" className="text-danger" data-testid="end-score">
+        {t('end.scoreFailed')}
+      </p>
+    );
+  return (
+    <p data-testid="end-score">
+      {t('end.score', status)}{' '}
+      <span className="rounded bg-surface-2 px-2 py-0.5 text-sm">{t('stats.unverified')}</span>
+    </p>
+  );
+}
+
 export function EndScreen() {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
@@ -53,6 +113,7 @@ export function EndScreen() {
       <h1 className="text-3xl font-bold" data-testid="end-heading">
         {t('end.heading', { name: winner?.name ?? '', week: state.week })}
       </h1>
+      <ScoreLine state={state} />
       <GoalChart state={state} />
       <h2 className="text-lg font-bold">{t('end.stats')}</h2>
       <table className="w-full text-sm" data-testid="end-stats">

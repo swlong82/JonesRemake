@@ -21,6 +21,11 @@ export function ServicesProvider({
 }) {
   return <Services.Provider value={services}>{children}</Services.Provider>;
 }
+/** The platform services this app runs on (local in v1). */
+export function useServices(): PlatformServices {
+  return useContext(Services);
+}
+
 export function useSaveConnection(): void {
   const services = useContext(Services);
   useEffect(() => {

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "meal-kit",
+    "nameKey": "sub.meal-kit.name",
+    "locationId": "electronics-store",
+    "weeklyPrice": 20,
+    "happinessPerWeek": 1,
+    "wellbeingPerWeek": 0,
+    "grants": []
+  }
+]

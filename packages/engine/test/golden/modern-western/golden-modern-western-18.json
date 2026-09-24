@@ -1,7 +1,7 @@
 {
   "seed": "golden-modern-western-18",
   "packId": "modern-western",
-  "packVersion": "0.1.0",
+  "packVersion": "0.3.0",
   "seats": 2,
   "log": [
     {
@@ -635,14 +635,16 @@
     {
       "seat": 0,
       "cmd": {
-        "type": "Exit"
+        "type": "Move",
+        "to": "university",
+        "mode": "walk"
       }
     },
     {
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "university",
+        "to": "employment-office",
         "mode": "transit"
       }
     },
@@ -1189,6 +1191,6 @@
       }
     }
   ],
-  "finalHash": "1044a1501809af",
+  "finalHash": "0190f0c775f156",
   "week": 5
 }

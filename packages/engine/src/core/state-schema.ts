@@ -74,9 +74,10 @@ export const PlayerStateSchema = z
     maxDependability: nonneg,
     maxExperience: nonneg,
     job: z
-      .object({ jobId: id, wage: nonneg, raises: nonneg, hiredWeek: nonneg })
+      .object({ jobId: id, wage: nonneg, raises: nonneg, hiredWeek: z.number().int() })
       .strict()
       .nullable(),
+    layoff: z.object({ hiredWeek: z.number().int(), week: nonneg }).strict().nullable().optional(),
     degrees: z.array(id),
     enrolled: z.record(id, z.object({ lessonsLeft: nonneg }).strict()),
     home: z

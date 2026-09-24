@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
+import { horizontalOverflow } from './layout';
 
 /**
  * M7.5: one e2e run in the pseudo-locale, the themes and the text scales, and the final a11y pass
@@ -60,19 +61,19 @@ test('themes and the largest text scale keep the board readable and accessible',
   page,
 }) => {
   await page.goto('/?ff=-tutorial');
-  await page.getByTestId('new-game').click();
-  await page.getByTestId('seed').fill('e2e-scale');
-  await page.getByTestId('start-game').click();
-  await expect(page.getByTestId('hud')).toBeVisible();
-
-  // The scale and theme are turned up once the board is up, because the setup form cannot be
-  // driven at 150% on a phone (KI-009).
-  await page.getByTestId('menu-btn').click();
-  await page.getByTestId('menu-settings').click();
+  await page.getByTestId('settings').click();
   await page.locator('#theme').selectOption('dark');
   await page.locator('#textScale').selectOption('150');
+  expect(await horizontalOverflow(page)).toEqual([]);
   await page.getByTestId('back').click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+  // KI-009: at 150% on a phone the setup form used to be wider than the screen, so mobile
+  // Chromium zoomed the page out and a real click on Start missed. It must fit, and be clickable.
+  await page.getByTestId('new-game').click();
+  expect(await horizontalOverflow(page)).toEqual([]);
+  await page.getByTestId('seed').fill('e2e-scale');
+  await page.getByTestId('start-game').click();
   await expect(page.getByTestId('hud')).toBeVisible();
 
   // UX 7.8's axe gate, on the board, in the dark theme, at 150% text.

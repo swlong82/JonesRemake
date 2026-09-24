@@ -406,3 +406,56 @@ describe('loans module (GDD 4.12)', () => {
     expect(apr(dear)).toBeGreaterThan(apr(cheap));
   });
 });
+
+describe('student loans (ADR-0044)', () => {
+  /** At the bank with no job and no income, education goal not yet met. */
+  const student = (seed: string, education = 50): GameState =>
+    goInside(
+      patch(
+        game(seed),
+        0,
+        (p) => {
+          p.goals.education = education;
+          p.job = null;
+          p.cash = 0;
+        },
+        modern,
+      ),
+      0,
+      'bank',
+      modern,
+    );
+  const take: Command = { type: 'TakeLoan', principal: SPEC.studentMax, termWeeks: 104 };
+
+  it('lends up to studentMax with no income while the education goal is unmet, and no more', () => {
+    expect(SPEC.studentMax).toBeGreaterThan(0);
+    expect(why(student('stu-ok'), take)).toBeNull();
+    expect(why(student('stu-over'), { ...take, principal: SPEC.studentMax + 500 })).toBe(
+      'ERR_LOAN_DENIED',
+    );
+    // Education goal already met (goal 1 = the starting education): no student loan.
+    expect(why(student('stu-done', 1), take)).toBe('ERR_LOAN_DENIED');
+  });
+
+  it('defers payments while studying, then collects once the goal is met', () => {
+    let s = run(student('stu-defer'), 0, [take], modern);
+    const [loan] = loansOf(s.players[0]!);
+    expect(loan).toMatchObject({ student: true, deferredWeeks: 0 });
+    const cash = s.players[0]!.cash;
+    s = collectLoanPayment(s);
+    const deferred = loansOf(s.players[0]!)[0]!;
+    expect(s.players[0]!.cash).toBe(cash);
+    expect(deferred.deferredWeeks).toBe(1);
+    expect(deferred.missed).toBe(0);
+    expect(deferred.balance).toBeGreaterThan(SPEC.studentMax);
+    // Goal met: the next week asks for a payment again.
+    s = patch(s, 0, (p) => (p.goals.education = 1), modern);
+    s = collectLoanPayment(s);
+    expect(s.players[0]!.cash).toBeLessThan(cash);
+  });
+
+  it('classic and loans without studentMax keep the income rule', () => {
+    const off = { ...modern, loans: { ...SPEC, studentMax: 0 } };
+    expect(why(student('stu-off'), take, off)).toBe('ERR_LOAN_DENIED');
+  });
+});

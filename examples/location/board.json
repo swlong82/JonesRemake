@@ -1,0 +1,53 @@
+{
+  "topology": "ring",
+  "squares": [
+    {
+      "locationId": "low-housing"
+    },
+    {
+      "locationId": "rent-office"
+    },
+    {
+      "locationId": "pawn-shop"
+    },
+    {
+      "locationId": "discount-store"
+    },
+    {
+      "locationId": "burger-joint"
+    },
+    {
+      "locationId": "clothing-boutique"
+    },
+    {
+      "locationId": "electronics-store"
+    },
+    {
+      "locationId": "university"
+    },
+    {
+      "locationId": "employment-office"
+    },
+    {
+      "locationId": "factory"
+    },
+    {
+      "locationId": "bank"
+    },
+    {
+      "locationId": "grocery"
+    },
+    {
+      "locationId": "secure-apartments"
+    },
+    {
+      "locationId": "appliance-depot"
+    },
+    {
+      "locationId": "clinic"
+    },
+    {
+      "locationId": "coworking-space"
+    }
+  ]
+}

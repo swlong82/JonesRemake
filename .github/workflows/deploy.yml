@@ -2,6 +2,10 @@ name: Deploy to GitHub Pages
 
 # NOTE: GitHub Pages needs a public repo (or GitHub Pro/Team for private ones). While the repo is
 # private this workflow is skipped/fails at configure-pages; flip visibility or plan, then re-run.
+#
+# M8.4 (ADR-0037): after every deploy a Playwright smoke test runs against the live URL. If it
+# fails, the last build whose smoke test passed is redeployed, an issue is opened, and the run
+# stays red.
 on:
   workflow_run:
     workflows: [CI]
@@ -13,10 +17,17 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
+  issues: write
 
 concurrency:
   group: pages
   cancel-in-progress: false
+
+env:
+  # The commit being deployed: the CI run's head for workflow_run, the dispatch ref otherwise.
+  DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+  PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
 
 jobs:
   deploy:
@@ -26,8 +37,12 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -37,12 +52,92 @@ jobs:
       - name: Build with Pages base path
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_BUILD_SHA: ${{ env.DEPLOY_SHA }}
         run: pnpm --filter web build
       - name: SPA 404 fallback
         run: cp apps/web/dist/index.html apps/web/dist/404.html
+      # Kept beyond the Pages artifact so a later failed smoke test can roll back to this build.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: site
+          path: apps/web/dist
+          retention-days: 90
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
           path: apps/web/dist
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  smoke:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v6
+        with:
+          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
+          key: pw-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Smoke test the live site
+        env:
+          LIVE_URL: ${{ needs.deploy.outputs.page_url }}
+          EXPECT_SHA: ${{ env.DEPLOY_SHA }}
+        run: pnpm exec playwright test --config playwright.live.config.ts
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: live-smoke-report
+          path: playwright-report
+          retention-days: 14
+
+  rollback:
+    needs: [deploy, smoke]
+    if: ${{ failure() && needs.deploy.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    environment:
+      name: github-pages
+      url: ${{ steps.redeploy.outputs.page_url }}
+    steps:
+      - name: Find the last deploy whose smoke test passed
+        id: good
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy.yml --status success \
+            --limit 1 --json databaseId --jq '.[0].databaseId // empty')
+          if [ -z "$run_id" ]; then
+            echo "::error::No earlier deploy passed its smoke test; nothing to roll back to."
+            exit 1
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v7
+        with:
+          name: site
+          path: site
+          run-id: ${{ steps.good.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: redeploy
+        uses: actions/deploy-pages@v5
+      - name: Open an issue and fail the run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --repo "$GITHUB_REPOSITORY" \
+            --title "Live smoke test failed for ${DEPLOY_SHA::7}; rolled back" \
+            --body "The post-deploy smoke test failed on ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} for commit ${DEPLOY_SHA}. The site was redeployed from run ${{ steps.good.outputs.run_id }}, the last deploy whose smoke test passed. The live-smoke-report artifact on the failed run has the trace."
+          exit 1

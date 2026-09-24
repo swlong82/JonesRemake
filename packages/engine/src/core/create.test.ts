@@ -40,7 +40,7 @@ describe('createGame (GDD 4.1.6)', () => {
     expect(s.packId).toBe('classic');
     expect(s.packVersion).toBe(pack.version);
     expect(s.flags.transport).toBe(false);
-    expect(p.history).toEqual([{ week: 1, goals: [2, 10, 1, 0] }]);
+    expect(p.history).toEqual([{ week: 1, goals: [1, 10, 1, 0] }]);
     expect(s.econ.index).toBe(1000);
     expect(Object.keys(s.market.prices).sort()).toEqual([
       'blue-chip',

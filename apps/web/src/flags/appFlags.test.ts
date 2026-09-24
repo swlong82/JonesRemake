@@ -14,12 +14,11 @@ describe('app feature flags', () => {
     useFlags.getState().reset({ env: {}, search: '' });
   });
 
-  it('defaults every unfinished feature to off', () => {
+  it('defaults every flag to its declared value', () => {
     const flags = resolveAppFlags();
     for (const id of APP_FLAG_IDS) expect(flags[id]).toBe(APP_FLAGS[id].default);
-    expect(DEFAULT_APP_FLAGS.leaderboard).toBe(false);
-    // M7.1 and M7.3 landed audio and the tutorial, so their flags are on; each flag stays until
-    // its milestone is closed.
+    // M7.1 and M7.3 landed audio and the tutorial, so their flags are on; M8.1 landed the
+    // leaderboard and deleted its flag (ADR-0017).
     expect(DEFAULT_APP_FLAGS.audio).toBe(true);
     expect(DEFAULT_APP_FLAGS.tutorial).toBe(true);
   });
@@ -31,17 +30,15 @@ describe('app feature flags', () => {
     }
   });
 
-  // `leaderboard` is the flag still waiting on its milestone, so it is the one that reads as off
-  // when nothing overrides it.
   it('reads build env overrides in every accepted spelling', () => {
-    expect(envKeyFor('leaderboard')).toBe('VITE_FF_LEADERBOARD');
+    expect(envKeyFor('audio')).toBe('VITE_FF_AUDIO');
     const read = (v: string | boolean): boolean =>
-      resolveAppFlags({ env: { VITE_FF_LEADERBOARD: v } }).leaderboard;
+      resolveAppFlags({ env: { VITE_FF_AUDIO: v } }).audio;
     expect(read('on')).toBe(true);
     expect(read('true')).toBe(true);
     expect(read('1')).toBe(true);
     expect(read('off')).toBe(false);
-    expect(read('nonsense')).toBe(false);
+    expect(read('0')).toBe(false);
     expect(read(true)).toBe(true);
     // A flag whose milestone has landed defaults on, and the same spellings still turn it off.
     expect(resolveAppFlags({ env: { VITE_FF_TUTORIAL: 'off' } }).tutorial).toBe(false);
@@ -77,12 +74,12 @@ describe('app feature flags', () => {
   });
 
   it('exposes a store that can flip a non-debug flag and reset', () => {
-    expect(useFlags.getState().flags.leaderboard).toBe(false);
-    useFlags.getState().set('leaderboard', true);
-    expect(useFlags.getState().flags.leaderboard).toBe(true);
+    expect(useFlags.getState().flags.audio).toBe(true);
+    useFlags.getState().set('audio', false);
+    expect(useFlags.getState().flags.audio).toBe(false);
     useFlags.getState().set('debugTools', true);
     expect(useFlags.getState().flags.debugTools).toBe(false);
     useFlags.getState().reset({ env: {}, search: '' });
-    expect(useFlags.getState().flags.leaderboard).toBe(false);
+    expect(useFlags.getState().flags.audio).toBe(true);
   });
 });

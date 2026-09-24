@@ -1,0 +1,16 @@
+[
+  {
+    "id": "standing-desk",
+    "nameKey": "item.standing-desk.name",
+    "descKey": "item.standing-desk.desc",
+    "category": "appliance",
+    "price": 350,
+    "storeIds": ["appliance-depot"],
+    "happinessOnBuy": 2,
+    "comfort": true,
+    "extraCredit": false,
+    "breakdownPerWeek": 0.5,
+    "repairCost": 60,
+    "unlocks": []
+  }
+]

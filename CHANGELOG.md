@@ -4,6 +4,47 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 One entry per milestone (see `docs/MILESTONES.md`).
 
+## [1.0.0] — 2026-09-24
+
+The release milestone (M8, ADR-0037). Engine 0.3.0; `classic` and `modern-western` content 0.3.0.
+
+### Added
+
+- M8.1 score and local leaderboard: engine `score()`/`netWorth()`, a platform `LocalLeaderboard` over
+  IndexedDB with global, season and pack scopes, a Stats board with scope and city pickers, and an
+  end-screen submission once per human-won game. The title is **Hustle Ring** (`NAMING.md` final).
+- M8.2 `docs/EXTENDING.md`: ten recipes, each backed by an overlay in `examples/` that CI resolves and
+  plays; keyed overlay files can delete an inherited key with `null` (ADR-0046). README rewritten for
+  the release.
+- M8.3 e2e regression: a four-seat hotseat modern game to week 10 with a save and load at week 5, a
+  phone game played to a winner, an all-pairs matrix of setup and settings options and the tutorial
+  walked by keyboard and pointer.
+- M8.4 deploy: the live site is smoke-tested after every Pages deploy and rolled back to the last
+  good build on failure (ADR-0045).
+- Rules: an event layoff keeps career tenure if the player is rehired within the pack's grace
+  (ADR-0047, modern 4 weeks); degrees held at a fresh hire count toward tenure (ADR-0050, modern 5
+  weeks a degree).
+
+### Changed
+
+- AI: seats eat before errands, search one move per destination, never end a turn early while hours
+  remain, score goals as the week-start win check sees them, value dependability under the tenure
+  cap, treat a job a shift would get them fired from as no job, relax when wellbeing sinks toward
+  burnout (the Normal AI minds it at 0.7 of Hard's weight), keep two loan instalments liquid and pay
+  rent debt from the bank.
+- Balance: both packs retuned for the fixed AI and re-measured. Classic stage 1 meets every 9.3
+  target but sim speed (KI-010); the modern targets are re-derived and re-locked (ADR-0048) and stage
+  2 meets every 9.5 target but sim speed (`BALANCE_REPORT.md`, ADR-0049). No `pending` gate
+  assertion remains.
+- HUD statistics and buttons wrap long strings (pseudo-locale at 150% overflowed on desktop).
+- A tutorial step that needs travel lights the travel sheet, the destination square and the door in
+  turn, and its card moves out of the way of the control it points at.
+
+### Fixed
+
+- KI-001 milestone tags mapped to `main` commits (ADR-0038); KI-005 and KI-008 balance targets met;
+  KI-006 closed as stale; KI-009 phone 150% Start click.
+
 ## [Unreleased]
 
 ### Added

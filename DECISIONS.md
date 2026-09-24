@@ -315,7 +315,7 @@
 ## ADR-0033: Stage-2 modern targets are locked by file hash before any tuning
 
 - Date: 2026-09-22
-- Status: Accepted
+- Status: Superseded by ADR-0042 (the lock mechanism stands; the hashes moved)
 - Context: BALANCE 9.5 requires `reports/modern-targets.json` to be derived from the classic baseline and never edited after its first commit, "enforced by test comparing file hash to the one recorded in `DECISIONS.md`". The spec fixes the gate values but not the file's shape, which config each gate is measured on, how a ±20% band rounds, or where the three modern-only rates (bot bankruptcy, bot collapse, bot default) are read — `Summary` at M6.2 has none of them.
 - Options: 1) hash a canonical re-serialisation of the parsed JSON, so formatting changes are tolerated; 2) hash the bytes on disk; 3) keep the targets inside `sim/gates.json` and hash that.
 - Decision: option 2, over the exact bytes. `tools/lib/targets.test.ts` hashes `reports/modern-targets.json` and compares it to the `Locked sha256` line in this ADR, so any edit — including a reformat — fails `pnpm test`. The file also records the sha256 of the `reports/baseline.json` it was derived from, so a baseline re-run cannot silently re-point the targets. Median bands are the baseline median ±20% rounded **outward** to whole weeks, so rounding can only widen a band, never tighten one; `targetProblems` re-derives every band from the recorded baseline medians and fails if one disagrees. Each target names the `sim/gates.json` config it is measured on and a dotted `Summary` metric path; three of those paths (`botBankruptcyPct`, `botCollapsePct`, `botDefaultPct`) do not exist yet and are implemented with the M6.3 measurement runs, because tuning cannot be judged against a target nothing reports; M6.4 then writes the gate configs that read them. Sampling tolerance stays out of this file: the spec-level target is locked here, and BALANCE 9.7's ±3-point widening lives in `sim/gates.json` where the sample size is known.
@@ -349,3 +349,185 @@
 - Options: 1) add Tone.js and lazy-load it; 2) write the generator directly against `AudioContext`; 3) ship no music until a later milestone.
 - Decision: option 2. `apps/web/src/audio/music.ts` schedules oscillators, a biquad low-pass and an envelope per note, and is still the lazy chunk the spec asks for: nothing imports it statically (a test asserts that, and the build emits it as a 2.95 kB chunk of its own), and `WebAudioBus.setMood` reaches it with `import()` only after the first user gesture. Every spec-table value — BPM, scale, progression, filtering, percussion, the victory mood playing once — lives in `MOODS` and is asserted against the spec's numbers. The generative rule (70% step, 30% leap, new phrase every 8 bars) is a pure function over a UI-side xorshift seeded per session, so music can never touch game determinism.
 - Consequences: no new dependency, no lockfile change, and the initial bundle is unchanged. The generator is simpler than Tone.js would allow — no sampled instruments and no tempo-synced effects — which is the trade this milestone accepts; a richer arrangement can swap the chunk out behind the same `MusicPlayer` interface without touching the bus. The CPU budget in 8.3 (< 3% main thread) is met by scheduling two bars ahead on a timer rather than per-note callbacks.
+
+## ADR-0037: M8 is scoped by an owner review — every open issue closes, no target is amended
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: M8.5 asks only that every open `KNOWN_ISSUES.md` item carry a severity and workaround before `v1.0.0`. The project owner reviewed the M8 plan and raised the bar: every open issue closes first, and KI-005 and KI-008 close by meeting their targets, not by amending them. Two of those misses are proved structural under the current [SRC] anchors (ADR-0026, KI-008). The owner also extended M8.3 and M8.4, and asked to pick the release title.
+- Options: 1) follow M8.5 as written (accepted issues stay open with a workaround); 2) close structural misses by ADR-amending the targets; 3) change rules, including [SRC] anchors, until every target passes.
+- Decision: option 3, with these owner decisions recorded as scope:
+  - **Anchors**: the career fix may change [SRC] anchors in both packs. Classic is then re-baselined (stage-1 suite, `BASELINE_REPORT.md`, goldens) and `reports/modern-targets.json` is re-derived and re-locked under a new ADR that supersedes ADR-0033's hash — the derivation rules stay unchanged, only their inputs move.
+  - **Method and stop rule**: numbers and mechanics may both change (e.g. a graded collapse instead of a band cliff). Budget ≈ 15 measured iterations per target; a target still red after that is escalated to the owner with data. It is never marked `pending`, and `v1.0.0` is not tagged while it is red. This replaces CLAUDE.md 1.5's "log and continue" for M8 balance only.
+  - **Order**: phase A closes the issues (KI-001, KI-005, KI-006, KI-008, KI-009); phase B is M8.1–M8.4 on the final rules; phase C is M8.5 and `v1.0.0`.
+  - **Tags (KI-001)**: milestone tags move to the first `main` commit that contains each gate, because squash merges dropped the original gate commits. From now on only `main` commits are tagged, and the M8 PR merges with a merge commit so its gate commit survives.
+  - **M8.1**: the owner picks the title from five proposals (the second exception to "never ask"). Scopes `global`, `season`, `pack` and `pack:season` get working UI; `league:<id>` exists in the `Scope` parser and contract tests only, because leagues with invite codes need a server. The winning human seat's entry is submitted, and AI-only games are excluded.
+  - **M8.3**: in addition to the spec's regressions, a pairwise (all-pairs) matrix of setup and settings options runs on the desktop project, with five representative combinations on tablet and phone. Tutorial paths covered: complete; skip at each step; replay from How to Play; Escape mid-step; resize mid-step.
+  - **M8.4**: a post-deploy smoke test against the live URL checks seven things: reachability with the build SHA, every asset returning 200, render with no console errors, no request to any origin other than the site's own, SPA deep-link/404 fallback, a seeded classic turn surviving save and reload (state hash matches), and a modern start plus axe. On failure the last known good build is redeployed, the workflow goes red and an issue is opened.
+  - **Delivery**: one draft PR, opened at the start so that CI runs on every push, and marked ready for review only when release-ready.
+- Consequences: classic no longer matches ORIGINAL_REFERENCE on whichever anchors the career fix touches; each changed anchor is re-tagged from [SRC] and noted in `BALANCE_REPORT.md`. Every golden replay and baseline number is regenerated once in phase A, so phase B's tests are written against final rules. M8 may block on an owner decision, and only at the two points named above.
+
+- Owner decisions during phase A (2026-09-23):
+  - The title stays **Hustle Ring** (`NAMING.md` #1; M8.1 still lists four alternates).
+  - The same-week tie split in "last-completed" (ADR-0040) and StudyFirst's "every degree its education goal needs" reading (ADR-0041) are accepted.
+  - The 9.3/9.5 sim-speed target (< 200 ms/game; ADR-0016) is out of M8's scope: it is logged as a known limitation at close-out, not tuned.
+
+## ADR-0038: Milestone tags point at `main`, not at the gate commit
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: PRs #13–#17 were squash-merged. That dropped the recorded gate commits of M1–M5 from every branch (`3569ae7`, `fe54f7e`, `037b1b2`, `c2ecf4e` and `903066e` no longer resolve), and the remote `m6`/`m7` tags point at branch commits outside `main`. The session cannot push tags (KI-001).
+- Options: 1) leave history as it is and tag only from now on; 2) move each milestone tag to the first `main` commit that contains its gate; 3) have CI create tags from the gate log.
+- Decision: option 2 (owner choice, ADR-0037). `m1`/`m2` → `1726af3`, `m4` → `b4c979d`, `m3`/`m5` → `a76efb2`, `m6`/`m7` → `f8afb46`, each checked against the ticked gate lines in that commit's `PROGRESS.md` and green in CI. `tools/retag-milestones.sh` applies the mapping and refuses any SHA that is not on `origin/main`. From now on only `main` commits are tagged, and the M8 PR merges with a merge commit.
+- Consequences: a tag no longer names the exact tree `pnpm verify` ran on. It names the first `main` tree that contains that work, and that tree passed CI itself. Where one squash commit held two gates (`m1`/`m2`, `m3`/`m5`, `m6`/`m7`), both tags share it. The original SHAs stay in the gate log's Notes column.
+
+## ADR-0039: The AI values gadget access, and repairs what breaks
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: at Chaos Modern the `viral` family read 0 events and `gadget-breakdown` 0.12 per 100 player-weeks, against a target of ≥ 1 each (KI-008). The event runtime and weights were not the cause: the total turnStart weight tops out near 2,300 bp, and each family would fire several times per 100 player-weeks for a seat with a working phone. A probe of 508 player-weeks showed seats held a working smartphone in 39 of them (8%) and never repaired a broken one. There were three causes. The quick ranker scored a $220 phone at −1.1 + 0.35, which pruned it before the search could weigh it. No `stateValue` scorer valued holding a working gadget, so a purchase read as a pure loss. And `Repair` had no ranker case at all.
+- Options: 1) give every modern seat a phone from the start (a content change that moves every balance number); 2) lower the families' conditions; 3) teach the AI what a gadget is worth.
+- Decision: option 3, because the events were correct and the AI was wrong. A `gadget-access` scorer values each working item whose unlocks gate a modern system (`rideHail`, `delivery`, `gigDelivery`, `onlineStudy`) at twice its price against the wealth target, capped at 0.3; a broken one is worth 0. The ranker offsets a wanted gadget's price so it is not pruned, ranks `Repair` of one near the top, and pulls a `Move` toward a store that sells or repairs one the seat can afford. `stateValue` still makes the decision.
+- Consequences: working-phone ownership rises from 8% to 67% of player-weeks; `viral` reaches 3.6 and `gadget-breakdown` 6.5 per 100 player-weeks. No classic item carries a system unlock, so classic AI behaviour is unchanged (a test asserts the scorer is inert there). Modern balance moves with this change and is re-measured in the M8 balance work.
+
+## ADR-0040: Career needs continuous employment, and goals that land in the same week share "last"
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: ADR-0037 requires KI-005 and the KI-008 career and wealth targets to be met, not amended. The career goal was `dependability × 1.25` and nothing else. Degrees and the job both raise the dependability ceiling (`maxDependability = 20 + job.reqDependability + 5 × degrees`), so the AI hit career 50 by week 29 of a 41-week classic game and career was last in 0–1.7% of games. Measured over 16 probes of 80–160 games each:
+  - **Caps and slopes do nothing.** A wage-rank cap, a steeper `dep × 2 − 50` map and a doubled dependability decay either left career early or stalled the higher goal levels. The AI grinds whatever gradient career offers.
+  - **Tenure works.** Career is also capped by time. It is the one goal besides education with a minimum duration the AI cannot compress, and that minimum is what lets it land last.
+  - **The metric had a bias.** `lastGoal` broke same-week ties by list order (wealth, happiness, education, career), so career could never win a tie and wealth won every one. In the probes, 6–13% of games had career tied for last.
+- Options: 1) retune `careerDependabilityBp` (ADR-0026: breaks goals 100); 2) cap career by job rank; 3) cap career by continuous employment; 4) keep the order tie-break.
+- Decision: option 3, plus a neutral tie rule.
+  - `rules.goals.careerTenureBpPerWeek` and `careerTenureDelayWeeks`: career ≤ (weeks employed − delay) × rate. `hiredWeek` now marks the start of _continuous_ employment and carries across job changes, so climbing the ladder never restarts it; losing the job does (firing, layoff, collapse). A per-job tenure was tried first and stalled 21% of classic goals-100 games, because the AI kept hopping to better jobs.
+  - Classic: rate 2.5/week after a 16-week probation (career 50 at about 36 weeks employed, 100 at about 56). Happiness decay 4 → 5 with `relaxMax` 6 → 7 and `max` 104 → 105, which keeps ADR-0027's "max = 100 + one week of decay" and the same net +2/week for a fully furnished seat at the top.
+  - Modern: rate 3.5/week and no probation. Other modern changes:
+    - `educationPerDegree` 12 → 13: four degrees reach 50.
+    - 12 lessons per degree (`modern-western/degrees.json`): a finer education knob than the degree count.
+    - happiness decay 1 → 2.
+    - `wealthPointValue` 160 → 200.
+  - `goalWeeks` is recorded per game. When several goals are met in the same final week, each gets 1/k of the "last-completed" credit. The target is unchanged; this removes a measurement artefact that could only ever count against career.
+  - `careerDependabilityOffset` (default 0) exists but no pack uses it: the offset probe is recorded here so nobody re-runs it.
+- Consequences: `careerDependabilityBp` keeps its [SRC] value 12500. The new rules are [ASSUMED], and classic departs from ORIGINAL_REFERENCE on happiness decay and `relaxMax`; `BALANCE_REPORT.md` lists each change. Measured at goals 50 Normal×2 (split ties): classic W 13.6 / H 25.1 / E 45.4 / C 15.8 (160 games, median 41 weeks, 0 stalls); modern W 28.9 / H 24.5 / E 18.7 / C 27.9 (160 games, median 41 weeks). Every classic golden replay and the stage-1 baseline are regenerated, and the modern targets are re-derived from the new baseline (ADR-0042).
+
+## ADR-0041: StudyFirst studies for its goal, and LoanMax invests the loan as 9.4 says
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: KI-008 recorded StudyFirst winning 0% (target 30–60%, "viable, not dominant") and LoanMax defaulting in 0–2.5% (target 20–60%). Both come down to the bot definitions rather than the rules. StudyFirst forbade regular work until the seat held **every** pack degree, which is 11 degrees and 110–132 lessons, against a goals-50 race that needs 4 (modern) or 6 (classic) of them and ends around week 40. Spec 9.4 describes LoanMax as "max loan, invest in ETF", but the bot never invested anything, so a normal wage serviced the loan and nothing could ever default.
+- Options: 1) keep both as written and record the targets unmet; 2) read StudyFirst's "all degrees" as all degrees its education goal needs, and implement LoanMax's ETF half.
+- Decision: option 2. StudyFirst forbids `Work`, `ApplyJob` and `AskRaise` until `educationGoal ≥` its education target. That is the strategy the bot exists to probe: education first, then a job. The other reading can only measure an impossible game. LoanMax may buy only `index-etf` and may never sell, mirroring CryptoAllIn's never-sell rule, on top of borrowing the maximum and never repaying early.
+- Consequences: the targets are unchanged; the bots now play the strategies 9.4 names. The StudyFirst reading is an interpretation of an ambiguous phrase and is flagged as such to the owner.
+
+## ADR-0042: Modern targets re-derived from the re-run classic baseline, and re-locked
+
+- Date: 2026-09-23
+- Status: Superseded by ADR-0048 (hashes only)
+- Context: ADR-0040 changes classic rules (continuous-employment tenure, happiness decay), so the stage-1 baseline was re-run (24 configs, 3,200 games). BALANCE 9.5 derives the modern median bands from classic B, and ADR-0033 locked `reports/modern-targets.json` to the old baseline's hash. ADR-0033 foresaw this case: "correcting a genuine mistake in the file needs a superseding ADR with a new hash".
+- Options: 1) keep the old targets against a baseline that no longer exists; 2) re-derive with the same derivation rules and re-lock.
+- Decision: option 2 (owner-approved in ADR-0037). Only the inputs change. Classic B medians move from 28/40/62/83 to 36/48/63/86, so the ±20% bands (rounded outward, unchanged rule) become 28–44, 38–58, 50–76 and 68–104. Every other target is byte-for-byte unchanged: the 9.5 verbatim values do not depend on B. `tools/lib/targets.test.ts` now reads the lock from this ADR.
+- Consequences: the bar did not move for any target that does not depend on B. The four median bands follow the classic game, which got longer at every goal level because career now needs continuous employment.
+- Locked sha256 (reports/modern-targets.json): `3e00f8b8d96fbe5e45f59df67e6b71df887c71f0fdd7cc49e8687ef6722f8a76`
+- Locked sha256 (reports/baseline.json): `e731d23de5fcf2687a9a40c5fe438b320114e489e6423f332995893e324ccfec`
+
+## ADR-0043: The AI's pre-ranker treats banking, loans and investments as transfers, and fetches cash for a uniform
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: stalls (target < 0.5% at goals 50 in both packs, and 20% at modern goals 80) traced to four AI defects, all in the quick pre-ranker that picks which commands the beam search expands:
+  1. Every command started from `preview.money / 200`. A $17,000 deposit therefore ranked at −85 and was never expanded, so seats carried every dollar they earned and lost all of it to street theft. Theft takes all carried cash, with up to a 12% chance on each exit from the bank or grocery. Seats working at the grocery emptied their pockets every few weeks.
+  2. The same term ranked a $15,000 loan at +75, so at the bank all four branch slots went to `TakeLoan`, which the search then rejected, and nothing else was tried there.
+  3. The bank pull (+0.2) did not grow with the cash at risk.
+  4. A seat whose uniform wore out needed three steps to work again (withdraw, buy, work). `Withdraw` ranked −0.2 unless rent was due, so the seat stood idle while dependability drained to 0.
+- Decision: the six balance-sheet commands (`Deposit`, `Withdraw`, `TakeLoan`, `RepayLoan`, `BuyAsset`, `SellAsset`) take no cash term in the pre-rank; `stateValue` still judges them in full. A deposit and a move to the bank rank higher the more cash is carried (up to +0.6 at $3,000 and more). A seat without its uniform and under $500 in cash ranks a withdrawal of at least $500, and a trip to a bank that holds it, near the top.
+- Later in the same investigation, three more gaps were closed in the same pass:
+  - **A shopping need.** Cash for a needed uniform, a comfort durable when relaxing cannot outrun happiness decay, a missing system gadget, or rent due or owed now drives the withdrawal, the deposit hold and the pull to the bank. A needed outfit's or comfort durable's price is offset in the pre-rank, like a gadget's (ADR-0039).
+  - **Wage climbing.** The employment office pulls a seat whose wealth is short when it qualifies for a job paying at least 20% more. Before, a seat climbed only while its career goal needed it, and one whose career was already met stayed on its first wage.
+  - **Comfort affordability** counts money in the bank, since the ranker now fetches it on the way.
+- Consequences: both packs play differently and are re-measured. Modern goals 80 dropped from 20% stalls to 3 in 160 games in the probes, and classic goals 50 shows 0 stalls in 160. Modern also gets `educationBase` 2: six degrees reach education 80 instead of 79 one point short, which was the other half of the goals-80 stalls. With the richer AI, modern `wealthPointValue` is 185 and degrees take 13 lessons, keeping the goals-50 median near 39 weeks with every goal last-completed ≥ 14%.
+
+## ADR-0044: Strategy bots can prefer as well as forbid; modern students can borrow and gain experience from degrees; classic seat bias is measured on one personality
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: three BALANCE 9.4/9.5 targets stayed red for reasons in the harness and the modern economy, not in the tuning numbers:
+  - **LoanMax defaulted in 0% of games** (target 20–60%). Bots could only forbid commands. Once everything but the maximum loan was forbidden, the ordinary `loan-burden` scorer still declined the loan, so the bot never borrowed.
+  - **StudyFirst won 4%** (target 30–60%) and deadlocked. Barred from regular work until its education goal was met, it spent its starting cash on the first degree by week 4, could not pay the next fee or borrow without income, and idled for months. Once funded, it finished its degrees by week 15 with experience 10 and qualified only for a $4/hour job.
+  - **Classic "seat bias" paired different personalities.** `normal,normal` rotates personalities by seat, so classic's first-seat win rate was grinder against scholar, not turn order. The modern suite already pins `normal:balanced` on both seats for this reason.
+- Decision:
+  - `PlanOptions.bias` / `Bot.prefer`: a per-command preference added to the pre-rank and to plan utility (pre-rank only for `Move`, so walking back and forth cannot farm it). A command a bot prefers survives the domain filter. LoanMax prefers the maximum loan (+1) and the index ETF (+0.5). StudyFirst prefers the full student loan, and the bank, only while it is under its education goal and nearly broke.
+  - Student loans (modern `loans.studentMax` = 3,000): a seat that has not yet met its education goal may borrow up to that much with no income. The loan is flagged `student`; it accrues interest but asks for no payment while the seat is still studying, and its term runs on after the deferral.
+  - Internship credit (modern `stats.degreeExperienceBonus` = 8): each degree adds experience, capped by the usual maximum. Classic keeps 0.
+  - Stage-1 gains `seatbias-classic-50-normal-2` (Balanced vs Balanced, 200 games), and the 9.3 seat-bias gate reads it. The B-median rows are untouched, so the modern lock does not depend on it.
+- Consequences: no target changed. Probes at goals 50 (24 games each): LoanMax defaults 60%, StudyFirst wins 33–37%, CryptoAllIn wins 25% with 67% bankrupt. Ordinary seats can take student loans too, but the domain filter keeps a seat that can cover the principal from borrowing.
+
+## ADR-0045: The live site is smoke-tested after every deploy and rolled back on failure
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: M8.4 asks for a post-deploy smoke test against the live URL. The owner chose the scope and an automatic rollback in ADR-0037.
+- Decision: `deploy.yml` gains three pieces.
+  - **Deploy** stamps the deployed commit into `index.html` (`<meta name="build-sha">`, from `VITE_BUILD_SHA`; `dev` elsewhere) and keeps the built site as a 90-day `site` artifact.
+  - **Smoke** runs `playwright.live.config.ts` (desktop and phone, no local server) against the Pages URL. Checks:
+    - the HTML carries the deployed SHA, polled for up to 150 s while Pages publishes;
+    - every script and stylesheet `index.html` names returns 200, the title renders with no console errors, and no request leaves the site's origin;
+    - a deep link and an unknown path fall back to the app;
+    - a seeded classic game saved to a slot reads back the same HUD after a reload;
+    - the modern ruleset starts, and the title and board pass axe.
+
+    The public build has no debug hash hook, so the save round trip compares the HUD rather than a state hash; the full hash check stays in the CI e2e suite.
+
+  - **Rollback**, only if the smoke test fails after a successful deploy: redeploy the `site` artifact of the most recent deploy run that succeeded end to end, open an issue naming both runs, and exit non-zero so the run stays red.
+- Consequences: a broken build is live only for the minutes between deploy and rollback. The first deploy after this change has no earlier `site` artifact, so a rollback that early fails loudly instead of restoring; every later deploy has one. The smoke test also caught a real defect while being written: the site had no favicon, so every page load logged a 404. It now carries an inline SVG ring, which makes no request.
+
+## ADR-0046: Keyed overlay files can delete an inherited key with `null`
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: while writing the "add a location" recipe for `docs/EXTENDING.md` (M8.2), its example could not be made valid. The ring board has exactly 16 squares, so a new location must take an existing one, and the displaced location has to go (`{ "id": …, "_remove": true }`, EXTENSIBILITY 12.3). Its strings and its visual stay behind in the inherited `i18n/en.json` and `assets.registry.json`, and the i18n validator rejects them as unused. Object files deep-merge, and there was no way to delete a key, so no overlay could ever retire a location, an asset or anything else with strings.
+- Options: 1) let the validator ignore unused inherited keys; 2) let overlays delete keys; 3) document the limitation.
+- Decision: option 2, scoped to the two keyed files where it is needed. In an overlay's `i18n/en.json` and `assets.registry.json`, a key set to `null` deletes the inherited key; overlay schemas accept `null` there, and the merge drops the keys. A base pack may not use `null`, and other object files are unchanged: board squares and layout nodes use `null` as a real value (an empty square).
+- Consequences: `docs/EXTENDING.md` recipes 2 and 6 can retire content cleanly, and their examples prove it in CI. Option 1 would have hidden genuinely stale strings in every pack.
+
+## ADR-0047: An event layoff does not restart career tenure if the player is rehired quickly
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: career is capped by continuous employment (ADR-0040), and losing the job restarts the count. The modern `job-automated` event fires about 1.5 times per 100 player-weeks, so roughly every other player is laid off in a goals-50 game. A layoff then cost 20–30 weeks of career progress on a coin flip. It decided so many games that Hard beat Easy only 47% of the time in modern (target ≥ 80%) while Hard beat Easy every time in classic, which has no layoffs.
+- Options: 1) keep the reset; 2) make the event a pay cut instead of a job loss; 3) let a quick rehire resume the tenure.
+- Decision: option 3, driven by content. A `loseJob` event effect records the lost job's `hiredWeek` and the week of the layoff on the player (`layoff`). A hire within `rules.goals.careerLayoffGraceWeeks` of that week resumes the tenure: `hiredWeek` becomes the old start moved on by the weeks out of work. Classic sets no grace (default 0); modern sets 4. Being fired for low dependability or losing the job to a wellbeing collapse still restarts the count: those are the player's doing.
+- Consequences: the event keeps its bite (severance ends, the goal stalls and the weeks out of work do not count) without deciding the game. `PlayerState.layoff` is optional, so existing saves and classic games are unchanged.
+
+## ADR-0048: Modern targets re-derived from the classic baseline of the fixed AI, and re-locked
+
+- Date: 2026-09-23
+- Status: Accepted (supersedes ADR-0042's hashes, not its mechanism)
+- Context: M8.0e found AI defects that shaped every measured game: seats starved in 40–80% of weeks, ended turns with hours left, stayed employed below the firing line, and scored goals before the week-start decay (commits on this branch; KI-008). Fixing them made games far shorter, so both packs were retuned (classic tenure 2.2/week after 8 weeks, relax base 1, $115 a wealth point; ADR-0047 layoff grace) and the stage-1 baseline was re-run: 25 configs, 3,400 games, every 9.3 target met except sim speed (out of scope, ADR-0037). BALANCE 9.5 derives the modern median bands from classic B.
+- Options: 1) keep targets derived from a baseline that no longer exists; 2) re-derive with the unchanged rules and re-lock.
+- Decision: option 2 (owner-approved in ADR-0037). Classic B medians move from 36/48/63/86 to 24/33/48/58, so the ±20% bands (rounded outward, unchanged rule) become 19–29, 26–40, 38–58 and 46–70. Every other target is unchanged: the 9.5 values do not depend on B. `tools/lib/targets.test.ts` reads the lock from this ADR.
+- Consequences: the bar moved only for the four median bands, which follow the classic game. No target was widened or relaxed.
+- Locked sha256 (reports/modern-targets.json): `25eb309f42340795270dea7a73bc68d659b46da77d8ea2cf0caa33ef753f4f31`
+- Locked sha256 (reports/baseline.json): `6c1b7c72cbfa603cbad494cb3b3b7bd6acc0879a47a02ff38710d33c353a1c62`
+
+## ADR-0049: Modern retune after the AI fixes: wellbeing that can collapse, all-in crypto, liquid loan instalments
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: once the AI stopped starving and started relaxing for wellbeing (KI-008), no modern seat collapsed (target: 15–40% of Normal games, and at least 60% for NoRelax), CryptoAllIn played as an ordinary seat (47% wins, 2% bankrupt; target 15–40% wins and over 40% bankrupt), and LoanMax defaulted 85% of the time (target 20–60%). The old modern wellbeing numbers had been set to offset starvation that no longer happens.
+- Decision:
+  - **Wellbeing** returns to a profile with teeth: relax 8–16, drift 1 a week, unspent-hours bonus 2, no walking bonus, collapse below 20. Without the walking and idle-hour bonuses a seat cannot stay out of collapse without relaxing, which is what NoRelax exists to show.
+  - **Happiness:** start 0, decay 7, cap 120, +2 a graduation (classic +5: four degrees at goals 50 handed out twenty points before any other goal moved). The higher cap keeps goals 100 reachable after the week-start decay; start 0 and the steeper decay keep happiness from being the first goal done at goals 50.
+  - **Career** tenure starts after 6 weeks; **$255** a wealth point; degrees take **15** lessons.
+  - **CryptoAllIn** stakes everything: it prefers emptying the bank into cash and buys of at least 80% of its cash, rent included (weight 0.2, ADR-0044). Crypto's weekly volatility is 1800 bp: a bet that busts more often also has to boom sometimes.
+  - **AI:** the Normal AI weighs wellbeing at 0.7 (Easy 0.5, Hard 1): Normal is meant to overwork into a collapse now and then. The planner keeps two loan instalments in cash or bank, since instalments come out at the turn start and four misses default the loan (GDD 4.12).
+- Consequences (probes, 40–80 games): Normal games with a collapse ≈ 20%; NoRelax 100%; CryptoAllIn wins 20% with 52% bankrupt; LoanMax defaults 50%. Medians at goals 50/80/100 are 29/44/61 weeks, within ±20% of classic B, with every goal last-completed at least 10% at goals 50. More Normal seats now go bankrupt after a collapse (≈ 5–10%); the spec tracks that rate but sets no target for it. Stage 2 is the measurement of record.
+
+## ADR-0050: Graduate entry: degrees held at a fresh hire count toward career tenure
+
+- Date: 2026-09-23
+- Status: Accepted
+- Context: career is capped by continuous employment (ADR-0040). BALANCE 9.4's StudyFirst earns every degree its education goal needs before any regular work, so its tenure clock starts around week 17 while a Normal seat wins near week 28. Stage 2 measured StudyFirst at 11.7% wins (target 30–60%, "viable, not dominant"). A larger student loan and a larger experience bonus per degree did not move it: the clock is the binding constraint.
+- Options: 1) widen the target (not allowed, ADR-0037); 2) make degrees count toward career directly (changes every game); 3) credit degrees only when the tenure clock starts from scratch.
+- Decision: option 3, driven by content. At a hire off the street, `hiredWeek` is set back by `rules.goals.careerTenureWeeksPerDegree` weeks per degree held, if need be to before week 0 (a floor at week 0 capped the credit at a tie with a seat hired in week 1). A job change (continuous employment) and a rehire within the layoff grace (ADR-0047) are unaffected. Classic sets 0.
+- Consequences: modern sets 5 weeks a degree and 12 experience a degree (was 8): the credit maxes out at a week-0 start, so what remains is the late wage, and a better first job closes it. Studying first becomes a real route to the career goal (probe: StudyFirst 5% → 32% wins, together with the AI now paying rent debt from the bank). Ordinary seats take their first job before any degree, so the credit mostly reaches them when they are hired again after a firing or a collapse, which it softens a little.

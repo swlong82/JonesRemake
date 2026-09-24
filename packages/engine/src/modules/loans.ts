@@ -13,6 +13,7 @@ import { z } from 'zod';
 import type { Ctx } from '../core/ctx.js';
 import type { BaseCommand, CommandHandler, Engine, RuleModule } from '../core/module.js';
 import type { PlayerState } from '../core/state.js';
+import { educationGoal } from '../core/goals.js';
 import { mulDiv } from '../core/math.js';
 import { requireService } from '../commands/common.js';
 import { carOf } from './transport.js';
@@ -33,6 +34,10 @@ interface Loan {
   collateral: 'car' | null;
   takenWeek: number;
   defaulted: boolean;
+  /** Student loan (ADR-0044): no payment falls due while the seat is still studying. */
+  student?: true;
+  /** Weeks of deferral so far; the term runs on after them. */
+  deferredWeeks?: number;
 }
 
 interface LoansSlice {
@@ -52,6 +57,8 @@ const loanSchema = z
     collateral: z.enum(['car']).nullable(),
     takenWeek: z.number().int().positive(),
     defaulted: z.boolean(),
+    student: z.literal(true).optional(),
+    deferredWeeks: z.number().int().nonnegative().optional(),
   })
   .strict();
 
@@ -152,18 +159,27 @@ const takeLoanHandler: CommandHandler<TakeLoanCommand> = {
     if (!spec.terms.includes(cmd.termWeeks)) return 'ERR_INVALID_AMOUNT';
     if (slice.loans.length >= spec.maxActive) return 'ERR_LOAN_LIMIT';
     if (cmd.collateral === 'car' && !carOf(ctx.player)) return 'ERR_NO_CAR';
-    const capacity = mulDiv(
-      weeklyIncomeEstimate(ctx, ctx.seat) * spec.approvalIncomeWeeks,
-      spec.approvalIncomeBp,
-      10_000,
-    );
-    if (cmd.collateral !== 'car' && capacity < cmd.principal) return 'ERR_LOAN_DENIED';
+    const capacity = incomeCapacity(ctx, spec);
+    // A seat still studying toward its education goal may borrow up to `studentMax` with no income
+    // at all (ADR-0044).
+    const studying = educationGoal(ctx.player, ctx.pack) < ctx.player.goals.education;
+    const student = studying ? spec.studentMax : 0;
+    if (cmd.collateral !== 'car' && Math.max(capacity, student) < cmd.principal)
+      return 'ERR_LOAN_DENIED';
     return null;
   },
   apply: (ctx, cmd) => {
     const slice = sliceOf(ctx.player)!;
     const aprBp = aprBpFor(ctx, ctx.seat);
+    const spec = ctx.pack.loans!;
+    // Approved only because the seat is studying: repayment waits until it has finished.
+    const studentLoan =
+      cmd.collateral !== 'car' &&
+      cmd.principal <= spec.studentMax &&
+      incomeCapacity(ctx, spec) < cmd.principal &&
+      educationGoal(ctx.player, ctx.pack) < ctx.player.goals.education;
     slice.loans.push({
+      ...(studentLoan ? { student: true as const, deferredWeeks: 0 } : {}),
       principal: cmd.principal,
       balance: cmd.principal,
       weeklyPayment: weeklyPayment(cmd.principal, aprBp, cmd.termWeeks),
@@ -190,6 +206,7 @@ const takeLoanHandler: CommandHandler<TakeLoanCommand> = {
     const out: TakeLoanCommand[] = [];
     // A short ladder of round principals, so the AI and the UI have something to pick from.
     const steps = [spec.min, Math.round((spec.min + spec.max) / 2), spec.max];
+    if (spec.studentMax > spec.min && !steps.includes(spec.studentMax)) steps.push(spec.studentMax);
     for (const principal of steps)
       for (const termWeeks of spec.terms) out.push({ type: 'TakeLoan', principal, termWeeks });
     return out;
@@ -241,14 +258,30 @@ const repayLoanHandler: CommandHandler<RepayLoanCommand> = {
   ai: { category: 'finance' },
 };
 
+/** What a seat's income lets it borrow: a share of its estimated income over the approval window. */
+function incomeCapacity(ctx: Ctx, spec: NonNullable<Ctx['pack']['loans']>): number {
+  return mulDiv(
+    weeklyIncomeEstimate(ctx, ctx.seat) * spec.approvalIncomeWeeks,
+    spec.approvalIncomeBp,
+    10_000,
+  );
+}
+
 /** Debits every loan at the start of the turn, and handles the ones that go unpaid. */
 function collect(ctx: Ctx): void {
   const spec = ctx.pack.loans;
   const slice = sliceOf(ctx.player);
   if (!spec || !slice) return;
+  const studying = educationGoal(ctx.player, ctx.pack) < ctx.player.goals.education;
   for (const loan of slice.loans) {
     const balanceWithInterest = loan.balance + weeklyInterest(loan.balance, loan.aprBp);
-    const finalInstalment = ctx.week - loan.takenWeek >= loan.termWeeks;
+    // A student loan accrues interest but asks for nothing while the seat is still studying.
+    if (loan.student && studying && !loan.defaulted) {
+      loan.balance = balanceWithInterest;
+      loan.deferredWeeks = (loan.deferredWeeks ?? 0) + 1;
+      continue;
+    }
+    const finalInstalment = ctx.week - loan.takenWeek - (loan.deferredWeeks ?? 0) >= loan.termWeeks;
     const due = finalInstalment
       ? balanceWithInterest
       : Math.min(loan.weeklyPayment, balanceWithInterest);

@@ -1,7 +1,7 @@
 {
   "seed": "golden-modern-western-11",
   "packId": "modern-western",
-  "packVersion": "0.1.0",
+  "packVersion": "0.3.0",
   "seats": 2,
   "log": [
     {
@@ -1195,6 +1195,6 @@
       }
     }
   ],
-  "finalHash": "1b78a2d4d9cbfd",
+  "finalHash": "1801c9ceb86bee",
   "week": 5
 }

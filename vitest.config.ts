@@ -4,7 +4,12 @@ import { defineConfig } from 'vitest/config';
 // unkeyed values are the floor for everything else (tools, platform, shared).
 export default defineConfig({
   test: {
-    projects: ['packages/*/vitest.config.ts', 'apps/*/vitest.config.ts', 'tools/vitest.config.ts'],
+    projects: [
+      'packages/*/vitest.config.ts',
+      'apps/*/vitest.config.ts',
+      'tools/vitest.config.ts',
+      'examples/vitest.config.ts',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],

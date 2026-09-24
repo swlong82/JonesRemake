@@ -27,15 +27,15 @@ test('menu screens are reachable and pass axe', async ({ page }) => {
   await expectNoA11yViolations(page);
 });
 
-test('an unfinished feature is still offered, but disabled with the milestone named', async ({
-  page,
-}) => {
+test('How to Play offers the tutorial and Stats shows the local leaderboard', async ({ page }) => {
   await page.goto('/?ff=-tutorial');
   await page.getByTestId('how-to-play').click();
   // M7.3 landed the tutorial, so How to Play offers it instead of naming a milestone.
   await expect(page.getByTestId('tutorial-start')).toBeVisible();
   await page.getByTestId('back').click();
   await page.getByTestId('stats').click();
-  await expect(page.getByText('Local leaderboard arrives with milestone M8.')).toBeVisible();
+  // M8.1: the local board, empty on a fresh device, badged as unverified (16.7).
+  await expect(page.getByTestId('lb-badge')).toHaveText('Not verified — local only');
+  await expect(page.getByTestId('lb-empty')).toBeVisible();
   await expectNoA11yViolations(page);
 });

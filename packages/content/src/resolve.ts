@@ -22,6 +22,7 @@ import {
   personalitySchema,
   subscriptionSchema,
   transportModeSchema,
+  visualSchema,
   type EventSpec,
 } from './schemas/entities.js';
 import {
@@ -90,6 +91,22 @@ const FILE_SCHEMAS = {
   'layout.json': layoutSchema,
 } as const;
 
+/**
+ * Keyed files an overlay may delete from (EXTENSIBILITY 12.3, ADR-0046): a key set to `null`
+ * removes the inherited key, the way `_remove` removes an array entry. Without it an overlay that
+ * retires a location could never drop that location's strings, and "unused key" would reject it.
+ */
+const KEY_DELETABLE = {
+  'i18n/en.json': z.record(z.string(), z.string().nullable()),
+  'assets.registry.json': z.record(z.string(), visualSchema.nullable()),
+} as const;
+
+function dropDeletedKeys(file: JsonValue | undefined): JsonValue | undefined {
+  if (file === undefined || file === null || typeof file !== 'object' || Array.isArray(file))
+    return file;
+  return Object.fromEntries(Object.entries(file).filter(([, v]) => v !== null));
+}
+
 function zodIssues(prefix: string, error: z.ZodError): ValidationIssue[] {
   return error.issues.map((i) => ({
     path: [prefix, ...i.path.map(String)].join('.'),
@@ -102,9 +119,13 @@ export function validateRawFiles(files: RawPackFiles, isOverlay: boolean): Valid
   const issues: ValidationIssue[] = [];
   const manifest = PackManifestSchema.safeParse(files['pack.json']);
   if (!manifest.success) issues.push(...zodIssues('pack.json', manifest.error));
-  for (const [name, schema] of Object.entries(FILE_SCHEMAS)) {
+  for (const [name, fileSchema] of Object.entries(FILE_SCHEMAS)) {
     const raw = files[name];
     if (raw === undefined) continue;
+    const schema =
+      isOverlay && name in KEY_DELETABLE
+        ? KEY_DELETABLE[name as keyof typeof KEY_DELETABLE]
+        : fileSchema;
     const r = schema.safeParse(raw);
     if (!r.success) issues.push(...zodIssues(name, r.error));
   }
@@ -157,7 +178,7 @@ export function mergeChain(chain: RawPackFiles[]): RawPackFiles {
     }
     for (const name of OBJECT_FILES) {
       const m = mergeFile(acc[name], files[name], 'object');
-      if (m !== undefined) next[name] = m;
+      if (m !== undefined) next[name] = name in KEY_DELETABLE ? dropDeletedKeys(m)! : m;
     }
     // Manifest: child wins wholesale except featureFlags which deep-merge.
     const childManifest = files['pack.json'];

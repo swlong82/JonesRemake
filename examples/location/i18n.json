@@ -1,0 +1,16 @@
+{
+  "location.coworking-space.name": "Coworking Loft",
+  "location.coworking-space.greeting.1": "Hot desks, lukewarm coffee.",
+  "location.coworking-space.greeting.2": "Community manager says hi. Loudly.",
+  "location.coworking-space.greeting.3": "The phone booths are all booked.",
+  "location.coworking-space.farewell.1": "See you at the next mixer.",
+  "location.coworking-space.farewell.2": "Your badge expires at midnight.",
+  "location.coworking-space.farewell.3": "Leave the beanbag as you found it.",
+  "location.park.name": null,
+  "location.park.greeting.1": null,
+  "location.park.greeting.2": null,
+  "location.park.greeting.3": null,
+  "location.park.farewell.1": null,
+  "location.park.farewell.2": null,
+  "location.park.farewell.3": null
+}

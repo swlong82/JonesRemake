@@ -1,5 +1,5 @@
 {
-  "$comment": "BALANCE_SPEC 9.3 stage-1 suite: goals {30,50,80,100} \u00d7 AI {easy,normal,hard} \u00d7 seats {2,4}. Game counts reduced from 10,000 (ADR-0016).",
+  "$comment": "BALANCE_SPEC 9.3 stage-1 suite: goals {30,50,80,100} × AI {easy,normal,hard} × seats {2,4}. Game counts reduced from 10,000 (ADR-0016).",
   "gamesPerConfig": 200,
   "configs": [
     {
@@ -216,6 +216,15 @@
       "ai": "hard,hard,hard,hard",
       "goals": 100,
       "games": 100,
+      "stallWeek": 300
+    },
+    {
+      "id": "seatbias-classic-50-normal-2",
+      "pack": "classic",
+      "seats": 2,
+      "ai": "normal:balanced,normal:balanced",
+      "goals": 50,
+      "games": 200,
       "stallWeek": 300
     }
   ],

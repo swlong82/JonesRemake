@@ -5,9 +5,15 @@
  * Modules add their own scorers via `registerScorer`; a system with none is simply ignored.
  */
 import type { CityPack, PersonalitySpec } from '@hustle-ring/content';
-import { computeGoals, marketValue, type GameState, type PlayerState } from '@hustle-ring/engine';
+import {
+  careerFromDependability,
+  computeGoals,
+  marketValue,
+  type GameState,
+  type PlayerState,
+} from '@hustle-ring/engine';
 import type { Difficulty } from '@hustle-ring/shared';
-import { DIFFICULTY } from './config.js';
+import { DIFFICULTY, HUNGRY_HOURS } from './config.js';
 
 export interface ScorerCtx {
   pack: CityPack;
@@ -21,6 +27,40 @@ export interface Scorer {
   weight(p: PersonalitySpec, d: Difficulty): number;
   /** Potential function over a state; utility uses V(after) − V(before). */
   value(ctx: ScorerCtx, state: GameState, player: PlayerState): number;
+}
+
+/**
+ * The player as the win check will see them: goals are checked at the next turn start, after the
+ * week's happiness and dependability decay. Scored at the end of the turn instead, a seat at
+ * exactly 100 thought it had won, stopped pushing, and sat at 100/100/100/100 for weeks without
+ * ever meeting the goals-100 check (KI-008).
+ */
+/** Dependability above the firing line the seat works to keep. */
+const FIRING_MARGIN = 5;
+
+export function atTurnStart(p: PlayerState, pack: CityPack): PlayerState {
+  return {
+    ...p,
+    happiness: Math.max(0, p.happiness - pack.rules.happiness.decayPerWeek),
+    dependability: Math.max(0, p.dependability - pack.rules.stats.dependabilityDecay),
+  };
+}
+
+/**
+ * Dependability a shift at the current job may not fall below: under it the engine fires the seat
+ * on the work attempt (GDD 4.6). 0 without a job.
+ */
+export function firingLine(pack: CityPack, p: PlayerState): number {
+  const job = p.job ? pack.jobById[p.job.jobId] : undefined;
+  return job ? job.reqDependability - pack.rules.stats.firingDependabilityMargin : 0;
+}
+
+/**
+ * True when the seat can work its job without being fired. A job it cannot work is no job: holding
+ * one, a seat avoided every shift, earned no dependability and never met its career goal (KI-008).
+ */
+export function keepsJob(pack: CityPack, p: PlayerState): boolean {
+  return p.job !== null && p.dependability >= firingLine(pack, p);
 }
 
 function goalProgress(current: number, target: number): number {
@@ -53,7 +93,7 @@ export const goalWealth: Scorer = {
 export const goalHappiness: Scorer = {
   id: 'goal-gap:happiness',
   weight: (p) => p.weights.happiness,
-  value: (_ctx, _state, p) => goalProgress(p.happiness, p.goals.happiness),
+  value: (ctx, _state, p) => goalProgress(atTurnStart(p, ctx.pack).happiness, p.goals.happiness),
 };
 
 /**
@@ -87,18 +127,22 @@ export const goalCareer: Scorer = {
   id: 'goal-gap:career',
   weight: (p) => p.weights.career,
   value: (ctx, state, p) => {
-    const g = computeGoals(p, state, ctx.pack, 0);
+    const g = computeGoals(atTurnStart(p, ctx.pack), state, ctx.pack, 0);
     const prog = goalProgress(g.career, p.goals.career);
     // Potential: dependability can be ground up to its job-defined maximum, so a better job is
     // worth half the career it unlocks even before the stat catches up.
-    const potential = p.job
-      ? goalProgress(
-          Math.floor((p.maxDependability * ctx.pack.rules.goals.careerDependabilityBp) / 10_000),
-          p.goals.career,
-        )
+    const working = keepsJob(ctx.pack, p);
+    const potential = working
+      ? goalProgress(careerFromDependability(p.maxDependability, ctx.pack), p.goals.career)
       : 0;
-    const jobBonus = p.job ? 0.15 : -0.25;
-    return prog + 0.5 * potential + jobBonus;
+    const jobBonus = working ? 0.15 : -0.25;
+    // Dependability counts on its own: while tenure caps the goal (ADR-0040) a shift adds nothing
+    // to it, and a seat that stopped working let dependability decay until it was fired and its
+    // tenure restarted — a loop that never met the career goal (KI-008).
+    const earned = working
+      ? goalProgress(careerFromDependability(p.dependability, ctx.pack), p.goals.career)
+      : 0;
+    return prog + 0.5 * potential + 0.3 * earned + jobBonus;
   },
 };
 
@@ -111,7 +155,7 @@ export const winProximity: Scorer = {
   id: 'win-proximity',
   weight: () => 2,
   value: (ctx, state, p) => {
-    const g = computeGoals(p, state, ctx.pack, 0);
+    const g = computeGoals(atTurnStart(p, ctx.pack), state, ctx.pack, 0);
     const worst = Math.min(
       goalProgress(g.wealth, p.goals.wealth),
       goalProgress(g.happiness, p.goals.happiness),
@@ -124,6 +168,9 @@ export const winProximity: Scorer = {
   },
 };
 
+/** Weeks of loan instalments the seat keeps liquid (KI-008). */
+const RESERVE_WEEKS = 2;
+
 /** Survival: next-week food, rent covered, clothing for the job. */
 export const survival: Scorer = {
   id: 'survival',
@@ -132,14 +179,21 @@ export const survival: Scorer = {
     let v = 0;
     const fed =
       p.food.fridgeUnits > 0 || p.food.mealPending !== null || p.food.unrefrigeratedUnits > 0;
-    v += fed ? 0.1 : -0.15;
+    // Starving costs the next week a third of its hours and happiness besides (KI-008); with the
+    // week still young there is time to eat later, so the full cost bites as the hours run out.
+    v += fed ? 0.1 : p.hoursLeft > HUNGRY_HOURS ? -0.15 : -0.4;
     const due = p.home.paidThroughWeek + ctx.pack.rules.housing.rentWeeks;
     const weeksToDue = due - state.week;
     // Rent is paid in cash, so near the due week only cash on hand counts as covered.
     const covered =
       weeksToDue <= 1 ? p.cash >= p.home.rentLocked : p.cash + p.bank >= p.home.rentLocked;
-    if (p.home.debt > 0) v -= 0.5 + Math.min(0.5, p.home.debt / 1000);
-    else if (weeksToDue <= 1 && !covered) v -= 0.35;
+    if (p.home.debt > 0) {
+      v -= 0.5 + Math.min(0.5, p.home.debt / 1000);
+      // Paying debt from the bank takes four steps (bank, withdraw, rent office, pay) and only the
+      // last one scored, so the search pruned the trip and seats sat in debt beside a full account
+      // until they were ruled bankrupt (KI-008). Cash in hand that covers it is half the way.
+      if (p.cash >= p.home.debt) v += 0.3;
+    } else if (weeksToDue <= 1 && !covered) v -= 0.35;
     else if (weeksToDue > ctx.pack.rules.housing.rentWeeks) v += 0.1;
     if (p.job) {
       const job = ctx.pack.jobById[p.job.jobId];
@@ -147,9 +201,17 @@ export const survival: Scorer = {
       let best = 0;
       for (const c of p.clothing) best = Math.max(best, ctx.pack.uniformRank[c.tier]);
       if (best < need) v -= 0.3;
+      // Dependability decays every week; a seat that lets it slide to the firing line loses the
+      // job on its next shift, so the margin is kept while there is still time to work (KI-008).
+      if (p.dependability < firingLine(ctx.pack, p) + FIRING_MARGIN) v -= 0.2;
       const weeks = p.clothing.reduce((m, c) => Math.max(m, c.weeksLeft), 0);
       if (weeks <= 1) v -= 0.1;
     }
+    // Loan instalments are debited from cash, then bank, at the next turn start; four misses and
+    // the loan defaults (GDD 4.12). Money tied up in assets does not count (KI-008).
+    const loans = p.modules.loans as { loans: { weeklyPayment: number }[] } | undefined;
+    const instalments = loans?.loans.reduce((sum, l) => sum + l.weeklyPayment, 0) ?? 0;
+    if (instalments > 0 && p.cash + p.bank < instalments * RESERVE_WEEKS) v -= 0.4;
     // Cash carried outside the bank is theft exposure; large balances belong in the bank.
     if (p.cash > 500) v -= Math.min(0.15, (p.cash - 500) / 10_000);
     return v;
@@ -201,9 +263,20 @@ export const relaxation: Scorer = {
  * gave the planner no gradient inside burnout: one rest that moved 13 → 21 scored exactly the same
  * as resting not at all, so the seat stayed burnt out for the whole game.
  */
+/**
+ * How much each difficulty minds its wellbeing. Normal is not Hard: the Normal AI is meant to
+ * overwork into a collapse now and then (BALANCE 9.5: 15–40% of games), so it weighs the stat
+ * below Hard and above Easy.
+ */
+const WELLBEING_WEIGHT: Record<Difficulty, number> = {
+  easy: 0.5,
+  normal: 0.7,
+  hard: 1,
+};
+
 export const wellbeing: Scorer = {
   id: 'wellbeing',
-  weight: (_p, d) => (d === 'easy' ? 0.5 : 1),
+  weight: (_p, d) => WELLBEING_WEIGHT[d],
   value: (ctx, _state, p) => {
     const value = (p.modules.wellbeing as { value?: number } | undefined)?.value;
     if (value === undefined) return 0;
@@ -249,6 +322,46 @@ export const subscriptionDrain: Scorer = {
   },
 };
 
+/**
+ * Unlocks that gate a modern system's commands (GDD 4.3, 4.6, 4.7, 4.11). A gadget carrying one
+ * is the price of entry to that system, so it is valued for the access, not as a trinket.
+ */
+export const SYSTEM_UNLOCKS: ReadonlySet<string> = new Set([
+  'rideHail',
+  'delivery',
+  'gigDelivery',
+  'onlineStudy',
+]);
+
+/** True for an item whose unlocks open a modern system (`SYSTEM_UNLOCKS`). */
+export function isSystemGadget(pack: CityPack, itemId: string): boolean {
+  return pack.itemById[itemId]?.unlocks.some((u) => SYSTEM_UNLOCKS.has(u)) ?? false;
+}
+
+/**
+ * Gadget access (ADR-0039): a working phone or laptop keeps delivery, gigs, ride-hail and online
+ * study open, so it is worth more than the cash it cost — twice its price against the wealth
+ * target, capped. A broken one is worth nothing, which is what makes a repair worth its fee.
+ * Without this the search saw a $220 phone as a $220 loss, seats owned a working phone in 8% of
+ * player-weeks, and never repaired one (KI-008).
+ */
+export const gadgetAccess: Scorer = {
+  id: 'gadget-access',
+  weight: () => 1,
+  value: (ctx, _state, p) => {
+    const target = Math.max(1, p.goals.wealth * ctx.pack.wealthPointValue);
+    const counted = new Set<string>();
+    let v = 0;
+    for (const it of p.items) {
+      if (it.condition !== 'ok' || counted.has(it.itemId)) continue;
+      if (!isSystemGadget(ctx.pack, it.itemId)) continue;
+      counted.add(it.itemId);
+      v += (2 * (ctx.pack.itemById[it.itemId]?.price ?? 0)) / target;
+    }
+    return Math.min(0.3, v);
+  },
+};
+
 const registry = new Map<string, Scorer>();
 export function registerScorer(s: Scorer): void {
   registry.set(s.id, s);
@@ -269,6 +382,7 @@ for (const s of [
   wellbeing,
   loanBurden,
   subscriptionDrain,
+  gadgetAccess,
 ])
   registerScorer(s);
 

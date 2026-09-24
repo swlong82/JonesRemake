@@ -1,0 +1,22 @@
+[
+  {
+    "id": "minimalist",
+    "nameKey": "personality.minimalist.name",
+    "taglineKey": "personality.minimalist.tagline",
+    "weights": {
+      "wealth": 0.8,
+      "happiness": 1.4,
+      "education": 1.0,
+      "career": 0.8
+    },
+    "riskTolerance": 0.2,
+    "preferences": {
+      "relaxWeight": 0.9,
+      "wellbeingFloor": 45,
+      "prefersGig": false,
+      "prefersOnlineStudy": true,
+      "prefersWalk": true,
+      "cryptoTolerance": 0.0
+    }
+  }
+]

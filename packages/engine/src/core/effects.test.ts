@@ -114,6 +114,8 @@ describe('effect DSL ops', () => {
       applyEffect(ctx, 0, { op: 'loseJob', chanceBp: 10_000, severanceWeeks: 2 }, 't'),
     ).toEqual(['severance:160', 'fired']);
     expect(ctx.player.job).toBeNull();
+    // Recorded so a quick rehire resumes the tenure (ADR-0047).
+    expect(ctx.player.layoff).toEqual({ hiredWeek: 1, week: ctx.week });
     expect(ctx.player.cash).toBe(360);
     expect(ctx.player.happiness).toBe(5);
     expect(applyEffect(ctx, 0, { op: 'loseJob', chanceBp: 10_000 }, 't')).toEqual([]);
@@ -362,7 +364,8 @@ describe('economy tick (GDD 4.12, SEED_DATA 14.4)', () => {
     expect(phases.size).toBe(3);
     expect(ctx.state.market.history.gold!.length).toBe(26);
     expect(['boom', 'stable', 'recession']).toContain(ctx.state.news.phaseHint);
-  });
+    // ≈4 s alone; a loaded CI runner needs headroom (the KI-004 remedy). The 10k weeks stay.
+  }, 20_000);
   it('stepBounded reflects at both bounds', () => {
     const ctx = ctxFor('reflect');
     const gold = pack.assetById.gold!;

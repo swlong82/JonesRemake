@@ -123,11 +123,17 @@ export function evaluate93(rows: BaselineRow[]): GateCheck[] {
     pass: monotonic,
   });
 
+  // Seat bias is turn order alone, so it is read from the one personality against itself when that
+  // run exists (ADR-0044); the Normal×2 rows pair two different personalities.
+  const seat = by('seatbias-classic-50-normal-2') ?? n50;
   out.push({
-    gate: 'Seat bias Normal×2 (goals 50)',
+    gate:
+      seat === n50
+        ? 'Seat bias Normal×2 (goals 50)'
+        : 'Seat bias Normal×2 (goals 50, Balanced vs Balanced)',
     target: 'first seat 45–55%',
-    achieved: `${num(n50?.firstSeatWinPct)}%`,
-    pass: (n50?.firstSeatWinPct ?? 0) >= 45 && (n50?.firstSeatWinPct ?? 0) <= 55,
+    achieved: `${num(seat?.firstSeatWinPct)}%`,
+    pass: (seat?.firstSeatWinPct ?? 0) >= 45 && (seat?.firstSeatWinPct ?? 0) <= 55,
   });
 
   for (const goal of ['wealth', 'happiness', 'education', 'career']) {

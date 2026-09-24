@@ -8,7 +8,7 @@ import {
   stateHash,
   type Command,
 } from '@hustle-ring/engine';
-import { aiSeat, classic, makeConfig, newGame, patch } from '@hustle-ring/engine/testing';
+import { aiSeat, classic, goInside, makeConfig, newGame, patch } from '@hustle-ring/engine/testing';
 import type { Difficulty } from '@hustle-ring/shared';
 import {
   ASSET_TIER,
@@ -16,6 +16,7 @@ import {
   filterCandidates,
   planTurn,
   runAiTurn,
+  trimEarlyEnd,
   allScorers,
   registerScorer,
   stateValue,
@@ -171,13 +172,13 @@ describe('planTurn', () => {
     expect(
       filterCandidates(fed, 0, pack, cmds, DIFFICULTY.easy, ctx).some((c) => c.type === 'EatMeal'),
     ).toBe(false);
-    const employed = patch(s, 0, (p) => {
-      p.job = { jobId: 'factory-engineer', wage: 18, raises: 0, hiredWeek: 1 };
-      p.clothing.push({ tier: 'dress', weeksLeft: 5 });
-    });
-    expect(
+    const applying = (dependability: number) =>
       filterCandidates(
-        employed,
+        patch(s, 0, (p) => {
+          p.job = { jobId: 'factory-engineer', wage: 18, raises: 0, hiredWeek: 1 };
+          p.clothing.push({ tier: 'dress', weeksLeft: 5 });
+          p.dependability = dependability;
+        }),
         0,
         pack,
         [
@@ -186,8 +187,11 @@ describe('planTurn', () => {
         ],
         DIFFICULTY.easy,
         ctx,
-      ).map((c) => (c as { jobId: string }).jobId),
-    ).toEqual(['factory-general-manager']);
+      ).map((c) => (c as { jobId: string }).jobId);
+    // A job the seat can work: only trade up.
+    expect(applying(100)).toEqual(['factory-general-manager']);
+    // A job a shift would get the seat fired from is no job: stepping down is allowed (KI-008).
+    expect(applying(0)).toEqual(['burger-joint-cook', 'factory-general-manager']);
     expect(ASSET_TIER.crypto).toBe(3);
   });
   it('scorer registry accepts module scorers and stateValue sums weighted values', () => {
@@ -328,4 +332,61 @@ describe('runAiTurn and M2.4 acceptance', () => {
     }
     expect(hard / decided).toBeGreaterThanOrEqual(0.7);
   }, 600_000);
+});
+
+describe('pre-ranking treats balance-sheet moves as transfers (ADR-0043)', () => {
+  const opts = { difficulty: 'normal', personality: 'balanced' } as const;
+  it('banks a large cash balance instead of carrying it past the street-theft risk', () => {
+    let s = patch(newGame('transfer-deposit', [aiSeat('A'), aiSeat('B')]), 0, (p) => {
+      p.cash = 12_000;
+    });
+    s = goInside(s, 0, 'bank');
+    const r = runAiTurn(s, 0, pack, opts);
+    expect(r.commands.some((c) => c.type === 'Deposit')).toBe(true);
+    expect(r.state.players[0]!.bank).toBeGreaterThan(0);
+  });
+
+  it('withdraws cash for a uniform when the job cannot be worked without one', () => {
+    let s = patch(newGame('transfer-uniform', [aiSeat('A'), aiSeat('B')]), 0, (p) => {
+      p.cash = 40;
+      p.bank = 3_000;
+      p.job = { jobId: 'bank-branch-manager', wage: 18, raises: 0, hiredWeek: 1 };
+      p.clothing = [];
+      p.food.mealPending = 'burger';
+    });
+    s = goInside(s, 0, 'bank');
+    const r = runAiTurn(s, 0, pack, opts);
+    const w = r.commands.find((c) => c.type === 'Withdraw') as { amount: number } | undefined;
+    expect(w?.amount).toBeGreaterThanOrEqual(500);
+  });
+});
+
+describe('feeding (KI-008)', () => {
+  it('an unfed seat with money gets a meal in before the week ends', () => {
+    for (const personality of PERSONALITIES) {
+      const s = patch(newGame(`feed-${personality}`, [aiSeat('A'), aiSeat('B')]), 0, (p) => {
+        p.cash = 400;
+        p.food = { fridgeUnits: 0, unrefrigeratedUnits: 0, mealPending: null };
+      });
+      const r = runAiTurn(s, 0, pack, { difficulty: 'normal', personality });
+      // A meal, groceries or a delivery: whichever it is, the next week does not start starving.
+      const eats = r.commands.some(
+        (c) => c.type === 'EatMeal' || c.type === 'BuyFood' || c.type === 'OrderDelivery',
+      );
+      expect(eats, personality).toBe(true);
+    }
+  });
+});
+
+describe('early turn ends (KI-008)', () => {
+  const end: Command = { type: 'EndTurn' };
+  const eat: Command = { type: 'EatMeal', mealId: 'burger' };
+  it('drops a closing EndTurn while the week still has hours in it', () => {
+    expect(trimEarlyEnd([eat, end], 40)).toEqual([eat]);
+  });
+  it('keeps it when the week is spent, or when ending is the whole plan', () => {
+    expect(trimEarlyEnd([eat, end], 12)).toEqual([eat, end]);
+    expect(trimEarlyEnd([end], 60)).toEqual([end]);
+    expect(trimEarlyEnd([eat], 60)).toEqual([eat]);
+  });
 });

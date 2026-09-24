@@ -37,7 +37,9 @@
     "aiGoalRanges": { "easy": [20, 60], "normal": [30, 80], "hard": [50, 100] },
     "educationBase": 1,
     "educationPerDegree": 9,
-    "careerDependabilityBp": 12500
+    "careerDependabilityBp": 12500,
+    "careerTenureBpPerWeek": 22000,
+    "careerTenureDelayWeeks": 8
   },
   "stats": {
     "dependabilityDecay": 3,
@@ -60,16 +62,16 @@
     "refused": -1,
     "fired": -5,
     "graduation": 5,
-    "relaxBase": 2,
+    "relaxBase": 1,
     "relaxPerComfort": 1,
-    "relaxMax": 6,
-    "decayPerWeek": 4,
+    "relaxMax": 7,
+    "decayPerWeek": 5,
     "theft": -4,
     "starvation": -5,
     "moveSecure": 5,
     "subscriptionLapsed": -2,
     "min": 0,
-    "max": 104
+    "max": 105
   },
   "jobs": {
     "luckBase": 30,
