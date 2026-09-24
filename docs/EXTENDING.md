@@ -47,6 +47,11 @@ Example: [`examples/location/`](../examples/location) — a Coworking Loft takes
 6. Services decide what can be done there (`SERVICE_IDS` in
    `packages/content/src/schemas/entities.ts`).
 7. Run `pnpm content:validate`, then test that the location can be walked to and entered.
+8. Scene UI (M9): the new location needs a building front, an interior and a host in the art set.
+   `pnpm art:placeholders` adds wireframes for its three slots and `pnpm art:draw` draws them with
+   the default generator (a generic shop until `tools/art-default/buildings.ts` gets a spec for
+   it); `pnpm art:check` fails until the set covers every playable pack. See `docs/ART_SPEC.md`
+   §17.3.
 
 ## 3. Add an item
 
@@ -158,3 +163,11 @@ Example: [`examples/rule-module/`](../examples/rule-module) — a weekly city st
 8. Regenerate golden replays deliberately: `UPDATE_GOLDEN=1 pnpm test`.
 9. Test that the hook runs in order and changes state (see
    `examples/rule-module/rule-module.test.ts`).
+
+## Beyond the recipes: art
+
+Pictures are data, not code (`docs/ART_SPEC.md`). To restyle the game, either edit the default
+set in `packages/art/sets/default/` (hand-drawn files are never overwritten by the generators) or
+build an art pack — a `.zip` with `manifest.json` and `files/*.svg` that defines only the keys it
+changes — and import it in Settings → Art packs. `packages/art/README.md` is the artist's guide:
+slot sizes, anchors, the tint key colours for avatars and what the sanitizer refuses.

@@ -1,6 +1,6 @@
 {
   "app.title": "Hustle Ring",
-  "app.tagline": "A modern remake of a 1991 life-sim board game. Placeholder art, real rules.",
+  "app.tagline": "A modern remake of a 1991 life-sim board game. Fresh paint, real rules.",
   "app.version": "Engine {{engine}} · schema v{{schema}}",
   "app.seed": "Seed: {{seed}}",
   "app.skipToContent": "Skip to content",

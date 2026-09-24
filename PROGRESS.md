@@ -1,7 +1,7 @@
 # Progress
 
-Current milestone: M9 — Scene UI and art sets (ART_SPEC 17). M0–M8 complete — v1.0.0 released (`main` @ 03caf07); tags `m8`/`v1.0.0` await the owner's push (KI-001)
-Last updated: 2026-09-24 — see `HANDOFF.md` for the resume point.
+Current milestone: M9 — Scene UI and art sets (ART_SPEC 17): M9.1–M9.13 done, gate open (`sceneUi` still off by default). M0–M8 complete — v1.0.0 released (`main` @ 03caf07); tags await the owner (KI-001)
+Last updated: 2026-09-24 — M9.9–M9.13 landed; see `HANDOFF.md` for the resume point (the M9 gate).
 
 ## M0 — Scaffold and CI
 
@@ -111,7 +111,7 @@ Owner interview 2026-09-24: ADR-0051…0053.
 
 - [x] M9.1 Spec amendments (17, 17.10) + ADRs; this task list — note: `SPEC_PACK.md` gains section 17 (`docs/ART_SPEC.md`) and amends 1.2, 1.3, 2.3, 2.4, 5.1, 5.6, 10, 12.5, 15.2, 16.1; split and index scripts know section 17; ADR-0051…0053 record the owner interview.
 - [x] M9.2 `packages/art`: manifest schema, slot catalog, SVG sanitizer, key-colour tint, set validator (17.2–17.4, 17.6) — note: `schema/catalog/sanitize/tint/contrast/validate/resolve/placeholder/generate.ts`; the sanitizer is an allowlist check that rejects rather than rewrites (19 attack fixtures), one validator for bundled and user sets; new `art` boundary layer (`shared ← art`), coverage held to the content bar. 39 tests, 98.8% lines.
-- [x] M9.3 `pnpm art:placeholders` + default set wireframes + `pnpm art:check` in `verify` (17.3, 17.8) — note: 197 slots from every bundled pack (16 locations × building/interior/host, 6 player + 4 rival avatars × 14 frames, weekend, ui, frames), 836 kB of 1.5 MB; `tools/lib/art.ts` shared I/O with jsdom as the node `DOMParser`; a tools test fails on drift between the catalog and the committed set; artist guide in `packages/art/README.md`.
+- [x] M9.3 `pnpm art:placeholders` + default set wireframes + `pnpm art:check` in `verify` (17.3, 17.8) — note: 197 slots from every bundled pack (16 locations × building/interior/host, 6 player + 4 rival avatars × 14 frames, weekend, ui, frames), ≈ 167 kB of wireframes (1.5 MB budget); `tools/lib/art.ts` shared I/O with jsdom as the node `DOMParser`; a tools test fails on drift between the catalog and the committed set; artist guide in `packages/art/README.md`.
 - [x] M9.4 Web `ArtRegistry`: static URLs, tint blobs, wireframe fallback per key; app flag `sceneUi` (17.5, 17.9) — note: `apps/web/src/assets/art/{artRegistry,useArtUrl}.ts`; bundled files come from an eager `?url` glob that `vite.config.ts` keeps out of the JS (197 hashed files, no data URLs; +9 kB gzip once wired in); tinted blobs cached per (file, colour), failed fetches not cached; nothing throws. `sceneUi` is off and nothing renders the registry yet (M9.6).
 - [x] M9.5 Theme from art set: palette tokens, bundled OFL fonts, 9-slice frames (17.7) — note: `assets/art/{artTheme,useArtTheme}.ts` set the `index.css` tokens, `--font-ui` and `.art-frame` border images from the active set while `sceneUi` is on; an explicit Dark theme keeps dark tokens (ADR-0054). Nunito (OFL) bundled via `@fontsource/nunito`; `ART_FONTS` gains `nunito`, the default set uses it.
 - [x] M9.6 Scene board + HUD bar + overlays (17.9, UX 7.2) — note: `ui/scene/{BoardScene,SceneHudBar,SceneGameScreen,ArtImage,geometry}`; a `<button>` per square over its building keeps the ring labels, `aria-current` and the 7.7 key map; name plates are HTML text; sheets open in the park (≥ 1024 px) or under the stage, never over a square; HUD bar with a draining clock, money, goals and a Details sheet for the full HUD. `scene.spec.ts` on 3 viewports with axe; phones keep the list until M9.9.

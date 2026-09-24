@@ -1,10 +1,35 @@
 # Handoff
 
-State of the build after M8 (release). PR #18 merged to `main` as **03caf07** (squash), which is
-v1.0.0. Read `CLAUDE.md` first, then this file. Every milestone M0–M8 is done; `PROGRESS.md` has
-the gate log.
+State of the build during M9 (scene UI and art sets). v1.0.0 is `main` @ 03caf07; M9.1–M9.8 merged
+as PR #20, M9.9–M9.13 are on `claude/stoic-goldberg-yr35m8`. Read `CLAUDE.md` first, then this
+file; `PROGRESS.md` has the task notes and the gate log, `docs/ART_SPEC.md` the M9 contract.
 
-## Where the build is
+## Resume point: the M9 gate
+
+Every M9 task is done; the gate is not. It needs:
+
+1. `sceneUi` on by default (`apps/web/src/flags/appFlags.ts`). The ring-UI e2e specs then need
+   `?ff=-sceneUi` (or scene equivalents) while the ring still exists; `e2e/scene.spec.ts`,
+   `artpacks.spec.ts` and `offline.spec.ts` already cover the scene on three viewports.
+2. `pnpm verify` green in CI, then tag `m9` (tags still need the owner, KI-001).
+3. The milestone after M9 deletes the ring board (`ui/game/Board.tsx`) and the flag (17.9).
+
+Open, not blocking: KI-012 (engine property-test flake on a chance-denied rent extension; the fix
+is described in the issue).
+
+## M9 at a glance
+
+| Area        | Where                                                                                    |
+| ----------- | ---------------------------------------------------------------------------------------- |
+| Contract    | `docs/ART_SPEC.md` (SPEC_PACK §17), ADR-0051…0058                                        |
+| Art sets    | `packages/art` (schema, catalog, sanitizer, tint, validator), `sets/default/`            |
+| Default art | `tools/art-default/` + `pnpm art:draw`; hand-drawn files are never overwritten           |
+| Web         | `apps/web/src/assets/art/` (registry, theme, prefetch, import), `apps/web/src/ui/scene/` |
+| Offline     | `apps/web/sw/template.js` + the `hustle-ring-sw` plugin in `vite.config.ts`              |
+| User packs  | Settings → Art packs; stored by `packages/platform/src/artpacks` (IndexedDB)             |
+| Checks      | `pnpm art:check [--report]`, `pnpm budget` (JS 350 kB, art 1536 kB), e2e scene specs     |
+
+## Where the build is (v1.0.0)
 
 | Area            | State                                                                                    |
 | --------------- | ---------------------------------------------------------------------------------------- |

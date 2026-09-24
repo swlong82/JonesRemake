@@ -8,20 +8,27 @@ reimplementation with original names, art and text — see `docs/PRD.md` §2.6 f
 against the spec's targets, with AI rivals at three difficulties, local hotseat, saves and replays, a
 tutorial, audio, themes and a local leaderboard. Everything runs in the browser; nothing leaves the
 device. `PROGRESS.md` has the task list, `HANDOFF.md` the resume point.
+
+**In progress — M9, the scene UI:** an illustrated city block you walk around, an interior with a
+host for every location, avatars, weekend and newspaper scenes, offline play and your own art packs,
+all drawn as modern-cartoon SVG art sets (`docs/ART_SPEC.md`). M9.1–M9.13 are built behind the
+`sceneUi` flag; turn it on with `?ff=sceneUi` (see [Feature flags](#feature-flags)). The M9 gate
+switches it on by default.
 Live build: https://swlong82.github.io/JonesRemake/ (GitHub Pages; `deploy.yml` runs after CI on
 `main` and smoke-tests the live site after every deploy).
 
-| Milestone | Scope                                          | Status |
-| --------- | ---------------------------------------------- | ------ |
-| M0        | Scaffold, CI, Pages deploy, spec pack          | done   |
-| M1        | Engine core (state, RNG, commands)             | done   |
-| M2        | Classic content pack + AI rival                | done   |
-| M3        | Sim harness + classic baseline                 | done   |
-| M4        | Web UI, classic playable                       | done   |
-| M5        | Modern systems (transport, gigs, loans)        | done   |
-| M6        | Modern pack + balance                          | done   |
-| M7        | Polish: audio, save/replay, tutorial, a11y     | done   |
-| M8        | Release: leaderboard, docs, regression, v1.0.0 | done   |
+| Milestone | Scope                                          | Status                   |
+| --------- | ---------------------------------------------- | ------------------------ |
+| M0        | Scaffold, CI, Pages deploy, spec pack          | done                     |
+| M1        | Engine core (state, RNG, commands)             | done                     |
+| M2        | Classic content pack + AI rival                | done                     |
+| M3        | Sim harness + classic baseline                 | done                     |
+| M4        | Web UI, classic playable                       | done                     |
+| M5        | Modern systems (transport, gigs, loans)        | done                     |
+| M6        | Modern pack + balance                          | done                     |
+| M7        | Polish: audio, save/replay, tutorial, a11y     | done                     |
+| M8        | Release: leaderboard, docs, regression, v1.0.0 | done                     |
+| M9        | Scene UI and art sets (behind `sceneUi`)       | 9.1–9.13 done, gate open |
 
 ## Play
 
@@ -46,6 +53,12 @@ Each turn is one week of 60 hours. Click a ring square to open the travel sheet,
 location to use it, and pick actions from the panel — every action shows its cost and effect before
 you commit (`−6h · +$96 · Dependability +2`).
 
+With the scene UI on (`?ff=sceneUi`), the ring becomes a city block: click a building to travel,
+watch your avatar walk the street, and step inside to meet the host and use the location. On a
+phone, drag and pinch the map or switch to the list. Pick your avatar in New Game; import your own
+art in Settings → Art packs (a `.zip` of SVGs, see `packages/art/README.md`). Once loaded, the game
+also works offline.
+
 | Key                                   | Action                               |
 | ------------------------------------- | ------------------------------------ |
 | `1`–`9`, `0`, `Q` `W` `E` `R` `T` `Y` | Travel to the square with that badge |
@@ -64,12 +77,14 @@ command log), and a win against at least one rival posts a score to the device's
 Screens that are specified but not yet built are gated by app feature flags
 (`apps/web/src/flags/appFlags.ts`, ADR-0017) — separate from the CityPack feature flags that gate
 rules per ruleset. A flag is deleted when its milestone lands. Left: `tutorial` and `audio` (on by
-default) and `debugTools` (UX 7.9). Override for local development with a build env var or a query
+default), `sceneUi` (off until the M9 gate: the city-block scene, interiors, avatars, art packs) and
+`debugTools` (UX 7.9). Override for local development with a build env var or a query
 string:
 
 ```bash
 VITE_FF_AUDIO=off pnpm dev    # build-time
 # http://localhost:5173/?ff=-tutorial   # per-visit; '-' turns one off
+# http://localhost:5173/?ff=sceneUi      # try the M9 scene UI
 ```
 
 `debugTools` additionally requires `VITE_DEBUG_ALLOWED=true`, so debug surfaces cannot be switched
@@ -89,7 +104,13 @@ pnpm verify                                         # everything CI runs
 Where to pick up work: `HANDOFF.md`, then the first unchecked task in `PROGRESS.md`.
 
 Individual gates: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `pnpm check:banned`,
-`pnpm scaffold:check`, `pnpm build` (includes bundle budget), `pnpm sim:gate`.
+`pnpm art:check`, `pnpm scaffold:check`, `pnpm build` (includes the JS and art budgets),
+`pnpm sim:gate`.
+
+Art: `pnpm art:check --report` validates every art set and counts drawn slots;
+`pnpm art:placeholders` adds wireframes for new slots; `pnpm art:draw` redraws the default set with
+`tools/art-default` (hand-drawn files are never overwritten). The artist guide is
+`packages/art/README.md`; the contract is `docs/ART_SPEC.md`.
 
 The post-deploy smoke test can be pointed at any build:
 `LIVE_URL=http://127.0.0.1:4174/JonesRemake/ pnpm exec playwright test --config playwright.live.config.ts`.
@@ -107,7 +128,8 @@ example under `examples/`. The v1 non-goals are typed stubs in `packages/platfor
 [leaderboard](packages/platform/src/leaderboard/README.md),
 [telemetry](packages/platform/src/telemetry/README.md),
 [platform](packages/platform/src/platform/README.md),
-[entitlements](packages/platform/src/entitlements/README.md), and the
+[entitlements](packages/platform/src/entitlements/README.md),
+[artpacks](packages/platform/src/artpacks/README.md), and the
 [city pack template](packages/content/packs/_template/README.md).
 
 ### Layout
@@ -116,17 +138,18 @@ example under `examples/`. The v1 non-goals are typed stubs in `packages/platfor
 | ------------------- | ---------------------------------------------------------------------- |
 | `packages/shared`   | Types shared by every layer                                            |
 | `packages/platform` | Provider-agnostic contracts + v1 local defaults (`REPLACE ME` stubs)   |
+| `packages/art`      | Art-set schema, slot catalog, SVG sanitizer, tint, validator; `sets/`  |
 | `packages/content`  | CityPack Zod schemas, packs, validator CLI                             |
 | `packages/engine`   | Pure, deterministic game rules (`applyCommand`), core + modern modules |
 | `packages/ai`       | Utility-planner rival, personalities, difficulty tiers                 |
 | `packages/sim`      | Headless balance harness + CI gates                                    |
-| `apps/web`          | React + Vite SPA, SVG board, Zustand store, Playwright e2e             |
-| `tools/`            | Banned-terms scan, bundle budget, scaffold check, type generator       |
+| `apps/web`          | React + Vite SPA, ring board and scene UI, Zustand, Playwright e2e     |
+| `tools/`            | Banned-terms scan, budgets, scaffold check, art tools, type generator  |
 | `examples/`         | Tested examples for every recipe in `docs/EXTENDING.md`                |
 | `docs/`             | The spec pack (source of truth)                                        |
 
-Dependency direction is lint-enforced: `shared ← platform`, `shared ← content ← engine ← ai ← sim`;
-`apps/web` may import everything except `sim`.
+Dependency direction is lint-enforced: `shared ← platform`, `shared ← art`,
+`shared ← content ← engine ← ai ← sim`; `apps/web` may import everything except `sim`.
 
 ### Spec pack (`docs/`)
 
