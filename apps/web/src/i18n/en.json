@@ -155,7 +155,7 @@
   "hud.goalMet": "met",
   "hud.standings": "Standings",
   "hud.menu": "Menu",
-  "hud.activeTurn": "{{name}}'s turn",
+  "hud.activeTurn": "Turn: {{name}}",
   "hud.hidden": "hidden",
   "hud.econ": "Economy {{phase}} ({{index}})",
   "hud.job": "Job",

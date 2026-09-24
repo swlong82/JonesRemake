@@ -594,3 +594,12 @@
 - Options: reader — write one, `JSZip`, `fflate`; same id — refuse, rename, replace.
 - Decision: `fflate` (MIT, synchronous, small). A pack may hold at most 400 entries and 4 MB unpacked, checked on the declared sizes before anything is inflated; entries other than `manifest.json` and `files/*.svg` (optionally under one shared top folder) are ignored and listed. Text must be UTF-8. A manifest without `extends` gets `extends: "default"`; the id `default` is reserved. Re-importing an id replaces the stored pack, and the imported pack becomes the active set. Packs are stored by `ArtPackStore` (new platform area `artpacks`, IndexedDB database `art-packs`) and re-validated against the manifest schema on every load.
 - Consequences: the import screen reports every issue with its path, so an artist can fix a pack without guesswork. The limits sit well above the bundled set (≈ 200 files, ≤ 1.5 MB). Stored packs survive app updates; one whose manifest no longer parses is skipped, not deleted.
+
+## ADR-0058: Scene sheets open beside the stage, not in the park
+
+- Date: 2026-09-24
+- Status: Accepted (amends ADR-0053 and ART_SPEC 17.9)
+- Context: with the drawn board (M9.13) the park-centred sheets turned out to cover the street, so an avatar standing at a bottom-row door vanished behind the travel sheet or the location panel. The park interior alone is too short for a panel.
+- Options: 1) keep the park and shrink sheets to the lawn (a scrolling 180-px box); 2) draw avatars over the sheets; 3) a column beside the stage on wide screens.
+- Decision: option 3. At ≥ 1024 px the sheets stack in a 360-px column right of the stage (the stage keeps its 16:10 ratio and its height budget); narrower screens keep them under the stage. Name plates render after the avatars so a passing figure never hides a name, and avatars stand on the near half of the road.
+- Consequences: nothing ever covers a square or an avatar. The stage is up to 360 px narrower on wide screens, which the height-bound sizing mostly absorbs. The HUD's "{{name}}'s turn" became "Turn: {{name}}", which also fixes "You's turn" for the default seat name.

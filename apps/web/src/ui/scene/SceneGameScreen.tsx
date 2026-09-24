@@ -3,8 +3,8 @@
  * flag is on (desktop and tablet; phones keep the list layout until M9.9). A 16:10 stage holds
  * the city block — or, while the active player is inside a location, its interior (M9.8) — and
  * the HUD bar sits underneath. Sheets (travel, standings, log, menu, full HUD, the outside
- * location panel) open in the park at the centre of the block on wide screens, where no building
- * sits, and below the stage on narrower ones, so they never cover a square.
+ * location panel) open in a column beside the stage on wide screens and below it on narrower
+ * ones, so they never cover a square or an avatar.
  */
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -61,45 +61,46 @@ export function SceneGameScreen({ debug }: { debug: boolean }) {
     debug && <DebugPanel key="debug" />,
     logOpen && <LogDrawer key="log" />,
   ].filter((s): s is React.JSX.Element => s !== false);
-  const inPark = wide && !showInterior;
+  // Wide screens put the sheets in a column beside the stage, so they never cover a building or
+  // an avatar on the street; narrower ones stack them under it (ADR-0058).
+  const beside = wide;
+  const column = sheets.length > 0 && (
+    <div
+      className={
+        beside
+          ? 'flex max-h-[calc(100dvh-10rem)] w-[360px] shrink-0 flex-col gap-2 overflow-y-auto'
+          : 'flex flex-wrap justify-center gap-2'
+      }
+      data-testid={beside ? 'scene-sheets' : 'scene-sheets-below'}
+    >
+      {sheets.map((s) => (
+        <Sheet key={s.key}>{s}</Sheet>
+      ))}
+    </div>
+  );
 
   return (
     <div
-      className="mx-auto flex w-full max-w-[1600px] flex-col gap-2 p-2"
+      className="mx-auto flex w-full max-w-[1800px] flex-col gap-2 p-2"
       data-testid="scene-screen"
     >
       <h1 className="sr-only">{t('app.title')}</h1>
-      <div
-        className="relative mx-auto aspect-[16/10] w-full overflow-hidden rounded-xl border border-line bg-surface-3"
-        style={{ maxWidth: 'calc((100dvh - 10rem) * 1.6)' }}
-        data-testid="scene-stage"
-      >
-        {showInterior ? (
-          <InteriorScene registry={registry} />
-        ) : (
-          <BoardScene registry={registry}>
-            <AvatarLayer registry={registry} layout={layoutFor(registry, pack)} />
-          </BoardScene>
-        )}
-        {inPark && (
-          <div
-            className="absolute left-[15.5%] top-[23.5%] flex h-[53%] w-[69%] flex-wrap content-start justify-center gap-2 overflow-y-auto p-1"
-            data-testid="scene-sheets"
-          >
-            {sheets.map((s) => (
-              <Sheet key={s.key}>{s}</Sheet>
-            ))}
-          </div>
-        )}
-      </div>
-      {/* Narrow screens, and the interior (whose panel lives in the scene), put them below. */}
-      {!inPark && sheets.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-2" data-testid="scene-sheets-below">
-          {sheets.map((s) => (
-            <Sheet key={s.key}>{s}</Sheet>
-          ))}
+      <div className={beside ? 'flex items-start justify-center gap-3' : 'flex flex-col gap-2'}>
+        <div
+          className="relative aspect-[16/10] w-full min-w-0 overflow-hidden rounded-xl border border-line bg-surface-3"
+          style={{ maxWidth: 'calc((100dvh - 10rem) * 1.6)' }}
+          data-testid="scene-stage"
+        >
+          {showInterior ? (
+            <InteriorScene registry={registry} />
+          ) : (
+            <BoardScene registry={registry}>
+              <AvatarLayer registry={registry} layout={layoutFor(registry, pack)} />
+            </BoardScene>
+          )}
         </div>
-      )}
+        {column}
+      </div>
       <SceneHudBar
         avatar={<HudAvatar registry={registry} />}
         onDetails={() => setDetails((d) => !d)}

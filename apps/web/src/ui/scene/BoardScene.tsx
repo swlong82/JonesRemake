@@ -83,18 +83,26 @@ export function BoardScene({
               style={rectStyle(slot.rect)}
               onClick={() => (isHere ? selectLocation(locId) : openTravel(locId))}
             />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute -translate-x-1/2 whitespace-nowrap rounded-md border border-line bg-surface-2 px-1.5 text-[clamp(9px,0.9vw,14px)] font-semibold leading-tight text-ink shadow-sm"
-              style={{ left: pctX(slot.label.x), top: pctY(slot.label.y) }}
-            >
-              <span className="mr-1 text-ink-muted">{ringKeyFor(index)}</span>
-              {locationName(locId)}
-            </span>
           </div>
         );
       })}
       {children}
+      {/* Name plates last, so a passing avatar never hides a location's name. */}
+      {pack.board.locationAt.map((locId, index) => {
+        const slot = layout.slots[index];
+        if (locId === null || !slot) return null;
+        return (
+          <span
+            key={locId}
+            aria-hidden="true"
+            className="pointer-events-none absolute -translate-x-1/2 whitespace-nowrap rounded-md border border-line bg-surface-2 px-1.5 text-[clamp(9px,0.9vw,14px)] font-semibold leading-tight text-ink shadow-sm"
+            style={{ left: pctX(slot.label.x), top: pctY(slot.label.y) }}
+          >
+            <span className="mr-1 text-ink-muted">{ringKeyFor(index)}</span>
+            {locationName(locId)}
+          </span>
+        );
+      })}
     </div>
   );
 }

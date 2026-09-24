@@ -19,6 +19,8 @@ import { avatarIdFor, frameAt, walkDuration, walkRoute, type WalkFrame } from '.
 const AVATAR_W = 80;
 const AVATAR_H = 120;
 const TICK_MS = 40;
+/** Feet sit this far below the path line, on the near half of the road. */
+const FOOT_OFFSET = 34;
 
 export function useReducedMotion(): boolean {
   const setting = useSettings((s) => s.settings.reducedMotion);
@@ -72,7 +74,7 @@ function Walker({
   reduced: boolean;
 }) {
   const frame = useWalker(node, path, reduced);
-  const at = { x: frame.point.x + offset, y: frame.point.y };
+  const at = { x: frame.point.x + offset, y: frame.point.y + FOOT_OFFSET };
   return (
     <div
       aria-hidden="true"
