@@ -19,6 +19,13 @@ if (import.meta.env.VITE_DEBUG_ALLOWED === 'true') {
   Object.defineProperty(globalThis, '__hustleRing', { value: { useGame }, configurable: true });
 }
 
+// Offline play (ART_SPEC 17.8): production builds register the generated service worker, which
+// precaches the app and its art. Dev and unit tests never register it.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  const base = import.meta.env.BASE_URL;
+  void navigator.serviceWorker.register(`${base}sw.js`, { scope: base }).catch(() => undefined);
+}
+
 const root = document.getElementById('root');
 if (!root) throw new Error('#root missing');
 createRoot(root).render(

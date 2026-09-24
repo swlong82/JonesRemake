@@ -54,6 +54,8 @@ export interface ArtRegistryDeps {
   fileUrls: ReadonlyMap<string, string>;
   fetchText: (url: string) => Promise<string>;
   makeObjectUrl: (svg: string) => string;
+  /** Warm the HTTP cache for a URL (an off-screen image load in the browser). */
+  preload: (url: string) => void;
 }
 
 const browserDeps = (): ArtRegistryDeps => ({
@@ -64,6 +66,11 @@ const browserDeps = (): ArtRegistryDeps => ({
     return res.text();
   },
   makeObjectUrl: (svg) => URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' })),
+  preload: (url) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = url;
+  },
 });
 
 /** Size used for the wireframe of a key the catalog does not know. */
@@ -120,6 +127,19 @@ export class ArtRegistry {
       this.tinted.set(cacheKey, pending);
     }
     return pending.catch(() => this.wireframe(key));
+  }
+
+  /**
+   * Fetch art ahead of need (17.8): plain files are preloaded, tinted ones resolved into their
+   * cached blobs. Failures are ignored; the scene falls back to wireframes as usual.
+   */
+  async prefetch(requests: readonly { key: string; tint?: PaletteId }[]): Promise<void> {
+    await Promise.all(
+      requests.map(async ({ key, tint }) => {
+        const url = await this.url(key, tint);
+        if (!url.startsWith('data:') && !url.startsWith('blob:')) this.deps.preload(url);
+      }),
+    );
   }
 
   board(): BoardLayout | undefined {

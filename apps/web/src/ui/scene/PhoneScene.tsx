@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { artRegistryFor } from '../../assets/art/artRegistry';
+import { useScenePrefetch } from '../../assets/art/usePrefetch';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { PhoneLocationList } from '../game/PhoneLocationList';
@@ -159,6 +160,7 @@ function PannableScene() {
 /** Scene or list, one tap apart. */
 export function PhoneScene() {
   const { t } = useTranslation();
+  useScenePrefetch();
   const [mode, setMode] = useState<PhoneView>('scene');
   return (
     <div className="flex flex-col gap-2" data-testid="phone-scene-switch">

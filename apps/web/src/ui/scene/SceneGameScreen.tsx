@@ -9,6 +9,7 @@
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { artRegistryFor } from '../../assets/art/artRegistry';
+import { useScenePrefetch } from '../../assets/art/usePrefetch';
 import { useGame } from '../../store/gameStore';
 import { AiTicker } from '../game/AiTicker';
 import { DebugPanel } from '../game/DebugPanel';
@@ -39,6 +40,7 @@ export function SceneGameScreen({ debug }: { debug: boolean }) {
   const menuOpen = useGame((s) => s.menuOpen);
   const [details, setDetails] = useState(false);
   const [paper, setPaper] = useState(false);
+  useScenePrefetch();
   const wide = useIsWide();
   if (!state || !pack) return null;
   const registry = artRegistryFor(pack);

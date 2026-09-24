@@ -576,3 +576,12 @@
 - Options: 1) web-only state beside the save; 2) an optional `SeatConfig.avatar` in the engine config; 3) a `PlayerState` field.
 - Decision: option 2. `GameConfig` is already saved, replayed and schema-checked, and no rule reads the field, so the engine stays rule-identical. Only a chosen avatar is written; AI seats never carry one (they show `rival-<personality>`), and a seat without one shows `player-<seat + 1>`.
 - Consequences: saves and replays from before M9.7 load unchanged, and every golden replay is untouched (none sets the field). The schema accepts lowercase ids up to 32 characters; whether the id exists in the active art set is the UI's concern, and an unknown id renders wireframes.
+
+## ADR-0056: A generated service worker precaches the whole build; pages are network-first
+
+- Date: 2026-09-24
+- Status: Accepted
+- Context: 17.8 asks for art to be precached for offline play (M9.11). The spec does not fix the caching strategy, the scope of the precache, or when the worker is registered.
+- Options: 1) a library (Workbox); 2) a small hand-written worker filled in at build time; strategies: cache-first everywhere, or network-first for pages and cache-first for hashed assets.
+- Decision: option 2, no new dependency. The `hustle-ring-sw` Vite plugin writes `sw.js` from `apps/web/sw/template.js` with every emitted file except source maps, the build manifest and non-Latin font subsets, and a version hashed from that list; old caches are deleted on activation. Pages are network-first (a new deploy always wins, so the M8.4 fresh-deploy check is unaffected) with the cached shell as the offline fallback; other same-origin GETs are cache-first with `ignoreVary` (module scripts send an `Origin` header the precache request did not). Only production builds register it.
+- Consequences: the first visit downloads the art set (≤ 1.5 MB, checked by `pnpm budget`) in the background; later visits and offline reloads need no network. Scene art is also prefetched when the browser is idle (interiors, hosts, weekend pictures, each player's tinted walk frames).

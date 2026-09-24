@@ -27,7 +27,7 @@
     "art:check": "tsx tools/art-check.ts",
     "art:placeholders": "tsx tools/art-placeholders.ts && prettier --write --log-level warn packages/art/sets",
     "scaffold:check": "tsx tools/scaffold-check.ts",
-    "budget": "tsx tools/bundle-budget.ts --max-gzip-kb 350",
+    "budget": "tsx tools/bundle-budget.ts --max-gzip-kb 350 --max-art-kb 1536",
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm gen:types --check && pnpm check:banned && pnpm art:check && pnpm scaffold:check && pnpm build && pnpm test:e2e && pnpm sim:gate",
     "prepare": "simple-git-hooks"
   },
