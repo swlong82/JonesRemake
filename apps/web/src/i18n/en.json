@@ -549,5 +549,7 @@
   "tutorial.bank.title": "The bank, and the street",
   "tutorial.bank.body": "Money in the bank earns a little and cannot be stolen. Carrying a lot of cash past the bank or the grocery is how people get robbed.",
   "tutorial.done.title": "That is the loop",
-  "tutorial.done.body": "Work, study, eat, rest, repeat — and watch the four bars at the top. The game carries on from here."
+  "tutorial.done.body": "Work, study, eat, rest, repeat — and watch the four bars at the top. The game carries on from here.",
+  "scene.hud": "Player status",
+  "scene.details": "Details"
 }
