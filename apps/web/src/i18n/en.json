@@ -551,5 +551,7 @@
   "tutorial.done.title": "That is the loop",
   "tutorial.done.body": "Work, study, eat, rest, repeat — and watch the four bars at the top. The game carries on from here.",
   "scene.hud": "Player status",
-  "scene.details": "Details"
+  "scene.details": "Details",
+  "setup.avatar": "Avatar",
+  "setup.avatarN": "Avatar {{n}}"
 }

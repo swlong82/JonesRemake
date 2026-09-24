@@ -19,7 +19,8 @@ import { MenuSheet } from '../game/MenuSheet';
 import { Standings } from '../game/Standings';
 import { TravelSheet } from '../game/TravelSheet';
 import { useIsWide } from '../game/useIsPhone';
-import { BoardScene } from './BoardScene';
+import { AvatarLayer, HudAvatar } from './Avatars';
+import { BoardScene, layoutFor } from './BoardScene';
 import { SceneHudBar } from './SceneHudBar';
 
 function Sheet({ children }: { children: ReactNode }) {
@@ -28,15 +29,9 @@ function Sheet({ children }: { children: ReactNode }) {
 
 export function SceneGameScreen({
   debug,
-  avatarLayer,
-  hudAvatar,
   interior,
 }: {
   debug: boolean;
-  /** Walking avatars over the board (M9.7). */
-  avatarLayer?: ReactNode;
-  /** Portrait of the active player in the HUD bar (M9.7). */
-  hudAvatar?: ReactNode;
   /** Interior scene while the active player is inside a location (M9.8). */
   interior?: ReactNode;
 }) {
@@ -78,7 +73,13 @@ export function SceneGameScreen({
         style={{ maxWidth: 'calc((100dvh - 10rem) * 1.6)' }}
         data-testid="scene-stage"
       >
-        {showInterior ? interior : <BoardScene registry={registry}>{avatarLayer}</BoardScene>}
+        {showInterior ? (
+          interior
+        ) : (
+          <BoardScene registry={registry}>
+            <AvatarLayer registry={registry} layout={layoutFor(registry, pack)} />
+          </BoardScene>
+        )}
         {inPark && (
           <div
             className="absolute left-[15.5%] top-[23.5%] flex h-[53%] w-[69%] flex-wrap content-start justify-center gap-2 overflow-y-auto p-1"
@@ -98,7 +99,10 @@ export function SceneGameScreen({
           ))}
         </div>
       )}
-      <SceneHudBar avatar={hudAvatar} onDetails={() => setDetails((d) => !d)} />
+      <SceneHudBar
+        avatar={<HudAvatar registry={registry} />}
+        onDetails={() => setDetails((d) => !d)}
+      />
     </div>
   );
 }

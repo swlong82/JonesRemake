@@ -567,3 +567,12 @@
 - Options: 1) the art palette always wins under `sceneUi`; 2) add an "Art set" theme option; 3) the art palette replaces System and Light, and an explicit Dark keeps the dark tokens.
 - Decision: option 3. It needs no new setting, and a player who asked for Dark (often for comfort or light sensitivity) keeps it. Tokens the art palette does not define (`ok`, `warn`, category colours) keep their light values; `surface-3` and `accent-strong` are shades of the art palette. The bundled font is Nunito (OFL-1.1, `@fontsource/nunito`, 400 and 700), served from the app's own origin.
 - Consequences: under System with a dark OS preference, the scene UI shows the art palette. Contrast is guaranteed by `art:check` (17.7) for every set, so no combination drops below AA. Revisit if an art set ever ships a dark variant.
+
+## ADR-0055: The chosen avatar is an optional, presentation-only field on the seat config
+
+- Date: 2026-09-24
+- Status: Accepted
+- Context: M9.7 lets a human pick one of six avatars (17.3). The choice has to survive save, load and replay, and the spec does not say where it lives.
+- Options: 1) web-only state beside the save; 2) an optional `SeatConfig.avatar` in the engine config; 3) a `PlayerState` field.
+- Decision: option 2. `GameConfig` is already saved, replayed and schema-checked, and no rule reads the field, so the engine stays rule-identical. Only a chosen avatar is written; AI seats never carry one (they show `rival-<personality>`), and a seat without one shows `player-<seat + 1>`.
+- Consequences: saves and replays from before M9.7 load unchanged, and every golden replay is untouched (none sets the field). The schema accepts lowercase ids up to 32 characters; whether the id exists in the active art set is the UI's concern, and an unknown id renders wireframes.

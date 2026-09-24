@@ -32,6 +32,11 @@ export interface SeatConfig {
   shape: TokenShape;
   goals: Goals;
   ai?: { difficulty: Difficulty; personality: PersonalityId };
+  /**
+   * Art-set avatar id (ART_SPEC 17.3), presentation only: no rule reads it. Absent in games
+   * created before M9.7; the UI then picks a default per seat.
+   */
+  avatar?: string;
 }
 
 export interface Goals {

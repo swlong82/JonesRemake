@@ -76,6 +76,11 @@ describe('scene board (ART_SPEC 17.9)', () => {
     );
     const bg = board.querySelector('img[data-art-key="board:background"]')!;
     expect(bg.getAttribute('alt')).toBe('');
+    const avatar = screen.getByTestId('avatar-0');
+    expect(avatar.getAttribute('aria-hidden')).toBe('true');
+    expect(avatar.dataset.pose).toBe('idle');
+    expect(avatar.querySelector('img')!.dataset.artKey).toBe('avatar:player-1:idle:s');
+    expect(screen.getByTestId('hud-avatar').dataset.artKey).toBe('avatar:player-1:idle:s');
   });
 
   it('labels every square like the ring board and marks the current one', () => {

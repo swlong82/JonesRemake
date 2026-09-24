@@ -15,10 +15,14 @@ import {
 } from '@hustle-ring/shared';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { artRegistryFor } from '../../assets/art/artRegistry';
+import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { useSettings } from '../../store/settings';
 import { Button } from '../common/Button';
 import { Field } from '../common/Field';
+import { AvatarPicker } from '../scene/AvatarPicker';
+import { avatarIdFor } from '../scene/walk';
 
 export interface SeatDraft extends Omit<SeatConfig, 'ai'> {
   difficulty: Difficulty;
@@ -75,9 +79,11 @@ export function buildConfig(
         shape: s.shape,
         goals: { ...s.goals },
       };
-      return s.controller === 'ai'
-        ? { ...base, ai: { difficulty: s.difficulty, personality: s.personality } }
-        : base;
+      if (s.controller === 'ai') {
+        return { ...base, ai: { difficulty: s.difficulty, personality: s.personality } };
+      }
+      // Only a chosen avatar is recorded; otherwise the UI picks one per seat (ART_SPEC 17.3).
+      return s.avatar === undefined ? base : { ...base, avatar: s.avatar };
     }),
   };
 }
@@ -100,6 +106,7 @@ export function SetupScreen() {
   const update = useSettings((s) => s.update);
   const [packId, setPackId] = useState(PLAYABLE[0] ?? 'classic');
   const pack = useMemo(() => loadPack(packId), [packId]);
+  const sceneUi = useFlags((f) => f.flags.sceneUi);
   const [seats, setSeats] = useState<SeatDraft[]>([
     defaultSeat(0, 'human-local', 'You'),
     defaultSeat(1, 'ai', 'Rival'),
@@ -211,6 +218,15 @@ export function SetupScreen() {
                   ))}
                 </select>
               </Field>
+              {sceneUi && s.controller === 'human-local' && (
+                <AvatarPicker
+                  registry={artRegistryFor(pack)}
+                  seat={i}
+                  value={avatarIdFor(s, i)}
+                  color={s.color}
+                  onChange={(avatar) => setSeat(i, { avatar })}
+                />
+              )}
               {s.controller === 'ai' && (
                 <>
                   <Field label={t('setup.difficulty')} htmlFor={`diff-${i}`}>
