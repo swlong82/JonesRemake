@@ -11,6 +11,6 @@
 <line x1="717" y1="500" x2="883" y2="500"/>
 <line x1="800" y1="417" x2="800" y2="583"/>
 </g>
-<text x="800" y="200" text-anchor="middle" font-family="sans-serif" font-size="129" fill="#1a1a1a">interior:rent-office</text>
-<text x="800" y="331" text-anchor="middle" font-family="sans-serif" font-size="77" fill="#545454">1600×1000</text>
+<text x="800" y="200" text-anchor="middle" font-family="sans-serif" font-size="48" fill="#1a1a1a">interior:rent-office</text>
+<text x="800" y="250" text-anchor="middle" font-family="sans-serif" font-size="29" fill="#545454">1600×1000</text>
 </svg>

@@ -41,7 +41,8 @@ export function anchorFor(spec: Pick<SlotSpec, 'group' | 'width' | 'height'>): {
 export function wireframeSvg(spec: SlotSpec, tintKeys: TintKeys): string {
   const { width: w, height: h } = spec;
   const stroke = Math.max(1, Math.round(Math.min(w, h) / 64));
-  const font = Math.max(6, Math.round(Math.min(w / (spec.key.length * 0.62), h / 6)));
+  // Readable at slot size, capped so a stage-sized wireframe does not shout over its scene.
+  const font = Math.max(6, Math.round(Math.min(w / (spec.key.length * 0.62), h / 6, 48)));
   const a = anchorFor(spec);
   const mark = Math.max(4, Math.round(Math.min(w, h) / 12));
   const lines = [
