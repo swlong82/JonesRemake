@@ -1,6 +1,6 @@
 # Progress
 
-Current milestone: M0–M8 complete — v1.0.0 released (`main` @ 03caf07); tags `m8`/`v1.0.0` await the owner's push (KI-001)
+Current milestone: M9 — Scene UI and art sets (ART_SPEC 17). M0–M8 complete — v1.0.0 released (`main` @ 03caf07); tags `m8`/`v1.0.0` await the owner's push (KI-001)
 Last updated: 2026-09-24 — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
@@ -104,6 +104,25 @@ Owner-reviewed scope: ADR-0037. Phase A closes every open issue before M8.1.
 - [x] M8.4 Deploy to GitHub Pages; post-deploy smoke test against the live URL in the workflow — note: `deploy.yml` stamps the build SHA, smoke-tests the live URL on desktop and phone (assets, deep links, save round trip, modern start, axe) and rolls back to the last good `site` artifact on failure (ADR-0045). First live run on 03caf07: deploy and smoke green, rollback skipped.
 - [x] M8.5 Close-out: `KNOWN_ISSUES.md` reviewed, every open item has severity and workaround; tag `v1.0.0` — note: KI-001/005/006/008/009 fixed; open: KI-010 (sim speed, known limitation) and KI-011 (Easy AI stalls at high goals), both minor with mitigations. `m8` and `v1.0.0` go on the merge commit, pushed by the owner (`git tag -a v1.0.0 <merge-sha> -m v1.0.0 && git tag -a m8 <merge-sha> -m m8 && git push origin v1.0.0 m8`), together with `tools/retag-milestones.sh` for m1–m7; the session cannot push tags (KI-001).
 - [x] M8 gate: `pnpm verify` green in CI, `DEFINITION OF DONE` (CLAUDE.md 1.8) met — note: `pnpm verify` green locally at 0c19d88 (728 unit tests, 103 e2e, bundle 180.1 kB of 350, `sim:gate` 42 assertions / 0 failed / 0 pending); PR #18 CI green on its head and merged to `main` as 03caf07; `main` CI run 75 green on 03caf07, then the Pages deploy (run 35949106103) and its first live smoke test passed, no rollback. Definition of done: M0–M8 criteria met, deployed to Pages by `deploy.yml`, README explains play and dev setup, `BASELINE_REPORT.md` and `BALANCE_REPORT.md` committed.
+
+## M9 — Scene UI and art sets (ART_SPEC 17)
+
+Owner interview 2026-09-24: ADR-0051…0053.
+
+- [x] M9.1 Spec amendments (17, 17.10) + ADRs; this task list — note: `SPEC_PACK.md` gains section 17 (`docs/ART_SPEC.md`) and amends 1.2, 1.3, 2.3, 2.4, 5.1, 5.6, 10, 12.5, 15.2, 16.1; split and index scripts know section 17; ADR-0051…0053 record the owner interview.
+- [ ] M9.2 `packages/art`: manifest schema, slot catalog, SVG sanitizer, key-colour tint, set validator (17.2–17.4, 17.6)
+- [ ] M9.3 `pnpm art:placeholders` + default set wireframes + `pnpm art:check` in `verify` (17.3, 17.8)
+- [ ] M9.4 Web `ArtRegistry`: static URLs, tint blobs, wireframe fallback per key; app flag `sceneUi` (17.5, 17.9)
+- [ ] M9.5 Theme from art set: palette tokens, bundled OFL fonts, 9-slice frames (17.7)
+- [ ] M9.6 Scene board + HUD bar + overlays (17.9, UX 7.2)
+- [ ] M9.7 Avatars: picker in setup, tint, path walking with frame swap, reduced-motion jump (17.3)
+- [ ] M9.8 Interiors: scene + host + speech bubble + in-scene action panel; phone cropped header (17.9)
+- [ ] M9.9 Phone: pan/zoom scene + list toggle (17.9)
+- [ ] M9.10 Title, setup, weekend recap, newspaper screens (17.3, 17.9)
+- [ ] M9.11 Lazy loading + service-worker precache + art budget in `build` (17.8)
+- [ ] M9.12 Art-pack zip import: `ArtPackStore`, import screen with per-file report, Settings picker, per-key fallback (17.6)
+- [ ] M9.13 Default set drawn: every placeholder replaced (`pnpm art:check --report`)
+- [ ] M9 gate: `sceneUi` default on; `pnpm verify` green in CI; ring board removed in the next milestone
 
 ## Gate log
 

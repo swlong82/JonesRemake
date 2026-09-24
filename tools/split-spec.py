@@ -17,7 +17,7 @@ PATHS = {
     0: 'docs/README.md', 1: 'CLAUDE.md', 2: 'docs/PRD.md', 3: 'docs/ORIGINAL_REFERENCE.md', 4: 'docs/GDD.md',
     5: 'docs/ARCHITECTURE.md', 6: 'docs/CONTENT_SCHEMAS.md', 7: 'docs/UX_SPEC.md', 8: 'docs/AUDIO_SPEC.md',
     9: 'docs/BALANCE_SPEC.md', 10: 'docs/MILESTONES.md', 11: 'docs/TEMPLATES.md', 12: 'docs/EXTENSIBILITY.md',
-    13: 'docs/STATE_MODEL.md', 14: 'docs/SEED_DATA.md', 15: 'docs/BUILD_READINESS.md', 16: 'docs/ROADMAP_SCAFFOLDS.md',
+    13: 'docs/STATE_MODEL.md', 14: 'docs/SEED_DATA.md', 15: 'docs/BUILD_READINESS.md', 16: 'docs/ROADMAP_SCAFFOLDS.md', 17: 'docs/ART_SPEC.md',
 }
 KEEP_MARKER = '## 1.9 Hand-over state'
 

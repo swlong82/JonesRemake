@@ -12,7 +12,8 @@
 │  ├─ ai/        # utility planner, personalities, difficulty configs
 │  ├─ sim/       # headless runner CLI, stats aggregation, report writers
 │  ├─ shared/    # types, i18n key types, result/error types
-│  └─ platform/  # provider-agnostic contracts + Local*/Null* defaults (identity, transport, saves, leaderboard, telemetry)
+│  ├─ platform/  # provider-agnostic contracts + Local*/Null* defaults (identity, transport, saves, leaderboard, telemetry)
+│  └─ art/       # art-set manifest schema, slot catalog, sanitizer, tint, validator; sets/<id>/ (section 17)
 ├─ apps/web/     # React app
 │  ├─ src/store/  (Zustand)  src/ui/  src/board/  src/audio/  src/save/  src/i18n/  src/assets/
 │  └─ e2e/        # Playwright specs
@@ -20,7 +21,7 @@
 └─ .github/workflows/ci.yml, deploy.yml
 ```
 
-Dependency rule: `shared` ← `content` ← `engine` ← `ai` ← `sim`; `shared` ← `platform`; `apps/web` depends on all but `sim`. Enforced by `eslint-plugin-boundaries`.
+Dependency rule: `shared` ← `content` ← `engine` ← `ai` ← `sim`; `shared` ← `platform`; `shared` ← `art`; `apps/web` depends on all but `sim`. Enforced by `eslint-plugin-boundaries`.
 
 ## 5.2 Toolchain (pin exact versions in lockfile)
 
@@ -69,7 +70,7 @@ Simultaneous-mode conflict rules to document now (not implement): commands resol
 
 - Zustand store holds `GameState`, UI state (selected location, open panel, modals), settings. Only action: `dispatch(cmd)` → engine `applyCommand` → set state → push events to an `EventQueue` consumed by animation/audio/log.
 - AI turns run in a Web Worker (`ai.worker.ts`) via Comlink-style message passing; UI shows "Thinking…" and replays returned command list.
-- Rendering: board as responsive SVG (`viewBox` 0 0 1000 1000); locations placed on a rounded-square ring; tokens animated with Framer Motion along path. All visuals resolved via `AssetRegistry.get(key)` returning a React component; v1 registry = placeholder shapes + Lucide icons.
+- Rendering: board as responsive SVG (`viewBox` 0 0 1000 1000); locations placed on a rounded-square ring; tokens animated with Framer Motion along path. All visuals resolved via `AssetRegistry.get(key)` returning a React component; v1 registry = placeholder shapes + Lucide icons. From M9 the scene UI resolves art-set keys through `ArtRegistry` (17.5) and the ring board is retired (17.9).
 
 ## 5.7 Save and replay
 

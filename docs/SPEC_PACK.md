@@ -32,6 +32,7 @@ This doc is the complete, self-sufficient input for Claude Code (CC) to build a 
 | 14 | `docs/SEED_DATA.md` | Concrete classic job/item/event/market tables |
 | 15 | `docs/BUILD_READINESS.md` | Toolchain files, scripts, seeds, CI budgets, amendments |
 | 16 | `docs/ROADMAP_SCAFFOLDS.md` | v1 non-goals as stubs, multi-city world, MMO + leaderboard plan |
+| 17 | `docs/ART_SPEC.md` | Art sets: slots, manifest, placeholders, user import, scene UI (M9) |
 
 **Precedence when docs conflict:** GDD > STATE_MODEL > BALANCE_SPEC > EXTENSIBILITY > ROADMAP_SCAFFOLDS > ARCHITECTURE > CONTENT_SCHEMAS > UX_SPEC > SEED_DATA > ORIGINAL_REFERENCE > BUILD_READINESS > PRD. ORIGINAL_REFERENCE governs only the `classic` ruleset values; GDD governs all rules.
 
@@ -58,6 +59,7 @@ pnpm test:e2e        # playwright, 3 viewports, includes axe checks
 pnpm sim:gate        # 500 seeded games per gate config, asserts BALANCE_SPEC
 pnpm sim -- --games 10000 --pack classic --out reports/  # full run
 pnpm check:banned    # banned-terms scan over src, content, docs output
+pnpm art:check       # art sets: manifest, slot coverage, sanitizer, byte budgets (17.8)
 pnpm build           # vite build, bundle budget check
 pnpm verify          # runs all of the above in order
 ```
@@ -69,7 +71,7 @@ pnpm verify          # runs all of the above in order
 - `GameState` MUST be JSON-serializable and structurally cloneable. Same seed + same command log MUST reproduce identical state (hash-checked in tests).
 - Game rules and numbers MUST live in CityPack content (JSON validated by Zod), not hardcoded in engine logic.
 - AI MUST NOT read hidden information (other players' future RNG draws, unrevealed events).
-- No external network calls at runtime. No analytics, cookies, or third-party assets. All visuals are code-rendered placeholders behind `AssetRegistry`.
+- No external network calls at runtime. No analytics, cookies, or third-party assets. All visuals resolve through `AssetRegistry` from a first-party art set (section 17): code-drawn UI chrome plus SVG art files, with generated wireframe placeholders for any slot not yet drawn. User-imported art stays on the device, is sanitized on import and renders only as `<img>` (17.6).
 - All user-facing strings MUST use i18n keys.
 - Banned terms (see PRD §2.6) MUST NOT appear in code, content, UI or generated docs.
 - TypeScript `strict: true`, `noUncheckedIndexedAccess: true`. No `any`, no `@ts-ignore` without an ADR.
@@ -120,7 +122,7 @@ A browser-based, turn-based life-simulation board game that faithfully reproduce
 
 ### 2.3 Non-goals (v1)
 
-Online multiplayer, simultaneous-turn implementation, final art, accounts, leaderboards, cloud save, languages other than English, native apps, monetization, analytics, additional city packs beyond `classic` and `modern-western`. Every item is stubbed behind a typed contract with a REPLACE ME guide per section 16.1; none is implemented for real in v1.
+Online multiplayer, simultaneous-turn implementation, drawn final art (the art-set scaffold, placeholders and scene UI are in scope, section 17), accounts, leaderboards, cloud save, languages other than English, native apps, monetization, analytics, additional city packs beyond `classic` and `modern-western`. Every item is stubbed behind a typed contract with a REPLACE ME guide per section 16.1; none is implemented for real in v1.
 
 ### 2.4 Locked decisions
 
@@ -132,7 +134,7 @@ Online multiplayer, simultaneous-turn implementation, final art, accounts, leade
 | 4 | Win | Original: per-player goal sliders 10–100 for Wealth, Happiness, Education, Career; AI goals random; first to reach all four wins; no week cap; `WinCondition` interface |
 | 5 | Stats | 4 original goals + Wellbeing (0–100) survival stat, not a win goal |
 | 6 | Setting | `CityPack` content abstraction; v1 pack = fictional Western city, USD-style currency; KL-inspired and global packs later |
-| 7 | Board | Ring board, 1:1 modernized mapping of original locations |
+| 7 | Board | Ring topology, 1:1 modernized mapping of original locations; rendered as a city-block scene (section 17) |
 | 8 | Movement | v1 transport modes: walk, transit, ride-hail, car; chosen per trip |
 | 9 | Transport acquisition | Transit pass at City Services counter; used car at pawn-shop equivalent; new car at discount-store equivalent via bank loan; ride-hail unlocked by owning a smartphone |
 | 10 | Jobs | Original hiring formula, modern titles, plus ungated gig jobs with zero career value |
@@ -142,7 +144,7 @@ Online multiplayer, simultaneous-turn implementation, final art, accounts, leade
 | 14 | Events | All classic events + AI layoffs, going viral, scams/phishing, gadget breakdown; Chaos level setting |
 | 15 | AI | Utility planner on the same command API, Easy/Normal/Hard + personalities |
 | 16 | Stack | pnpm monorepo; React 18 + TS + Vite; SVG/DOM board; Zustand; Tailwind; Framer Motion; Vitest; Playwright |
-| 17 | Art | Placeholder geometric shapes behind `AssetRegistry`; real art later |
+| 17 | Art | Modern-cartoon SVG art files in swappable art sets behind `AssetRegistry`; generated wireframes until drawn; user art-pack import (section 17) |
 | 18 | Audio | WebAudio SFX + procedural music loop, separate volumes + mute |
 | 19 | Save | IndexedDB autosave each turn + 3 manual slots + JSON export/import + replay log; versioned schema |
 | 20 | Devices | Desktop + tablet primary; phone alternate layout; full keyboard control |
@@ -505,7 +507,8 @@ Winner declared at win check; remaining seats do not take turns. End screen: win
 │  ├─ ai/        # utility planner, personalities, difficulty configs
 │  ├─ sim/       # headless runner CLI, stats aggregation, report writers
 │  ├─ shared/    # types, i18n key types, result/error types
-│  └─ platform/  # provider-agnostic contracts + Local*/Null* defaults (identity, transport, saves, leaderboard, telemetry)
+│  ├─ platform/  # provider-agnostic contracts + Local*/Null* defaults (identity, transport, saves, leaderboard, telemetry)
+│  └─ art/       # art-set manifest schema, slot catalog, sanitizer, tint, validator; sets/<id>/ (section 17)
 ├─ apps/web/     # React app
 │  ├─ src/store/  (Zustand)  src/ui/  src/board/  src/audio/  src/save/  src/i18n/  src/assets/
 │  └─ e2e/        # Playwright specs
@@ -513,7 +516,7 @@ Winner declared at win check; remaining seats do not take turns. End screen: win
 └─ .github/workflows/ci.yml, deploy.yml
 ```
 
-Dependency rule: `shared` ← `content` ← `engine` ← `ai` ← `sim`; `shared` ← `platform`; `apps/web` depends on all but `sim`. Enforced by `eslint-plugin-boundaries`.
+Dependency rule: `shared` ← `content` ← `engine` ← `ai` ← `sim`; `shared` ← `platform`; `shared` ← `art`; `apps/web` depends on all but `sim`. Enforced by `eslint-plugin-boundaries`.
 
 ### 5.2 Toolchain (pin exact versions in lockfile)
 
@@ -562,7 +565,7 @@ Simultaneous-mode conflict rules to document now (not implement): commands resol
 
 - Zustand store holds `GameState`, UI state (selected location, open panel, modals), settings. Only action: `dispatch(cmd)` → engine `applyCommand` → set state → push events to an `EventQueue` consumed by animation/audio/log.
 - AI turns run in a Web Worker (`ai.worker.ts`) via Comlink-style message passing; UI shows "Thinking…" and replays returned command list.
-- Rendering: board as responsive SVG (`viewBox` 0 0 1000 1000); locations placed on a rounded-square ring; tokens animated with Framer Motion along path. All visuals resolved via `AssetRegistry.get(key)` returning a React component; v1 registry = placeholder shapes + Lucide icons.
+- Rendering: board as responsive SVG (`viewBox` 0 0 1000 1000); locations placed on a rounded-square ring; tokens animated with Framer Motion along path. All visuals resolved via `AssetRegistry.get(key)` returning a React component; v1 registry = placeholder shapes + Lucide icons. From M9 the scene UI resolves art-set keys through `ArtRegistry` (17.5) and the ring board is retired (17.9).
 
 ### 5.7 Save and replay
 
@@ -866,7 +869,7 @@ Before tuning, CC writes `reports/modern-targets.json` derived from baseline and
 
 `sim/gates.json` lists 8 configs × 500 games (Normal AI only) covering all stage-2 gates with tolerances widened by ±3 percentage points for sampling noise. Runtime budget in CI ≤ 8 minutes.
 
-## 10. docs/MILESTONES.md — M0 to M8
+## 10. docs/MILESTONES.md — M0 to M9
 
 Each milestone ends with `pnpm verify` green, CI green, `PROGRESS.md` updated, tag `m<N>`. Tasks are ordered; AC = acceptance criteria (each becomes at least one automated test unless marked *manual-free check*, which CC verifies by script output).
 
@@ -957,6 +960,23 @@ AC (e2e): start 2-seat classic game (human + AI) on all 3 viewports; human compl
 - [ ] M8.3 Full e2e regression: 4-seat hotseat (2 human + 2 AI) modern game to week 10 via scripted inputs; save/load mid-game; phone layout full game via autoplay to winner.
 - [ ] M8.4 Deploy to GitHub Pages; post-deploy smoke test against live URL in workflow.
 - [ ] M8.5 Close-out: `KNOWN_ISSUES.md` reviewed, every open item has severity and workaround; tag `v1.0.0`.
+
+### M9 — Scene UI and art sets (section 17)
+
+- [ ] M9.1 Spec amendments (17, 17.10) + ADRs; this task list in `PROGRESS.md`.
+- [ ] M9.2 `packages/art`: manifest schema, slot catalog, SVG sanitizer, key-colour tint, set validator (17.2–17.4, 17.6). AC: invalid-manifest fixtures fail with path-specific messages; sanitizer rejects every 17.6 attack fixture; tint replaces only key colours.
+- [ ] M9.3 `pnpm art:placeholders` + default set wireframes + `pnpm art:check` in `verify` (17.3, 17.8). AC: default set covers every slot of every playable pack; regenerating is byte-stable; real art (no placeholder marker) is never overwritten.
+- [ ] M9.4 Web `ArtRegistry`: static URLs, tint blobs, wireframe fallback per key; app flag `sceneUi` (default off) (17.5, 17.9). AC: unknown key and failed load fall back, never throw.
+- [ ] M9.5 Theme from art set: palette tokens, bundled OFL fonts, 9-slice frames (17.7). AC: contrast ≥ 4.5:1 checked for every set; failing user sets are rejected.
+- [ ] M9.6 Scene board + HUD bar + overlays (17.9, UX 7.2). AC: hotspot per square keeps the 7.7 keyboard map and 7.8 labels; axe 0 serious/critical on 3 viewports.
+- [ ] M9.7 Avatars: picker in setup, tint, path walking with frame swap, reduced-motion jump (17.3). AC: walk duration proportional to squares; reduced motion shows no intermediate frames.
+- [ ] M9.8 Interiors: scene + host + speech bubble + in-scene action panel; phone cropped header (17.9). AC: every location opens its interior; greeting text from i18n.
+- [ ] M9.9 Phone: pan/zoom scene + list toggle (17.9). AC: list mode reachable in one tap; targets ≥ 44 px.
+- [ ] M9.10 Title, setup, weekend recap, newspaper screens (17.3, 17.9).
+- [ ] M9.11 Lazy loading + service-worker precache + art budget in `build` (17.8). AC: initial JS budget unchanged; offline reload renders the board.
+- [ ] M9.12 Art-pack zip import: `ArtPackStore` (16.1) on IndexedDB, import screen with per-file report, Settings picker, per-key fallback to the base set (17.6). AC: malicious fixtures rejected; partial pack falls back per key.
+- [ ] M9.13 Default set drawn: every slot's placeholder replaced (tracked by `art:check --report`).
+- [ ] M9 gate: `sceneUi` default on; `pnpm verify` green; ring board removed in the next milestone (17.9).
 
 ## 11. Templates
 
@@ -1121,7 +1141,7 @@ Unknown flag ids fail validation. UI hides features whose flag is off (no disabl
 ### 12.5 UI service registry
 
 - `locations.json.services[]` ids map to panel components in `ServiceRegistry`: `work`, `apply`, `raise`, `gig`, `shop:<catalogId>`, `meals`, `grocery`, `bank`, `invest`, `loans`, `rent`, `move-home`, `study`, `relax`, `subscriptions`, `transit-pass`, `cars`, `pawn`, `lottery`, `news`, `clinic`. New location with existing services = content only; new service = one component + register.
-- `AssetRegistry` keyed by string; swapping placeholder art for real art = new registry implementation, no component edits.
+- `AssetRegistry` keyed by string; swapping placeholder art for real art = new registry implementation, no component edits. Art-set keys, manifests and the `ArtRegistry` are specified in section 17.
 - Panels never import engine internals; they call `legalCommands`/`previewCommand`/`dispatch` only.
 
 ### 12.6 AI scorer registry
@@ -1370,8 +1390,10 @@ Move = correlation × econ weekly change + uniform(−maxMove, +maxMove) × (1 �
     "sim:smoke": "tsx packages/sim/cli.ts --games 200 --seats 2 --ai normal,normal --goals 50",
     "sim:gate": "tsx packages/sim/cli.ts --config sim/gates.json --assert",
     "check:banned": "tsx tools/check-banned.ts",
+    "art:check": "tsx tools/art-check.ts",
+    "art:placeholders": "tsx tools/art-placeholders.ts",
     "budget": "tsx tools/bundle-budget.ts --max-gzip-kb 350",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm gen:types --check && pnpm check:banned && pnpm build && pnpm test:e2e && pnpm sim:gate"
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm gen:types --check && pnpm check:banned && pnpm art:check && pnpm build && pnpm test:e2e && pnpm sim:gate"
   }
 }
 ```
@@ -1417,7 +1439,7 @@ Every v1 non-goal (PRD 2.3) ships as a working stub behind a typed contract, so 
 | --- | --- | --- | --- | --- |
 | Online multiplayer | `LocalTransport` (in-process command bus) | `Transport` 16.4 | `WsTransport` / provider SDK adapter | contract test: ordering, idempotent `seq`, reconnect replay |
 | Simultaneous turns | `SimultaneousScheduler` returns `ERR_SCHEDULER_STUB`; `rules.json.scheduler` key exists | `TurnScheduler` 5.5 | real implementation per 16.6 | skipped contract tests with `todo` reason; flag `simultaneousTurns` |
-| Final art | `PlaceholderAssetRegistry` | `AssetRegistry` 12.5 | `SpriteAssetRegistry` reading an atlas manifest | test: every content visual key resolves; missing key renders labelled fallback, never throws |
+| Final art | `PlaceholderAssetRegistry`; from M9 the default art set of generated wireframes (17.3) | `AssetRegistry` 12.5, `ArtRegistry` 17.5 | drawn SVG files in `packages/art/sets/default/` (no code change) | test: every content visual key resolves; missing key renders labelled fallback, never throws; `pnpm art:check` |
 | Accounts / identity | `LocalIdentity` (device-generated `playerId` UUID + editable display name in IndexedDB) | `IdentityProvider` 16.4 | OAuth/OIDC provider adapter | contract: `getCurrent()`, `signIn()`, `signOut()`, token refresh no-op |
 | Leaderboards | `LocalLeaderboard` (IndexedDB, same schema as 16.7) | `LeaderboardService` 16.4 | remote service with server-side replay verification | contract: submit, query by scope, pagination, tie rules |
 | Cloud save | `IndexedDbSaveStore` | `SaveStore` 16.4 (`list/get/put/delete/sync?`) | remote store + conflict policy | contract: schema migration, `sync()` returns `not-supported` |
@@ -1498,3 +1520,113 @@ Design consequences already built into v1 so these phases are additive:
 5. GDD 4.15 adds `TravelCity{to}`; 4.16 computes `score()` and submits to `LeaderboardService`.
 6. MILESTONES M0.1, M0.8, M1.4, M2.1, M4.2, M7.2, M7.5, M8.1, M8.2 reference this section.
 7. File map and precedence in section 0 include section 16.
+
+## 17. docs/ART_SPEC.md — art sets and scene UI (M9)
+
+The v1 UI draws an abstract ring of tiles. M9 replaces it with the presentation the original intended: a city block seen in 3/4 view, a character who walks the street, and an interior scene with a host behind the counter at every location. The look is modern cartoon, not a pixel-art copy. PRD 2.6 still applies to every file: no original names, art, audio or text. Decisions and their alternatives are recorded in ADR-0051…0053.
+
+### 17.1 Principles
+
+- Art is **data**. Pictures live in art sets (SVG files + a manifest), never in components. A component asks for a key; the registry returns a URL or a wireframe.
+- The **art set owns the look, the content pack owns the rules.** An art set may be used with any pack whose location ids it covers; packs never carry coordinates or file paths.
+- **Every slot always renders.** A missing file, a failed load or an unknown key renders the slot's generated wireframe, labelled with its key. Nothing throws.
+- **Text is never baked into art.** Location names, speech, headlines and HUD numbers are HTML/SVG text layers from i18n, so translation, the banned-terms scan and contrast checks keep working with any art set.
+
+### 17.2 Art set layout and manifest
+
+```text
+packages/art/
+├─ src/          # schema.ts, catalog.ts, sanitize.ts, tint.ts, validate.ts, placeholder.ts, contrast.ts
+└─ sets/<set-id>/
+   ├─ manifest.json
+   └─ files/*.svg
+```
+
+`manifest.json` (Zod `ArtManifestSchema`, `schemaVersion: 1`):
+
+| Field | Meaning |
+| --- | --- |
+| `id`, `name`, `version`, `author?`, `license?` | Identity. `id` matches `^[a-z0-9-]+$`. |
+| `extends?` | Base set id. Keys this set does not define resolve from the base (user sets extend `default`). A base set (no `extends`) MUST define every catalog slot (17.3). |
+| `stage` | `{ width: 1600, height: 1000 }` — the 16:10 coordinate space of the board, interiors and full-screen scenes. |
+| `tintKeys` | `{ primary: "#FF00FF", secondary: "#00FFFF" }` — key colours replaced per player (17.4). |
+| `theme` | Palette tokens, font id and optional 9-slice frame keys (17.7). |
+| `board` | `slots[]` (one per ring index: building `rect`, `door` point, `label` anchor) and `path[]` (closed street polyline, one waypoint per slot, walked in ring order). Slot count MUST equal the pack's board size. |
+| `assets` | `Record<key, { file, width, height }>` — `file` is relative to `files/`; `width`/`height` MUST equal the SVG's `viewBox` size. |
+
+### 17.3 Slot catalog
+
+The catalog is computed from the playable packs (`catalogFor({ locationIds, personalityIds })`), so a pack that adds a location adds its three slots. Sizes are viewBox units.
+
+| Key | Size | Tint | Notes |
+| --- | --- | --- | --- |
+| `board:background` | 1600×1000 | – | Streets, park, sky. No building art. |
+| `building:<locationId>` | 240×240 | – | 3/4 front, fitted into its board slot `rect`; bottom-centre is the kerb. |
+| `interior:<locationId>` | 1600×1000 | – | Room; the right 40% stays calm for the action panel. |
+| `host:<locationId>` | 400×600 | – | Host character, feet on the bottom edge; speech bubble anchored top-right. |
+| `avatar:<avatarId>:<pose>:<dir>` | 64×96 | primary (+ secondary) | `pose` ∈ `idle`, `walk1`, `walk2`; `dir` ∈ `n`, `e`, `s`, `w` (12 files per avatar). |
+| `avatar:<avatarId>:<mood>:s` | 64×96 | primary | `mood` ∈ `cheer`, `slump` — weekend recap and end screen. |
+| `weekend:<mood>` | 1600×1000 | – | `mood` ∈ `positive`, `negative`, `neutral`; optional `weekend:<eventId>` overrides. |
+| `ui:title` | 1600×1000 | – | Title key art. |
+| `ui:setup` | 1600×1000 | – | Setup background. |
+| `ui:newspaper-masthead` | 1200×200 | – | Masthead only; the paper's name is an i18n text layer. |
+| `frame:panel`, `frame:button` | 96×96 | – | 9-slice, 32-unit border. |
+
+Avatars: `player-1`…`player-6` are selectable by humans (distinct silhouettes); `rival-<personalityId>` is the AI's own avatar per personality. Each avatar also carries a code-drawn shape badge (circle, square, triangle, diamond), so colour is never the only signal (UX 7.8).
+
+Placeholders: `pnpm art:placeholders` writes a wireframe for every catalog slot that has no file, and the board layout if the manifest has none. A wireframe shows the key, the frame, a diagonal cross, the anchor and the tint region, and carries the marker comment `<!-- art:placeholder -->`. The generator overwrites only files with that marker, so drawn art is never touched; output is byte-stable.
+
+### 17.4 Tint by key colour
+
+A tintable file paints recolourable regions in the manifest's key colours. At render the registry replaces each key colour (case-insensitive `#RRGGBB`, in attributes and `style`) with the player's palette colour (primary) and a darker shade of it (secondary), and serves the result as a cached `blob:` URL per (key, colour). The same path serves bundled and user art, so there is one renderer and no inline SVG. `art:check` fails a base set whose avatar files contain no primary key colour.
+
+### 17.5 `ArtRegistry` (web)
+
+```ts
+interface ArtRegistry {
+  has(key: string): boolean;                       // key defined by the set or its base
+  url(key: string, tint?: PaletteId): Promise<string>; // static URL, tinted blob URL, or wireframe data URL
+  wireframe(key: string): string;                  // synchronous data: URL, always available
+  board(): BoardLayout;                            // slots + path from the active set
+}
+```
+
+- Bundled set files are emitted as hashed static files (Vite `import.meta.glob(..., { query: '?url' })`), not inlined into JS; the manifest is a small JSON import.
+- Resolution order: user set → its `extends` chain → `default` → wireframe.
+- The existing `AssetRegistry` (tokens, icons) stays for code-drawn chrome and item icons.
+
+### 17.6 User art packs
+
+- Import: a `.zip` with `manifest.json` + `files/*.svg`, from the Art Packs screen. It is validated with the same schema and validator as bundled sets, then stored on the device through `ArtPackStore` (`packages/platform`, IndexedDB). Nothing is uploaded.
+- `extends` defaults to `default`, so a partial pack is valid and falls back per key.
+- Every SVG passes the **sanitizer** before storage. Allowlisted elements and attributes only. The import is rejected (with a per-file report) on `<!DOCTYPE`/`<!ENTITY`, `<script>`, `<foreignObject>`, event-handler attributes, `href`/`xlink:href` not starting with `#`, `url(` not starting with `url(#`, `@import`, `javascript:` or `data:` anywhere, more than 5,000 elements, or more than 256 kB per file.
+- User art renders only as `<img src="blob:…">`: even if the sanitizer missed something, an SVG image cannot run script or fetch.
+- The theme block of a user set is contrast-checked (17.7); a failing theme is rejected, not auto-fixed.
+
+### 17.7 Theme
+
+`theme` = `{ font, palette, frames? }`. `font` is an id from the bundled OFL font list (no CDN, CLAUDE.md 1.3). `palette` provides `surface`, `surface2`, `ink`, `inkMuted`, `line`, `accent`, `onAccent`, `focus`, `danger`, `onDanger` as `#RRGGBB`, applied as the CSS tokens of `index.css`. Contrast MUST be ≥ 4.5:1 for `ink`/`surface`, `ink`/`surface2`, `inkMuted`/`surface`, `onAccent`/`accent` and `onDanger`/`danger`, and ≥ 3:1 for `focus`/`surface`. The default set ships a rounded, chunky cartoon kit.
+
+### 17.8 Budgets and `pnpm art:check`
+
+- Per file ≤ 60 kB for bundled sets (user sets: 256 kB); total bundled set ≤ 1.5 MB.
+- `pnpm art:check` validates every set under `packages/art/sets/`: schema, catalog coverage for every playable pack (base sets), file presence, viewBox size, sanitizer, tint keys on avatars, theme contrast, budgets. `--report` prints drawn vs placeholder per slot group (the M9.13 tracker).
+- Art files are fetched lazily per scene (board on game start, interiors on first entry, the rest prefetched when idle) and precached by a service worker for offline play (M9.11). The initial JS budget (15.4) is unchanged.
+
+### 17.9 Scene UI
+
+- **Desktop/tablet:** the scene fills a 16:10 stage, letterboxed and scaled. A bottom HUD bar holds the clock (hours left), cash, four goal meters, the active avatar and the menu. Standings and the event log are overlays.
+- **Board:** `board:background`, then each `building:<id>` in its slot rect, then a label plate (i18n name on a contrast-guaranteed plate at `label`), then the avatars on the street path. Each slot is a focusable `<button>` over its rect that keeps the UX 7.7 keyboard map and 7.8 labels; art is decorative (`alt=""`).
+- **Walking:** avatars follow `board.path` square by square, swapping `walk1`/`walk2` on a timer and facing the direction of travel; reduced motion jumps to the destination and shows `idle`.
+- **Interior:** entering a location swaps the stage to `interior:<id>` with `host:<id>`, a speech bubble with the pack's greeting, and the action panel (UX 7.4) drawn inside the scene.
+- **Phone (< 768 px):** the scene fills the width with drag and pinch pan/zoom; a toggle switches to the existing location list (the accessible equivalent). Interiors show a cropped header (host + bubble) above the action sheet.
+- **Other screens:** title key art; setup with avatar picker and goal sliders; a weekend recap per player (`weekend:*` + avatar mood); a newspaper page (masthead art + i18n headlines from the economy phase and events).
+- **Rollout:** app flag `sceneUi` (default off) until the M9 gate; e2e runs both UIs while the flag exists. The ring board is removed in the milestone after M9; the location list stays.
+
+### 17.10 Amendments (already applied in this file; listed for traceability)
+
+1. CLAUDE 1.2 adds `pnpm art:check`; 1.3's visuals invariant allows first-party SVG art sets and sanitized user art as `<img>`.
+2. PRD 2.3 moves the art scaffold into scope; 2.4 #7 and #17 describe the scene and art sets.
+3. ARCHITECTURE 5.1 adds `packages/art/` and `shared ← art`; 5.6 points to `ArtRegistry`.
+4. MILESTONES adds M9; EXTENSIBILITY 12.5 and ROADMAP 16.1 point to this section; BUILD_READINESS 15.2 adds `art:check` and `art:placeholders`.
+5. File map in section 0 includes section 17.

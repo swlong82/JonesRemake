@@ -65,5 +65,18 @@ Regenerate after editing MILESTONES: `python3 tools/gen-index.py`.
 | M8 | M8.3 | Full e2e regression: 4-seat hotseat (2 human + 2 AI) modern game to we | — | — |
 | M8 | M8.4 | Deploy to GitHub Pages; post-deploy smoke test against live URL in wor | — | — |
 | M8 | M8.5 | Close-out: `KNOWN_ISSUES.md` reviewed, every open item has severity an | — | — |
+| M9 | M9.1 | Spec amendments (17, 17.10) + ADRs; this task list in `PROGRESS.md` | 17.10 (ART_SPEC.md) | — |
+| M9 | M9.2 | `packages/art`: manifest schema, slot catalog, SVG sanitizer, key-colo | 17.2 (ART_SPEC.md), 17.4 (ART_SPEC.md), 17.6 (ART_SPEC.md) | — |
+| M9 | M9.3 | `pnpm art:placeholders` + default set wireframes + `pnpm art:check` in | 17.3 (ART_SPEC.md), 17.8 (ART_SPEC.md) | — |
+| M9 | M9.4 | Web `ArtRegistry`: static URLs, tint blobs, wireframe fallback per key | 17.5 (ART_SPEC.md), 17.9 (ART_SPEC.md) | — |
+| M9 | M9.5 | Theme from art set: palette tokens, bundled OFL fonts, 9-slice frames  | 4.5 (GDD.md), 17.7 (ART_SPEC.md) | — |
+| M9 | M9.6 | Scene board + HUD bar + overlays (17.9, UX 7.2) | 7.2 (UX_SPEC.md), 7.7 (UX_SPEC.md), 7.8 (UX_SPEC.md), 17.9 (ART_SPEC.md) | — |
+| M9 | M9.7 | Avatars: picker in setup, tint, path walking with frame swap, reduced- | 17.3 (ART_SPEC.md) | — |
+| M9 | M9.8 | Interiors: scene + host + speech bubble + in-scene action panel; phone | 17.9 (ART_SPEC.md) | — |
+| M9 | M9.9 | Phone: pan/zoom scene + list toggle (17.9) | 17.9 (ART_SPEC.md) | — |
+| M9 | M9.10 | Title, setup, weekend recap, newspaper screens (17.3, 17.9) | 17.3 (ART_SPEC.md), 17.9 (ART_SPEC.md) | — |
+| M9 | M9.11 | Lazy loading + service-worker precache + art budget in `build` (17.8) | 17.8 (ART_SPEC.md) | — |
+| M9 | M9.12 | Art-pack zip import: `ArtPackStore` (16.1) on IndexedDB, import screen | 16.1 (ROADMAP_SCAFFOLDS.md), 17.6 (ART_SPEC.md) | — |
+| M9 | M9.13 | Default set drawn: every slot's placeholder replaced (tracked by `art: | — | — |
 
 Always in scope for every task: `CLAUDE.md` (all), `docs/BUILD_READINESS.md` §15.6 and `docs/ROADMAP_SCAFFOLDS.md` §16.8 (amendments).

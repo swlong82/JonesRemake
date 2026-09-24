@@ -19,6 +19,7 @@ pnpm test:e2e        # playwright, 3 viewports, includes axe checks
 pnpm sim:gate        # 500 seeded games per gate config, asserts BALANCE_SPEC
 pnpm sim -- --games 10000 --pack classic --out reports/  # full run
 pnpm check:banned    # banned-terms scan over src, content, docs output
+pnpm art:check       # art sets: manifest, slot coverage, sanitizer, byte budgets (17.8)
 pnpm build           # vite build, bundle budget check
 pnpm verify          # runs all of the above in order
 ```
@@ -30,7 +31,7 @@ pnpm verify          # runs all of the above in order
 - `GameState` MUST be JSON-serializable and structurally cloneable. Same seed + same command log MUST reproduce identical state (hash-checked in tests).
 - Game rules and numbers MUST live in CityPack content (JSON validated by Zod), not hardcoded in engine logic.
 - AI MUST NOT read hidden information (other players' future RNG draws, unrevealed events).
-- No external network calls at runtime. No analytics, cookies, or third-party assets. All visuals are code-rendered placeholders behind `AssetRegistry`.
+- No external network calls at runtime. No analytics, cookies, or third-party assets. All visuals resolve through `AssetRegistry` from a first-party art set (section 17): code-drawn UI chrome plus SVG art files, with generated wireframe placeholders for any slot not yet drawn. User-imported art stays on the device, is sanitized on import and renders only as `<img>` (17.6).
 - All user-facing strings MUST use i18n keys.
 - Banned terms (see PRD §2.6) MUST NOT appear in code, content, UI or generated docs.
 - TypeScript `strict: true`, `noUncheckedIndexedAccess: true`. No `any`, no `@ts-ignore` without an ADR.

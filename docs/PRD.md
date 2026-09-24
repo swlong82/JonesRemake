@@ -14,7 +14,7 @@ A browser-based, turn-based life-simulation board game that faithfully reproduce
 
 ## 2.3 Non-goals (v1)
 
-Online multiplayer, simultaneous-turn implementation, final art, accounts, leaderboards, cloud save, languages other than English, native apps, monetization, analytics, additional city packs beyond `classic` and `modern-western`. Every item is stubbed behind a typed contract with a REPLACE ME guide per section 16.1; none is implemented for real in v1.
+Online multiplayer, simultaneous-turn implementation, drawn final art (the art-set scaffold, placeholders and scene UI are in scope, section 17), accounts, leaderboards, cloud save, languages other than English, native apps, monetization, analytics, additional city packs beyond `classic` and `modern-western`. Every item is stubbed behind a typed contract with a REPLACE ME guide per section 16.1; none is implemented for real in v1.
 
 ## 2.4 Locked decisions
 
@@ -26,7 +26,7 @@ Online multiplayer, simultaneous-turn implementation, final art, accounts, leade
 | 4 | Win | Original: per-player goal sliders 10–100 for Wealth, Happiness, Education, Career; AI goals random; first to reach all four wins; no week cap; `WinCondition` interface |
 | 5 | Stats | 4 original goals + Wellbeing (0–100) survival stat, not a win goal |
 | 6 | Setting | `CityPack` content abstraction; v1 pack = fictional Western city, USD-style currency; KL-inspired and global packs later |
-| 7 | Board | Ring board, 1:1 modernized mapping of original locations |
+| 7 | Board | Ring topology, 1:1 modernized mapping of original locations; rendered as a city-block scene (section 17) |
 | 8 | Movement | v1 transport modes: walk, transit, ride-hail, car; chosen per trip |
 | 9 | Transport acquisition | Transit pass at City Services counter; used car at pawn-shop equivalent; new car at discount-store equivalent via bank loan; ride-hail unlocked by owning a smartphone |
 | 10 | Jobs | Original hiring formula, modern titles, plus ungated gig jobs with zero career value |
@@ -36,7 +36,7 @@ Online multiplayer, simultaneous-turn implementation, final art, accounts, leade
 | 14 | Events | All classic events + AI layoffs, going viral, scams/phishing, gadget breakdown; Chaos level setting |
 | 15 | AI | Utility planner on the same command API, Easy/Normal/Hard + personalities |
 | 16 | Stack | pnpm monorepo; React 18 + TS + Vite; SVG/DOM board; Zustand; Tailwind; Framer Motion; Vitest; Playwright |
-| 17 | Art | Placeholder geometric shapes behind `AssetRegistry`; real art later |
+| 17 | Art | Modern-cartoon SVG art files in swappable art sets behind `AssetRegistry`; generated wireframes until drawn; user art-pack import (section 17) |
 | 18 | Audio | WebAudio SFX + procedural music loop, separate volumes + mute |
 | 19 | Save | IndexedDB autosave each turn + 3 manual slots + JSON export/import + replay log; versioned schema |
 | 20 | Devices | Desktop + tablet primary; phone alternate layout; full keyboard control |
