@@ -277,8 +277,9 @@
       "games": 40,
       "asserts": {
         "botWinPct.StudyFirst": {
+          "min": 22,
           "max": 63,
-          "note": "9.5 no bot beats Normal Balanced > 60%, widened ±3 points"
+          "note": "9.5 StudyFirst viable (30–60%) and no bot beats Normal Balanced > 60%; the floor is widened like CryptoAllIn's because 40 games is one bot seat per game (ADR-0050)"
         }
       }
     },
