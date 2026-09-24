@@ -26,6 +26,9 @@
       "path": "../../packages/platform"
     },
     {
+      "path": "../../packages/art"
+    },
+    {
       "path": "../../packages/content"
     },
     {

@@ -11,6 +11,7 @@
   "flag.debugTools": "Debug switches",
   "flag.tutorial": "The guided tutorial",
   "flag.audio": "Music and sound effects",
+  "flag.sceneUi": "The illustrated city scene",
   "title.continue": "Continue",
   "title.newGame": "New Game",
   "title.load": "Load / Import",
