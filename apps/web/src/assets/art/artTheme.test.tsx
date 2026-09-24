@@ -61,6 +61,7 @@ describe('art theme (ART_SPEC 17.7)', () => {
 
   it('follows the sceneUi flag and the theme setting', async () => {
     const root = document.documentElement;
+    useFlags.getState().set('sceneUi', false);
     const { rerender } = renderHook(() => useArtTheme());
     expect(root.dataset.artTheme).toBeUndefined();
     useFlags.getState().set('sceneUi', true);

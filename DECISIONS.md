@@ -612,3 +612,12 @@
 - Options: 1) teach each consumer to ignore this one `CommandRejected`; 2) a dedicated outcome event.
 - Decision: option 2. `ExtensionDenied { seat }` joins the `DomainEvent` union (57 types). It is a start-of-action card (UX 7.5) with its own title and text, a log line, the `error` sound, and an AI surprise that triggers a re-plan. `CommandRejected` again means only a failed validation.
 - Consequences: no state or golden replay changes (the event count per command is the same, and no golden replay requests an extension). Replays and saves that contain a denial now verify.
+
+## ADR-0060: M9 gate — the scene UI is the default; the ring stays behind `-sceneUi` until M10
+
+- Date: 2026-09-24
+- Status: Accepted
+- Context: the M9 gate turns `sceneUi` on by default (17.9). Flipping it exposed three gaps: the tutorial spotlights `hud` and a destination square, but the desktop scene shows a HUD bar (`scene-hud`) and, because a turn starts inside home, no squares until the player leaves; the phone map opened centred on the player and could clip the square a step points at; and the Art packs section overflowed a phone at 150 % text.
+- Options: rewrite the tutorial script for the scene, or keep the script and resolve its anchors in the scene; for phones, auto-pan to each anchor, or fit the whole block at 1×.
+- Decision: keep the script. The spotlight resolves `hud` to `scene-hud` when the full HUD is closed, and a `square-*` anchor to Leave (`exit`) while the squares are off screen. The phone map fits the whole block at 1× (16:10 viewport); each square's button reaches 12 stage units past its building so it stays ≥ 44 px, and zoom and pan remain. The scene bar's menu button is `menu-btn`, like the ring header's. The Art packs fieldset and file input may shrink (`min-w-0`). The flag's removal moves to M10, which ports `game`, `matrix` and `regression` (still pinned to `-sceneUi`) and deletes the ring board.
+- Consequences: the tutorial, saves, presentation (both UIs), scene, art-pack, offline and live-smoke specs pass on three viewports with the scene as default; the old ring stays one query string away for comparison and for the pinned specs.

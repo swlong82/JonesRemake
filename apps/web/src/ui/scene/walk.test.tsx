@@ -127,6 +127,7 @@ describe('avatar in setup and config (ART_SPEC 17.3)', () => {
 
   it('offers the picker for human seats only while the scene UI is on', () => {
     useGame.setState({ screen: 'setup' });
+    useFlags.getState().set('sceneUi', false);
     const { unmount } = render(<SetupScreen />);
     expect(screen.queryByTestId('avatar-picker-0')).toBeNull();
     unmount();

@@ -5,7 +5,7 @@ import { useGame } from '../../store/gameStore';
 import { useSettings } from '../../store/settings';
 import { GameScreen } from '../screens/GameScreen';
 import { buildConfig, defaultSeat } from '../screens/SetupScreen';
-import { centreOn, clampView, MAX_SCALE, panBy, zoomAt } from './panZoom';
+import { clampView, MAX_SCALE, panBy, zoomAt } from './panZoom';
 
 const viewport = { width: 390, height: 292 };
 const stage = { width: 468, height: 292 };
@@ -35,11 +35,6 @@ describe('pan and zoom (ART_SPEC 17.9, M9.9)', () => {
     // The stage point under (100, 100) stays under it.
     expect((100 - z.x) / z.scale).toBeCloseTo(100);
     expect((100 - z.y) / z.scale).toBeCloseTo(100);
-    expect(centreOn({ scale: 2, x: 0, y: 0 }, 234, 146, viewport, stage)).toEqual({
-      scale: 2,
-      x: 195 - 468,
-      y: 146 - 292,
-    });
   });
 });
 
@@ -122,7 +117,8 @@ describe('phone scene', () => {
     const box = screen.getByTestId('phone-scene');
     const stageEl = screen.getByTestId('phone-stage');
     const before = stageEl.style.transform;
-    // Home is at the top-left, so the view starts at the left edge: drag the city leftwards.
+    // The whole block fits at 1×; zoom in first so there is somewhere to pan to.
+    fireEvent.click(screen.getByTestId('zoom-in'));
     fireEvent.pointerDown(box, { pointerId: 1, clientX: 260, clientY: 100 });
     fireEvent.pointerMove(box, { pointerId: 1, clientX: 200, clientY: 100 });
     fireEvent.pointerUp(box, { pointerId: 1, clientX: 200, clientY: 100 });

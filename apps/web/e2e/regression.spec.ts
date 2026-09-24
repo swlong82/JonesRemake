@@ -2,6 +2,11 @@ import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
 
 /**
+ * Ring-board spec: it pins `-sceneUi` while the ring still exists (removed in M10); the scene UI,
+ * on by default since the M9 gate, has its own specs (`scene`, `artpacks`, `offline`).
+ */
+
+/**
  * M8.3 full regression (MILESTONES M8): a four-seat hotseat modern game to week 10 with a save and
  * load in the middle, and a phone game played to a winner on autoplay.
  */
@@ -46,7 +51,7 @@ test('four-seat hotseat modern game to week 10, with a save and load at week 5',
 }, info) => {
   test.skip(info.project.name !== 'desktop', 'one long game, on desktop');
   test.setTimeout(420_000);
-  await page.goto('/?ff=-tutorial');
+  await page.goto('/?ff=-tutorial,-sceneUi');
   await page.getByTestId('new-game').click();
   await page.locator('#ruleset').selectOption('modern-western');
   await page.getByTestId('add-seat').click();
@@ -92,7 +97,7 @@ test('four-seat hotseat modern game to week 10, with a save and load at week 5',
 test('a phone game plays to a winner on autoplay', async ({ page }, info) => {
   test.skip(info.project.name !== 'phone', 'the M8 regression names the phone');
   test.setTimeout(420_000);
-  await page.goto('/?ff=-tutorial,debugTools&debug=1');
+  await page.goto('/?ff=-tutorial,-sceneUi,debugTools&debug=1');
   await page.getByTestId('new-game').click();
   await page.getByTestId('preset-quick').click();
   await page.locator('#diff-1').selectOption('easy');

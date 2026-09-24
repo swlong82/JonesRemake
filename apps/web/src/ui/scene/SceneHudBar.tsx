@@ -115,7 +115,7 @@ export function SceneHudBar({
         <Button onClick={toggleLog} data-testid="scene-log-btn">
           {t('log.heading')}
         </Button>
-        <Button onClick={toggleMenu} data-testid="scene-menu-btn">
+        <Button onClick={toggleMenu} data-testid="menu-btn">
           {t('hud.menu')}
         </Button>
       </div>

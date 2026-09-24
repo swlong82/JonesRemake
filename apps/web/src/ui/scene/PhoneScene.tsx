@@ -1,8 +1,9 @@
 /**
  * Phone scene (ART_SPEC 17.9, M9.9): the city block in a pannable, zoomable viewport, with a
  * one-tap toggle to the location list (UX 7.2), which stays the accessible equivalent. The stage
- * is sized so buildings are at least 44 CSS px at the lowest zoom (UX 7.8); drag pans, a pinch or
- * the zoom buttons zoom, and a tap that ended a drag never activates a square.
+ * shows the whole block at the lowest zoom, where each square's button is at least 44 CSS px
+ * (UX 7.8); zoomed in, drag pans; a pinch or the zoom buttons zoom; a tap that ended a drag never
+ * activates a square.
  */
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,10 +14,13 @@ import { Button } from '../common/Button';
 import { PhoneLocationList } from '../game/PhoneLocationList';
 import { AvatarLayer } from './Avatars';
 import { BoardScene, layoutFor } from './BoardScene';
-import { centreOn, clampView, panBy, zoomAt, type Size, type View } from './panZoom';
+import { clampView, panBy, zoomAt, type Size, type View } from './panZoom';
 
-/** Viewport height as a share of its width; the stage fills that height at scale 1. */
-const VIEWPORT_RATIO = 0.75;
+/**
+ * Viewport height as a share of its width: 16:10, so the whole block fits at scale 1 and every
+ * square (the tutorial's too) is on screen until the player zooms in (M9 gate).
+ */
+const VIEWPORT_RATIO = 0.625;
 const DRAG_THRESHOLD = 8;
 const STAGE_RATIO = 1.6;
 
@@ -58,18 +62,7 @@ function PannableScene() {
   if (!state || !pack) return null;
   const registry = artRegistryFor(pack);
   const layout = layoutFor(registry, pack);
-  const here = pack.board.nodeOf[state.players[state.activeSeat]?.location ?? ''] ?? 0;
-  const door = layout.path[here] ?? { x: 800, y: 500 };
-  const current =
-    view === null
-      ? centreOn(
-          { scale: 1, x: 0, y: 0 },
-          (door.x / 1600) * stage.width,
-          (door.y / 1000) * stage.height,
-          viewport,
-          stage,
-        )
-      : clampView(view, viewport, stage);
+  const current = clampView(view ?? { scale: 1, x: 0, y: 0 }, viewport, stage);
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>): void => {
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });

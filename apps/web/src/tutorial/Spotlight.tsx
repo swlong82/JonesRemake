@@ -21,7 +21,18 @@ interface Rect {
 
 function measureAnchor(testid: string | null): Rect | null {
   if (testid === null || typeof globalThis.document === 'undefined') return null;
-  const el = globalThis.document.querySelector(`[data-testid="${testid}"]`);
+  // The scene UI's HUD is a bar (`scene-hud`); the full HUD only opens on demand. Its squares are
+  // only on screen outside a location, so until the player leaves, the way there is Leave
+  // (ART_SPEC 17.9).
+  const ids =
+    testid === 'hud'
+      ? ['hud', 'scene-hud']
+      : testid.startsWith('square-')
+        ? [testid, 'exit']
+        : [testid];
+  const el = ids
+    .map((id) => globalThis.document.querySelector(`[data-testid="${id}"]`))
+    .find((e) => e !== null);
   if (!el) return null;
   const r = el.getBoundingClientRect();
   return { top: r.top, left: r.left, width: r.width, height: r.height };

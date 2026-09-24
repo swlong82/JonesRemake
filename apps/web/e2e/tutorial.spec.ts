@@ -1,6 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
 
+/** The HUD: the scene's bar on wide screens (the default since the M9 gate), else the full HUD. */
+function hud(page: Page) {
+  return page.locator('[data-testid="scene-hud"], [data-testid="hud"]').first();
+}
+
 /**
  * M7.3 AC: "e2e completes tutorial on desktop and phone". The projects in `playwright.config.ts`
  * already run every spec on all three viewports, so this file is that test on each of them.
@@ -34,7 +39,7 @@ test('the tutorial runs over a first game, spotlights one element and can be ski
   await completeTutorial(page);
 
   // The game underneath is still playable once the tutorial is out of the way.
-  await expect(page.getByTestId('hud')).toBeVisible();
+  await expect(hud(page)).toBeVisible();
 });
 
 test('the tutorial is replayable from How to Play', async ({ page }) => {
@@ -43,7 +48,7 @@ test('the tutorial is replayable from How to Play', async ({ page }) => {
   await page.getByTestId('tutorial-start').click();
 
   // Starting it from the menu starts its own fixed game and shows step one.
-  await expect(page.getByTestId('hud')).toBeVisible();
+  await expect(hud(page)).toBeVisible();
   await expect(page.getByTestId('tutorial-progress')).toContainText('1');
   await completeTutorial(page);
 

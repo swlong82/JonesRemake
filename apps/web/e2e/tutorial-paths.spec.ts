@@ -1,6 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
 
+/** The HUD: the scene's bar on wide screens (the default since the M9 gate), else the full HUD. */
+function hud(page: Page) {
+  return page.locator('[data-testid="scene-hud"], [data-testid="hud"]').first();
+}
+
 /**
  * M8.3 (ADR-0037): every way through the tutorial. Its ten steps (UX 7.6) advance on the player's
  * own actions, so reaching step N means playing steps 1…N−1 for real on the fixed tutorial seed.
@@ -8,6 +13,11 @@ import { expectNoA11yViolations } from './axe';
  */
 
 const progress = (page: Page) => page.getByTestId('tutorial-progress');
+
+/** In the scene UI the block is only on screen outside; leave the current location first. */
+async function stepOut(page: Page): Promise<void> {
+  if (await page.getByTestId('scene-interior').isVisible()) await page.getByTestId('exit').click();
+}
 
 async function startFromHowToPlay(page: Page): Promise<void> {
   await page.goto('/');
@@ -21,6 +31,7 @@ async function startFromHowToPlay(page: Page): Promise<void> {
  * token on it animates, which a pointer click in the test would wait on forever.
  */
 async function travelTo(page: Page, locationId: string): Promise<void> {
+  await stepOut(page);
   const label = (await page.getByTestId(`square-${locationId}`).getAttribute('aria-label')) ?? '';
   const key = /Press (\S+) to travel/.exec(label)?.[1];
   expect(key, label).toBeDefined();
@@ -70,7 +81,7 @@ test('the tutorial can be played to the end', async ({ page }) => {
   await expectNoA11yViolations(page);
   await page.getByTestId('tutorial-next').click(); // 10 done → Finish
   await expect(page.getByTestId('tutorial')).toHaveCount(0);
-  await expect(page.getByTestId('hud')).toBeVisible();
+  await expect(hud(page)).toBeVisible();
 });
 
 for (let n = 1; n <= 10; n++) {
@@ -82,7 +93,7 @@ for (let n = 1; n <= 10; n++) {
     await reachStep(page, n);
     await page.getByTestId('tutorial-skip').click();
     await expect(page.getByTestId('tutorial')).toHaveCount(0);
-    await expect(page.getByTestId('hud')).toBeVisible();
+    await expect(hud(page)).toBeVisible();
   });
 }
 
@@ -92,6 +103,7 @@ test('Escape on the tutorial card skips it; Escape elsewhere is left to the game
   await startFromHowToPlay(page);
   await reachStep(page, 2);
   // Escape while the travel sheet has focus closes the sheet, not the tutorial.
+  await stepOut(page);
   await page.getByTestId('square-employment-office').click();
   await expect(page.getByTestId('travel-sheet')).toBeVisible();
   await page.keyboard.press('Escape');

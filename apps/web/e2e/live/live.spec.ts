@@ -1,6 +1,11 @@
 import { expect, test, type Page, type Request } from '@playwright/test';
 import { expectNoA11yViolations } from '../axe';
 
+/** The HUD: the scene's bar on wide screens (the default since the M9 gate), else the full HUD. */
+function hud(page: Page) {
+  return page.locator('[data-testid="scene-hud"], [data-testid="hud"]').first();
+}
+
 /**
  * Post-deploy smoke test (M8.4, ADR-0037): runs against the live Pages URL after every deploy.
  * On failure deploy.yml redeploys the last good build and opens an issue.
@@ -89,15 +94,15 @@ test('a seeded classic game survives a save and a reload', async ({ page, baseUR
   await page.getByTestId('seed').fill('live-smoke');
   await page.getByTestId('start-game').click();
   await page.getByTestId('action-Relax').click();
-  const hud = await page.getByTestId('hud').innerText();
+  const before = await hud(page).innerText();
   await page.keyboard.press('ControlOrMeta+s');
   await page.getByRole('button', { name: 'Save to Slot 1', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Game saved.');
   await page.reload();
   await page.getByRole('button', { name: 'Load / Import' }).click();
   await page.getByRole('button', { name: 'Load Slot 1', exact: true }).click();
-  await expect(page.getByTestId('hud')).toBeVisible();
-  expect(await page.getByTestId('hud').innerText()).toBe(hud);
+  await expect(hud(page)).toBeVisible();
+  expect(await hud(page).innerText()).toBe(before);
   expect(foreign).toEqual([]);
 });
 
@@ -107,6 +112,6 @@ test('the modern ruleset starts and the board passes axe', async ({ page }) => {
   await page.locator('#ruleset').selectOption('modern-western');
   await page.getByTestId('seed').fill('live-smoke-modern');
   await page.getByTestId('start-game').click();
-  await expect(page.getByTestId('hud')).toBeVisible();
+  await expect(hud(page)).toBeVisible();
   await expectNoA11yViolations(page);
 });

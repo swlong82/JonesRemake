@@ -6,8 +6,8 @@ One entry per milestone (see `docs/MILESTONES.md`).
 
 ## [Unreleased]
 
-M9 — scene UI and art sets (`docs/ART_SPEC.md`, ADR-0051…0058). Everything below is behind the app
-flag `sceneUi` (off by default until the M9 gate; `?ff=sceneUi`), except where noted.
+M9 — scene UI and art sets (`docs/ART_SPEC.md`, ADR-0051…0060). The scene UI is the default since the
+M9 gate; `?ff=-sceneUi` shows the v1 ring board until M10 removes it.
 
 ### Added
 
@@ -36,6 +36,10 @@ flag `sceneUi` (off by default until the M9 gate; `?ff=sceneUi`), except where n
   avatars × 14 frames, weekend, title, setup, masthead and frames (`tools/art-default`,
   `pnpm art:draw`).
 
+- M9 gate (ADR-0060): the scene UI is on by default; the tutorial runs on it (its spotlight finds
+  the HUD bar and points at Leave while the block is off screen); the phone map shows the whole
+  block at 1× with square buttons of at least 44 px.
+
 ### Changed
 
 - The HUD reads "Turn: <name>" (was "<name>'s turn", which gave "You's turn"); the title tagline
@@ -43,6 +47,7 @@ flag `sceneUi` (off by default until the M9 gate; `?ff=sceneUi`), except where n
 
 ### Fixed
 
+- Settings → Art packs no longer widens the page on a phone at 150 % text.
 - KI-012: a rent extension denied by chance was reported as a rejected command, so a replay export
   of such a game could not be imported, full saves loaded with a replay warning, and an engine
   property test failed in about 3.5% of runs. It is now an `ExtensionDenied` event with its own

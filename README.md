@@ -9,26 +9,24 @@ against the spec's targets, with AI rivals at three difficulties, local hotseat,
 tutorial, audio, themes and a local leaderboard. Everything runs in the browser; nothing leaves the
 device. `PROGRESS.md` has the task list, `HANDOFF.md` the resume point.
 
-**In progress — M9, the scene UI:** an illustrated city block you walk around, an interior with a
-host for every location, avatars, weekend and newspaper scenes, offline play and your own art packs,
-all drawn as modern-cartoon SVG art sets (`docs/ART_SPEC.md`). M9.1–M9.13 are built behind the
-`sceneUi` flag; turn it on with `?ff=sceneUi` (see [Feature flags](#feature-flags)). The M9 gate
-switches it on by default.
-Live build: https://swlong82.github.io/JonesRemake/ (GitHub Pages; `deploy.yml` runs after CI on
-`main` and smoke-tests the live site after every deploy).
+**New in M9 — the scene UI (default):** an illustrated city block you walk around, an interior
+with a host for every location, avatars, weekend and newspaper scenes, offline play and your own art
+packs, all drawn as modern-cartoon SVG art sets (`docs/ART_SPEC.md`). The v1 ring board is still one
+query string away (`?ff=-sceneUi`) until M10 removes it.
 
-| Milestone | Scope                                          | Status                   |
-| --------- | ---------------------------------------------- | ------------------------ |
-| M0        | Scaffold, CI, Pages deploy, spec pack          | done                     |
-| M1        | Engine core (state, RNG, commands)             | done                     |
-| M2        | Classic content pack + AI rival                | done                     |
-| M3        | Sim harness + classic baseline                 | done                     |
-| M4        | Web UI, classic playable                       | done                     |
-| M5        | Modern systems (transport, gigs, loans)        | done                     |
-| M6        | Modern pack + balance                          | done                     |
-| M7        | Polish: audio, save/replay, tutorial, a11y     | done                     |
-| M8        | Release: leaderboard, docs, regression, v1.0.0 | done                     |
-| M9        | Scene UI and art sets (behind `sceneUi`)       | 9.1–9.13 done, gate open |
+| Milestone | Scope                                          | Status |
+| --------- | ---------------------------------------------- | ------ |
+| M0        | Scaffold, CI, Pages deploy, spec pack          | done   |
+| M1        | Engine core (state, RNG, commands)             | done   |
+| M2        | Classic content pack + AI rival                | done   |
+| M3        | Sim harness + classic baseline                 | done   |
+| M4        | Web UI, classic playable                       | done   |
+| M5        | Modern systems (transport, gigs, loans)        | done   |
+| M6        | Modern pack + balance                          | done   |
+| M7        | Polish: audio, save/replay, tutorial, a11y     | done   |
+| M8        | Release: leaderboard, docs, regression, v1.0.0 | done   |
+| M9        | Scene UI and art sets (the default UI)         | done   |
+| M10       | Retire the ring board                          | next   |
 
 ## Play
 
@@ -53,7 +51,7 @@ Each turn is one week of 60 hours. Click a ring square to open the travel sheet,
 location to use it, and pick actions from the panel — every action shows its cost and effect before
 you commit (`−6h · +$96 · Dependability +2`).
 
-With the scene UI on (`?ff=sceneUi`), the ring becomes a city block: click a building to travel,
+The city is a block of buildings: click a building to travel,
 watch your avatar walk the street, and step inside to meet the host and use the location. On a
 phone, drag and pinch the map or switch to the list. Pick your avatar in New Game; import your own
 art in Settings → Art packs (a `.zip` of SVGs, see `packages/art/README.md`). Once loaded, the game
@@ -77,14 +75,14 @@ command log), and a win against at least one rival posts a score to the device's
 Screens that are specified but not yet built are gated by app feature flags
 (`apps/web/src/flags/appFlags.ts`, ADR-0017) — separate from the CityPack feature flags that gate
 rules per ruleset. A flag is deleted when its milestone lands. Left: `tutorial` and `audio` (on by
-default), `sceneUi` (off until the M9 gate: the city-block scene, interiors, avatars, art packs) and
-`debugTools` (UX 7.9). Override for local development with a build env var or a query
+default), `sceneUi` (on since the M9 gate; `-sceneUi` shows the v1 ring board until M10 deletes
+it) and `debugTools` (UX 7.9). Override for local development with a build env var or a query
 string:
 
 ```bash
 VITE_FF_AUDIO=off pnpm dev    # build-time
 # http://localhost:5173/?ff=-tutorial   # per-visit; '-' turns one off
-# http://localhost:5173/?ff=sceneUi      # try the M9 scene UI
+# http://localhost:5173/?ff=-sceneUi     # the v1 ring board, until M10
 ```
 
 `debugTools` additionally requires `VITE_DEBUG_ALLOWED=true`, so debug surfaces cannot be switched

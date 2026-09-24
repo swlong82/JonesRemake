@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { GameConfig } from '@hustle-ring/engine';
 import type { DomainEvent } from '@hustle-ring/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { useSettings } from '../../store/settings';
 import { buildConfig, defaultSeat } from '../screens/SetupScreen';
@@ -84,10 +85,13 @@ beforeEach(() => {
   useGame.getState().quit();
   globalThis.localStorage.clear();
   useSettings.getState().resetData();
+  // These specs cover the ring board, which stays behind `-sceneUi` until M10 removes it.
+  useFlags.getState().set('sceneUi', false);
 });
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  useFlags.getState().reset({ env: {}, search: '' });
 });
 
 describe('board', () => {

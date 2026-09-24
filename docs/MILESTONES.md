@@ -1,4 +1,4 @@
-# 10. docs/MILESTONES.md — M0 to M9
+# 10. docs/MILESTONES.md — M0 to M10
 
 Each milestone ends with `pnpm verify` green, CI green, `PROGRESS.md` updated, tag `m<N>`. Tasks are ordered; AC = acceptance criteria (each becomes at least one automated test unless marked *manual-free check*, which CC verifies by script output).
 
@@ -106,3 +106,8 @@ AC (e2e): start 2-seat classic game (human + AI) on all 3 viewports; human compl
 - [ ] M9.12 Art-pack zip import: `ArtPackStore` (16.1) on IndexedDB, import screen with per-file report, Settings picker, per-key fallback to the base set (17.6). AC: malicious fixtures rejected; partial pack falls back per key.
 - [ ] M9.13 Default set drawn: every slot's placeholder replaced (tracked by `art:check --report`).
 - [ ] M9 gate: `sceneUi` default on; `pnpm verify` green; ring board removed in the next milestone (17.9).
+
+## M10 — Retire the ring board (17.9)
+
+- [ ] M10.1 Port the ring-only e2e specs (`game`, `matrix`, `regression`) to the scene, then delete the ring board (`ui/game/Board.tsx`, the mini ring) and the `sceneUi` flag. AC: no spec pins `-sceneUi`; the location list stays the accessible equivalent.
+- [ ] M10 gate: `pnpm verify` green in CI, tag `m10`.

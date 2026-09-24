@@ -49,12 +49,3 @@ export function zoomAt(
     stage,
   );
 }
-
-/** Centre the view on a stage point (in unscaled stage px). */
-export function centreOn(view: View, px: number, py: number, viewport: Size, stage: Size): View {
-  return clampView(
-    { ...view, x: viewport.width / 2 - px * view.scale, y: viewport.height / 2 - py * view.scale },
-    viewport,
-    stage,
-  );
-}

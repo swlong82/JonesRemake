@@ -50,7 +50,7 @@ export function ArtPacksSection() {
       <p className="text-sm text-ink-muted">{t('artPacks.hint')}</p>
       {options.map((o) => (
         <div key={o.id} className="flex items-center gap-2">
-          <label className="flex grow items-center gap-2">
+          <label className="flex min-w-0 grow items-center gap-2 break-words">
             <input
               type="radio"
               name="art-set"
@@ -73,13 +73,13 @@ export function ArtPacksSection() {
           )}
         </div>
       ))}
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="flex min-w-0 flex-col gap-1 text-sm font-medium">
         {t('artPacks.import')}
         <input
           type="file"
           accept=".zip,application/zip"
           disabled={busy}
-          className="text-sm"
+          className="w-full min-w-0 max-w-full text-sm"
           data-testid="artpack-file"
           onChange={(e) => {
             const file = e.target.files?.[0];

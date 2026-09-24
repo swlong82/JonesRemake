@@ -2,6 +2,11 @@ import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
 
 /**
+ * Ring-board spec: it pins `-sceneUi` while the ring still exists (removed in M10); the scene UI,
+ * on by default since the M9 gate, has its own specs (`scene`, `artpacks`, `offline`).
+ */
+
+/**
  * Board acceptance criteria (M4 gate): a classic game is playable on all three viewports, the board
  * and its modals pass axe, and the keyboard map works. States that take a whole game to reach are
  * set through the debug-only store hook of the e2e build (UX_SPEC 7.9).
@@ -14,7 +19,7 @@ function isPhone(page: Page): boolean {
 async function startGame(page: Page, query = ''): Promise<void> {
   // `-tutorial` keeps the M7.3 spotlight out of specs that are testing the board itself; the
   // tutorial has its own spec.
-  await page.goto(`/${query === '' ? '?ff=-tutorial' : `${query}&ff=-tutorial`}`);
+  await page.goto(`/${query === '' ? '?ff=-tutorial,-sceneUi' : `${query}&ff=-tutorial,-sceneUi`}`);
   await page.getByTestId('new-game').click();
   await page.getByTestId('seed').fill('e2e-board');
   await page.getByTestId('start-game').click();
@@ -22,7 +27,7 @@ async function startGame(page: Page, query = ''): Promise<void> {
 }
 
 async function startModernGame(page: Page): Promise<void> {
-  await page.goto('/?debug=1&ff=debugTools,-tutorial');
+  await page.goto('/?debug=1&ff=debugTools,-tutorial,-sceneUi');
   await page.getByTestId('new-game').click();
   await page.locator('#ruleset').selectOption('modern-western');
   await page.getByTestId('seed').fill('e2e-modern');
@@ -226,7 +231,7 @@ test('subscription cancellation requires the retention confirmation', async ({ p
  * CSS — so this reads the served markup rather than what is painted.
  */
 test('classic opacity keeps the numbers out of the served markup', async ({ page }) => {
-  await page.goto('/?ff=-tutorial');
+  await page.goto('/?ff=-tutorial,-sceneUi');
   await page.getByTestId('new-game').click();
   await page.getByTestId('seed').fill('e2e-opaque');
   await page.getByTestId('classic-opacity').check();

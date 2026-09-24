@@ -78,5 +78,6 @@ Regenerate after editing MILESTONES: `python3 tools/gen-index.py`.
 | M9 | M9.11 | Lazy loading + service-worker precache + art budget in `build` (17.8) | 17.8 (ART_SPEC.md) | — |
 | M9 | M9.12 | Art-pack zip import: `ArtPackStore` (16.1) on IndexedDB, import screen | 16.1 (ROADMAP_SCAFFOLDS.md), 17.6 (ART_SPEC.md) | — |
 | M9 | M9.13 | Default set drawn: every slot's placeholder replaced (tracked by `art: | — | — |
+| M10 | M10.1 | Port the ring-only e2e specs (`game`, `matrix`, `regression`) to the s | — | — |
 
 Always in scope for every task: `CLAUDE.md` (all), `docs/BUILD_READINESS.md` §15.6 and `docs/ROADMAP_SCAFFOLDS.md` §16.8 (amendments).

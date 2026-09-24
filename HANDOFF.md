@@ -1,20 +1,20 @@
 # Handoff
 
-State of the build during M9 (scene UI and art sets). v1.0.0 is `main` @ 03caf07; M9.1–M9.8 merged
-as PR #20, M9.9–M9.13 are on `claude/stoic-goldberg-yr35m8`. Read `CLAUDE.md` first, then this
-file; `PROGRESS.md` has the task notes and the gate log, `docs/ART_SPEC.md` the M9 contract.
+State of the build after M9 (scene UI and art sets). v1.0.0 is `main` @ 03caf07; M9.1–M9.8 merged
+as PR #20; M9.9–M9.13, the KI-012 fix and the M9 gate are on `claude/stoic-goldberg-yr35m8`. Read
+`CLAUDE.md` first, then this file; `PROGRESS.md` has the task notes and the gate log,
+`docs/ART_SPEC.md` the M9 contract.
 
-## Resume point: the M9 gate
+## Resume point: M10
 
-Every M9 task is done; the gate is not. It needs:
+The scene UI is the default (ADR-0060). M10 retires the ring board:
 
-1. `sceneUi` on by default (`apps/web/src/flags/appFlags.ts`). The ring-UI e2e specs then need
-   `?ff=-sceneUi` (or scene equivalents) while the ring still exists; `e2e/scene.spec.ts`,
-   `artpacks.spec.ts` and `offline.spec.ts` already cover the scene on three viewports.
-2. `pnpm verify` green in CI, then tag `m9` (tags still need the owner, KI-001).
-3. The milestone after M9 deletes the ring board (`ui/game/Board.tsx`) and the flag (17.9).
+1. Port the e2e specs still pinned to `?ff=-sceneUi` — `game`, `matrix`, `regression` — to the
+   scene (the `hud()` locator helper in `tutorial.spec.ts` is the pattern).
+2. Delete `ui/game/Board.tsx`, the phone mini ring and the `sceneUi` flag; the location list stays.
+3. `pnpm verify` green in CI; tag `m9` (and later `m10`) — tags still need the owner (KI-001).
 
-KI-012 (chance-denied rent extension read as a rejection) is fixed (ADR-0059).
+KI-012 is fixed (ADR-0059). No issue is open against M9.
 
 ## M9 at a glance
 

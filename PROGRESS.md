@@ -1,7 +1,7 @@
 # Progress
 
-Current milestone: M9 — Scene UI and art sets (ART_SPEC 17): M9.1–M9.13 done, gate open (`sceneUi` still off by default). M0–M8 complete — v1.0.0 released (`main` @ 03caf07); tags await the owner (KI-001)
-Last updated: 2026-09-24 — M9.9–M9.13 landed; see `HANDOFF.md` for the resume point (the M9 gate).
+Current milestone: M10 — retire the ring board (ART_SPEC 17.9). M9 complete: the scene UI is the default (ADR-0060). v1.0.0 = `main` @ 03caf07; tags await the owner (KI-001)
+Last updated: 2026-09-24 — M9 gate closed locally (KI-012 fixed, `sceneUi` on by default); see `HANDOFF.md`.
 
 ## M0 — Scaffold and CI
 
@@ -122,18 +122,24 @@ Owner interview 2026-09-24: ADR-0051…0053.
 - [x] M9.11 Lazy loading + service-worker precache + art budget in `build` (17.8) — note: `hustle-ring-sw` Vite plugin writes `sw.js` (204 files: app, 197 art files, Latin Nunito), network-first pages, cache-first assets (ADR-0056); `useScenePrefetch` fetches interiors, hosts, weekend art and tinted walk frames when idle; `pnpm budget` adds the art budget (≤ 1536 kB; 167 kB of wireframes now) beside the unchanged 350 kB JS budget; `offline.spec.ts` reloads offline and draws the board with art.
 - [x] M9.12 Art-pack zip import: `ArtPackStore`, import screen with per-file report, Settings picker, per-key fallback (17.6) — note: platform area `artpacks` (`ArtPackStore`, memory + IndexedDB, contract test, REPLACE ME README; `scaffold:check` now 9 areas); `assets/art/{importPack,artPackLibrary}.ts` read zips with fflate (≤ 400 entries, ≤ 4 MB, UTF-8), validate with the bundled-set validator at user limits, store, activate; `installArtSets` versions the registries and revokes old blob URLs; Settings → Art packs (under `sceneUi`) lists, switches, imports and deletes with a per-issue report (ADR-0057). e2e imports a partial pack, plays with it, and refuses one with a script.
 - [x] M9.13 Default set drawn: every placeholder replaced (`pnpm art:check --report`) — note: `tools/art-default/` draws all 197 slots deterministically in a modern-cartoon style (16 building fronts with pictogram signs, the board background around the set’s own layout, 16 interiors with the right 40% calm, 16 hosts in uniform, 10 avatars × 14 frames with key-colour shirts and trousers, three weekend moods, title, setup, masthead, frames); no text, no names; `pnpm art:draw` rewrites wireframes and its own output only; 591 kB of 1.5 MB, largest file 27 kB. `art:check --report` shows 197/197 drawn; a tools test fails if the committed set drifts from the generator.
-- [ ] M9 gate: `sceneUi` default on; `pnpm verify` green in CI; ring board removed in the next milestone
+- [x] M9 gate: `sceneUi` default on; `pnpm verify` green in CI; ring board removed in the next milestone — note: `sceneUi` defaults on (ADR-0060); the tutorial runs on the scene (spotlight resolves `hud` → `scene-hud` and a hidden square → Leave), the phone map fits the whole block at 1× with ≥ 44 px square buttons, a Settings overflow at 150 % on phones is fixed; tutorial, saves, presentation (both UIs), scene, art-pack, offline and live-smoke specs pass on three viewports; `game`, `matrix` and `regression` pin `-sceneUi` until M10. KI-012 fixed first (ADR-0059). `pnpm verify` green locally; CI on the PR. Tag `m9` awaits the owner (KI-001).
+
+## M10 — Retire the ring board (ART_SPEC 17.9)
+
+- [ ] M10.1 Port `game`, `matrix` and `regression` e2e to the scene; delete the ring board, the mini ring and the `sceneUi` flag
+- [ ] M10 gate: `pnpm verify` green in CI, tag `m10`
 
 ## Gate log
 
-| Milestone | Date       | Commit  | verify | CI    | Notes                                                                                               |
-| --------- | ---------- | ------- | ------ | ----- | --------------------------------------------------------------------------------------------------- |
-| M0        | 2026-09-17 | bb197bf | green  | green | tag m0                                                                                              |
-| M1        | 2026-09-17 | 1726af3 | green  | green | tag m1 → 1726af3 (#13), CI run 23; gate commit 3569ae7 lost in the squash (ADR-0038)                |
-| M2        | 2026-09-17 | 1726af3 | green  | green | tag m2 → 1726af3 (#13), CI run 23; gate commit fe54f7e lost in the squash (ADR-0038)                |
-| M4        | 2026-09-17 | b4c979d | green  | green | tag m4 → b4c979d (#14), CI run 25; gate commit c2ecf4e lost in the squash (ADR-0038)                |
-| M3        | 2026-09-17 | a76efb2 | green  | green | tag m3 → a76efb2 (#15), CI run 27; career target recorded per ADR-0026, reopened by ADR-0037        |
-| M5        | 2026-09-18 | a76efb2 | green  | green | tag m5 → a76efb2 (#15), CI run 27; gate commit 903066e lost in the squash (ADR-0038)                |
-| M6        | 2026-09-22 | f8afb46 | green  | green | tag m6 → f8afb46 (#17), CI run 31; nine stage-2 targets reopened by ADR-0037                        |
-| M7        | 2026-09-23 | f8afb46 | green  | green | tag m7 → f8afb46 (#17), CI run 31; audio, tutorial, opacity, themes, pseudo-locale                  |
-| M8        | 2026-09-24 | 03caf07 | green  | green | tags m8 and v1.0.0 → 03caf07 (#18, squash), CI run 75; release — every 9.3/9.5 target but sim speed |
+| Milestone | Date       | Commit  | verify | CI    | Notes                                                                                                    |
+| --------- | ---------- | ------- | ------ | ----- | -------------------------------------------------------------------------------------------------------- |
+| M0        | 2026-09-17 | bb197bf | green  | green | tag m0                                                                                                   |
+| M1        | 2026-09-17 | 1726af3 | green  | green | tag m1 → 1726af3 (#13), CI run 23; gate commit 3569ae7 lost in the squash (ADR-0038)                     |
+| M2        | 2026-09-17 | 1726af3 | green  | green | tag m2 → 1726af3 (#13), CI run 23; gate commit fe54f7e lost in the squash (ADR-0038)                     |
+| M4        | 2026-09-17 | b4c979d | green  | green | tag m4 → b4c979d (#14), CI run 25; gate commit c2ecf4e lost in the squash (ADR-0038)                     |
+| M3        | 2026-09-17 | a76efb2 | green  | green | tag m3 → a76efb2 (#15), CI run 27; career target recorded per ADR-0026, reopened by ADR-0037             |
+| M5        | 2026-09-18 | a76efb2 | green  | green | tag m5 → a76efb2 (#15), CI run 27; gate commit 903066e lost in the squash (ADR-0038)                     |
+| M6        | 2026-09-22 | f8afb46 | green  | green | tag m6 → f8afb46 (#17), CI run 31; nine stage-2 targets reopened by ADR-0037                             |
+| M7        | 2026-09-23 | f8afb46 | green  | green | tag m7 → f8afb46 (#17), CI run 31; audio, tutorial, opacity, themes, pseudo-locale                       |
+| M8        | 2026-09-24 | 03caf07 | green  | green | tags m8 and v1.0.0 → 03caf07 (#18, squash), CI run 75; release — every 9.3/9.5 target but sim speed      |
+| M9        | 2026-09-24 | (PR)    | green  | on PR | scene UI default (ADR-0060); M9.1–M9.8 in #20, M9.9–M9.13 + gate in the follow-up PR; tag m9 after merge |

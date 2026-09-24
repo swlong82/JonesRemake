@@ -2,6 +2,11 @@ import { expect, test, type Page } from '@playwright/test';
 import type { GameStore } from '../src/store/gameStore';
 import { expectNoA11yViolations } from './axe';
 
+/** Runs on the default UI, the scene (M9 gate); saving is the same for both UIs. */
+function hud(page: Page) {
+  return page.locator('[data-testid="scene-hud"], [data-testid="hud"]').first();
+}
+
 async function snapshot(page: Page): Promise<string> {
   return page.evaluate(() =>
     (
@@ -38,7 +43,7 @@ for (const pack of ['classic', 'modern-western']) {
     await expect(page.getByTestId('continue')).toBeVisible();
     await page.getByRole('button', { name: 'Load / Import' }).click();
     await page.getByRole('button', { name: 'Load Slot 2', exact: true }).click();
-    await expect(page.getByTestId('hud')).toBeVisible();
+    await expect(hud(page)).toBeVisible();
     expect(await snapshot(page)).toBe(expected);
     await page.keyboard.press('ControlOrMeta+s');
     await page.locator('#save-import').setInputFiles({
@@ -49,11 +54,11 @@ for (const pack of ['classic', 'modern-western']) {
     await expect(page.getByRole('alert')).toContainText('damaged');
     expect(await snapshot(page)).toBe(expected);
     await page.locator('#save-import').setInputFiles(path);
-    await expect(page.getByTestId('hud')).toBeVisible();
+    await expect(hud(page)).toBeVisible();
     expect(await snapshot(page)).toBe(expected);
     await page.reload();
     await page.getByTestId('continue').click();
-    await expect(page.getByTestId('hud')).toBeVisible();
+    await expect(hud(page)).toBeVisible();
     expect(await snapshot(page)).toBe(expected);
   });
 }

@@ -46,8 +46,9 @@ export const APP_FLAGS: Record<AppFlagId, AppFlagSpec> = {
   tutorial: { id: 'tutorial', default: true, milestone: 'M7.3', labelKey: 'flag.tutorial' },
   // M7.1 landed the bus, the recipes and the moods, so audio is on by default now.
   audio: { id: 'audio', default: true, milestone: 'M7.1', labelKey: 'flag.audio' },
-  // City-block scene, interiors and avatars (ART_SPEC 17.9); on at the M9 gate (ADR-0053).
-  sceneUi: { id: 'sceneUi', default: false, milestone: 'M9', labelKey: 'flag.sceneUi' },
+  // M9 landed the city-block scene, interiors, avatars and art packs, so it is on by default; the
+  // milestone after M9 deletes the ring board and this flag (ART_SPEC 17.9, ADR-0053).
+  sceneUi: { id: 'sceneUi', default: true, milestone: 'M10', labelKey: 'flag.sceneUi' },
 };
 
 export const DEFAULT_APP_FLAGS: AppFlags = Object.fromEntries(

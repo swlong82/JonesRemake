@@ -869,7 +869,7 @@ Before tuning, CC writes `reports/modern-targets.json` derived from baseline and
 
 `sim/gates.json` lists 8 configs × 500 games (Normal AI only) covering all stage-2 gates with tolerances widened by ±3 percentage points for sampling noise. Runtime budget in CI ≤ 8 minutes.
 
-## 10. docs/MILESTONES.md — M0 to M9
+## 10. docs/MILESTONES.md — M0 to M10
 
 Each milestone ends with `pnpm verify` green, CI green, `PROGRESS.md` updated, tag `m<N>`. Tasks are ordered; AC = acceptance criteria (each becomes at least one automated test unless marked *manual-free check*, which CC verifies by script output).
 
@@ -977,6 +977,11 @@ AC (e2e): start 2-seat classic game (human + AI) on all 3 viewports; human compl
 - [ ] M9.12 Art-pack zip import: `ArtPackStore` (16.1) on IndexedDB, import screen with per-file report, Settings picker, per-key fallback to the base set (17.6). AC: malicious fixtures rejected; partial pack falls back per key.
 - [ ] M9.13 Default set drawn: every slot's placeholder replaced (tracked by `art:check --report`).
 - [ ] M9 gate: `sceneUi` default on; `pnpm verify` green; ring board removed in the next milestone (17.9).
+
+### M10 — Retire the ring board (17.9)
+
+- [ ] M10.1 Port the ring-only e2e specs (`game`, `matrix`, `regression`) to the scene, then delete the ring board (`ui/game/Board.tsx`, the mini ring) and the `sceneUi` flag. AC: no spec pins `-sceneUi`; the location list stays the accessible equivalent.
+- [ ] M10 gate: `pnpm verify` green in CI, tag `m10`.
 
 ## 11. Templates
 
@@ -1629,10 +1634,10 @@ interface ArtRegistry {
 - **Board:** `board:background`, then each `building:<id>` in its slot rect, then the avatars on the street path, then a label plate per square (i18n name on a contrast-guaranteed plate at `label`, drawn last so an avatar never hides it). Each slot is a focusable `<button>` over its rect that keeps the UX 7.7 keyboard map and 7.8 labels; art is decorative (`alt=""`).
 - **Walking:** avatars follow `board.path` square by square the short way round (a tie goes clockwise), 180 ms a square, swapping `walk1`/`walk2` every 120 ms and facing the direction of travel, then stand `idle` facing the viewer; reduced motion (the setting or the OS preference) jumps to the destination with no intermediate frame. Humans pick their avatar in setup; the choice is the optional, presentation-only `SeatConfig.avatar` (ADR-0055); AI seats show `rival-<personality>`.
 - **Interior:** entering a location swaps the stage to `interior:<id>` with `host:<id>`, a speech bubble with the pack's greeting, and the action panel (UX 7.4) drawn inside the scene.
-- **Phone (< 768 px):** a Map/List toggle; the map fills a 4:3 viewport at 1–3× zoom (buildings ≥ 44 px at 1×), drag pans, pinch or ± buttons zoom, a drag never counts as a tap, and the view opens on the active player. The list is the existing location list (the accessible equivalent). Interiors show a cropped header (host + bubble) above the action sheet.
+- **Phone (< 768 px):** a Map/List toggle; the map shows the whole block in a 16:10 viewport at 1× (every square on screen, each square's button reaching 12 stage units past its building so it stays ≥ 44 px), zooms to 3× with pinch or ± buttons, pans by drag when zoomed, and a drag never counts as a tap. The list is the existing location list (the accessible equivalent). Interiors show a cropped header (host + bubble) above the action sheet.
 - **Other screens:** title key art behind an opaque menu panel; a setup banner and the avatar picker; a weekend event card shows `weekend:<eventId>` (else the picture for its tone) with the avatar cheering, slumping or standing by; the newspaper, bought with `ReadNews`, shows the masthead, the paper's name as text, the headline for the hinted phase and this week's economy stories — never whether the hint is accurate.
 - **Art packs:** Settings lists the default set and every imported pack, switches between them, imports a zip with a per-issue report, and deletes packs (17.6).
-- **Rollout:** app flag `sceneUi` (default off) until the M9 gate; e2e runs both UIs while the flag exists. The ring board is removed in the milestone after M9; the location list stays.
+- **Rollout:** app flag `sceneUi`, off while M9 was built and **on by default since the M9 gate** (ADR-0060); `?ff=-sceneUi` still shows the ring board until M10 removes it. While both exist, the scene runs the tutorial, saves, presentation (pseudo-locale, themes, 150 % text), scene, art-pack, offline and live-smoke specs; `game`, `matrix` and `regression` pin the ring until M10 ports them. The location list stays.
 
 ### 17.10 Amendments (already applied in this file; listed for traceability)
 
@@ -1643,3 +1648,4 @@ interface ArtRegistry {
 5. File map in section 0 includes section 17.
 6. ROADMAP 16.1 adds the `artpacks` stub area (`ArtPackStore`).
 7. After the M9.1 draft: sheets moved beside the stage (ADR-0058); the service worker, zip limits, theme precedence and seat avatar are ADR-0054…0057.
+8. M9 gate (ADR-0060): `sceneUi` on by default; phone map fits the whole block at 1×; tutorial anchors resolve in the scene; MILESTONES adds M10.
