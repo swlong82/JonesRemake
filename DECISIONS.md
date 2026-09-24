@@ -585,3 +585,12 @@
 - Options: 1) a library (Workbox); 2) a small hand-written worker filled in at build time; strategies: cache-first everywhere, or network-first for pages and cache-first for hashed assets.
 - Decision: option 2, no new dependency. The `hustle-ring-sw` Vite plugin writes `sw.js` from `apps/web/sw/template.js` with every emitted file except source maps, the build manifest and non-Latin font subsets, and a version hashed from that list; old caches are deleted on activation. Pages are network-first (a new deploy always wins, so the M8.4 fresh-deploy check is unaffected) with the cached shell as the offline fallback; other same-origin GETs are cache-first with `ignoreVary` (module scripts send an `Origin` header the precache request did not). Only production builds register it.
 - Consequences: the first visit downloads the art set (≤ 1.5 MB, checked by `pnpm budget`) in the background; later visits and offline reloads need no network. Scene art is also prefetched when the browser is idle (interiors, hosts, weekend pictures, each player's tinted walk frames).
+
+## ADR-0057: Art-pack zips: fflate, pack limits, and re-import by id
+
+- Date: 2026-09-24
+- Status: Accepted
+- Context: M9.12 imports user art packs (17.6). The spec fixes the per-file SVG limits but not the zip reader, the limits of a whole pack, or what a second import with the same id does.
+- Options: reader — write one, `JSZip`, `fflate`; same id — refuse, rename, replace.
+- Decision: `fflate` (MIT, synchronous, small). A pack may hold at most 400 entries and 4 MB unpacked, checked on the declared sizes before anything is inflated; entries other than `manifest.json` and `files/*.svg` (optionally under one shared top folder) are ignored and listed. Text must be UTF-8. A manifest without `extends` gets `extends: "default"`; the id `default` is reserved. Re-importing an id replaces the stored pack, and the imported pack becomes the active set. Packs are stored by `ArtPackStore` (new platform area `artpacks`, IndexedDB database `art-packs`) and re-validated against the manifest schema on every load.
+- Consequences: the import screen reports every issue with its path, so an artist can fix a pack without guesswork. The limits sit well above the bundled set (≈ 200 files, ≤ 1.5 MB). Stored packs survive app updates; one whose manifest no longer parses is skipped, not deleted.

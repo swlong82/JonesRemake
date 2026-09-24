@@ -15,7 +15,7 @@ import {
 } from '@hustle-ring/shared';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { artRegistryFor, baseArtRegistry } from '../../assets/art/artRegistry';
+import { artRegistryFor, baseArtRegistry, useArtSets } from '../../assets/art/artRegistry';
 import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { useSettings } from '../../store/settings';
@@ -108,6 +108,7 @@ export function SetupScreen() {
   const [packId, setPackId] = useState(PLAYABLE[0] ?? 'classic');
   const pack = useMemo(() => loadPack(packId), [packId]);
   const sceneUi = useFlags((f) => f.flags.sceneUi);
+  useArtSets((s) => s.version);
   const [seats, setSeats] = useState<SeatDraft[]>([
     defaultSeat(0, 'human-local', 'You'),
     defaultSeat(1, 'ai', 'Rival'),

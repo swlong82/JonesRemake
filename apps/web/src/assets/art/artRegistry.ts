@@ -24,6 +24,7 @@ import {
 } from '@hustle-ring/art';
 import defaultManifestJson from '@hustle-ring/art/sets/default/manifest.json';
 import type { PaletteId } from '@hustle-ring/shared';
+import { create } from 'zustand';
 import { PALETTE_HEX } from '../AssetRegistry';
 
 /**
@@ -151,34 +152,104 @@ export class ArtRegistry {
   }
 }
 
-const registries = new WeakMap<object, ArtRegistry>();
+/**
+ * Installed user sets (17.6, M9.12): manifests plus `blob:` URLs for their files, and which set is
+ * active. Changing them bumps `version`, which rebuilds every registry; components subscribe
+ * through `useArtRegistry` / `useBaseArtRegistry`.
+ */
+interface ArtSetsState {
+  sets: ReadonlyMap<string, ArtManifest>;
+  urls: ReadonlyMap<string, string>;
+  active: string;
+  version: number;
+}
 
-/** Registry of the bundled default set for a pack (one per pack; the catalog follows the pack). */
+export const useArtSets = create<ArtSetsState>(() => ({
+  sets: new Map([['default', DEFAULT_ART_SET]]),
+  urls: new Map(),
+  active: 'default',
+  version: 0,
+}));
+
+export interface InstalledPack {
+  manifest: ArtManifest;
+  files: Readonly<Record<string, string>>;
+}
+
+/** Replace the installed user sets and the active one; old blob URLs are revoked. */
+export function installArtSets(
+  packs: readonly InstalledPack[],
+  active: string,
+  urlFor: (svg: string) => string = (svg) =>
+    URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' })),
+  revoke: (url: string) => void = (url) => {
+    URL.revokeObjectURL(url);
+  },
+): void {
+  const prev = useArtSets.getState();
+  for (const url of prev.urls.values()) revoke(url);
+  const sets = new Map<string, ArtManifest>([['default', DEFAULT_ART_SET]]);
+  const urls = new Map<string, string>();
+  for (const pack of packs) {
+    if (pack.manifest.id === 'default') continue;
+    sets.set(pack.manifest.id, pack.manifest);
+    for (const [file, svg] of Object.entries(pack.files)) {
+      urls.set(`${pack.manifest.id}/${file}`, urlFor(svg));
+    }
+  }
+  useArtSets.setState({
+    sets,
+    urls,
+    active: sets.has(active) ? active : 'default',
+    version: prev.version + 1,
+  });
+}
+
+function depsFor(state: ArtSetsState): ArtRegistryDeps {
+  const deps = browserDeps();
+  return { ...deps, fileUrls: new Map([...deps.fileUrls, ...state.urls]) };
+}
+
+let registries = new WeakMap<object, ArtRegistry>();
+let base: ArtRegistry | undefined;
+let builtFor = -1;
+
+function sync(): ArtSetsState {
+  const state = useArtSets.getState();
+  if (state.version !== builtFor) {
+    registries = new WeakMap();
+    base = undefined;
+    builtFor = state.version;
+  }
+  return state;
+}
+
+/** Registry for a pack over the active set chain (the catalog follows the pack). */
 export function artRegistryFor(pack: {
   board: { locationAt: readonly (string | null)[] };
   personalities: readonly { id: string }[];
 }): ArtRegistry {
+  const state = sync();
   let r = registries.get(pack);
   if (!r) {
     const catalog = catalogFor({
       locationIds: pack.board.locationAt.filter((l): l is string => l !== null),
       personalityIds: pack.personalities.map((p) => p.id),
     });
-    r = new ArtRegistry(new Map([['default', DEFAULT_ART_SET]]), 'default', catalog, browserDeps());
+    r = new ArtRegistry(state.sets, state.active, catalog, depsFor(state));
     registries.set(pack, r);
   }
   return r;
 }
 
-let base: ArtRegistry | undefined;
-
 /** Pack-independent registry for UI chrome (frames, title and setup art). */
 export function baseArtRegistry(): ArtRegistry {
+  const state = sync();
   base ??= new ArtRegistry(
-    new Map([['default', DEFAULT_ART_SET]]),
-    'default',
+    state.sets,
+    state.active,
     catalogFor({ locationIds: [], personalityIds: [] }),
-    browserDeps(),
+    depsFor(state),
   );
   return base;
 }

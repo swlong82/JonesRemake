@@ -6,7 +6,7 @@
  */
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { artRegistryFor } from '../../assets/art/artRegistry';
+import { artRegistryFor, useArtSets } from '../../assets/art/artRegistry';
 import { useScenePrefetch } from '../../assets/art/usePrefetch';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
@@ -43,6 +43,8 @@ function useWidth(ref: React.RefObject<HTMLElement | null>, fallback: number): n
 
 function PannableScene() {
   const { t } = useTranslation();
+  // Re-render when an art pack is installed or switched (M9.12).
+  useArtSets((s) => s.version);
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
   const box = useRef<HTMLDivElement>(null);

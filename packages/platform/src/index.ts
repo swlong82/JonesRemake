@@ -15,6 +15,7 @@ export * from './leaderboard/index.js';
 export * from './telemetry/index.js';
 export * from './platform/index.js';
 export * from './entitlements/index.js';
+export * from './artpacks/index.js';
 
 import { AllUnlockedEntitlements, type Entitlements } from './entitlements/index.js';
 import { LocalIdentity, type IdentityProvider } from './identity/index.js';
@@ -24,6 +25,7 @@ import {
   type LeaderboardService,
 } from './leaderboard/index.js';
 import { LocalMatchmaker, type Matchmaker } from './matchmaker/index.js';
+import { IndexedDbArtPackStore, type ArtPackStore } from './artpacks/index.js';
 import { WebPlatform, type Platform, type WebPlatformDeps } from './platform/index.js';
 import { IndexedDbSaveStore, type SaveStore } from './saves/index.js';
 import { NullTelemetry, type Telemetry } from './telemetry/index.js';
@@ -38,6 +40,7 @@ export interface PlatformServices {
   telemetry: Telemetry;
   platform: Platform;
   entitlements: Entitlements;
+  artPacks: ArtPackStore;
 }
 
 export interface LocalServicesDeps {
@@ -57,5 +60,6 @@ export function createLocalServices(deps: LocalServicesDeps): PlatformServices {
     telemetry: new NullTelemetry(),
     platform: new WebPlatform(deps.platform),
     entitlements: new AllUnlockedEntitlements(),
+    artPacks: new IndexedDbArtPackStore(deps.indexedDB ?? (() => undefined)),
   };
 }

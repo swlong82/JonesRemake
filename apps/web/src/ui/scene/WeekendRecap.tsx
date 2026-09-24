@@ -6,7 +6,7 @@
 import type { CityPack } from '@hustle-ring/content';
 import type { GameState } from '@hustle-ring/engine';
 import type { DomainEvent } from '@hustle-ring/shared';
-import { artRegistryFor } from '../../assets/art/artRegistry';
+import { artRegistryFor, useArtSets } from '../../assets/art/artRegistry';
 import { ArtImage } from './ArtImage';
 import { avatarIdFor } from './walk';
 
@@ -34,6 +34,7 @@ export function WeekendPicture({
   state: GameState;
   pack: CityPack;
 }) {
+  useArtSets((s) => s.version);
   const weekend = weekendEvent(card, pack);
   if (!weekend) return null;
   const registry = artRegistryFor(pack);

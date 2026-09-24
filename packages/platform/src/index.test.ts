@@ -6,6 +6,7 @@ describe('createLocalServices', () => {
     const s = createLocalServices({ newId: () => 'fixed-id', platform: { open: () => undefined } });
     expect(Object.keys(s).sort()).toEqual(
       [
+        'artPacks',
         'entitlements',
         'identity',
         'leaderboard',

@@ -3,7 +3,7 @@ import type { PaletteId } from '@hustle-ring/shared';
 import { useEffect } from 'react';
 import { useGame } from '../../store/gameStore';
 import { avatarIdFor } from '../../ui/scene/walk';
-import { artRegistryFor } from './artRegistry';
+import { artRegistryFor, useArtSets } from './artRegistry';
 
 /** Run `task` when the browser is idle (or soon, where `requestIdleCallback` is missing). */
 function whenIdle(task: () => void): () => void {
@@ -27,6 +27,7 @@ function whenIdle(task: () => void): () => void {
 export function useScenePrefetch(): void {
   const pack = useGame((s) => s.pack);
   const gameId = useGame((s) => s.state?.config.seed);
+  const version = useArtSets((s) => s.version);
   useEffect(() => {
     const { state } = useGame.getState();
     if (!pack || !state) return;
@@ -48,5 +49,5 @@ export function useScenePrefetch(): void {
     return whenIdle(() => {
       void registry.prefetch(requests);
     });
-  }, [pack, gameId]);
+  }, [pack, gameId, version]);
 }

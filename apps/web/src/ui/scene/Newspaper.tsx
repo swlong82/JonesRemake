@@ -5,7 +5,7 @@
  * stays hidden, as in the rules.
  */
 import { useTranslation } from 'react-i18next';
-import { baseArtRegistry } from '../../assets/art/artRegistry';
+import { baseArtRegistry, useArtSets } from '../../assets/art/artRegistry';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { eventCardText } from '../game/labels';
@@ -31,6 +31,8 @@ export function NewspaperButton({ onClick }: { onClick: () => void }) {
 
 export function Newspaper({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
+  // Re-render when an art pack is installed or switched (M9.12).
+  useArtSets((s) => s.version);
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
   const log = useGame((s) => s.log);

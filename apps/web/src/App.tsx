@@ -1,3 +1,4 @@
+import { useArtPacks } from './assets/art/artPackLibrary';
 import { useArtTheme } from './assets/art/useArtTheme';
 import { useAudio } from './audio/useAudio';
 import { useSaveConnection } from './platform/Services';
@@ -20,6 +21,7 @@ import { UnavailableScreen } from './ui/screens/UnavailableScreen';
 export function App() {
   useSaveConnection();
   useAudio();
+  useArtPacks();
   useArtTheme();
   useTutorialBoot();
   const { t } = useTranslation();

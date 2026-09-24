@@ -5,7 +5,7 @@
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { artRegistryFor } from '../../assets/art/artRegistry';
+import { artRegistryFor, useArtSets } from '../../assets/art/artRegistry';
 import { useDebugBoot } from '../../debug/useDebugBoot';
 import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
@@ -45,6 +45,8 @@ function LiveRegion() {
 
 export function GameScreen() {
   const { t } = useTranslation();
+  // Re-render when an art pack is installed or switched (M9.12).
+  useArtSets((s) => s.version);
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
   const travelOpen = useGame((s) => s.travelOpen);

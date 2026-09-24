@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
 import { useFlags } from '../../flags/appFlags';
 import { useSettings } from '../../store/settings';
-import { baseArtRegistry } from './artRegistry';
+import { baseArtRegistry, useArtSets } from './artRegistry';
 import { applyArtTheme, artThemeActive } from './artTheme';
 
 /** Drive the document's colour tokens, font and frames from the active art set (17.7). */
 export function useArtTheme(): void {
   const sceneUi = useFlags((s) => s.flags.sceneUi);
   const theme = useSettings((s) => s.settings.theme);
+  const version = useArtSets((s) => s.version);
   useEffect(() => {
     const root = globalThis.document.documentElement;
     if (!artThemeActive(sceneUi, theme)) {
@@ -34,5 +35,5 @@ export function useArtTheme(): void {
       live = false;
       applyArtTheme(root, undefined);
     };
-  }, [sceneUi, theme]);
+  }, [sceneUi, theme, version]);
 }

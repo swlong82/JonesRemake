@@ -1,6 +1,6 @@
 import { ENGINE_VERSION, STATE_SCHEMA_VERSION } from '@hustle-ring/engine';
 import { useTranslation } from 'react-i18next';
-import { baseArtRegistry } from '../../assets/art/artRegistry';
+import { baseArtRegistry, useArtSets } from '../../assets/art/artRegistry';
 import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { useSaves } from '../../save/controller';
@@ -9,6 +9,8 @@ import { ArtImage } from '../scene/ArtImage';
 
 export function TitleScreen() {
   const { t } = useTranslation();
+  // Re-render when an art pack is installed or switched (M9.12).
+  useArtSets((s) => s.version);
   const { records, controller, busy } = useSaves();
   const go = useGame((s) => s.go);
   const state = useGame((s) => s.state);
