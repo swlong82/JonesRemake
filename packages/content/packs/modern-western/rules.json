@@ -14,7 +14,8 @@
     "decayPerWeek": 7,
     "relaxBase": 1,
     "relaxMax": 11,
-    "max": 120
+    "max": 120,
+    "graduation": 2
   },
   "wellbeing": {
     "relaxBase": 8,

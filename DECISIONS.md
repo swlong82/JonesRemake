@@ -517,10 +517,10 @@
 - Context: once the AI stopped starving and started relaxing for wellbeing (KI-008), no modern seat collapsed (target: 15–40% of Normal games, and at least 60% for NoRelax), CryptoAllIn played as an ordinary seat (47% wins, 2% bankrupt; target 15–40% wins and over 40% bankrupt), and LoanMax defaulted 85% of the time (target 20–60%). The old modern wellbeing numbers had been set to offset starvation that no longer happens.
 - Decision:
   - **Wellbeing** returns to a profile with teeth: relax 8–16, drift 1 a week, unspent-hours bonus 2, no walking bonus, collapse below 20. Without the walking and idle-hour bonuses a seat cannot stay out of collapse without relaxing, which is what NoRelax exists to show.
-  - **Happiness:** start 0, decay 7, cap 120. The higher cap keeps goals 100 reachable after the week-start decay; start 0 and the steeper decay keep happiness from being the first goal done at goals 50.
+  - **Happiness:** start 0, decay 7, cap 120, +2 a graduation (classic +5: four degrees at goals 50 handed out twenty points before any other goal moved). The higher cap keeps goals 100 reachable after the week-start decay; start 0 and the steeper decay keep happiness from being the first goal done at goals 50.
   - **Career** tenure starts after 6 weeks; **$255** a wealth point; degrees take **15** lessons.
   - **CryptoAllIn** stakes everything: it prefers emptying the bank into cash and buys of at least 80% of its cash, rent included (weight 0.2, ADR-0044). Crypto's weekly volatility is 1800 bp: a bet that busts more often also has to boom sometimes.
-  - **AI:** the planner keeps two loan instalments in cash or bank, since instalments come out at the turn start and four misses default the loan (GDD 4.12).
+  - **AI:** the Normal AI weighs wellbeing at 0.7 (Easy 0.5, Hard 1): Normal is meant to overwork into a collapse now and then. The planner keeps two loan instalments in cash or bank, since instalments come out at the turn start and four misses default the loan (GDD 4.12).
 - Consequences (probes, 40–80 games): Normal games with a collapse ≈ 20%; NoRelax 100%; CryptoAllIn wins 20% with 52% bankrupt; LoanMax defaults 50%. Medians at goals 50/80/100 are 29/44/61 weeks, within ±20% of classic B, with every goal last-completed at least 10% at goals 50. More Normal seats now go bankrupt after a collapse (≈ 5–10%); the spec tracks that rate but sets no target for it. Stage 2 is the measurement of record.
 
 ## ADR-0050: Graduate entry: degrees held at a fresh hire count toward career tenure
