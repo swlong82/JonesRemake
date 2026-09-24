@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/nunito": "5.3.0",
     "@hustle-ring/ai": "workspace:*",
     "@hustle-ring/art": "workspace:*",
     "@hustle-ring/content": "workspace:*",

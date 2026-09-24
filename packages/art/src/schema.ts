@@ -9,9 +9,9 @@ export const STAGE = { width: 1600, height: 1000 } as const;
 
 /**
  * Fonts an art set may name (17.7). Only fonts bundled with the app are allowed (no CDN,
- * CLAUDE.md 1.3); M9.5 adds the bundled OFL faces to this list.
+ * CLAUDE.md 1.3): `system` is the platform UI stack, `nunito` the bundled OFL face.
  */
-export const ART_FONTS = ['system'] as const;
+export const ART_FONTS = ['system', 'nunito'] as const;
 export type ArtFont = (typeof ART_FONTS)[number];
 
 const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'expected a #RRGGBB colour');

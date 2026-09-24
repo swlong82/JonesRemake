@@ -558,3 +558,12 @@
 - Options: desktop: full-bleed scene with a HUD bar, scene with a sidebar, drawers. Phone: pan/zoom plus a list toggle, list-first, forced landscape. A11y: hotspot buttons with a text layer, labels baked into art, a separate accessible mode. Rollout: flag then replace, keep both, replace directly. Loading: lazy per scene plus a service worker, preload all, inline.
 - Decision: a **full-bleed 16:10 stage with a bottom HUD bar**, standings and log as overlays. On phone, **pan/zoom plus a toggle to the existing location list**. **Hotspot `<button>`s** over each slot keep the 7.7 keyboard map and 7.8 labels; names are text plates. Art loads **lazily per scene**, is precached by a service worker, and has its own byte budget. Theme chrome (palette, bundled OFL font, 9-slice frames) comes from the art set. Everything ships behind app flag **`sceneUi`** (default off) until the M9 gate; the ring board is deleted one milestone later.
 - Consequences: e2e runs both UIs while the flag exists. The location list stays for good as the accessible alternative. The initial JS budget (350 kB) is unaffected because art files are static assets.
+
+## ADR-0054: The art theme replaces the system and light themes under the scene UI; Dark stays dark
+
+- Date: 2026-09-24
+- Status: Accepted
+- Context: 17.7 applies the art set's palette as the app's colour tokens, but Settings already offers System, Light and Dark (M7.5), and an art set carries a single palette. The spec does not say which wins.
+- Options: 1) the art palette always wins under `sceneUi`; 2) add an "Art set" theme option; 3) the art palette replaces System and Light, and an explicit Dark keeps the dark tokens.
+- Decision: option 3. It needs no new setting, and a player who asked for Dark (often for comfort or light sensitivity) keeps it. Tokens the art palette does not define (`ok`, `warn`, category colours) keep their light values; `surface-3` and `accent-strong` are shades of the art palette. The bundled font is Nunito (OFL-1.1, `@fontsource/nunito`, 400 and 700), served from the app's own origin.
+- Consequences: under System with a dark OS preference, the scene UI shows the art palette. Contrast is guaranteed by `art:check` (17.7) for every set, so no combination drops below AA. Revisit if an art set ever ships a dark variant.

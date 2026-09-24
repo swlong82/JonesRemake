@@ -78,9 +78,33 @@
   --c-warn: #f2c14e;
 }
 
+html {
+  font-family: var(
+    --font-ui,
+    ui-sans-serif,
+    system-ui,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol',
+    'Noto Color Emoji'
+  );
+}
+
 body {
   background: var(--c-surface);
   color: var(--c-ink);
+}
+
+/* 9-slice frames from the art set (ART_SPEC 17.7): edges only, the centre stays the surface. */
+:root[data-art-theme='on'] .art-frame {
+  border: 12px solid transparent;
+  border-image: var(--art-frame-panel) 32 / 12px round;
+  background: var(--c-surface-2) padding-box;
+}
+:root[data-art-theme='on'] .art-frame-button {
+  border: 8px solid transparent;
+  border-image: var(--art-frame-button) 32 / 8px round;
 }
 
 .input {

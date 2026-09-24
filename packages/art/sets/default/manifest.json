@@ -13,7 +13,7 @@
     "secondary": "#00FFFF"
   },
   "theme": {
-    "font": "system",
+    "font": "nunito",
     "palette": {
       "surface": "#fff8ec",
       "surface2": "#ffffff",

@@ -11,7 +11,7 @@ export const DEFAULT_TINT_KEYS = { primary: '#FF00FF', secondary: '#00FFFF' } as
 
 /** Rounded cartoon kit colours (17.7); contrast is checked by `art:check`. */
 export const DEFAULT_THEME: ArtTheme = {
-  font: 'system',
+  font: 'nunito',
   palette: {
     surface: '#fff8ec',
     surface2: '#ffffff',

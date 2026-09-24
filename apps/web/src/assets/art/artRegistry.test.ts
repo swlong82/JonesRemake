@@ -40,7 +40,7 @@ describe('ArtRegistry (ART_SPEC 17.5)', () => {
     for (const slot of catalog) expect(registry.has(slot.key), slot.key).toBe(true);
     expect(registry.has('moon:base')).toBe(false);
     expect(registry.board()?.slots).toHaveLength(pack.board.locationAt.length);
-    expect(registry.theme()?.font).toBe('system');
+    expect(registry.theme()?.font).toBe('nunito');
   });
 
   it('serves plain files by URL and falls back to the wireframe for unknown keys', async () => {

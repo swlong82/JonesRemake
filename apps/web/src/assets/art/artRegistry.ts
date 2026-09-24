@@ -144,3 +144,16 @@ export function artRegistryFor(pack: {
   }
   return r;
 }
+
+let base: ArtRegistry | undefined;
+
+/** Pack-independent registry for UI chrome (frames, title and setup art). */
+export function baseArtRegistry(): ArtRegistry {
+  base ??= new ArtRegistry(
+    new Map([['default', DEFAULT_ART_SET]]),
+    'default',
+    catalogFor({ locationIds: [], personalityIds: [] }),
+    browserDeps(),
+  );
+  return base;
+}

@@ -4,6 +4,10 @@ import { ServicesProvider } from './platform/Services';
 import { App } from './App';
 import { useGame } from './store/gameStore';
 import './i18n';
+// Bundled OFL face for art sets that name `nunito` (ART_SPEC 17.7); @font-face only downloads
+// the files when the font is actually used.
+import '@fontsource/nunito/400.css';
+import '@fontsource/nunito/700.css';
 import './index.css';
 
 /**

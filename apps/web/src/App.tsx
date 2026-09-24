@@ -1,3 +1,4 @@
+import { useArtTheme } from './assets/art/useArtTheme';
 import { useAudio } from './audio/useAudio';
 import { useSaveConnection } from './platform/Services';
 import { SaveNotice } from './save/SaveNotice';
@@ -19,6 +20,7 @@ import { UnavailableScreen } from './ui/screens/UnavailableScreen';
 export function App() {
   useSaveConnection();
   useAudio();
+  useArtTheme();
   useTutorialBoot();
   const { t } = useTranslation();
   const screen = useGame((s) => s.screen);
