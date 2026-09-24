@@ -1,7 +1,7 @@
 # Progress
 
-Current milestone: M0–M7 complete and tagged; next milestone is M8 (release), not started
-Last updated: 2026-09-23 — see `HANDOFF.md` for the resume point.
+Current milestone: M8 (release) — every task done on the release PR; the gate closes when it merges to `main` and the owner pushes `v1.0.0`
+Last updated: 2026-09-24 — see `HANDOFF.md` for the resume point.
 
 ## M0 — Scaffold and CI
 
@@ -97,12 +97,12 @@ Owner-reviewed scope: ADR-0037. Phase A closes every open issue before M8.1.
 - [x] M8.0b KI-009 fixed: real click on Start at 150% text on the phone viewport — note: the page overflowed to 557px (inputs' and grid items' `min-width: auto`), so mobile Chromium zoomed it out. The inputs can shrink now, and the overflow check plus a real click run on all three viewports. e2e 51/51, web 191/191.
 - [x] M8.0c KI-008 event defects: `viral` family never fires, `gadget-breakdown` rate — note: an AI defect, not an event one (ADR-0039): working-phone ownership went from 8% to 67% of player-weeks once a `gadget-access` scorer valued a working gadget and the ranker stopped pruning purchases and repairs. `viral` 5.2 and `gadget-breakdown` 5.6 per 100 player-weeks (target ≥ 1); both gate assertions are no longer pending. Classic is unaffected (test).
 - [x] M8.0d Career anchor (KI-005 + KI-008 career/wealth): both packs, re-baseline, re-lock modern targets — note: continuous-employment tenure plus a same-week tie split (ADR-0040); the [SRC] 12500 slope is kept. Stage-1 re-run: last-completed W 13.7 / H 32.4 / E 31.9 / C 22.0, medians 36 < 48 < 63 < 86. Modern targets re-derived and re-locked (ADR-0042); modern W/C last 31/31% in the gate. Bots aligned with 9.4 (ADR-0041). Found and fixed a pre-existing $1 SellAsset preview mismatch that made the preview property test flaky. Still red in 9.3: stalls 1% (< 0.5%), seat bias 44.95%, sim speed — carried into M8.0e.
-- [ ] M8.0e Remaining KI-008 targets (collapse, goals-80 median, Hard vs Easy, StudyFirst, LoanMax) — note:
-- [ ] M8.1 `score()` + `LocalLeaderboard` + Stats board UI with scopes (16.7); `NAMING.md` final — note:
-- [ ] M8.2 README + `docs/EXTENDING.md` recipes with executable examples (12.9) — note:
-- [ ] M8.3 Full e2e regression: 4-seat hotseat modern game to week 10, save/load mid-game, phone autoplay to a winner — note:
-- [ ] M8.4 Deploy to GitHub Pages; post-deploy smoke test against the live URL in the workflow — note:
-- [ ] M8.5 Close-out: `KNOWN_ISSUES.md` reviewed, every open item has severity and workaround; tag `v1.0.0` — note:
+- [x] M8.0e Remaining KI-008 targets (collapse, goals-80 median, Hard vs Easy, StudyFirst, LoanMax) — note: every locked 9.3 and 9.5 target met except sim speed (out of scope, KI-010). The misses were AI defects shaping every game (starvation, pruned meals and rests, early turn ends, goals scored before the week-start decay, careers stranded below the firing line, unpaid loans and rent debt beside a full bank); fixed, then both packs retuned. New rules: layoff grace (ADR-0047), graduate entry (ADR-0050). Classic stage-1 re-run (25 configs, 3,400 games): 24 < 33 < 48 < 58, seat 50%, last goal ≥ 21% each, 0 stalls; modern targets re-locked (ADR-0048); stage 2: see `BALANCE_REPORT.md`. `sim/gates.json` has no `pending` left. Easy-AI stalls at high goals logged as KI-011.
+- [x] M8.1 `score()` + `LocalLeaderboard` + Stats board UI with scopes (16.7); `NAMING.md` final — note: engine `score()`/`netWorth()`, platform `LocalLeaderboard` over an IndexedDB entry store with global, season and pack (optionally per season) scopes — league scopes are reserved and hold nothing locally, Stats board with scope and city pickers; an end screen submits once per game and never for AI winners, debug-touched or solo games. Title "Hustle Ring" (owner's pick).
+- [x] M8.2 README + `docs/EXTENDING.md` recipes with executable examples (12.9) — note: ten recipes, each backed by an overlay in `examples/` that CI resolves and plays (16 tests); null key deletion for keyed overlay files (ADR-0046) so a recipe can retire a location.
+- [x] M8.3 Full e2e regression: 4-seat hotseat modern game to week 10, save/load mid-game, phone autoplay to a winner — note: `regression.spec.ts` covers both; `matrix.spec.ts` plays an all-pairs set of 19 setup/settings combinations (full on desktop, five on tablet and phone) and `tutorial-paths.spec.ts` walks the tutorial by keyboard and by pointer (ADR-0037 scope). The matrix caught a HUD overflow on long pseudo-locale strings, fixed. e2e 103 passed.
+- [x] M8.4 Deploy to GitHub Pages; post-deploy smoke test against the live URL in the workflow — note: `deploy.yml` stamps the build SHA, smoke-tests the live URL on desktop and phone (assets, deep links, save round trip, modern start, axe) and rolls back to the last good `site` artifact on failure (ADR-0045). The first live run happens when the release PR merges to `main`.
+- [x] M8.5 Close-out: `KNOWN_ISSUES.md` reviewed, every open item has severity and workaround; tag `v1.0.0` — note: KI-001/005/006/008/009 fixed; open: KI-010 (sim speed, known limitation) and KI-011 (Easy AI stalls at high goals), both minor with mitigations. `m8` and `v1.0.0` go on the merge commit, pushed by the owner (`git tag -a v1.0.0 <merge-sha> -m v1.0.0 && git tag -a m8 <merge-sha> -m m8 && git push origin v1.0.0 m8`), together with `tools/retag-milestones.sh` for m1–m7; the session cannot push tags (KI-001).
 - [ ] M8 gate: `pnpm verify` green in CI, `DEFINITION OF DONE` (CLAUDE.md 1.8) met — note:
 
 ## Gate log

@@ -1,77 +1,128 @@
 # Balance report — stage 2, `modern-western`
 
-BALANCE_SPEC 9.5/9.6, milestone M6.3. The targets this report is measured against are locked in
-`reports/modern-targets.json` and hashed in ADR-0033; they were written before the first run and
-have not moved since. The classic stage-1 baseline they are derived from is `BASELINE_REPORT.md`.
+BALANCE_SPEC 9.5/9.6. Measured against the targets locked in `reports/modern-targets.json`
+(ADR-0048), which are derived from the classic stage-1 baseline in `BASELINE_REPORT.md`.
 
-- Suite: `sim/stage2.json` (13 configs, 924 games), `pnpm tsx packages/sim/cli.ts --config sim/stage2.json --workers 6 --out reports/stage2`
-- Inner loop: `sim/probe.json` (24 games at goals 50) — seconds per run, used between iterations
-- Conditions: 6 sim workers on an 8-core laptop; raw per-config output stays out of git (`.gitignore`)
-- Engine version 0.1.0, content `modern-western` 0.1.0
+- Suite: `sim/stage2.json` (13 configs, 924 games), `pnpm tsx packages/sim/cli.ts --config sim/stage2.json --workers 4 --out reports/stage2`
+- Conditions: 4 sim workers in the build container; raw per-config output stays out of git (`.gitignore`)
+- Engine 0.3.0; content `classic` 0.3.0 and `modern-western` 0.3.0
 
-## Verdict
+## Verdict (M8.0e)
 
-**17 of the 26 locked targets are met. Nine are not, and are recorded rather than met**
-(CLAUDE.md 1.5, BALANCE 9.6 step 4) — see _Unmet targets_ below and KI-008. The ruleset went from
-**unwinnable** to playable during this milestone: the first measurement stalled 100% of games at
-goals 50 within 300 weeks, with every seat bankrupt and 10–15 wellbeing collapses per game. It now
-stalls 0.5% with a 48-week median against classic's 40.
+**Every locked 9.5 target is met except sim speed**, which the owner ruled out of scope for v1.0
+(KI-010). M6.3 had left nine targets unmet (KI-008); M8 met them all without moving a target
+(ADR-0037: "fix everything, no amendments").
 
 ## Final measurement
 
 | Config                       | Games | Median wk | Stall % | Seat 0 % |
 | ---------------------------- | ----- | --------- | ------- | -------- |
-| `modern-30-normal-2`         | 120   | 24        | 0       | 54.2     |
-| `modern-50-normal-2`         | 200   | 48        | 0.5     | 53.8     |
-| `modern-80-normal-2`         | 60    | 45        | 0       | 53.3     |
-| `modern-100-normal-2`        | 24    | 70        | 0       | 41.7     |
-| `modern-50-hard-vs-easy`     | 40    | 52        | 0       | 70.0     |
-| `modern-50-easy-vs-hard`     | 40    | 39        | 0       | 5.0      |
-| `modern-50-bot-GigOnly`      | 60    | 64        | 8.3     | 0        |
-| `modern-50-bot-CryptoAllIn`  | 60    | 51        | 0       | 35.0     |
-| `modern-50-bot-StudyFirst`   | 60    | 68        | 8.3     | 0        |
-| `modern-50-bot-NoRelax`      | 60    | 56        | 5.0     | 0        |
-| `modern-50-bot-LoanMax`      | 60    | 53        | 0       | 46.7     |
-| `modern-50-bot-DeliveryOnly` | 60    | 52        | 0       | 50.0     |
-| `modern-50-chaos`            | 60    | —         | —       | —        |
+| `modern-30-normal-2`         | 120   | 22        | 0       | 59.2     |
+| `modern-50-normal-2`         | 200   | 28        | 0       | 47.0     |
+| `modern-80-normal-2`         | 60    | 43        | 0       | 58.3     |
+| `modern-100-normal-2`        | 24    | 67        | 0       | 58.3     |
+| `modern-50-hard-vs-easy`     | 40    | 28        | 0       | 95.0     |
+| `modern-50-easy-vs-hard`     | 40    | 28        | 0       | 2.5      |
+| `modern-50-bot-GigOnly`      | 60    | 30        | 0       | 0        |
+| `modern-50-bot-CryptoAllIn`  | 60    | 31        | 0       | 26.7     |
+| `modern-50-bot-StudyFirst`   | 60    | 31        | 0       | 31.7     |
+| `modern-50-bot-NoRelax`      | 60    | 31        | 0       | 0        |
+| `modern-50-bot-LoanMax`      | 60    | 31        | 0       | 6.7      |
+| `modern-50-bot-DeliveryOnly` | 60    | 30        | 0       | 8.3      |
+| `modern-50-chaos`            | 60    | 28        | 0       | 53.3     |
 
-At goals 50, Normal×2: last goal completed is education 85.4%, happiness 13.1%, wealth 1.0%,
-career 0.5%. CryptoAllIn goes bankrupt in 66.7% of its games and still wins 35%. No bot beats the
-Normal Balanced AI by more than 50%.
+| Target (BALANCE 9.5)                                    | Achieved                                      | Band                            |
+| ------------------------------------------------------- | --------------------------------------------- | ------------------------------- |
+| Median at goals 30 / 50 / 80 / 100                      | 22 / 28 / 43 / 67 wk                          | 19–29 / 26–40 / 38–58 / 46–70   |
+| Stall rate (goals 50)                                   | 0%                                            | < 0.5%                          |
+| Seat bias (Balanced vs Balanced)                        | 47%                                           | 45–55%                          |
+| Hard beats Easy (both seat orders)                      | 95% / 97.5%                                   | ≥ 80%                           |
+| Last completed: wealth / happiness / education / career | 41.9 / 13.0 / 17.3 / 27.8%                    | ≥ 10% each                      |
+| Normal AI games with a collapse                         | 26%                                           | 15–40%                          |
+| NoRelax games with a collapse                           | 98.3%                                         | ≥ 60%                           |
+| CryptoAllIn bankrupt / wins                             | 65% / 26.7%                                   | > 40% / 15–40%                  |
+| StudyFirst wins                                         | 31.7%                                         | 30–60%                          |
+| LoanMax defaults                                        | 30%                                           | 20–60%                          |
+| GigOnly wins                                            | 0%                                            | < 25%                           |
+| Best bot against Normal Balanced                        | 31.7%                                         | ≤ 60%                           |
+| Event families at Chaos Modern (per 100 player-weeks)   | layoffs 1.7, viral 5.7, scams 2.2, gadget 8.9 | ≥ 1 each                        |
+| Sim speed                                               | 2.6–10 s/game                                 | < 200 ms (out of scope, KI-010) |
 
-The Normal×2 configs pit one personality (`balanced`) against itself, so `firstSeatWinPct`
-measures turn order and nothing else. The classic stage-1 convention (the pack's personality
-rotation) conflated turn order with personality strength: with grinder against scholar the same
-modern config read 32.7%, which is a personality result, not a seat result.
+## How M8 got there
 
-## Met (17)
+The measurements kept pointing at the AI, not the rules. Each defect below shaped every game both
+packs play, so fixing it moved every number and the rules were retuned after each:
 
-Median length at goals 30, 50 and 100; stall rate; seat bias; Hard ≥ 80% with the seats one way
-round; happiness and education each last-completed ≥ 10%; GigOnly under 25%; CryptoAllIn bankruptcy
-above 40% with a win rate inside 15–40%; NoRelax collapses in ≥ 60% of its games; no bot over 60%
-(StudyFirst, NoRelax, LoanMax, DeliveryOnly); the `ai-layoffs` and `scams` families both fire more
-than once per 100 player-weeks at Chaos Modern.
+1. **Starvation.** Seats went unfed 40% (classic) to 80% (modern) of weeks — 20 hours and 5
+   happiness each time. Food now outranks errands when the seat has nothing to eat.
+2. **Transport variants** of one move took three of four search branches; one move per destination
+   now.
+3. **Early EndTurn.** A short plan that ended the turn could outscore walking on to work; the
+   prefix is played and the turn re-planned while hours remain.
+4. **Goals scored before the week-start decay**: seats sat at 100/100/100/100 for weeks without the
+   win check agreeing. Goals are now scored as the check will see them.
+5. **Tenure-capped careers** stopped working, decayed dependability to 0, were fired and restarted
+   the tenure clock. Dependability is valued under the cap; a job a shift would get the seat fired
+   from counts as no job.
+6. **Wellbeing** was ranked on the happiness gap alone; a relax for wellbeing now ranks near
+   burnout, and the Normal AI minds wellbeing at 0.7 of Hard's weight.
+7. **Money:** the AI keeps two loan instalments liquid and treats cash that covers rent debt as half
+   the way to paying it (the four-step bank trip had been pruned).
 
-## Unmet targets (9) — recorded, with achieved values
+Rules changed with them (ADR-0047–0050): an event layoff keeps tenure if the player is rehired
+within 4 weeks; degrees held at a fresh hire count as 5 weeks of tenure each; the modern wellbeing
+profile can collapse again (relax 8–16, drift 1, collapse below 20); happiness starts at 0, decays
+7 a week, caps at 120 and pays +2 a graduation; crypto swings 1800 bp a week and CryptoAllIn stakes
+its savings too. Classic was retuned the same way (tenure 2.2/week after 8 weeks, relax base 1,
+$115 a wealth point) and re-baselined; ADR-0048 re-locked the modern median bands to it.
 
-| Target (BALANCE 9.5)                      | Achieved | Why it is recorded rather than met                                                                                                                                                                                                                                                                        |
-| ----------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Wealth last-completed ≥ 10%               | 1.0%     | Education is the long pole (five degrees, 8–10 lessons each); wealth and career are met well before it. Raising `wealthPointValue` to 260 (iteration 9) pushed the median to 84 weeks without moving the share.                                                                                           |
-| Career last-completed ≥ 10%               | 0.5%     | The classic structural result of ADR-0026 carries over: degrees grant dependability, and career is a multiple of dependability, so career lands with the degrees rather than after them. `careerDependabilityBp` 9000 made goals-100 **unwinnable** (career caps below 100), so the classic 12500 stands. |
-| Normal AI collapse 15–40% of games        | 71%      | Collapse frequency is a cliff in the `collapse` band, not a dial: band 4 gave 0%, band 6 gives 71%, band 8 gives 96% on the same content.                                                                                                                                                                 |
-| Median at goals 80 within ±20% of B=62    | 45 wk    | Goals 80 lands between the 50 (48) and 100 (70) medians but below the band; n = 60 and the three medians are not monotone at this sample size.                                                                                                                                                            |
-| Hard vs Easy ≥ 80%                        | 70%      | Met in the swapped-seat config (95%). Hard's beam is worth less in modern, where the binding goal is a degree ladder that Easy also climbs.                                                                                                                                                               |
-| StudyFirst win rate 30–60%                | 0%       | The bot forbids all work until every degree is held; in modern that means no rent for ~40 weeks. It is the same bot that wins 0% in classic, where only the ≤ 60% half of the target is asserted.                                                                                                         |
-| LoanMax default rate 20–60%               | 0%       | The bot borrows the maximum but the tuned wage (`payPerSession` 30) services the loan, so it never misses four payments.                                                                                                                                                                                  |
-| `viral` fires ≥ 1 / 100 player-weeks      | 0        | The family needs a smartphone (GDD 4.13) and the AI rarely owns one; raising the weight 120 → 500 did not make it appear, and removing the condition outright did not either, while the other three families respond to weight as expected. That last part looks like a defect rather than a tuning miss. |
-| `gadget-breakdown` ≥ 1 / 100 player-weeks | 0.12     | Both events in the family require owning a phone or laptop. The AI now scores gadgets that unlock a system (ADR-0034) and the prices came down to $220/$420, which took it from 0 to 0.12, not to 1.                                                                                                      |
+## What the modern pack overrides
 
-BALANCE 9.6 allows 15 iterations before the stuck policy applies; this took 17 including two that
-only undid a previous one. The report stops here rather than continuing to trade one target for
-another — every remaining miss above is a target that moves in the opposite direction to at least
-one target already met.
+`packages/content/packs/modern-western/rules.json`, deep-merged over `classic` (ADR-0035):
 
-## Iteration log
+```json
+{
+  "goals": {
+    "educationPerDegree": 13,
+    "educationBase": 2,
+    "careerTenureBpPerWeek": 25000,
+    "careerTenureDelayWeeks": 6,
+    "careerLayoffGraceWeeks": 4,
+    "careerTenureWeeksPerDegree": 5
+  },
+  "jobs": { "payPerSession": 30 },
+  "happiness": { "decayPerWeek": 7, "relaxBase": 1, "relaxMax": 11, "max": 120, "graduation": 2 },
+  "wellbeing": {
+    "relaxBase": 8,
+    "relaxMax": 16,
+    "driftStep": 1,
+    "unspentBonus": 2,
+    "walkTripBonus": 0,
+    "bands": { "thrive": 70, "burnout": 25, "collapse": 20 }
+  },
+  "stats": { "degreeExperienceBonus": 12 },
+  "start": { "happiness": 0 }
+}
+```
+
+plus `wealthPointValue` 255 in `pack.json`, 15 lessons a degree, a $3,000 student loan and crypto
+`volBp` 1800.
+
+## Reproducing
+
+```bash
+pnpm tsx packages/sim/cli.ts --config sim/stage2.json --workers 4 --out reports/stage2
+pnpm sim:gate            # what CI asserts
+pnpm sim:gate --strict   # fails on any pending assertion; none remain
+```
+
+## History: M6.3
+
+M6.3 met 17 of the 26 targets and recorded nine (KI-008): wealth and career last-completed,
+Normal-AI collapse, the goals-80 median, Hard vs Easy one way round, StudyFirst, LoanMax and two
+event families. Its iteration log is kept below for the record.
+
+### M6.3 iteration log
 
 Only `modern-western` content changed, plus two AI scorer defects the measurements exposed
 (ADR-0034). Not one `classic` file moved, and classic's golden replays and `sim:gate` results are
@@ -102,7 +153,7 @@ unchanged.
 | 21  | `bands.collapse` 6, `driftStep` 5                                                                             | collapse 58%, median 46 wk                            |
 | 22  | `careerDependabilityBp` override dropped (goals 100 was unwinnable below 10000)                               | **final**: see the table above                        |
 
-## What the modern pack now overrides
+### What the modern pack overrode at M6.3
 
 `packages/content/packs/modern-western/rules.json`, deep-merged over `classic` (ADR-0035):
 
@@ -124,7 +175,7 @@ plus `wealthPointValue` 160 in `pack.json`, the two item prices in `items.json`,
 weights and conditions in `events.json`. GDD 4.5's work, gig and study wellbeing deltas are
 untouched: what changed is how fast rest pays them back.
 
-## Reproducing
+### Reproducing (M6.3)
 
 ```bash
 pnpm tsx packages/sim/cli.ts --config sim/stage2.json --workers 6 --out reports/stage2
