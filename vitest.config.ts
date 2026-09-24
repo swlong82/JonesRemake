@@ -34,6 +34,8 @@ export default defineConfig({
         'packages/engine/src/**': { lines: 90, branches: 85, functions: 90, statements: 90 },
         'packages/ai/src/**': { lines: 80, branches: 70, functions: 80, statements: 80 },
         'packages/content/src/**': { lines: 90, branches: 80, functions: 90, statements: 90 },
+        // Art sets validate untrusted user files (ART_SPEC 17.6): held to the content bar.
+        'packages/art/src/**': { lines: 90, branches: 80, functions: 90, statements: 90 },
         'apps/web/src/**': { lines: 60, branches: 50, functions: 60, statements: 60 },
       },
     },

@@ -8,5 +8,15 @@
   },
   "include": ["*.ts", "lib"],
   "exclude": ["__fixtures__", "dist"],
-  "references": [{ "path": "../packages/platform" }]
+  "references": [
+    {
+      "path": "../packages/platform"
+    },
+    {
+      "path": "../packages/art"
+    },
+    {
+      "path": "../packages/content"
+    }
+  ]
 }

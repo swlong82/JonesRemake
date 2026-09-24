@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hustle-ring/ai": "workspace:*",
+    "@hustle-ring/art": "workspace:*",
     "@hustle-ring/content": "workspace:*",
     "@hustle-ring/engine": "workspace:*",
     "@hustle-ring/platform": "workspace:*",

@@ -110,7 +110,7 @@ Owner-reviewed scope: ADR-0037. Phase A closes every open issue before M8.1.
 Owner interview 2026-09-24: ADR-0051…0053.
 
 - [x] M9.1 Spec amendments (17, 17.10) + ADRs; this task list — note: `SPEC_PACK.md` gains section 17 (`docs/ART_SPEC.md`) and amends 1.2, 1.3, 2.3, 2.4, 5.1, 5.6, 10, 12.5, 15.2, 16.1; split and index scripts know section 17; ADR-0051…0053 record the owner interview.
-- [ ] M9.2 `packages/art`: manifest schema, slot catalog, SVG sanitizer, key-colour tint, set validator (17.2–17.4, 17.6)
+- [x] M9.2 `packages/art`: manifest schema, slot catalog, SVG sanitizer, key-colour tint, set validator (17.2–17.4, 17.6) — note: `schema/catalog/sanitize/tint/contrast/validate/resolve/placeholder/generate.ts`; the sanitizer is an allowlist check that rejects rather than rewrites (19 attack fixtures), one validator for bundled and user sets; new `art` boundary layer (`shared ← art`), coverage held to the content bar. 39 tests, 98.8% lines.
 - [ ] M9.3 `pnpm art:placeholders` + default set wireframes + `pnpm art:check` in `verify` (17.3, 17.8)
 - [ ] M9.4 Web `ArtRegistry`: static URLs, tint blobs, wireframe fallback per key; app flag `sceneUi` (17.5, 17.9)
 - [ ] M9.5 Theme from art set: palette tokens, bundled OFL fonts, 9-slice frames (17.7)

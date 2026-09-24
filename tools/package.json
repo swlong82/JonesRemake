@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@hustle-ring/art": "workspace:*",
+    "@hustle-ring/content": "workspace:*",
     "@hustle-ring/platform": "workspace:*",
     "fast-glob": "^3.3.3"
   }

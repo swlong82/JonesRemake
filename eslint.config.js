@@ -8,16 +8,18 @@ import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
 // Dependency rule (ARCHITECTURE 5.1 + ROADMAP_SCAFFOLDS 16.8):
-//   shared ← platform ; shared ← content ← engine ← ai ← sim ; web → all but sim (+ platform)
+//   shared ← platform ; shared ← art ; shared ← content ← engine ← ai ← sim ;
+//   web → all but sim (+ platform, art)
 const layers = {
   shared: ['shared'],
   platform: ['shared', 'platform'],
+  art: ['shared', 'art'],
   content: ['shared', 'content'],
   engine: ['shared', 'content', 'engine'],
   ai: ['shared', 'content', 'engine', 'ai'],
   sim: ['shared', 'content', 'engine', 'ai', 'sim'],
-  web: ['shared', 'platform', 'content', 'engine', 'ai', 'web'],
-  tools: ['shared', 'platform', 'content', 'engine', 'ai', 'sim', 'tools'],
+  web: ['shared', 'platform', 'art', 'content', 'engine', 'ai', 'web'],
+  tools: ['shared', 'platform', 'art', 'content', 'engine', 'ai', 'sim', 'tools'],
 };
 
 export default tseslint.config(

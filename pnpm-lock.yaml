@@ -83,6 +83,9 @@ importers:
       '@hustle-ring/ai':
         specifier: workspace:*
         version: link:../../packages/ai
+      '@hustle-ring/art':
+        specifier: workspace:*
+        version: link:../../packages/art
       '@hustle-ring/content':
         specifier: workspace:*
         version: link:../../packages/content
@@ -175,6 +178,12 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
+  packages/art:
+    dependencies:
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+
   packages/content:
     dependencies:
       '@hustle-ring/shared':
@@ -224,6 +233,12 @@ importers:
 
   tools:
     dependencies:
+      '@hustle-ring/art':
+        specifier: workspace:*
+        version: link:../packages/art
+      '@hustle-ring/content':
+        specifier: workspace:*
+        version: link:../packages/content
       '@hustle-ring/platform':
         specifier: workspace:*
         version: link:../packages/platform
