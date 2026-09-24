@@ -1,38 +1,32 @@
 # Handoff
 
-State of the build at the end of M8 (release) on `claude/blissful-maxwell-isum6e`, PR #18. Read
-`CLAUDE.md` first, then this file. Every task in `PROGRESS.md` is ticked except the M8 gate row,
-which closes when the PR merges.
+State of the build after M8 (release). PR #18 merged to `main` as **03caf07** (squash), which is
+v1.0.0. Read `CLAUDE.md` first, then this file. Every milestone M0–M8 is done; `PROGRESS.md` has
+the gate log.
 
 ## Where the build is
 
-| Area            | State                                                                                  |
-| --------------- | -------------------------------------------------------------------------------------- |
-| Engine          | 0.3.0. Layoff grace (ADR-0047) and graduate entry (ADR-0050) are the last rule changes |
-| Content         | `classic` and `modern-western` 0.3.0, retuned for the fixed AI (ADR-0049)              |
-| AI              | The M8.0e defects fixed (see `BALANCE_REPORT.md`, _How M8 got there_)                  |
-| Classic balance | Stage 1 re-run: every 9.3 target met but sim speed (`BASELINE_REPORT.md`)              |
-| Modern balance  | Stage 2: every locked 9.5 target met but sim speed; targets re-locked by ADR-0048      |
-| CI gates        | `sim/gates.json` has no `pending` assertion; `pnpm sim:gate --strict` is the bar       |
-| Web             | Leaderboard and Stats board, tutorial fixes, HUD wrapping; e2e matrix and regression   |
-| Deploy          | `deploy.yml` deploys, smoke-tests the live URL and rolls back on failure (ADR-0045)    |
-| Open issues     | KI-010 (sim speed, out of scope) and KI-011 (Easy AI stalls at high goals), both minor |
+| Area            | State                                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| Release         | v1.0.0 = `main` @ 03caf07; engine 0.3.0, `classic` and `modern-western` content 0.3.0    |
+| Classic balance | Stage 1: every 9.3 target met but sim speed (`BASELINE_REPORT.md`)                       |
+| Modern balance  | Stage 2: every locked 9.5 target met but sim speed; targets locked by ADR-0048           |
+| CI gates        | `sim/gates.json` has no `pending` assertion; `pnpm sim:gate --strict` passes             |
+| Web             | Both rulesets playable; leaderboard, tutorial, audio, saves, themes, a11y                |
+| Deploy          | `deploy.yml` deploys after CI on `main`, smoke-tests the live URL, rolls back on failure |
+| Open issues     | KI-010 (sim speed, out of scope) and KI-011 (Easy AI stalls at high goals), both minor   |
 
-## What the owner does to release
+## Still to do by the owner
 
-1. Mark PR #18 reviewed and merge it with a **merge commit** (ADR-0038), not a squash.
-2. Watch the `deploy` workflow on `main`: deploy, then the live smoke test. A failed smoke test
-   rolls the site back and opens an issue; the first run has no earlier build to roll back to.
-3. Push the tags the session cannot push (KI-001), from a clone with tag rights:
+The build session cannot push tags (KI-001). From a clone with tag rights:
 
-   ```bash
-   sh tools/retag-milestones.sh                 # m1–m7 onto their main commits
-   git tag -a m8 <merge-sha> -m m8
-   git tag -a v1.0.0 <merge-sha> -m v1.0.0
-   git push origin m8 v1.0.0
-   ```
+```bash
+sh tools/retag-milestones.sh   # m1–m7 onto their main commits, m8 and v1.0.0 onto 03caf07
+```
 
-4. Record the merge commit and CI run in the PROGRESS gate log (M8 row) and tick the M8 gate.
+PR #18 was squash-merged although ADR-0038 asked for a merge commit, so its branch commits are
+not on `main`; 03caf07 is the first `main` commit containing the M8 gate, which is what the tags
+point at. Nothing else depends on the merge method.
 
 ## Reproducing the measurements
 
@@ -52,3 +46,4 @@ re-derived and re-locked with a new ADR (the ADR-0042 → ADR-0048 procedure).
 - KI-011: the Easy AI stalls in 11–24% of 2-seat games at goals 80–100.
 - League scopes are reserved in the leaderboard contract and hold nothing locally (ADR-0037 kept the
   league UI out of scope).
+- Future work lands on a fresh branch from `main`; see `CLAUDE.md` 1.6 for the per-task loop.

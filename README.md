@@ -4,24 +4,24 @@ A modern, browser-based remake of a 1991 life-sim board game: race rivals around
 city locations, juggling money, career, education and happiness in weekly turns. Built as a clean-room
 reimplementation with original names, art and text — see `docs/PRD.md` §2.6 for the IP-safety rules.
 
-**Status:** release candidate for v1.0.0 (milestone M8). Two rulesets are playable and balanced
+**Status:** v1.0.0 — released with milestone M8 (merged to `main` as 03caf07). Two rulesets are playable and balanced
 against the spec's targets, with AI rivals at three difficulties, local hotseat, saves and replays, a
 tutorial, audio, themes and a local leaderboard. Everything runs in the browser; nothing leaves the
 device. `PROGRESS.md` has the task list, `HANDOFF.md` the resume point.
 Live build: https://swlong82.github.io/JonesRemake/ (GitHub Pages; `deploy.yml` runs after CI on
 `main` and smoke-tests the live site after every deploy).
 
-| Milestone | Scope                                          | Status      |
-| --------- | ---------------------------------------------- | ----------- |
-| M0        | Scaffold, CI, Pages deploy, spec pack          | done        |
-| M1        | Engine core (state, RNG, commands)             | done        |
-| M2        | Classic content pack + AI rival                | done        |
-| M3        | Sim harness + classic baseline                 | done        |
-| M4        | Web UI, classic playable                       | done        |
-| M5        | Modern systems (transport, gigs, loans)        | done        |
-| M6        | Modern pack + balance                          | done        |
-| M7        | Polish: audio, save/replay, tutorial, a11y     | done        |
-| M8        | Release: leaderboard, docs, regression, v1.0.0 | in progress |
+| Milestone | Scope                                          | Status |
+| --------- | ---------------------------------------------- | ------ |
+| M0        | Scaffold, CI, Pages deploy, spec pack          | done   |
+| M1        | Engine core (state, RNG, commands)             | done   |
+| M2        | Classic content pack + AI rival                | done   |
+| M3        | Sim harness + classic baseline                 | done   |
+| M4        | Web UI, classic playable                       | done   |
+| M5        | Modern systems (transport, gigs, loans)        | done   |
+| M6        | Modern pack + balance                          | done   |
+| M7        | Polish: audio, save/replay, tutorial, a11y     | done   |
+| M8        | Release: leaderboard, docs, regression, v1.0.0 | done   |
 
 ## Play
 
