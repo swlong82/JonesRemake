@@ -36,6 +36,28 @@ describe('save validation and replay', () => {
       expect(stateHash(decoded.state)).toBe(stateHash(state));
     },
   );
+  it('imports a replay in which a rent extension was denied by chance (KI-012)', () => {
+    const pack = loadPack('classic');
+    let denied: ReturnType<typeof createGame> | null = null;
+    for (let i = 0; i < 40 && denied === null; i++) {
+      let state = createGame({ ...config, seed: `ext-${i}` }, pack);
+      for (const cmd of [
+        { type: 'EndTurn' },
+        { type: 'EndTurn' },
+        { type: 'EndTurn' },
+        { type: 'Exit' },
+        { type: 'Move', to: 'rent-office', mode: 'walk' },
+        { type: 'Enter' },
+      ] as const) {
+        state = applyCommand(state, 0, cmd, pack).state;
+      }
+      const r = applyCommand(state, 0, { type: 'RequestExtension' }, pack);
+      expect(r.events.some((e) => e.type === 'CommandRejected')).toBe(false);
+      if (r.events.some((e) => e.type === 'ExtensionDenied')) denied = r.state;
+    }
+    expect(denied).not.toBeNull();
+    expect(parseImport(replayJson(denied!)).state).toEqual(denied);
+  });
   it('imports a compatible replay-only export and rejects one without its ruleset', () => {
     const state = fixture();
     expect(parseImport(replayJson(state)).state).toEqual(state);

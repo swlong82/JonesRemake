@@ -580,5 +580,8 @@
   "artPacks.ignored": "{{n}} other file(s) in the zip were ignored.",
   "artPacks.delete": "Delete the art pack {{name}}",
   "artPacks.deleteShort": "Delete",
-  "artPacks.storeFailed": "the pack could not be saved on this device"
+  "artPacks.storeFailed": "the pack could not be saved on this device",
+  "log.ExtensionDenied": "{{name}} asked for a rent extension and was turned down",
+  "event.ExtensionDenied.title": "Extension denied",
+  "event.ExtensionDenied.text": "The landlord says no. Rent is due now, and there will be no more extensions."
 }

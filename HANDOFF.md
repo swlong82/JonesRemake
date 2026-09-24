@@ -14,8 +14,7 @@ Every M9 task is done; the gate is not. It needs:
 2. `pnpm verify` green in CI, then tag `m9` (tags still need the owner, KI-001).
 3. The milestone after M9 deletes the ring board (`ui/game/Board.tsx`) and the flag (17.9).
 
-Open, not blocking: KI-012 (engine property-test flake on a chance-denied rent extension; the fix
-is described in the issue).
+KI-012 (chance-denied rent extension read as a rejection) is fixed (ADR-0059).
 
 ## M9 at a glance
 

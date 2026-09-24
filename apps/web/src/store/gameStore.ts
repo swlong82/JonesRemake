@@ -34,6 +34,7 @@ export const CARD_EVENTS = new Set<DomainEvent['type']>([
   'ItemsStolen',
   'ItemBroke',
   'RentDebt',
+  'ExtensionDenied',
   'Evicted',
   'LotteryResolved',
   'Fired',

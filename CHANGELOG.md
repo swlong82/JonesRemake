@@ -41,10 +41,12 @@ flag `sceneUi` (off by default until the M9 gate; `?ff=sceneUi`), except where n
 - The HUD reads "Turn: <name>" (was "<name>'s turn", which gave "You's turn"); the title tagline
   no longer says "Placeholder art". Both apply with or without the flag.
 
-### Known issues
+### Fixed
 
-- KI-012: the engine's random-play property test fails in about 3.5% of runs when a rent extension
-  is denied by chance (pre-existing; no player-facing effect).
+- KI-012: a rent extension denied by chance was reported as a rejected command, so a replay export
+  of such a game could not be imported, full saves loaded with a replay warning, and an engine
+  property test failed in about 3.5% of runs. It is now an `ExtensionDenied` event with its own
+  card and log line (ADR-0059). Applies with or without the flag.
 
 ## [1.0.0] — 2026-09-24
 

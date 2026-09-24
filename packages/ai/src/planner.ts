@@ -631,6 +631,7 @@ const SURPRISES = new Set([
   'ItemsStolen',
   'ItemBroke',
   'CommandRejected',
+  'ExtensionDenied',
 ]);
 
 /** Execute a full AI turn on the real state: plan, apply, re-plan on surprise, until the turn ends. */

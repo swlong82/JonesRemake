@@ -95,6 +95,11 @@ describe('M1.7 property: random legal command sequences keep the state valid', (
       { numRuns: 40 },
     );
   });
+  it('KI-012 regression: a chance-denied rent extension is not a rejection', () => {
+    // fast-check counterexample [8290, 111]: a legal RequestExtension denied by the roll.
+    const { state } = randomPlay('prop-8290', 111);
+    assertSane(state);
+  });
   it('the input state is never mutated by applyCommand', () => {
     const { state } = randomPlay('immut', 30);
     const before = stateHash(state);

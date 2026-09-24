@@ -603,3 +603,12 @@
 - Options: 1) keep the park and shrink sheets to the lawn (a scrolling 180-px box); 2) draw avatars over the sheets; 3) a column beside the stage on wide screens.
 - Decision: option 3. At ≥ 1024 px the sheets stack in a 360-px column right of the stage (the stage keeps its 16:10 ratio and its height budget); narrower screens keep them under the stage. Name plates render after the avatars so a passing figure never hides a name, and avatars stand on the near half of the road.
 - Consequences: nothing ever covers a square or an avatar. The stage is up to 360 px narrower on wide screens, which the height-bound sizing mostly absorbs. The HUD's "{{name}}'s turn" became "Turn: {{name}}", which also fixes "You's turn" for the default seat name.
+
+## ADR-0059: A chance-denied rent extension is an `ExtensionDenied` event, not a rejection
+
+- Date: 2026-09-24
+- Status: Accepted (fixes KI-012)
+- Context: `RequestExtension` is legal and spends its hour, then rolls against `extensionApproveBp`. A denial emitted `CommandRejected`, which every consumer reads as "this command was invalid": the engine's property test failed (≈ 3.5% of runs), replay-only imports refused such a game, full saves loaded with a replay warning, and the AI treated the outcome as an illegal move.
+- Options: 1) teach each consumer to ignore this one `CommandRejected`; 2) a dedicated outcome event.
+- Decision: option 2. `ExtensionDenied { seat }` joins the `DomainEvent` union (57 types). It is a start-of-action card (UX 7.5) with its own title and text, a log line, the `error` sound, and an AI surprise that triggers a re-plan. `CommandRejected` again means only a failed validation.
+- Consequences: no state or golden replay changes (the event count per command is the same, and no golden replay requests an extension). Replays and saves that contain a denial now verify.

@@ -134,9 +134,9 @@ describe('RequestExtension (GDD 4.10)', () => {
       } else {
         denied++;
         expect(r.state.players[0]!.home.extensionsBlocked).toBe(true);
-        expect(
-          r.events.some((e) => e.type === 'CommandRejected' && e.code === 'ERR_EXTENSION_DENIED'),
-        ).toBe(true);
+        expect(r.events.some((e) => e.type === 'ExtensionDenied' && e.seat === 0)).toBe(true);
+        // A chance denial is an outcome, never a rejection (KI-012).
+        expect(r.events.some((e) => e.type === 'CommandRejected')).toBe(false);
       }
     }
     expect(approved).toBeGreaterThan(10);
