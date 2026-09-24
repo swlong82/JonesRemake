@@ -119,6 +119,17 @@
 - Mitigation: a human playing against Easy AIs is unaffected — the game ends when anyone wins, and Easy is the tutorial and practice opponent. Stall detection ends a stalled simulated game at week 300.
 - Status: open — minor; revisit if players report Easy opponents that never finish
 
+## KI-012: The M1.7 property test fails when a rent extension is denied by chance
+
+- Severity: minor (test flake, about 3.5% of `pnpm test` runs; no player-facing effect)
+- Area: engine
+- Found in: M9.7 (`pnpm test`), pre-existing since M1.7
+- Repro: in `packages/engine/src/core/replay.test.ts`, run the property "never negative hours, NaN, or schema violations" with `numRuns: 3000`; fast-check finds counterexample `[8290, 111]` (`randomPlay('prop-8290', 111)`): "legal command RequestExtension was rejected".
+- Cause: `RequestExtension` is legal and applies (hours are spent), but a denial rolled from `extensionApproveBp` emits `CommandRejected` with `ERR_EXTENSION_DENIED` (`packages/engine/src/commands/home.ts`). The property reads every `CommandRejected` as a legality mismatch, so a chance denial fails it.
+- Attempts: none in M9; out of scope for the scene UI.
+- Mitigation: re-run. Proposed fix: emit a dedicated outcome event (e.g. `ExtensionDenied`) for the chance denial and keep `CommandRejected` for real validation failures; the property test then stays strict.
+- Status: open
+
 <!--
 ## KI-001: <title>
 - Severity: blocker | major | minor
