@@ -2,7 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
-import { commandKey, commandLabel } from './labels';
+import { commandKey, commandLabel, hours, locationName } from './labels';
 
 export function AiTicker() {
   const { t } = useTranslation();
@@ -14,6 +14,7 @@ export function AiTicker() {
   const active = state.players[state.activeSeat];
   if (!active || active.controller === 'human-local') return null;
   const recent = ticker.slice(-5);
+  const latest = recent.at(-1);
 
   return (
     <section
@@ -23,6 +24,18 @@ export function AiTicker() {
       data-testid="ai-ticker"
     >
       <h2 className="text-sm font-semibold">{t('ticker.heading', { name: active.name })}</h2>
+      <p className="text-xs" data-testid="ai-status">
+        {t('ticker.status', {
+          name: active.name,
+          place: locationName(active.location),
+          hours: hours(active.hoursLeft),
+        })}
+      </p>
+      {latest && (
+        <p className="text-sm font-medium" data-testid="ai-now">
+          {t('ticker.now', { action: commandLabel(latest.cmd, t) })}
+        </p>
+      )}
       <ul className="mt-1 flex flex-col gap-0.5 text-xs text-ink-muted">
         {recent.map((entry, i) => (
           <li key={`${commandKey(entry.cmd)}-${i}`}>{commandLabel(entry.cmd, t)}</li>

@@ -21,6 +21,8 @@ import type { DomainEvent, ErrorCode, LocationId } from '@hustle-ring/shared';
 import { create } from 'zustand';
 import { createAiClient, type AiClient } from '../ai/aiClient';
 import { loadPackStrings } from '../i18n';
+import { haptic } from './haptics';
+import { weekNeeds } from './needs';
 import { useSettings, type AiSpeed } from './settings';
 
 export type Screen =
@@ -63,6 +65,16 @@ export interface SubscriptionCancelPending {
   stateHash: string;
 }
 
+/** A point in the acting human's current turn that `undoLast` can return to (M12.2). */
+export interface UndoSnapshot {
+  state: GameState;
+  log: LogEntry[];
+  cards: DomainEvent[];
+}
+
+/** Most steps one turn can be rewound; a turn holds far fewer actions than this. */
+export const MAX_UNDO = 40;
+
 export interface GameStore {
   screen: Screen;
   pack: CityPack | null;
@@ -74,6 +86,14 @@ export interface GameStore {
   /** Cards held back until the hotseat pass screen is dismissed. */
   pendingCards: DomainEvent[];
   ticker: TickerEntry[];
+  /** What the last human action did to that seat (M11.10); cleared by the toast's timer. */
+  delta: { id: number; seat: number; events: DomainEvent[] } | null;
+  /**
+   * Snapshots taken before each of this turn's human actions (M12.2). The engine never mutates its
+   * input, so a snapshot is just the earlier state; restoring it keeps the RNG and command log
+   * exactly as they were, so replays stay identical. Emptied whenever the turn changes.
+   */
+  undoStack: UndoSnapshot[];
   /** Human seat currently controlling the device (hotseat privacy). */
   viewerSeat: number;
   selectedLocation: LocationId | null;
@@ -84,6 +104,8 @@ export interface GameStore {
   standingsOpen: boolean;
   menuOpen: boolean;
   helpOpen: boolean;
+  /** Command palette (M12.3) is open. */
+  paletteOpen: boolean;
   /** End-turn confirmation is pending because hours are still left (UX 7.7). */
   endTurnPending: boolean;
   /** The deliberately inconvenient second step in the subscription cancellation flow. */
@@ -110,14 +132,19 @@ export interface GameStore {
   toggleLog: () => void;
   toggleStandings: () => void;
   toggleMenu: () => void;
-  /** End the turn, or ask first when more than `END_TURN_CONFIRM_HOURS` remain. */
+  /** End the turn, or ask first when hours remain over `END_TURN_CONFIRM_HOURS` or a weekly need is unmet. */
   requestEndTurn: () => void;
   cancelEndTurn: () => void;
   requestSubscriptionCancel: (cmd: UnsubscribeCommand) => boolean;
   confirmSubscriptionCancel: () => boolean;
   cancelSubscriptionCancel: () => void;
   toggleHelp: () => void;
+  togglePalette: (open?: boolean) => void;
   dismissCard: () => void;
+  dismissAllCards: () => void;
+  clearDelta: () => void;
+  /** Rewind the human's last action this turn (M12.2); false when there is nothing to undo. */
+  undoLast: () => boolean;
   skipAi: () => void;
   ready: () => void;
   runAiIfNeeded: () => Promise<void>;
@@ -162,6 +189,8 @@ export const useGame = create<GameStore>((set, get) => ({
   state: null,
   log: [],
   cards: [],
+  delta: null,
+  undoStack: [],
   pendingCards: [],
   ticker: [],
   viewerSeat: 0,
@@ -172,6 +201,7 @@ export const useGame = create<GameStore>((set, get) => ({
   standingsOpen: false,
   menuOpen: false,
   helpOpen: false,
+  paletteOpen: false,
   endTurnPending: false,
   subscriptionCancelPending: null,
   loading: false,
@@ -188,7 +218,7 @@ export const useGame = create<GameStore>((set, get) => ({
       get().aiClient.cancelPending();
       set({ aiThinking: false, loading: false });
     }
-    set({ screen, helpOpen: false, menuOpen: false });
+    set({ screen, helpOpen: false, menuOpen: false, paletteOpen: false });
     if (screen === 'game') void get().runAiIfNeeded();
   },
   beginLoad() {
@@ -220,6 +250,8 @@ export const useGame = create<GameStore>((set, get) => ({
       cards: [],
       pendingCards: [],
       ticker: [],
+      delta: null,
+      undoStack: [],
       viewerSeat: humans.includes(state.activeSeat) ? state.activeSeat : (humans[0] ?? 0),
       selectedLocation: null,
       travelOpen: false,
@@ -259,6 +291,8 @@ export const useGame = create<GameStore>((set, get) => ({
       log: [],
       cards: [],
       ticker: [],
+      delta: null,
+      undoStack: [],
       viewerSeat: humans[0] ?? 0,
       selectedLocation: null,
       travelOpen: false,
@@ -288,6 +322,7 @@ export const useGame = create<GameStore>((set, get) => ({
     const rejected = r.events.find((e) => e.type === 'CommandRejected');
     if (rejected?.type === 'CommandRejected') {
       set({ lastError: rejected.code });
+      if (state.players[seat]?.controller === 'human-local') haptic('fail');
       return false;
     }
     const player = state.players[seat];
@@ -313,8 +348,16 @@ export const useGame = create<GameStore>((set, get) => ({
       endTurnPending: false,
       subscriptionCancelPending: null,
     };
+    // Undo (M12.2): each human action pushes the state it started from; a turn change or a
+    // setting that turns undo off starts the stack over.
+    const canUndo =
+      isHuman && cmd.type !== 'EndTurn' && !useSettings.getState().settings.strictMode;
+    patch.undoStack = canUndo
+      ? [...get().undoStack, { state, log: get().log, cards: get().cards }].slice(-MAX_UNDO)
+      : [];
     // Turn changed: hotseat privacy screen, or AI turn.
     if (next.activeSeat !== seat || next.winner !== null) {
+      patch.undoStack = [];
       patch.selectedLocation = null;
       const nextPlayer = next.players[next.activeSeat];
       if (next.winner !== null) {
@@ -356,7 +399,12 @@ export const useGame = create<GameStore>((set, get) => ({
         ];
       }
     }
+    if (isHuman && cmd.type !== 'EndTurn') {
+      const events = r.events.filter((e) => 'seat' in e && e.seat === seat);
+      patch.delta = events.length > 0 ? { id: (get().delta?.id ?? 0) + 1, seat, events } : null;
+    }
     set(patch);
+    if (isHuman && cmd.type !== 'EndTurn') haptic('success');
     if (!isHuman) set({ ticker: [...get().ticker, { seat, cmd }].slice(-12) });
     void get().runAiIfNeeded();
     return true;
@@ -392,8 +440,10 @@ export const useGame = create<GameStore>((set, get) => ({
   },
   requestEndTurn() {
     const { state } = get();
+    const { pack } = get();
     const left = state?.players[state.activeSeat]?.hoursLeft ?? 0;
-    if (left > END_TURN_CONFIRM_HOURS) {
+    const needs = state && pack ? weekNeeds(state, pack).length : 0;
+    if (left > END_TURN_CONFIRM_HOURS || needs > 0) {
       set({ endTurnPending: true });
       return;
     }
@@ -426,8 +476,36 @@ export const useGame = create<GameStore>((set, get) => ({
   toggleHelp() {
     set({ helpOpen: !get().helpOpen });
   },
+  togglePalette(open) {
+    set({ paletteOpen: open ?? !get().paletteOpen });
+  },
   dismissCard() {
     set({ cards: get().cards.slice(1) });
+  },
+  dismissAllCards() {
+    set({ cards: [] });
+  },
+  clearDelta() {
+    set({ delta: null });
+  },
+  undoLast() {
+    const { undoStack, state, loading } = get();
+    const snap = undoStack[undoStack.length - 1];
+    if (!snap || !state || loading || state.winner !== null) return false;
+    // Only the seat that acted may rewind, and only inside the same turn.
+    if (snap.state.activeSeat !== state.activeSeat || snap.state.week !== state.week) return false;
+    set({
+      state: snap.state,
+      log: snap.log,
+      cards: snap.cards,
+      undoStack: undoStack.slice(0, -1),
+      delta: null,
+      lastError: null,
+      travelOpen: false,
+      endTurnPending: false,
+      subscriptionCancelPending: null,
+    });
+    return true;
   },
   skipAi() {
     set({ aiSkip: true });
@@ -541,6 +619,8 @@ export const useGame = create<GameStore>((set, get) => ({
       cards: [],
       pendingCards: [],
       ticker: [],
+      delta: null,
+      undoStack: [],
       log: [],
       loading: false,
       aiThinking: false,
@@ -564,7 +644,7 @@ export const useGame = create<GameStore>((set, get) => ({
     const next = structuredClone(state);
     next.debugTouched = true;
     fn(next);
-    set({ state: next, subscriptionCancelPending: null });
+    set({ state: next, undoStack: [], subscriptionCancelPending: null });
   },
 }));
 

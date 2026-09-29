@@ -73,7 +73,7 @@ const orderDeliveryHandler: CommandHandler<OrderDeliveryCommand> = {
   preview: (ctx, cmd) => ({
     riskBp: ctx.rules.food.deliveryLostBp,
     riskKey: 'risk.deliveryLost',
-    notes: [`meal:${cmd.mealId}`],
+    notes: [ctx.pack.mealById[cmd.mealId]?.countsAsMeal === true ? 'meal.counts' : 'meal.snack'],
   }),
   candidates: (ctx) =>
     ctx.pack.meals

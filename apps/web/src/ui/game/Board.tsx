@@ -81,7 +81,7 @@ export function Board({ compact = false }: { compact?: boolean }) {
           ? t('board.here', { name: locationName(locId) })
           : t('board.location', {
               name: locationName(locId),
-              steps,
+              count: steps,
               hours: hours(trip?.hours ?? 0),
               key: ringKeyFor(index),
             });

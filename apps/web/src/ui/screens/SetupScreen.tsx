@@ -13,11 +13,12 @@ import {
   type PaletteId,
   type TokenShape,
 } from '@hustle-ring/shared';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { artRegistryFor, baseArtRegistry, useArtSets } from '../../assets/art/artRegistry';
 import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
+import { useSeedLink } from '../../store/seedLink';
 import { useSettings } from '../../store/settings';
 import { Button } from '../common/Button';
 import { Field } from '../common/Field';
@@ -105,7 +106,12 @@ export function SetupScreen() {
   const startGame = useGame((s) => s.startGame);
   const settings = useSettings((s) => s.settings);
   const update = useSettings((s) => s.update);
-  const [packId, setPackId] = useState(PLAYABLE[0] ?? 'classic');
+  // A shared seed link fills the seed and city once, then is spent (M12.10).
+  const [shared] = useState(() => useSeedLink.getState().link);
+  useEffect(() => {
+    if (shared) useSeedLink.getState().set(null);
+  }, [shared]);
+  const [packId, setPackId] = useState(shared?.packId ?? PLAYABLE[0] ?? 'classic');
   const pack = useMemo(() => loadPack(packId), [packId]);
   const sceneUi = useFlags((f) => f.flags.sceneUi);
   useArtSets((s) => s.version);
@@ -113,7 +119,7 @@ export function SetupScreen() {
     defaultSeat(0, 'human-local', 'You'),
     defaultSeat(1, 'ai', 'Rival'),
   ]);
-  const [seed, setSeed] = useState(randomSeed);
+  const [seed, setSeed] = useState(() => shared?.seed ?? randomSeed());
   const [chaos, setChaos] = useState<Chaos>(pack.flags.modernEvents ? 'modern' : 'classic');
   const [classicOpacity, setClassicOpacity] = useState(settings.classicOpacityDefault);
   const [soloPractice, setSoloPractice] = useState(false);
@@ -141,7 +147,11 @@ export function SetupScreen() {
       )}
       <h1 className="mb-4 text-3xl font-bold">{t('setup.heading')}</h1>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t('setup.ruleset')} htmlFor="ruleset">
+        <Field
+          label={t('setup.ruleset')}
+          htmlFor="ruleset"
+          hint={t(`setup.rulesetHint.${packId}`, { defaultValue: '' })}
+        >
           <select
             id="ruleset"
             className="input"
@@ -150,12 +160,12 @@ export function SetupScreen() {
           >
             {PLAYABLE.map((id) => (
               <option key={id} value={id}>
-                {id}
+                {t(`setup.ruleset.${id}`, { defaultValue: id })}
               </option>
             ))}
           </select>
         </Field>
-        <Field label={t('setup.city')} htmlFor="city">
+        <Field label={t('setup.city')} htmlFor="city" hint={t('setup.cityHint')}>
           <select
             id="city"
             className="input"
@@ -271,26 +281,31 @@ export function SetupScreen() {
               )}
             </div>
             {s.controller === 'human-local' ? (
-              <div className="mt-3 grid gap-2 sm:grid-cols-4">
-                {GOAL_IDS.map((g) => (
-                  <Field
-                    key={g}
-                    label={`${t(`setup.goal.${g}`)}: ${s.goals[g]}`}
-                    htmlFor={`goal-${i}-${g}`}
-                  >
-                    <input
-                      id={`goal-${i}-${g}`}
-                      type="range"
-                      min={10}
-                      max={100}
-                      step={10}
-                      value={s.goals[g]}
-                      onChange={(e) => setGoal(i, g, Number(e.target.value))}
-                      className="w-full"
-                    />
-                  </Field>
-                ))}
-              </div>
+              <>
+                <p className="mt-3 text-xs text-ink-muted" data-testid="goals-note">
+                  {t('setup.goalsNote')}
+                </p>
+                <div className="mt-1 grid gap-2 sm:grid-cols-4">
+                  {GOAL_IDS.map((g) => (
+                    <Field
+                      key={g}
+                      label={`${t(`setup.goal.${g}`)}: ${s.goals[g]}`}
+                      htmlFor={`goal-${i}-${g}`}
+                    >
+                      <input
+                        id={`goal-${i}-${g}`}
+                        type="range"
+                        min={10}
+                        max={100}
+                        step={10}
+                        value={s.goals[g]}
+                        onChange={(e) => setGoal(i, g, Number(e.target.value))}
+                        className="w-full"
+                      />
+                    </Field>
+                  ))}
+                </div>
+              </>
             ) : (
               <p className="mt-2 text-sm text-ink-muted">{t('setup.aiGoalsNote')}</p>
             )}
@@ -332,7 +347,7 @@ export function SetupScreen() {
 
       <h2 className="mt-6 text-xl font-semibold">{t('setup.options')}</h2>
       <div className="mt-2 grid gap-3 sm:grid-cols-2">
-        <Field label={t('setup.seed')} htmlFor="seed">
+        <Field label={t('setup.seed')} htmlFor="seed" hint={t('setup.seedHint')}>
           <div className="flex gap-2">
             <input
               id="seed"
@@ -346,7 +361,7 @@ export function SetupScreen() {
             </Button>
           </div>
         </Field>
-        <Field label={t('setup.chaos')} htmlFor="chaos">
+        <Field label={t('setup.chaos')} htmlFor="chaos" hint={t(`setup.chaosHint.${chaos}`)}>
           <select
             id="chaos"
             className="input"
@@ -367,7 +382,10 @@ export function SetupScreen() {
             checked={classicOpacity}
             onChange={(e) => setClassicOpacity(e.target.checked)}
           />
-          {t('setup.classicOpacity')}
+          <span className="flex flex-col">
+            {t('setup.classicOpacity')}
+            <span className="text-xs text-ink-muted">{t('setup.classicOpacityHint')}</span>
+          </span>
         </label>
         <Field label={t('setup.aiSpeed')} htmlFor="aispeed">
           <select

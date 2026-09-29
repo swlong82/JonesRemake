@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { artRegistryFor, useArtSets } from '../../assets/art/artRegistry';
+import { useSwipe } from '../game/useSwipe';
 import { useScenePrefetch } from '../../assets/art/usePrefetch';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
@@ -22,7 +23,10 @@ import { clampView, panBy, zoomAt, type Size, type View } from './panZoom';
  */
 const VIEWPORT_RATIO = 0.625;
 const DRAG_THRESHOLD = 8;
+/** From this zoom on the plates have room for full names. */
+const LONG_LABEL_SCALE = 1.75;
 const STAGE_RATIO = 1.6;
+const PLATE_ROOM = 20;
 
 export type PhoneView = 'scene' | 'list';
 
@@ -53,8 +57,10 @@ function PannableScene() {
   const pack = useGame((s) => s.pack);
   const box = useRef<HTMLDivElement>(null);
   const width = useWidth(box, 390);
-  const viewport: Size = { width, height: Math.round(width * VIEWPORT_RATIO) };
-  const stage: Size = { width: viewport.height * STAGE_RATIO, height: viewport.height };
+  const stageHeight = Math.round(width * VIEWPORT_RATIO);
+  // A little extra height under the block, so the bottom row's name plates are not cut off.
+  const viewport: Size = { width, height: stageHeight + PLATE_ROOM };
+  const stage: Size = { width: stageHeight * STAGE_RATIO, height: stageHeight };
   const [view, setView] = useState<View | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const moved = useRef(0);
@@ -131,7 +137,7 @@ function PannableScene() {
           data-testid="phone-stage"
           data-scale={current.scale.toFixed(2)}
         >
-          <BoardScene registry={registry}>
+          <BoardScene registry={registry} shortLabels={current.scale < LONG_LABEL_SCALE}>
             <AvatarLayer registry={registry} layout={layout} />
           </BoardScene>
         </div>
@@ -157,6 +163,8 @@ export function PhoneScene() {
   const { t } = useTranslation();
   useScenePrefetch();
   const [mode, setMode] = useState<PhoneView>('scene');
+  // Swiping right on the list goes back to the scene; the scene itself pans, so it keeps the buttons.
+  const swipe = useSwipe({ right: () => setMode('scene') });
   return (
     <div className="flex flex-col gap-2" data-testid="phone-scene-switch">
       <div className="flex gap-2" role="group" aria-label={t('phone.view')}>
@@ -179,7 +187,13 @@ export function PhoneScene() {
           {t('phone.viewList')}
         </Button>
       </div>
-      {mode === 'scene' ? <PannableScene /> : <PhoneLocationList />}
+      {mode === 'scene' ? (
+        <PannableScene />
+      ) : (
+        <div {...swipe} data-testid="phone-list-swipe">
+          <PhoneLocationList />
+        </div>
+      )}
     </div>
   );
 }

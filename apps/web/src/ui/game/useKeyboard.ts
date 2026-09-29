@@ -4,6 +4,7 @@
  */
 import { useEffect } from 'react';
 import { useGame } from '../../store/gameStore';
+import { useSettings } from '../../store/settings';
 import { RING_KEYS } from './labels';
 
 function isTypingTarget(target: EventTarget | null): boolean {
@@ -31,6 +32,18 @@ export function handleGameKey(e: KeyboardEvent): void {
     store.go('saves');
     return;
   }
+  const yours = state.players[state.activeSeat]?.controller === 'human-local';
+  if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (yours) store.togglePalette();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'z') {
+    e.preventDefault();
+    if (yours && store.cards.length === 0 && !useSettings.getState().settings.strictMode)
+      store.undoLast();
+    return;
+  }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
 
   // A retention offer is modal: only its own buttons and Escape may act while it is open.
@@ -43,7 +56,8 @@ export function handleGameKey(e: KeyboardEvent): void {
   }
 
   if (e.key === 'Escape') {
-    if (store.cards.length > 0) store.dismissCard();
+    if (store.paletteOpen) store.togglePalette(false);
+    else if (store.cards.length > 0) store.dismissCard();
     else if (store.travelOpen) store.closeTravel();
     else if (store.endTurnPending) store.cancelEndTurn();
     else if (store.menuOpen) store.toggleMenu();
@@ -93,6 +107,13 @@ export function handleGameKey(e: KeyboardEvent): void {
       return;
     case 'h':
       store.go('help');
+      return;
+    case '/':
+      e.preventDefault();
+      if (yourTurn) store.togglePalette(true);
+      return;
+    case 'z':
+      if (yourTurn && !useSettings.getState().settings.strictMode) store.undoLast();
       return;
     default:
       break;

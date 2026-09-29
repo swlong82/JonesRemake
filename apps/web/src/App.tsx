@@ -4,6 +4,7 @@ import { useAudio } from './audio/useAudio';
 import { useSaveConnection } from './platform/Services';
 import { SaveNotice } from './save/SaveNotice';
 import { useEffect } from 'react';
+import { captureSeedLink } from './store/seedLink';
 import { useTranslation } from 'react-i18next';
 import { useFlags } from './flags/appFlags';
 import { useGame } from './store/gameStore';
@@ -12,6 +13,7 @@ import { applyDocumentSettings, useSettings } from './store/settings';
 import { Spotlight } from './tutorial/Spotlight';
 import { useTutorialBoot } from './tutorial/useTutorialBoot';
 import { SCREENS } from './ui/screens/registry';
+import { useInstallPrompt } from './ui/screens/InstallButton';
 import { UnavailableScreen } from './ui/screens/UnavailableScreen';
 
 /**
@@ -24,10 +26,15 @@ export function App() {
   useArtPacks();
   useArtTheme();
   useTutorialBoot();
+  useInstallPrompt();
   const { t } = useTranslation();
   const screen = useGame((s) => s.screen);
   const settings = useSettings((s) => s.settings);
   const flags = useFlags((s) => s.flags);
+  // A shared "play this seed" link opens the setup screen with that seed and city filled in.
+  useEffect(() => {
+    if (captureSeedLink(globalThis.location.search)) useGame.getState().go('setup');
+  }, []);
   useEffect(() => {
     applyDocumentSettings(settings);
     setLanguage(settings.language);

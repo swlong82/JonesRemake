@@ -50,11 +50,11 @@ export function InteriorScene({ registry }: { registry: ArtRegistry }) {
         artKey={`host:${loc}`}
         style={anchorStyle({ x: HOST.x, y: HOST.y }, HOST.width, HOST.height)}
       />
-      <div className="absolute max-w-[34%]" style={{ left: pctX(520), top: pctY(170) }}>
+      <div className="absolute max-w-[26%]" style={{ left: pctX(500), top: pctY(150) }}>
         <SpeechBubble text={locationQuip(loc, state.week)} testId="host-speech" />
       </div>
       <div
-        className="absolute left-[60%] top-[2%] h-[96%] w-[38.5%] overflow-y-auto"
+        className="scroll-shadow absolute left-[60%] top-[2%] h-[96%] w-[38.5%] overflow-y-auto"
         data-testid="interior-panel"
       >
         <LocationPanel />

@@ -4,8 +4,11 @@ import { baseArtRegistry, useArtSets } from '../../assets/art/artRegistry';
 import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { useSaves } from '../../save/controller';
+import { useSettings } from '../../store/settings';
 import { Button } from '../common/Button';
 import { ArtImage } from '../scene/ArtImage';
+import { quickStartConfig } from './quickStart';
+import { InstallButton } from './InstallButton';
 
 export function TitleScreen() {
   const { t } = useTranslation();
@@ -13,6 +16,8 @@ export function TitleScreen() {
   useArtSets((s) => s.version);
   const { records, controller, busy } = useSaves();
   const go = useGame((s) => s.go);
+  const startGame = useGame((s) => s.startGame);
+  const classicOpacityDefault = useSettings((s) => s.settings.classicOpacityDefault);
   const state = useGame((s) => s.state);
   const sceneUi = useFlags((f) => f.flags.sceneUi);
   const menu = (
@@ -36,7 +41,17 @@ export function TitleScreen() {
           {t('title.continue')}
         </Button>
       )}
-      <Button variant="primary" onClick={() => go('setup')} data-testid="new-game">
+      <Button
+        variant="primary"
+        onClick={() => {
+          startGame(quickStartConfig(undefined, classicOpacityDefault));
+        }}
+        data-testid="quick-start"
+      >
+        {t('title.quickStart')}
+      </Button>
+      <p className="-mt-2 text-xs text-ink-muted">{t('title.quickStartHint')}</p>
+      <Button onClick={() => go('setup')} data-testid="new-game">
         {t('title.newGame')}
       </Button>
       <Button onClick={() => go('saves')}>{t('title.load')}</Button>
@@ -49,6 +64,7 @@ export function TitleScreen() {
       <Button onClick={() => go('help')} data-testid="how-to-play">
         {t('title.howToPlay')}
       </Button>
+      <InstallButton />
       <footer className="mt-6 text-xs text-ink-muted" data-testid="version">
         {t('app.version', { engine: ENGINE_VERSION, schema: STATE_SCHEMA_VERSION })}
         {state ? ` · ${t('app.seed', { seed: state.config.seed })}` : ''}

@@ -6,6 +6,7 @@
 import { loadPack } from '@hustle-ring/content';
 import type { GameState } from '@hustle-ring/engine';
 import { useEffect, useMemo, useState } from 'react';
+import { resultCardSvg, seedLinkFor, svgToPng } from '../../share/shareCard';
 import { useTranslation } from 'react-i18next';
 import { gameKey, leaderboardEntry } from '../../leaderboard/entry';
 import { useServices } from '../../platform/Services';
@@ -32,10 +33,10 @@ export function replayJson(state: GameState): string {
   );
 }
 
-function download(name: string, text: string): void {
+function download(name: string, text: string | Blob, type = 'application/json'): void {
   const doc = globalThis.document;
   if (typeof doc === 'undefined' || typeof URL.createObjectURL !== 'function') return;
-  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  const url = URL.createObjectURL(text instanceof Blob ? text : new Blob([text], { type }));
   const a = doc.createElement('a');
   a.href = url;
   a.download = name;
@@ -99,6 +100,60 @@ function ScoreLine({ state }: { state: GameState }) {
   );
 }
 
+/** Save the result card as an image and copy a "play this seed" link (M12.10). */
+function ShareRow({ state }: { state: GameState }) {
+  const { t } = useTranslation();
+  const [note, setNote] = useState<string | null>(null);
+  const link = seedLinkFor(state, globalThis.location.href);
+  return (
+    <div className="flex flex-col gap-2" data-testid="share-row">
+      <div className="flex flex-wrap gap-2">
+        <Button
+          data-testid="share-card"
+          onClick={() => {
+            const svg = resultCardSvg(state, t);
+            void svgToPng(svg).then((png) => {
+              if (png) download(`result-${state.config.seed}.png`, png);
+              else download(`result-${state.config.seed}.svg`, svg, 'image/svg+xml');
+              setNote(t('share.saved'));
+            });
+          }}
+        >
+          {t('share.card')}
+        </Button>
+        <Button
+          data-testid="share-link"
+          onClick={() => {
+            const clip = globalThis.navigator.clipboard as Clipboard | undefined;
+            void (clip ? clip.writeText(link) : Promise.reject(new Error('no clipboard')))
+              .then(() => {
+                setNote(t('share.copied'));
+              })
+              .catch(() => {
+                setNote(t('share.copyFailed'));
+              });
+          }}
+        >
+          {t('share.link')}
+        </Button>
+      </div>
+      <input
+        readOnly
+        aria-label={t('share.link')}
+        className="input text-xs"
+        value={link}
+        onFocus={(e) => {
+          e.currentTarget.select();
+        }}
+        data-testid="share-url"
+      />
+      <p role="status" className="text-sm text-ink-muted" data-testid="share-note">
+        {note}
+      </p>
+    </div>
+  );
+}
+
 export function EndScreen() {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
@@ -158,6 +213,7 @@ export function EndScreen() {
           ))}
         </tbody>
       </table>
+      <ShareRow state={state} />
       <div className="flex flex-wrap gap-2">
         <Button variant="primary" onClick={rematch} data-testid="rematch">
           {t('end.rematch')}
