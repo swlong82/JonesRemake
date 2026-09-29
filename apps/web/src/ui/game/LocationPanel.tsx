@@ -18,6 +18,7 @@ import { useFlags } from '../../flags/appFlags';
 import { weekNeeds } from '../../store/needs';
 import { nextStep } from '../../store/nextStep';
 import { useSettings } from '../../store/settings';
+import { CoachMark } from './CoachMark';
 import { useTutorial } from '../../tutorial/useTutorial';
 import { Button } from '../common/Button';
 import {
@@ -518,6 +519,9 @@ export function LocationPanel() {
       </header>
 
       {!confirmEnd && <NextStepHint />}
+      {!confirmEnd && (
+        <CoachMark offered={sections.flatMap((sec) => sec.rows.map((r) => r.cmd.type))} />
+      )}
 
       {needs.length > 0 && !confirmEnd && (
         <p className="text-xs text-warn" data-testid="needs-banner">

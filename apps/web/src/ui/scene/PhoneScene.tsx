@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { artRegistryFor, useArtSets } from '../../assets/art/artRegistry';
+import { useSwipe } from '../game/useSwipe';
 import { useScenePrefetch } from '../../assets/art/usePrefetch';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
@@ -162,6 +163,8 @@ export function PhoneScene() {
   const { t } = useTranslation();
   useScenePrefetch();
   const [mode, setMode] = useState<PhoneView>('scene');
+  // Swiping right on the list goes back to the scene; the scene itself pans, so it keeps the buttons.
+  const swipe = useSwipe({ right: () => setMode('scene') });
   return (
     <div className="flex flex-col gap-2" data-testid="phone-scene-switch">
       <div className="flex gap-2" role="group" aria-label={t('phone.view')}>
@@ -184,7 +187,13 @@ export function PhoneScene() {
           {t('phone.viewList')}
         </Button>
       </div>
-      {mode === 'scene' ? <PannableScene /> : <PhoneLocationList />}
+      {mode === 'scene' ? (
+        <PannableScene />
+      ) : (
+        <div {...swipe} data-testid="phone-list-swipe">
+          <PhoneLocationList />
+        </div>
+      )}
     </div>
   );
 }

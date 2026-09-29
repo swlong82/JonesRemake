@@ -111,6 +111,33 @@ export function SettingsScreen() {
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
+            checked={settings.coach}
+            onChange={(e) => update({ coach: e.target.checked, coachSeen: [] })}
+            data-testid="coach-setting"
+          />
+          {t('settings.coach')}
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={settings.strictMode}
+            onChange={(e) => update({ strictMode: e.target.checked })}
+            data-testid="strict-setting"
+          />
+          {t('settings.strict')}
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={settings.haptics}
+            onChange={(e) => update({ haptics: e.target.checked })}
+            data-testid="haptics-setting"
+          />
+          {t('settings.haptics')}
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
             checked={settings.classicOpacityDefault}
             onChange={(e) => update({ classicOpacityDefault: e.target.checked })}
           />

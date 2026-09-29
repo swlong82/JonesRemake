@@ -16,7 +16,7 @@ export interface NextStep {
 }
 
 /** The location with `service` that is fewest ring steps from `from`, if the pack has one. */
-function nearest(pack: CityPack, from: string, services: string[]): string | null {
+export function nearest(pack: CityPack, from: string, services: string[]): string | null {
   const a = pack.board.nodeOf[from];
   let best: { id: string; d: number } | null = null;
   for (const loc of pack.locations) {

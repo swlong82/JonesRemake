@@ -1,0 +1,14 @@
+{
+  "name": "Hustle Ring",
+  "short_name": "Hustle Ring",
+  "description": "A modern browser remake of a 1991 life-sim board game.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f7f7f5",
+  "theme_color": "#0b5fa5",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

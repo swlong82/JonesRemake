@@ -28,7 +28,7 @@ import { Newspaper } from './Newspaper';
 import { SceneHudBar } from './SceneHudBar';
 
 function Sheet({ children }: { children: ReactNode }) {
-  return <div className="w-full max-w-[360px] shrink-0 empty:hidden">{children}</div>;
+  return <div className="sheet-enter w-full max-w-[360px] shrink-0 empty:hidden">{children}</div>;
 }
 
 export function SceneGameScreen({ debug }: { debug: boolean }) {
@@ -92,13 +92,20 @@ export function SceneGameScreen({ debug }: { debug: boolean }) {
           style={{ maxWidth: 'calc((100dvh - 10rem) * 1.6)' }}
           data-testid="scene-stage"
         >
-          {showInterior ? (
-            <InteriorScene registry={registry} />
-          ) : (
-            <BoardScene registry={registry}>
-              <AvatarLayer registry={registry} layout={layoutFor(registry, pack)} />
-            </BoardScene>
-          )}
+          {/* Keyed so entering or leaving a building settles in instead of snapping (M12.7). */}
+          <div
+            key={showInterior ? 'interior' : 'street'}
+            className="scene-swap absolute inset-0"
+            data-testid="scene-swap"
+          >
+            {showInterior ? (
+              <InteriorScene registry={registry} />
+            ) : (
+              <BoardScene registry={registry}>
+                <AvatarLayer registry={registry} layout={layoutFor(registry, pack)} />
+              </BoardScene>
+            )}
+          </div>
         </div>
         {column}
       </div>
