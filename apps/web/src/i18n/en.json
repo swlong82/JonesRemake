@@ -625,5 +625,7 @@
   "hint.work.here": "Work a shift here.",
   "hint.go": "Go ({{hours}}h)",
   "hint.dismiss": "Hide hints",
-  "settings.hints": "Show next-step hints"
+  "settings.hints": "Show next-step hints",
+  "phone.status": "{{name}} · {{week}} · {{hours}} · ${{cash}}",
+  "phone.sheetClose": "Close travel"
 }

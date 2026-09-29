@@ -140,4 +140,27 @@ describe('phone scene', () => {
     fireEvent.pointerUp(box, { pointerId: 1 });
     expect(Number(screen.getByTestId('phone-stage').dataset.scale)).toBeGreaterThan(1.5);
   });
+
+  it('keeps a slim status strip on top and opens travel as a bottom sheet (M11.6)', () => {
+    render(<GameScreen />);
+    expect(screen.getByTestId('phone-status').textContent).toMatch(
+      /Ann · Week 1 · 60h left · \$200/,
+    );
+    expect(screen.queryByTestId('phone-sheet')).toBeNull();
+    fireEvent.click(within(screen.getByTestId('phone-stage')).getByTestId('square-bank'));
+    const sheet = screen.getByTestId('phone-sheet');
+    expect(within(sheet).getByTestId('travel-sheet')).toBeDefined();
+    // The map stays on screen above the sheet.
+    expect(screen.getByTestId('phone-scene')).toBeDefined();
+  });
+
+  it('shows short plates at low zoom and full names once zoomed in', () => {
+    render(<GameScreen />);
+    const stageEl = screen.getByTestId('phone-stage');
+    expect(stageEl.textContent).toContain('Employment');
+    expect(stageEl.textContent).not.toContain('Employment Office');
+    for (let i = 0; i < 4; i++) fireEvent.click(screen.getByTestId('zoom-in'));
+    expect(Number(stageEl.dataset.scale)).toBeGreaterThanOrEqual(1.75);
+    expect(stageEl.textContent).toContain('Employment Office');
+  });
 });

@@ -30,3 +30,10 @@ if (typeof globalThis.localStorage === 'undefined') installMemoryStorage();
 afterEach(() => {
   cleanup();
 });
+
+// jsdom does not implement scrolling; the phone layout scrolls to the top on turn changes (M11.6).
+Object.defineProperty(globalThis, 'scrollTo', {
+  configurable: true,
+  writable: true,
+  value: () => undefined,
+});

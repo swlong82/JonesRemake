@@ -138,7 +138,7 @@ Source: detailed desktop + phone playthrough after M9. One task per finding; eac
 - [x] M11.3 Employment Office: group by employer, available-only filter default, show requirements, sort by pay — note: `ApplyList` in LocationPanel (employer groups, only-open filter, needs line).
 - [x] M11.4 Job application risk copy ("57% chance you're turned down"), honest rejection modal, warn before apply — note: named risk copy per `riskKey`, Refused card names the job and cost.
 - [x] M11.5 Next-step objective hint after tutorial/skip — note: `store/nextStep.ts` + hint in LocationPanel with Go shortcut; `hints` setting (default on), hidden during the tutorial.
-- [ ] M11.6 Phone: travel sheet as bottom sheet over map, scroll-to-top on change, slim sticky HUD, readable map labels
+- [x] M11.6 Phone: travel sheet as bottom sheet over map, scroll-to-top on change, slim sticky HUD, readable map labels — note: sticky `PhoneStatusBar`, travel as a fixed bottom sheet, scroll-to-top on location/turn change, short plates below 1.75× zoom, room under the block.
 - [ ] M11.7 Modern text bugs: `Meal: NaN`, `Demand 600%`, wrong gig disabled reason
 - [ ] M11.8 Copy polish: "Your turn", "1 step", ruleset names + descriptions, goal-slider and seed/chaos help text
 - [ ] M11.9 Scene layout: no duplicate quip, bubble not clipped, unavailable rows collapsed, fill viewport height

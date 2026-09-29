@@ -32,13 +32,22 @@ export function hitArea(r: Rect): Rect {
   };
 }
 
+/** First word of a location name: what fits under a building on a phone at low zoom. */
+export function shortName(name: string): string {
+  const first = name.split(/\s+/)[0] ?? name;
+  return first.length > 10 ? `${first.slice(0, 9)}…` : first;
+}
+
 export function BoardScene({
   registry,
   children,
+  shortLabels = false,
 }: {
   registry: ArtRegistry;
   /** Layers above the buildings (the avatars). */
   children?: ReactNode;
+  /** Phone at low zoom: plates carry a short name; the tap badge carries the full one. */
+  shortLabels?: boolean;
 }) {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
@@ -125,16 +134,20 @@ export function BoardScene({
           <span
             key={locId}
             aria-hidden="true"
-            className="pointer-events-none absolute -translate-x-1/2 whitespace-nowrap rounded-md border border-line bg-surface-2 px-1.5 text-[clamp(9px,0.9vw,14px)] font-semibold leading-tight text-ink shadow-sm"
-            style={{ left: pctX(slot.label.x), top: pctY(slot.label.y) }}
+            className="pointer-events-none absolute -translate-x-1/2 whitespace-nowrap rounded-md border border-line bg-surface-2 px-1.5 text-[clamp(10px,0.9vw,14px)] font-semibold leading-tight text-ink shadow-sm"
+            style={{
+              left: pctX(shortLabels ? Math.min(1470, Math.max(130, slot.label.x)) : slot.label.x),
+              top: pctY(slot.label.y),
+            }}
           >
-            <span className="mr-1 text-ink-muted">{ringKeyFor(index)}</span>
-            {locationName(locId)}
+            {!shortLabels && <span className="mr-1 text-ink-muted">{ringKeyFor(index)}</span>}
+            {shortLabels ? shortName(locationName(locId)) : locationName(locId)}
             {isHot && (
               <span
                 className="absolute left-1/2 top-full z-10 mt-1 block -translate-x-1/2 rounded-md border border-line bg-surface-2 px-2 py-1 text-xs font-medium shadow-md"
                 data-testid={`trip-badge-${locId}`}
               >
+                {shortLabels && <span className="block font-semibold">{locationName(locId)}</span>}
                 {t('board.tripBadge', {
                   walk: hours(cost.walk),
                   enter: hours(cost.enter),
