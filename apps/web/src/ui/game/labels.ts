@@ -10,7 +10,7 @@ import type { CityPack } from '@hustle-ring/content';
 import type { ActionPreview, Command, GameState } from '@hustle-ring/engine';
 import type { DomainEvent } from '@hustle-ring/shared';
 import type { TFunction } from 'i18next';
-import { tp } from '../../i18n';
+import i18n, { tp } from '../../i18n';
 
 /** `useTranslation().t` — kept as i18next's own type so components can pass it straight through. */
 export type Translate = TFunction;
@@ -242,16 +242,23 @@ export function previewParts(
     if (delta === 0) continue;
     parts.push(`${t(`hud.${stat}`)} ${sign(delta)}${Math.abs(delta)}`);
   }
-  if (preview.riskBp !== undefined && preview.riskBp > 0)
-    parts.push(t('panel.preview.risk', { pct: (preview.riskBp / 100).toFixed(1) }));
+  if (preview.riskBp !== undefined && preview.riskBp > 0) {
+    const pct = preview.riskBp / 100;
+    const named = preview.riskKey?.replace(/^risk\./, '');
+    if (named !== undefined && i18n.exists(`panel.preview.riskFor.${named}`))
+      parts.push(
+        t(`panel.preview.riskFor.${named}`, { pct: Number.isInteger(pct) ? pct : pct.toFixed(1) }),
+      );
+    else parts.push(t('panel.preview.risk', { pct: pct.toFixed(1) }));
+  }
   for (const note of preview.notes) parts.push(noteLabel(note, t));
   return parts;
 }
 
 /** The pack numbers an event card needs; the classic values are the fallback for bare callers. */
 export interface EventRules {
-  time: { starvationHours: number };
-  happiness: { starvation: number };
+  time: { starvationHours: number; applyHours: number };
+  happiness: { starvation: number; refused: number };
 }
 
 function starvationOf(rules?: EventRules): { hours: string; happiness: number } {
@@ -277,6 +284,17 @@ export function eventChips(event: DomainEvent, t: Translate, rules?: EventRules)
         }),
       ];
     }
+    case 'Refused':
+      return rules
+        ? [
+            t('event.chip.hours', { n: hours(rules.time.applyHours) }),
+            t('event.chip.stat', {
+              stat: t('hud.goal.happiness'),
+              sign: sign(rules.happiness.refused),
+              n: Math.abs(rules.happiness.refused),
+            }),
+          ]
+        : [];
     case 'ItemsStolen':
       return [t('event.chip.items', { n: -event.uids.length })];
     case 'ItemBroke':
@@ -336,6 +354,11 @@ export function eventCardText(
       return { title: packTitle, text: tp(`event.${id}.text.1`, '') };
     return { title: t(`event.${id}.title`), text: t(`event.${id}.text`) };
   }
+  if (event.type === 'Refused')
+    return {
+      title: t('event.Refused.title'),
+      text: t('event.Refused.text', { job: jobTitle(event.jobId) }),
+    };
   if (event.type === 'LotteryResolved')
     return {
       title: t('event.LotteryResolved.title'),

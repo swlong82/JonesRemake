@@ -21,6 +21,7 @@ import {
   assetName,
   commandKey,
   commandLabel,
+  degreeName,
   hours,
   locationName,
   locationQuip,
@@ -86,7 +87,7 @@ export function runRepeat(cmd: Command, limit = 24): void {
   }
 }
 
-function ActionRow({ row, repeat }: { row: Row; repeat: boolean }) {
+function ActionRow({ row, repeat, extra }: { row: Row; repeat: boolean; extra?: string }) {
   const { t } = useTranslation();
   const dispatch = useGame((s) => s.dispatch);
   const requestSubscriptionCancel = useGame((s) => s.requestSubscriptionCancel);
@@ -115,12 +116,105 @@ function ActionRow({ row, repeat }: { row: Row; repeat: boolean }) {
           {parts.join(' · ')}
         </p>
       )}
+      {extra !== undefined && extra !== '' && (
+        <p className="text-xs text-ink-muted" data-testid="apply-needs">
+          {extra}
+        </p>
+      )}
       {disabled && (
         <p className="text-xs text-danger" data-testid="disabled-reason">
           {t('panel.disabled', { reason: t(`error.${row.code ?? ''}`) })}
         </p>
       )}
     </li>
+  );
+}
+
+const REQ_CODES = new Set<ErrorCode>([
+  'ERR_REQ_EXPERIENCE',
+  'ERR_REQ_DEPENDABILITY',
+  'ERR_REQ_EDUCATION',
+]);
+
+/**
+ * "Apply for a job" (M11.3): jobs grouped by employer, best pay first, hiding the ones the player
+ * cannot apply for unless asked, and spelling out what a locked job needs.
+ */
+export function ApplyList({ rows, repeat }: { rows: Row[]; repeat: boolean }) {
+  const { t } = useTranslation();
+  const state = useGame((s) => s.state);
+  const pack = useGame((s) => s.pack);
+  const [onlyOk, setOnlyOk] = useState(true);
+  if (!state || !pack) return null;
+  const player = state.players[state.activeSeat];
+  const jobOf = (row: Row) =>
+    row.cmd.type === 'ApplyJob' ? pack.jobById[row.cmd.jobId] : undefined;
+  const shown = onlyOk ? rows.filter((r) => r.code === null) : rows;
+  const hidden = rows.length - shown.length;
+
+  const groups = new Map<string, Row[]>();
+  for (const row of shown) {
+    const employer = jobOf(row)?.workplaceId ?? '';
+    groups.set(employer, [...(groups.get(employer) ?? []), row]);
+  }
+  const wage = (row: Row): number => jobOf(row)?.baseWage ?? 0;
+  const ordered = [...groups.entries()]
+    .map(([employer, list]) => ({
+      employer,
+      list: [...list].sort((a, b) => wage(b) - wage(a)),
+    }))
+    .sort((a, b) => wage(b.list[0]!) - wage(a.list[0]!));
+
+  const needs = (row: Row): string => {
+    const job = jobOf(row);
+    if (!job || !player || row.code === null || !REQ_CODES.has(row.code)) return '';
+    const list: string[] = [];
+    if (player.experience < job.reqExperience)
+      list.push(t('panel.apply.needExp', { need: job.reqExperience, have: player.experience }));
+    if (player.dependability < job.reqDependability)
+      list.push(
+        t('panel.apply.needDep', { need: job.reqDependability, have: player.dependability }),
+      );
+    for (const d of job.reqDegrees)
+      if (!player.degrees.includes(d))
+        list.push(t('panel.apply.needDegree', { degree: degreeName(d) }));
+    return list.length > 0 ? t('panel.apply.needs', { list: list.join(', ') }) : '';
+  };
+
+  return (
+    <div data-testid="apply-list">
+      <label className="flex items-center gap-2 text-xs">
+        <input
+          type="checkbox"
+          checked={onlyOk}
+          onChange={(e) => setOnlyOk(e.target.checked)}
+          data-testid="apply-only-ok"
+        />
+        {t('panel.apply.onlyOk')}
+      </label>
+      {ordered.length === 0 && (
+        <p className="text-xs text-ink-muted" data-testid="apply-none">
+          {t('panel.apply.none')}
+        </p>
+      )}
+      {ordered.map(({ employer, list }) => (
+        <div key={employer} data-testid={`apply-employer-${employer}`}>
+          <h4 className="mt-1 text-xs font-semibold">
+            {t('panel.apply.employer', { name: locationName(employer) })}
+          </h4>
+          <ul>
+            {list.map((row) => (
+              <ActionRow key={commandKey(row.cmd)} row={row} repeat={repeat} extra={needs(row)} />
+            ))}
+          </ul>
+        </div>
+      ))}
+      {hidden > 0 && (
+        <p className="text-xs text-ink-muted" data-testid="apply-hidden">
+          {t('panel.apply.hidden', { n: hidden })}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -380,11 +474,15 @@ export function LocationPanel() {
               </p>
             )}
             <ModernDetails section={section} />
-            <ul>
-              {list.map((row) => (
-                <ActionRow key={commandKey(row.cmd)} row={row} repeat={repeat} />
-              ))}
-            </ul>
+            {section === 'apply' ? (
+              <ApplyList rows={list} repeat={repeat} />
+            ) : (
+              <ul>
+                {list.map((row) => (
+                  <ActionRow key={commandKey(row.cmd)} row={row} repeat={repeat} />
+                ))}
+              </ul>
+            )}
           </div>
         ))}
       </div>
