@@ -225,10 +225,10 @@ export function ApplyList({ rows, repeat }: { rows: Row[]; repeat: boolean }) {
 
 /**
  * A section's rows: what you can do now, with the rest folded under "Not available now" once
- * there is something to do (M11.9). A section with only locked rows stays open when short, so a
- * jobless player still sees why "Work" is greyed out.
+ * there is something to do (M11.9). A section with only locked rows stays open, so a jobless
+ * player still sees why "Work" or a gig is greyed out.
  */
-function SectionRows({
+export function SectionRows({
   rows,
   repeat,
   section,
@@ -240,7 +240,7 @@ function SectionRows({
   const { t } = useTranslation();
   const ok = rows.filter((r) => r.code === null);
   const locked = rows.filter((r) => r.code !== null);
-  const fold = locked.length > 0 && (ok.length > 0 || locked.length >= 3);
+  const fold = locked.length > 0 && ok.length > 0;
   const list = (items: Row[]) => (
     <ul>
       {items.map((row) => (

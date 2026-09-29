@@ -7,7 +7,7 @@ import { useGame } from '../../store/gameStore';
 import { useSettings } from '../../store/settings';
 import { buildConfig, defaultSeat } from '../screens/SetupScreen';
 import { eventCardText, eventChips, locationQuip, previewParts } from './labels';
-import { LocationPanel } from './LocationPanel';
+import { LocationPanel, SectionRows } from './LocationPanel';
 
 beforeEach(() => {
   useGame.getState().quit();
@@ -106,27 +106,18 @@ describe('next-step hint (M11.5)', () => {
 });
 
 describe('panel decluttering (M11.9)', () => {
-  it('folds three or more locked rows and keeps a lone locked row inline', () => {
-    useGame.getState().debugPatch((s) => {
-      const p = s.players[0]!;
-      p.location = 'clothing-boutique';
-      p.inside = true;
-      p.cash = 0;
-    });
-    const { unmount } = render(<LocationPanel />);
-    const locked = screen.getByTestId('locked-shop');
-    expect(locked.tagName).toBe('DETAILS');
-    expect(locked.querySelector('summary')?.textContent).toMatch(/^Not available now \(\d+\)$/);
-    expect(locked.hasAttribute('open')).toBe(false);
-    unmount();
-    useGame.getState().debugPatch((s) => {
-      const p = s.players[0]!;
-      p.location = 'employment-office';
-    });
-    render(<LocationPanel />);
-    // "Work" alone is locked (no job): it stays visible with its reason.
+  it('folds locked rows once something is available, and keeps an all-locked section open', () => {
+    const relax = { cmd: { type: 'Relax' } as const, code: null };
+    const locked = { cmd: { type: 'Work', hours: 12 } as const, code: 'ERR_NO_JOB' as const };
+    const mixed = render(<SectionRows rows={[relax, locked]} repeat={false} section="relax" />);
+    const fold = screen.getByTestId('locked-relax');
+    expect(fold.tagName).toBe('DETAILS');
+    expect(fold.querySelector('summary')?.textContent).toBe('Not available now (1)');
+    expect(fold.hasAttribute('open')).toBe(false);
+    mixed.unmount();
+    render(<SectionRows rows={[locked]} repeat={false} section="work" />);
     expect(screen.queryByTestId('locked-work')).toBeNull();
-    expect(screen.getAllByTestId('disabled-reason').length).toBeGreaterThan(0);
+    expect(screen.getByTestId('disabled-reason')).toBeDefined();
   });
 
   it('leaves the greeting to the host bubble inside the scene', () => {
