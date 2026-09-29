@@ -13,7 +13,8 @@ import {
 import type { ErrorCode } from '@hustle-ring/shared';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useGame } from '../../store/gameStore';
+import { END_TURN_CONFIRM_HOURS, useGame } from '../../store/gameStore';
+import { weekNeeds } from '../../store/needs';
 import { Button } from '../common/Button';
 import {
   SECTION_ORDER,
@@ -306,6 +307,14 @@ export function LocationPanel() {
   const closed = enterRow?.code === 'ERR_LOCATION_CLOSED';
   const sections = groupRows(rows);
   const halfHoursLeft = player.hoursLeft;
+  const needs = weekNeeds(state, pack);
+  const needText = (need: (typeof needs)[number]): string =>
+    need.id === 'food'
+      ? t('panel.needs.food', {
+          hours: hours(need.halfHours),
+          happiness: Math.abs(pack.rules.happiness.starvation),
+        })
+      : t('panel.needs.rent', { amount: need.amount });
 
   return (
     <section
@@ -322,6 +331,14 @@ export function LocationPanel() {
           {closed ? t('panel.closed') : player.inside ? t('panel.open') : t('panel.outside')}
         </p>
       </header>
+
+      {needs.length > 0 && !confirmEnd && (
+        <p className="text-xs text-warn" data-testid="needs-banner">
+          {t('panel.needs.banner', {
+            list: needs.map((n) => t(`panel.needs.short.${n.id}`)).join(', '),
+          })}
+        </p>
+      )}
 
       {player.inside ? (
         <Button onClick={() => dispatch({ type: 'Exit' })} data-testid="exit">
@@ -381,7 +398,17 @@ export function LocationPanel() {
           className="flex flex-col gap-2"
           data-testid="end-turn-dialog"
         >
-          <p className="text-sm">{t('panel.endTurnConfirm', { hours: hours(halfHoursLeft) })}</p>
+          {halfHoursLeft > END_TURN_CONFIRM_HOURS && (
+            <p className="text-sm">{t('panel.endTurnConfirm', { hours: hours(halfHoursLeft) })}</p>
+          )}
+          {needs.length > 0 && (
+            <ul className="list-disc pl-4 text-sm text-warn" data-testid="needs-list">
+              {needs.map((n) => (
+                <li key={n.id}>{needText(n)}</li>
+              ))}
+            </ul>
+          )}
+          <p className="text-xs text-ink-muted">{t('panel.needs.weekend')}</p>
           <div className="flex gap-2">
             <Button
               variant="danger"

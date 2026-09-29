@@ -21,6 +21,7 @@ import type { DomainEvent, ErrorCode, LocationId } from '@hustle-ring/shared';
 import { create } from 'zustand';
 import { createAiClient, type AiClient } from '../ai/aiClient';
 import { loadPackStrings } from '../i18n';
+import { weekNeeds } from './needs';
 import { useSettings, type AiSpeed } from './settings';
 
 export type Screen =
@@ -110,7 +111,7 @@ export interface GameStore {
   toggleLog: () => void;
   toggleStandings: () => void;
   toggleMenu: () => void;
-  /** End the turn, or ask first when more than `END_TURN_CONFIRM_HOURS` remain. */
+  /** End the turn, or ask first when hours remain over `END_TURN_CONFIRM_HOURS` or a weekly need is unmet. */
   requestEndTurn: () => void;
   cancelEndTurn: () => void;
   requestSubscriptionCancel: (cmd: UnsubscribeCommand) => boolean;
@@ -392,8 +393,10 @@ export const useGame = create<GameStore>((set, get) => ({
   },
   requestEndTurn() {
     const { state } = get();
+    const { pack } = get();
     const left = state?.players[state.activeSeat]?.hoursLeft ?? 0;
-    if (left > END_TURN_CONFIRM_HOURS) {
+    const needs = state && pack ? weekNeeds(state, pack).length : 0;
+    if (left > END_TURN_CONFIRM_HOURS || needs > 0) {
       set({ endTurnPending: true });
       return;
     }

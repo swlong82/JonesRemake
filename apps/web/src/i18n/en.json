@@ -335,7 +335,7 @@
   "event.core:spoiled.title": "Spoiled food",
   "event.core:spoiled.text": "Food kept without a fridge went bad. The clinic was involved.",
   "event.Starved.title": "Starving",
-  "event.Starved.text": "You did not eat last week. You lose 20 hours and 5 happiness.",
+  "event.Starved.text": "You did not eat last week. You lose {{hours}} hours and {{happiness}} happiness.",
   "event.Spoiled.title": "Spoiled food",
   "event.Spoiled.text": "Your unrefrigerated food spoiled.",
   "event.ItemsStolen.title": "Items lost",
@@ -583,5 +583,12 @@
   "artPacks.storeFailed": "the pack could not be saved on this device",
   "log.ExtensionDenied": "{{name}} asked for a rent extension and was turned down",
   "event.ExtensionDenied.title": "Extension denied",
-  "event.ExtensionDenied.text": "The landlord says no. Rent is due now, and there will be no more extensions."
+  "event.ExtensionDenied.text": "The landlord says no. Rent is due now, and there will be no more extensions.",
+  "panel.needs.heading": "Before you end the turn",
+  "panel.needs.food": "No food for next week: you would lose {{hours}}h and {{happiness}} happiness.",
+  "panel.needs.rent": "Rent is due: ${{amount}} turns into debt if unpaid.",
+  "panel.needs.weekend": "Weekends bring events you do not choose, and some cost money. Keep a cash cushion.",
+  "panel.needs.banner": "Needs: {{list}}",
+  "panel.needs.short.food": "food",
+  "panel.needs.short.rent": "rent"
 }

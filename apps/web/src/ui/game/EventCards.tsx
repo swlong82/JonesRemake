@@ -19,8 +19,8 @@ export function EventCards() {
   const sceneUi = useFlags((f) => f.flags.sceneUi);
   const card = cards[0];
   if (!card) return null;
-  const { title, text } = eventCardText(card, t);
-  const chips = eventChips(card, t);
+  const { title, text } = eventCardText(card, t, pack?.rules);
+  const chips = eventChips(card, t, pack?.rules);
   const more = cards.length - 1;
 
   return (

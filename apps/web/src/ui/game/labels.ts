@@ -248,16 +248,35 @@ export function previewParts(
   return parts;
 }
 
+/** The pack numbers an event card needs; the classic values are the fallback for bare callers. */
+export interface EventRules {
+  time: { starvationHours: number };
+  happiness: { starvation: number };
+}
+
+function starvationOf(rules?: EventRules): { hours: string; happiness: number } {
+  return {
+    hours: hours(rules?.time.starvationHours ?? 40),
+    happiness: rules?.happiness.starvation ?? -5,
+  };
+}
+
 /** Effect chips on an event card (UX 7.5): compact, from the event body. */
-export function eventChips(event: DomainEvent, t: Translate): string[] {
+export function eventChips(event: DomainEvent, t: Translate, rules?: EventRules): string[] {
   switch (event.type) {
     case 'EventFired':
       return event.effects.map((e) => effectChip(e, t));
-    case 'Starved':
+    case 'Starved': {
+      const r = starvationOf(rules);
       return [
-        t('event.chip.hours', { n: 10 }),
-        t('event.chip.stat', { stat: t('hud.goal.happiness'), sign: '−', n: 5 }),
+        t('event.chip.hours', { n: r.hours }),
+        t('event.chip.stat', {
+          stat: t('hud.goal.happiness'),
+          sign: sign(r.happiness),
+          n: Math.abs(r.happiness),
+        }),
       ];
+    }
     case 'ItemsStolen':
       return [t('event.chip.items', { n: -event.uids.length })];
     case 'ItemBroke':
@@ -298,7 +317,18 @@ export function effectChip(effect: string, t: Translate): string {
 }
 
 /** Card title / body for a modal event card. */
-export function eventCardText(event: DomainEvent, t: Translate): { title: string; text: string } {
+export function eventCardText(
+  event: DomainEvent,
+  t: Translate,
+  rules?: EventRules,
+): { title: string; text: string } {
+  if (event.type === 'Starved') {
+    const r = starvationOf(rules);
+    return {
+      title: t('event.Starved.title'),
+      text: t('event.Starved.text', { hours: r.hours, happiness: Math.abs(r.happiness) }),
+    };
+  }
   if (event.type === 'EventFired') {
     const id = event.eventId;
     const packTitle = tp(`event.${id}.title`, '');
