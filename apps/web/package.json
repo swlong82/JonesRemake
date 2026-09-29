@@ -16,7 +16,7 @@
     "@hustle-ring/engine": "workspace:*",
     "@hustle-ring/platform": "workspace:*",
     "@hustle-ring/shared": "workspace:*",
-    "fflate": "0.8.2",
+    "fflate": "0.8.3",
     "framer-motion": "^11",
     "i18next": "^26.4.2",
     "lucide-react": "^1.47.0",

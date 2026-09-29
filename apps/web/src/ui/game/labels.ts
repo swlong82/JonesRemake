@@ -10,7 +10,7 @@ import type { CityPack } from '@hustle-ring/content';
 import type { ActionPreview, Command, GameState } from '@hustle-ring/engine';
 import type { DomainEvent } from '@hustle-ring/shared';
 import type { TFunction } from 'i18next';
-import { tp } from '../../i18n';
+import i18n, { tp } from '../../i18n';
 
 /** `useTranslation().t` — kept as i18next's own type so components can pass it straight through. */
 export type Translate = TFunction;
@@ -206,6 +206,16 @@ export function commandLabel(cmd: Command, t: Translate): string {
   }
 }
 
+/** "Your" for the default human seat, else "Name's" (used in "Your turn, week 3"). */
+export function turnOwner(name: string, t: Translate): string {
+  return name === 'You' ? t('turn.owner.you') : t('turn.owner.name', { name });
+}
+
+/** Why a command is disabled; a command-specific line wins over the generic code text. */
+export function disabledReason(cmd: Command, code: string, t: Translate): string {
+  return t(`error.${code}.${cmd.type}`, { defaultValue: t(`error.${code}`) });
+}
+
 /** A stable identity for a command, used as a React key and for repeat-action comparisons. */
 export function commandKey(cmd: Command): string {
   const parts: string[] = [cmd.type];
@@ -220,7 +230,13 @@ export function commandKey(cmd: Command): string {
 export function noteLabel(note: string, t: Translate): string {
   const i = note.indexOf(':');
   if (i < 0) return t(`note.${note}`);
-  return t(`note.${note.slice(0, i)}`, { n: Number(note.slice(i + 1)) });
+  const key = note.slice(0, i);
+  const n = Number(note.slice(i + 1));
+  // Gig demand travels as per-mille (1000 = normal); show whole percent.
+  return t(`note.${key}`, {
+    n: key === 'gig-demand' ? Math.round(n / 10) : n,
+    count: n,
+  });
 }
 
 /**
@@ -242,22 +258,59 @@ export function previewParts(
     if (delta === 0) continue;
     parts.push(`${t(`hud.${stat}`)} ${sign(delta)}${Math.abs(delta)}`);
   }
-  if (preview.riskBp !== undefined && preview.riskBp > 0)
-    parts.push(t('panel.preview.risk', { pct: (preview.riskBp / 100).toFixed(1) }));
+  if (preview.riskBp !== undefined && preview.riskBp > 0) {
+    const pct = preview.riskBp / 100;
+    const named = preview.riskKey?.replace(/^risk\./, '');
+    if (named !== undefined && i18n.exists(`panel.preview.riskFor.${named}`))
+      parts.push(
+        t(`panel.preview.riskFor.${named}`, { pct: Number.isInteger(pct) ? pct : pct.toFixed(1) }),
+      );
+    else parts.push(t('panel.preview.risk', { pct: pct.toFixed(1) }));
+  }
   for (const note of preview.notes) parts.push(noteLabel(note, t));
   return parts;
 }
 
+/** The pack numbers an event card needs; the classic values are the fallback for bare callers. */
+export interface EventRules {
+  time: { starvationHours: number; applyHours: number };
+  happiness: { starvation: number; refused: number };
+}
+
+function starvationOf(rules?: EventRules): { hours: string; happiness: number } {
+  return {
+    hours: hours(rules?.time.starvationHours ?? 40),
+    happiness: rules?.happiness.starvation ?? -5,
+  };
+}
+
 /** Effect chips on an event card (UX 7.5): compact, from the event body. */
-export function eventChips(event: DomainEvent, t: Translate): string[] {
+export function eventChips(event: DomainEvent, t: Translate, rules?: EventRules): string[] {
   switch (event.type) {
     case 'EventFired':
       return event.effects.map((e) => effectChip(e, t));
-    case 'Starved':
+    case 'Starved': {
+      const r = starvationOf(rules);
       return [
-        t('event.chip.hours', { n: 10 }),
-        t('event.chip.stat', { stat: t('hud.goal.happiness'), sign: '−', n: 5 }),
+        t('event.chip.hours', { n: r.hours }),
+        t('event.chip.stat', {
+          stat: t('hud.goal.happiness'),
+          sign: sign(r.happiness),
+          n: Math.abs(r.happiness),
+        }),
       ];
+    }
+    case 'Refused':
+      return rules
+        ? [
+            t('event.chip.hours', { n: hours(rules.time.applyHours) }),
+            t('event.chip.stat', {
+              stat: t('hud.goal.happiness'),
+              sign: sign(rules.happiness.refused),
+              n: Math.abs(rules.happiness.refused),
+            }),
+          ]
+        : [];
     case 'ItemsStolen':
       return [t('event.chip.items', { n: -event.uids.length })];
     case 'ItemBroke':
@@ -298,7 +351,18 @@ export function effectChip(effect: string, t: Translate): string {
 }
 
 /** Card title / body for a modal event card. */
-export function eventCardText(event: DomainEvent, t: Translate): { title: string; text: string } {
+export function eventCardText(
+  event: DomainEvent,
+  t: Translate,
+  rules?: EventRules,
+): { title: string; text: string } {
+  if (event.type === 'Starved') {
+    const r = starvationOf(rules);
+    return {
+      title: t('event.Starved.title'),
+      text: t('event.Starved.text', { hours: r.hours, happiness: Math.abs(r.happiness) }),
+    };
+  }
   if (event.type === 'EventFired') {
     const id = event.eventId;
     const packTitle = tp(`event.${id}.title`, '');
@@ -306,6 +370,11 @@ export function eventCardText(event: DomainEvent, t: Translate): { title: string
       return { title: packTitle, text: tp(`event.${id}.text.1`, '') };
     return { title: t(`event.${id}.title`), text: t(`event.${id}.text`) };
   }
+  if (event.type === 'Refused')
+    return {
+      title: t('event.Refused.title'),
+      text: t('event.Refused.text', { job: jobTitle(event.jobId) }),
+    };
   if (event.type === 'LotteryResolved')
     return {
       title: t('event.LotteryResolved.title'),
@@ -439,4 +508,85 @@ export function stepsBetween(pack: CityPack, from: string, to: string): number {
   const b = pack.board.nodeOf[to];
   if (a === undefined || b === undefined) return 0;
   return pack.board.dist[a]?.[b] ?? 0;
+}
+
+/** Cost of walking to a location and entering it, in half-hours (M11.2). */
+export interface TripCost {
+  walk: number;
+  enter: number;
+  total: number;
+  /** Half-hours left after the whole trip (never below 0). */
+  left: number;
+  /** Walking alone uses every hour left: you would stop early and the turn ends. */
+  partial: boolean;
+  /** Walking fits but entering does not. */
+  cannotEnter: boolean;
+}
+
+export function tripCost(
+  walkHalfHours: number,
+  enterHalfHours: number,
+  hoursLeft: number,
+): TripCost {
+  const walk = Math.abs(walkHalfHours);
+  const total = walk + enterHalfHours;
+  return {
+    walk,
+    enter: enterHalfHours,
+    total,
+    left: Math.max(0, hoursLeft - total),
+    partial: walk > hoursLeft,
+    cannotEnter: walk <= hoursLeft && total > hoursLeft,
+  };
+}
+
+/** What a batch of modal cards costs or pays in total: cash and half-hours (M11.10). */
+export function summarizeCards(
+  cards: readonly DomainEvent[],
+  rules?: EventRules,
+): { money: number; halfHours: number } {
+  let money = 0;
+  let halfHours = 0;
+  for (const card of cards) {
+    if (card.type === 'Starved') halfHours -= rules?.time.starvationHours ?? 40;
+    if (card.type === 'LotteryResolved') money += card.prize;
+    if (card.type !== 'EventFired') continue;
+    for (const effect of card.effects) {
+      const [op, a, b] = effect.split(':');
+      if (op === 'money' && a === 'cash') money += Number(b ?? 0);
+      if (op === 'hours') halfHours += Number(a ?? 0);
+    }
+  }
+  return { money, halfHours };
+}
+
+/** "−6h · +$96 · Experience +1": what one action did to the acting seat (M11.10). */
+export function deltaParts(
+  events: readonly DomainEvent[],
+  seat: number,
+  t: Translate,
+  opts: { opaque?: boolean } = {},
+): string[] {
+  let spent = 0;
+  let cash = 0;
+  let bank = 0;
+  const stats = new Map<string, number>();
+  for (const e of events) {
+    if (!('seat' in e) || e.seat !== seat) continue;
+    if (e.type === 'HoursSpent') spent += e.hours;
+    else if (e.type === 'MoneyChanged') {
+      if (e.account === 'bank') bank += e.delta;
+      else cash += e.delta;
+    } else if (e.type === 'StatChanged') stats.set(e.stat, (stats.get(e.stat) ?? 0) + e.delta);
+  }
+  const parts: string[] = [];
+  if (spent !== 0) parts.push(`−${t('panel.preview.hours', { n: hours(spent) })}`);
+  if (cash !== 0) parts.push(`${sign(cash)}${t('panel.preview.money', { n: Math.abs(cash) })}`);
+  if (bank !== 0)
+    parts.push(`${t('hud.bank')} ${sign(bank)}${t('panel.preview.money', { n: Math.abs(bank) })}`);
+  if (opts.opaque !== true)
+    for (const [stat, delta] of stats) {
+      if (delta !== 0) parts.push(`${t(`hud.${stat}`)} ${sign(delta)}${Math.abs(delta)}`);
+    }
+  return parts;
 }

@@ -19,6 +19,8 @@ export interface Settings {
   classicOpacityDefault: boolean;
   language: 'en' | 'pseudo';
   tutorialSeen: boolean;
+  /** Show the next-step hint in the location panel (M11.5). */
+  hints: boolean;
   /** Active art set (ART_SPEC 17.6): `default` or an imported pack's id. */
   artSet: string;
 }
@@ -41,6 +43,7 @@ export const DEFAULT_SETTINGS: Settings = {
   classicOpacityDefault: false,
   language: 'en',
   tutorialSeen: false,
+  hints: true,
   artSet: 'default',
 };
 

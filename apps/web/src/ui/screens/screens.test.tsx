@@ -76,6 +76,19 @@ describe('setup screen', () => {
     expect(screen.getByTestId<HTMLButtonElement>('start-game').disabled).toBe(false);
   });
 
+  it('names rulesets in words and explains goals, seed and chaos (M11.8)', () => {
+    render(<SetupScreen />);
+    const ruleset = screen.getByLabelText('Ruleset');
+    const labels = Array.from(ruleset.querySelectorAll('option')).map((o) => o.textContent);
+    expect(labels).toEqual(['Classic (1991 rules)', 'Modern Western (gigs, loans, subscriptions)']);
+    expect(screen.getByText(/walk everywhere, hidden stats/)).toBeDefined();
+    expect(screen.getByTestId('goals-note').textContent).toMatch(/how high each stat must climb/);
+    expect(screen.getByText(/same seed and options replay the same game/)).toBeDefined();
+    expect(screen.getByText('Events as in the original game.')).toBeDefined();
+    fireEvent.change(ruleset, { target: { value: 'modern-western' } });
+    expect(screen.getByText(/gig work, subscriptions, loans/)).toBeDefined();
+  });
+
   it('disables Start while the draft is invalid', () => {
     render(<SetupScreen />);
     fireEvent.change(screen.getByTestId('seed'), { target: { value: '' } });

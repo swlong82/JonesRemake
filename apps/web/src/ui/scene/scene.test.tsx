@@ -184,3 +184,44 @@ describe('scene clock', () => {
     expect(container.querySelector('path')).toBeNull();
   });
 });
+
+describe('trip cost (M11.2)', () => {
+  it('shows walk + enter = total on hover and in the button label', () => {
+    stepOut();
+    render(<GameScreen />);
+    const btn = screen.getByTestId('square-employment-office');
+    expect(btn.getAttribute('aria-label')).toMatch(/5h walk plus 2h to enter, 7h in all/);
+    expect(screen.queryByTestId('trip-badge-employment-office')).toBeNull();
+    fireEvent.mouseEnter(btn);
+    expect(screen.getByTestId('trip-badge-employment-office').textContent).toContain(
+      '5h walk + 2h enter = 7h',
+    );
+    fireEvent.mouseLeave(btn);
+    expect(screen.queryByTestId('trip-badge-employment-office')).toBeNull();
+  });
+
+  it('tints and warns about squares the hours left cannot cover', () => {
+    stepOut();
+    useGame.getState().debugPatch((s) => {
+      s.players[0]!.hoursLeft = 6; // 3h
+    });
+    render(<GameScreen />);
+    const btn = screen.getByTestId('square-employment-office');
+    fireEvent.focus(btn);
+    expect(screen.getByTestId('trip-badge-employment-office').textContent).toContain(
+      'Too far for the hours left',
+    );
+    const img = btn.parentElement!.querySelector('img[data-art-key="building:employment-office"]');
+    expect((img as HTMLElement).style.opacity).toBe('0.55');
+  });
+
+  it('travel sheet lists the total and the hours left afterwards', () => {
+    stepOut();
+    render(<GameScreen />);
+    fireEvent.click(screen.getByTestId('square-employment-office'));
+    expect(screen.getByTestId('travel-cost').textContent).toContain('Walk 5h + enter 2h = 7h');
+    expect(screen.getByTestId('travel-after').textContent).toBe(
+      '53h left after arriving and entering',
+    );
+  });
+});
