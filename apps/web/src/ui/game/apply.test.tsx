@@ -87,3 +87,19 @@ describe('job risk copy (M11.4)', () => {
     expect(eventChips(ev, t, pack.rules)[0]).toBe('4h');
   });
 });
+
+describe('next-step hint (M11.5)', () => {
+  it('shows a hint with a travel shortcut and can be hidden for good', () => {
+    useGame.getState().debugPatch((s) => {
+      const p = s.players[0]!;
+      p.location = 'low-housing';
+    });
+    render(<LocationPanel />);
+    expect(screen.getByTestId('next-step').textContent).toContain('Get a job');
+    fireEvent.click(screen.getByTestId('next-step-go'));
+    expect(useGame.getState().selectedLocation).toBe('employment-office');
+    fireEvent.click(screen.getByTestId('next-step-hide'));
+    expect(screen.queryByTestId('next-step')).toBeNull();
+    expect(useSettings.getState().settings.hints).toBe(false);
+  });
+});

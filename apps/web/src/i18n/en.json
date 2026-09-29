@@ -612,5 +612,18 @@
   "panel.apply.needs": "Needs: {{list}}",
   "panel.apply.needExp": "Experience {{need}} (you {{have}})",
   "panel.apply.needDep": "Dependability {{need}} (you {{have}})",
-  "panel.apply.needDegree": "{{degree}}"
+  "panel.apply.needDegree": "{{degree}}",
+  "hint.label": "Next step",
+  "hint.endTurn": "You are out of hours. End your turn.",
+  "hint.job": "Get a job: everything else pays for itself once you earn. Try {{place}}.",
+  "hint.job.here": "Get a job: apply below for one you qualify for.",
+  "hint.eat": "Sort out food before the week ends: {{place}} sells it.",
+  "hint.eat.here": "Sort out food before the week ends: buy or eat something here.",
+  "hint.rent": "Rent is due: pay it at {{place}}.",
+  "hint.rent.here": "Rent is due: pay it here.",
+  "hint.work": "Work a shift at {{place}}.",
+  "hint.work.here": "Work a shift here.",
+  "hint.go": "Go ({{hours}}h)",
+  "hint.dismiss": "Hide hints",
+  "settings.hints": "Show next-step hints"
 }

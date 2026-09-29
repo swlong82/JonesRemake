@@ -15,6 +15,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { END_TURN_CONFIRM_HOURS, useGame } from '../../store/gameStore';
 import { weekNeeds } from '../../store/needs';
+import { nextStep } from '../../store/nextStep';
+import { useSettings } from '../../store/settings';
+import { useTutorial } from '../../tutorial/useTutorial';
 import { Button } from '../common/Button';
 import {
   SECTION_ORDER,
@@ -382,6 +385,47 @@ function SubscriptionCancelDialog() {
   );
 }
 
+/** One-line "what next" nudge with a shortcut to travel there (M11.5). */
+function NextStepHint() {
+  const { t } = useTranslation();
+  const state = useGame((s) => s.state);
+  const pack = useGame((s) => s.pack);
+  const preview = useGame((s) => s.preview);
+  const openTravel = useGame((s) => s.openTravel);
+  const on = useSettings((s) => s.settings.hints);
+  const update = useSettings((s) => s.update);
+  const tutorial = useTutorial((s) => s.active);
+  if (!on || tutorial || !state || !pack) return null;
+  const step = nextStep(state, pack);
+  if (!step) return null;
+  const place = step.place;
+  const text =
+    place === null
+      ? t(`hint.${step.id}${step.id === 'endTurn' ? '' : '.here'}`)
+      : t(`hint.${step.id}`, { place: locationName(place) });
+  const trip = place === null ? null : preview({ type: 'Move', to: place, mode: 'walk' });
+  return (
+    <div
+      className="flex flex-col gap-1 rounded-md border border-line bg-surface-3 p-2 text-xs"
+      data-testid="next-step"
+    >
+      <p>
+        <span className="font-semibold">{t('hint.label')}:</span> {text}
+      </p>
+      <div className="flex gap-2">
+        {place !== null && (
+          <Button data-testid="next-step-go" onClick={() => openTravel(place)}>
+            {t('hint.go', { hours: hours(trip?.hours ?? 0) })}
+          </Button>
+        )}
+        <Button data-testid="next-step-hide" onClick={() => update({ hints: false })}>
+          {t('hint.dismiss')}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function LocationPanel() {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
@@ -425,6 +469,8 @@ export function LocationPanel() {
           {closed ? t('panel.closed') : player.inside ? t('panel.open') : t('panel.outside')}
         </p>
       </header>
+
+      {!confirmEnd && <NextStepHint />}
 
       {needs.length > 0 && !confirmEnd && (
         <p className="text-xs text-warn" data-testid="needs-banner">
