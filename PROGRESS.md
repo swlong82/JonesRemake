@@ -129,6 +129,21 @@ Owner interview 2026-09-24: ADR-0051…0053.
 - [ ] M10.1 Port `game`, `matrix` and `regression` e2e to the scene; delete the ring board, the mini ring and the `sceneUi` flag
 - [ ] M10 gate: `pnpm verify` green in CI, tag `m10`
 
+## M11 — Playthrough UX pass (2026-09-29 checkpoint review)
+
+Source: detailed desktop + phone playthrough after M9. One task per finding; each ships with tests.
+
+- [x] M11.1 Starvation/needs warning: End-turn confirm warns when no meal is planned, "weekend costs coming" note, fix Starving hour chip (10h vs 20h) — note: `store/needs.ts` `weekNeeds` (food, rent) drives a panel banner and a forced end-turn confirm; Starved card reads pack numbers.
+- [x] M11.2 Total hour cost on hover/focus + travel sheet ("walk + enter"), hours-after, unreachable tint — note: `tripCost` in labels; hover/focus badge + tint on the scene board, travel sheet total and hours-after, Enter label from pack rules.
+- [x] M11.3 Employment Office: group by employer, available-only filter default, show requirements, sort by pay — note: `ApplyList` in LocationPanel (employer groups, only-open filter, needs line).
+- [x] M11.4 Job application risk copy ("57% chance you're turned down"), honest rejection modal, warn before apply — note: named risk copy per `riskKey`, Refused card names the job and cost.
+- [x] M11.5 Next-step objective hint after tutorial/skip — note: `store/nextStep.ts` + hint in LocationPanel with Go shortcut; `hints` setting (default on), hidden during the tutorial.
+- [x] M11.6 Phone: travel sheet as bottom sheet over map, scroll-to-top on change, slim sticky HUD, readable map labels — note: sticky `PhoneStatusBar`, travel as a fixed bottom sheet, scroll-to-top on location/turn change, short plates below 1.75× zoom, room under the block.
+- [x] M11.7 Modern text bugs: `Meal: NaN`, `Demand 600%`, wrong gig disabled reason — note: delivery preview note is a translation key, gig demand shown as percent, `disabledReason` gives GigShift a signup message.
+- [x] M11.8 Copy polish: "Your turn", "1 step", ruleset names + descriptions, goal-slider and seed/chaos help text — note: `turnOwner`, i18n plurals for steps, ruleset names + hints, goals/seed/chaos/opacity help text.
+- [x] M11.9 Scene layout: no duplicate quip, bubble not clipped, unavailable rows collapsed, fill viewport height — note: greeting only in the host bubble, bubble narrowed off the panel, locked rows folded (`SectionRows`), scroll shadows. Viewport fill left as is: dead space under the HUD bar is the 16:10 stage width-limit.
+- [x] M11.10 Feedback: end-of-week summary card, floating action deltas, rival status line during AI turns — note: `DeltaToast` (store `delta`, hours/money/stats, opacity-safe), several start-of-turn cards fold into one "This week" summary with a net line, `AiTicker` shows rival place, hours and current action.
+
 ## Gate log
 
 | Milestone | Date       | Commit  | verify | CI    | Notes                                                                                                    |

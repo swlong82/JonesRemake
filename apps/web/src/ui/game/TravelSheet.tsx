@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { tp } from '../../i18n';
-import { hours, locationName, previewParts, stepsBetween } from './labels';
+import { hours, locationName, previewParts, stepsBetween, tripCost } from './labels';
 
 export function TravelSheet() {
   const { t } = useTranslation();
@@ -28,6 +28,9 @@ export function TravelSheet() {
   const selected = rows.find((r) => r.cmd.type === 'Move' && r.cmd.mode === mode) ?? rows[0];
   const steps = stepsBetween(pack, player.location, target);
   const selectedPreview = selected ? preview(selected.cmd) : null;
+  const cost = selectedPreview
+    ? tripCost(selectedPreview.hours, pack.rules.time.enterHours, player.hoursLeft)
+    : null;
   const tooFar = selectedPreview !== null && Math.abs(selectedPreview.hours) > player.hoursLeft;
 
   return (
@@ -39,7 +42,7 @@ export function TravelSheet() {
       data-testid="travel-sheet"
     >
       <h2 className="text-lg font-bold">{t('travel.heading', { name: locationName(target) })}</h2>
-      <p className="text-xs text-ink-muted">{t('travel.steps', { steps })}</p>
+      <p className="text-xs text-ink-muted">{t('travel.steps', { count: steps })}</p>
       <fieldset className="flex flex-col gap-1">
         <legend className="text-sm font-medium">{t('travel.mode')}</legend>
         {rows.map((row) => {
@@ -75,10 +78,24 @@ export function TravelSheet() {
           {t('travel.partial')}
         </p>
       )}
-      {selectedPreview && (
-        <p className="text-xs text-ink-muted" data-testid="travel-cost">
-          {t('travel.hours', { hours: hours(selectedPreview.hours) })}
-        </p>
+      {selectedPreview && cost && (
+        <div className="text-xs text-ink-muted" data-testid="travel-cost">
+          <p>
+            {t('travel.total', {
+              walk: hours(cost.walk),
+              enter: hours(cost.enter),
+              total: hours(cost.total),
+            })}
+          </p>
+          {!cost.partial && (
+            <p data-testid="travel-after">{t('travel.after', { left: hours(cost.left) })}</p>
+          )}
+          {cost.cannotEnter && (
+            <p className="text-warn" data-testid="travel-no-enter">
+              {t('travel.noEnter')}
+            </p>
+          )}
+        </div>
       )}
       <div className="flex gap-2">
         <Button

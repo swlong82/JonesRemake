@@ -621,3 +621,12 @@
 - Options: rewrite the tutorial script for the scene, or keep the script and resolve its anchors in the scene; for phones, auto-pan to each anchor, or fit the whole block at 1×.
 - Decision: keep the script. The spotlight resolves `hud` to `scene-hud` when the full HUD is closed, and a `square-*` anchor to Leave (`exit`) while the squares are off screen. The phone map fits the whole block at 1× (16:10 viewport); each square's button reaches 12 stage units past its building so it stays ≥ 44 px, and zoom and pan remain. The scene bar's menu button is `menu-btn`, like the ring header's. The Art packs fieldset and file input may shrink (`min-w-0`). The flag's removal moves to M10, which ports `game`, `matrix` and `regression` (still pinned to `-sceneUi`) and deletes the ring board.
 - Consequences: the tutorial, saves, presentation (both UIs), scene, art-pack, offline and live-smoke specs pass on three viewports with the scene as default; the old ring stays one query string away for comparison and for the pinned specs.
+
+## ADR-0061: M11 playthrough UX pass — guidance is presentation-only and reads public state
+
+- Date: 2026-09-29
+- Status: Accepted
+- Context: a desktop and phone playthrough after M9 found ten friction points (unwarned starvation, hidden trip costs, a flat 50-row job list, unexplained risk, no next step, phone sheets below the fold, modern text bugs, copy, panel clutter, thin feedback). The spec is silent on most of them.
+- Options: put warnings and hints in the engine (new events/commands), or derive them in `apps/web` from public `GameState`.
+- Decision: web only. `store/needs.ts` (food, rent) and `store/nextStep.ts` read public state, so classic opacity is unaffected; the end-turn confirm also fires on an unmet need; `hints` is a setting (default on). Locked action rows fold only when the section also has something available. Several start-of-turn cards fold into one "This week" card. Gig demand is shown as a percent of per-mille; `Meal:` preview notes became translation keys (engine preview text only). Disabled reasons can be command-specific (`error.<code>.<Command>`), so no `ErrorCode` was added.
+- Consequences: no state, golden or balance change; `sim:gate` unchanged (42 assertions, 0 failed). Old e2e expectations that a locked row is visible hold for all-locked sections.

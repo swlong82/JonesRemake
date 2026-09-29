@@ -67,6 +67,8 @@ describe('delivery module (GDD 4.11)', () => {
     expect(-pv.hours).toBe(RULES.time.deliveryHours);
     expect(-pv.money).toBe(price);
     expect(pv.riskBp).toBe(RULES.food.deliveryLostBp);
+    // Notes are translation keys, never a meal id a label would parse as a number (M11.7).
+    expect(pv.notes).toEqual([MEAL.countsAsMeal ? 'meal.counts' : 'meal.snack']);
     const fed = run(s, 0, [{ type: 'OrderDelivery', mealId: MEAL.id }], modern);
     // Either the meal is waiting for next turn or the order was lost; both are the rule.
     const p = fed.players[0]!;

@@ -102,6 +102,15 @@ export function SettingsScreen() {
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
+            checked={settings.hints}
+            onChange={(e) => update({ hints: e.target.checked })}
+            data-testid="hints-setting"
+          />
+          {t('settings.hints')}
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
             checked={settings.classicOpacityDefault}
             onChange={(e) => update({ classicOpacityDefault: e.target.checked })}
           />

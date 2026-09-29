@@ -3,7 +3,7 @@
  * desktop and tablet, compact HUD + mini ring + location list + bottom sheet on phones. The
  * keyboard map (7.7) and the live region (7.8) are attached here.
  */
-import { useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { artRegistryFor, useArtSets } from '../../assets/art/artRegistry';
 import { useDebugBoot } from '../../debug/useDebugBoot';
@@ -11,6 +11,7 @@ import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { AiTicker } from '../game/AiTicker';
+import { DeltaToast } from '../game/DeltaToast';
 import { Board } from '../game/Board';
 import { DebugPanel } from '../game/DebugPanel';
 import { EventCards } from '../game/EventCards';
@@ -21,7 +22,7 @@ import { MenuSheet } from '../game/MenuSheet';
 import { PhoneLocationList } from '../game/PhoneLocationList';
 import { Standings } from '../game/Standings';
 import { TravelSheet } from '../game/TravelSheet';
-import { hours } from '../game/labels';
+import { hours, turnOwner } from '../game/labels';
 import { useIsPhone } from '../game/useIsPhone';
 import { useKeyboard } from '../game/useKeyboard';
 import { InteriorHeader } from '../scene/InteriorScene';
@@ -36,10 +37,57 @@ function LiveRegion() {
   if (!state || !player) return null;
   return (
     <p className="sr-only" aria-live="polite" data-testid="live">
-      {`${t('live.turn', { name: player.name, week: state.week })} · ${t('live.hours', {
-        n: hours(player.hoursLeft),
-      })} · ${t('live.money', { cash: player.cash })}`}
+      {`${t('live.turn', { owner: turnOwner(player.name, t), week: state.week })} · ${t(
+        'live.hours',
+        {
+          n: hours(player.hoursLeft),
+        },
+      )} · ${t('live.money', { cash: player.cash })}`}
     </p>
+  );
+}
+
+/**
+ * Phone: slim status strip that stays on screen while the map and panels scroll under it, so
+ * turn, week, hours and cash are never a scroll away (M11.6).
+ */
+function PhoneStatusBar() {
+  const { t } = useTranslation();
+  const state = useGame((s) => s.state);
+  const toggleMenu = useGame((s) => s.toggleMenu);
+  const player = state?.players[state.activeSeat];
+  if (!state || !player) return null;
+  return (
+    <div
+      className="sticky top-0 z-20 -mx-3 -mt-3 flex items-center gap-2 border-b border-line bg-surface px-3 py-2"
+      data-testid="phone-status"
+    >
+      <h1 className="sr-only">{t('app.title')}</h1>
+      <p className="grow text-sm font-semibold">
+        {t('phone.status', {
+          name: player.name,
+          week: t('hud.week', { n: state.week }),
+          hours: t('hud.hours', { n: hours(player.hoursLeft) }),
+          cash: player.cash,
+        })}
+      </p>
+      <Button onClick={toggleMenu} data-testid="menu-btn">
+        {t('hud.menu')}
+      </Button>
+      <DeltaToast className="absolute right-3 top-full z-20 mt-1" />
+    </div>
+  );
+}
+
+/** Phone bottom sheet: keeps the map visible and tappable above it. */
+function PhoneSheet({ children }: { children: ReactNode }) {
+  return (
+    <div
+      className="fixed inset-x-0 bottom-0 z-30 max-h-[60vh] overflow-y-auto rounded-t-xl border-t border-line bg-surface p-3 shadow-2xl"
+      data-testid="phone-sheet"
+    >
+      {children}
+    </div>
   );
 }
 
@@ -60,6 +108,11 @@ export function GameScreen() {
   const [paper, setPaper] = useState(false);
   const sceneUi = useFlags((f) => f.flags.sceneUi);
   useKeyboard();
+  const active = state?.players[state.activeSeat];
+  // Entering, leaving or a new turn changes what the page is about: start at the top of it (M11.6).
+  useEffect(() => {
+    if (phone) window.scrollTo(0, 0);
+  }, [phone, active?.location, active?.inside, state?.activeSeat, state?.week]);
   if (!state) return null;
   // The illustrated scene (ART_SPEC 17.9) replaces the ring on desktop and tablet; phones get
   // the pannable scene with a list toggle (M9.9).
@@ -79,7 +132,15 @@ export function GameScreen() {
   const side = (
     <div className="flex flex-col gap-3">
       <Hud compact={phone} />
-      {yourTurn && travelOpen && <TravelSheet />}
+      {yourTurn &&
+        travelOpen &&
+        (phone ? (
+          <PhoneSheet>
+            <TravelSheet />
+          </PhoneSheet>
+        ) : (
+          <TravelSheet />
+        ))}
       {standingsOpen && <Standings />}
       {menuOpen && <MenuSheet />}
       <AiTicker />
@@ -94,12 +155,16 @@ export function GameScreen() {
     <div className="mx-auto flex max-w-6xl flex-col gap-3 p-3">
       <LiveRegion />
       <EventCards />
-      <div className="flex items-center gap-2">
-        <h1 className="grow text-xl font-bold">{t('app.title')}</h1>
-        <Button onClick={toggleMenu} data-testid="menu-btn">
-          {t('hud.menu')}
-        </Button>
-      </div>
+      {phone ? (
+        <PhoneStatusBar />
+      ) : (
+        <div className="flex items-center gap-2">
+          <h1 className="grow text-xl font-bold">{t('app.title')}</h1>
+          <Button onClick={toggleMenu} data-testid="menu-btn">
+            {t('hud.menu')}
+          </Button>
+        </div>
+      )}
       {phone && sceneUi ? (
         <div className="flex flex-col gap-3">
           <PhoneScene />

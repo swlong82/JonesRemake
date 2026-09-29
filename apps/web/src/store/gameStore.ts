@@ -21,6 +21,7 @@ import type { DomainEvent, ErrorCode, LocationId } from '@hustle-ring/shared';
 import { create } from 'zustand';
 import { createAiClient, type AiClient } from '../ai/aiClient';
 import { loadPackStrings } from '../i18n';
+import { weekNeeds } from './needs';
 import { useSettings, type AiSpeed } from './settings';
 
 export type Screen =
@@ -74,6 +75,8 @@ export interface GameStore {
   /** Cards held back until the hotseat pass screen is dismissed. */
   pendingCards: DomainEvent[];
   ticker: TickerEntry[];
+  /** What the last human action did to that seat (M11.10); cleared by the toast's timer. */
+  delta: { id: number; seat: number; events: DomainEvent[] } | null;
   /** Human seat currently controlling the device (hotseat privacy). */
   viewerSeat: number;
   selectedLocation: LocationId | null;
@@ -110,7 +113,7 @@ export interface GameStore {
   toggleLog: () => void;
   toggleStandings: () => void;
   toggleMenu: () => void;
-  /** End the turn, or ask first when more than `END_TURN_CONFIRM_HOURS` remain. */
+  /** End the turn, or ask first when hours remain over `END_TURN_CONFIRM_HOURS` or a weekly need is unmet. */
   requestEndTurn: () => void;
   cancelEndTurn: () => void;
   requestSubscriptionCancel: (cmd: UnsubscribeCommand) => boolean;
@@ -118,6 +121,8 @@ export interface GameStore {
   cancelSubscriptionCancel: () => void;
   toggleHelp: () => void;
   dismissCard: () => void;
+  dismissAllCards: () => void;
+  clearDelta: () => void;
   skipAi: () => void;
   ready: () => void;
   runAiIfNeeded: () => Promise<void>;
@@ -162,6 +167,7 @@ export const useGame = create<GameStore>((set, get) => ({
   state: null,
   log: [],
   cards: [],
+  delta: null,
   pendingCards: [],
   ticker: [],
   viewerSeat: 0,
@@ -220,6 +226,7 @@ export const useGame = create<GameStore>((set, get) => ({
       cards: [],
       pendingCards: [],
       ticker: [],
+      delta: null,
       viewerSeat: humans.includes(state.activeSeat) ? state.activeSeat : (humans[0] ?? 0),
       selectedLocation: null,
       travelOpen: false,
@@ -259,6 +266,7 @@ export const useGame = create<GameStore>((set, get) => ({
       log: [],
       cards: [],
       ticker: [],
+      delta: null,
       viewerSeat: humans[0] ?? 0,
       selectedLocation: null,
       travelOpen: false,
@@ -356,6 +364,10 @@ export const useGame = create<GameStore>((set, get) => ({
         ];
       }
     }
+    if (isHuman && cmd.type !== 'EndTurn') {
+      const events = r.events.filter((e) => 'seat' in e && e.seat === seat);
+      patch.delta = events.length > 0 ? { id: (get().delta?.id ?? 0) + 1, seat, events } : null;
+    }
     set(patch);
     if (!isHuman) set({ ticker: [...get().ticker, { seat, cmd }].slice(-12) });
     void get().runAiIfNeeded();
@@ -392,8 +404,10 @@ export const useGame = create<GameStore>((set, get) => ({
   },
   requestEndTurn() {
     const { state } = get();
+    const { pack } = get();
     const left = state?.players[state.activeSeat]?.hoursLeft ?? 0;
-    if (left > END_TURN_CONFIRM_HOURS) {
+    const needs = state && pack ? weekNeeds(state, pack).length : 0;
+    if (left > END_TURN_CONFIRM_HOURS || needs > 0) {
       set({ endTurnPending: true });
       return;
     }
@@ -428,6 +442,12 @@ export const useGame = create<GameStore>((set, get) => ({
   },
   dismissCard() {
     set({ cards: get().cards.slice(1) });
+  },
+  dismissAllCards() {
+    set({ cards: [] });
+  },
+  clearDelta() {
+    set({ delta: null });
   },
   skipAi() {
     set({ aiSkip: true });
@@ -541,6 +561,7 @@ export const useGame = create<GameStore>((set, get) => ({
       cards: [],
       pendingCards: [],
       ticker: [],
+      delta: null,
       log: [],
       loading: false,
       aiThinking: false,

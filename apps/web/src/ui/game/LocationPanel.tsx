@@ -13,13 +13,20 @@ import {
 import type { ErrorCode } from '@hustle-ring/shared';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useGame } from '../../store/gameStore';
+import { END_TURN_CONFIRM_HOURS, useGame } from '../../store/gameStore';
+import { useFlags } from '../../flags/appFlags';
+import { weekNeeds } from '../../store/needs';
+import { nextStep } from '../../store/nextStep';
+import { useSettings } from '../../store/settings';
+import { useTutorial } from '../../tutorial/useTutorial';
 import { Button } from '../common/Button';
 import {
   SECTION_ORDER,
   assetName,
   commandKey,
   commandLabel,
+  degreeName,
+  disabledReason,
   hours,
   locationName,
   locationQuip,
@@ -85,7 +92,7 @@ export function runRepeat(cmd: Command, limit = 24): void {
   }
 }
 
-function ActionRow({ row, repeat }: { row: Row; repeat: boolean }) {
+function ActionRow({ row, repeat, extra }: { row: Row; repeat: boolean; extra?: string }) {
   const { t } = useTranslation();
   const dispatch = useGame((s) => s.dispatch);
   const requestSubscriptionCancel = useGame((s) => s.requestSubscriptionCancel);
@@ -114,12 +121,144 @@ function ActionRow({ row, repeat }: { row: Row; repeat: boolean }) {
           {parts.join(' · ')}
         </p>
       )}
+      {extra !== undefined && extra !== '' && (
+        <p className="text-xs text-ink-muted" data-testid="apply-needs">
+          {extra}
+        </p>
+      )}
       {disabled && (
         <p className="text-xs text-danger" data-testid="disabled-reason">
-          {t('panel.disabled', { reason: t(`error.${row.code ?? ''}`) })}
+          {t('panel.disabled', { reason: disabledReason(row.cmd, row.code ?? '', t) })}
         </p>
       )}
     </li>
+  );
+}
+
+const REQ_CODES = new Set<ErrorCode>([
+  'ERR_REQ_EXPERIENCE',
+  'ERR_REQ_DEPENDABILITY',
+  'ERR_REQ_EDUCATION',
+]);
+
+/**
+ * "Apply for a job" (M11.3): jobs grouped by employer, best pay first, hiding the ones the player
+ * cannot apply for unless asked, and spelling out what a locked job needs.
+ */
+export function ApplyList({ rows, repeat }: { rows: Row[]; repeat: boolean }) {
+  const { t } = useTranslation();
+  const state = useGame((s) => s.state);
+  const pack = useGame((s) => s.pack);
+  const [onlyOk, setOnlyOk] = useState(true);
+  if (!state || !pack) return null;
+  const player = state.players[state.activeSeat];
+  const jobOf = (row: Row) =>
+    row.cmd.type === 'ApplyJob' ? pack.jobById[row.cmd.jobId] : undefined;
+  const shown = onlyOk ? rows.filter((r) => r.code === null) : rows;
+  const hidden = rows.length - shown.length;
+
+  const groups = new Map<string, Row[]>();
+  for (const row of shown) {
+    const employer = jobOf(row)?.workplaceId ?? '';
+    groups.set(employer, [...(groups.get(employer) ?? []), row]);
+  }
+  const wage = (row: Row): number => jobOf(row)?.baseWage ?? 0;
+  const ordered = [...groups.entries()]
+    .map(([employer, list]) => ({
+      employer,
+      list: [...list].sort((a, b) => wage(b) - wage(a)),
+    }))
+    .sort((a, b) => wage(b.list[0]!) - wage(a.list[0]!));
+
+  const needs = (row: Row): string => {
+    const job = jobOf(row);
+    if (!job || !player || row.code === null || !REQ_CODES.has(row.code)) return '';
+    const list: string[] = [];
+    if (player.experience < job.reqExperience)
+      list.push(t('panel.apply.needExp', { need: job.reqExperience, have: player.experience }));
+    if (player.dependability < job.reqDependability)
+      list.push(
+        t('panel.apply.needDep', { need: job.reqDependability, have: player.dependability }),
+      );
+    for (const d of job.reqDegrees)
+      if (!player.degrees.includes(d))
+        list.push(t('panel.apply.needDegree', { degree: degreeName(d) }));
+    return list.length > 0 ? t('panel.apply.needs', { list: list.join(', ') }) : '';
+  };
+
+  return (
+    <div data-testid="apply-list">
+      <label className="flex items-center gap-2 text-xs">
+        <input
+          type="checkbox"
+          checked={onlyOk}
+          onChange={(e) => setOnlyOk(e.target.checked)}
+          data-testid="apply-only-ok"
+        />
+        {t('panel.apply.onlyOk')}
+      </label>
+      {ordered.length === 0 && (
+        <p className="text-xs text-ink-muted" data-testid="apply-none">
+          {t('panel.apply.none')}
+        </p>
+      )}
+      {ordered.map(({ employer, list }) => (
+        <div key={employer} data-testid={`apply-employer-${employer}`}>
+          <h4 className="mt-1 text-xs font-semibold">
+            {t('panel.apply.employer', { name: locationName(employer) })}
+          </h4>
+          <ul>
+            {list.map((row) => (
+              <ActionRow key={commandKey(row.cmd)} row={row} repeat={repeat} extra={needs(row)} />
+            ))}
+          </ul>
+        </div>
+      ))}
+      {hidden > 0 && (
+        <p className="text-xs text-ink-muted" data-testid="apply-hidden">
+          {t('panel.apply.hidden', { n: hidden })}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * A section's rows: what you can do now, with the rest folded under "Not available now" once
+ * there is something to do (M11.9). A section with only locked rows stays open, so a jobless
+ * player still sees why "Work" or a gig is greyed out.
+ */
+export function SectionRows({
+  rows,
+  repeat,
+  section,
+}: {
+  rows: Row[];
+  repeat: boolean;
+  section: SectionId;
+}) {
+  const { t } = useTranslation();
+  const ok = rows.filter((r) => r.code === null);
+  const locked = rows.filter((r) => r.code !== null);
+  const fold = locked.length > 0 && ok.length > 0;
+  const list = (items: Row[]) => (
+    <ul>
+      {items.map((row) => (
+        <ActionRow key={commandKey(row.cmd)} row={row} repeat={repeat} />
+      ))}
+    </ul>
+  );
+  if (!fold) return list(rows);
+  return (
+    <>
+      {ok.length > 0 && list(ok)}
+      <details data-testid={`locked-${section}`}>
+        <summary className="cursor-pointer text-xs text-ink-muted">
+          {t('panel.locked', { count: locked.length })}
+        </summary>
+        {list(locked)}
+      </details>
+    </>
   );
 }
 
@@ -287,6 +426,47 @@ function SubscriptionCancelDialog() {
   );
 }
 
+/** One-line "what next" nudge with a shortcut to travel there (M11.5). */
+function NextStepHint() {
+  const { t } = useTranslation();
+  const state = useGame((s) => s.state);
+  const pack = useGame((s) => s.pack);
+  const preview = useGame((s) => s.preview);
+  const openTravel = useGame((s) => s.openTravel);
+  const on = useSettings((s) => s.settings.hints);
+  const update = useSettings((s) => s.update);
+  const tutorial = useTutorial((s) => s.active);
+  if (!on || tutorial || !state || !pack) return null;
+  const step = nextStep(state, pack);
+  if (!step) return null;
+  const place = step.place;
+  const text =
+    place === null
+      ? t(`hint.${step.id}${step.id === 'endTurn' ? '' : '.here'}`)
+      : t(`hint.${step.id}`, { place: locationName(place) });
+  const trip = place === null ? null : preview({ type: 'Move', to: place, mode: 'walk' });
+  return (
+    <div
+      className="flex flex-col gap-1 rounded-md border border-line bg-surface-3 p-2 text-xs"
+      data-testid="next-step"
+    >
+      <p>
+        <span className="font-semibold">{t('hint.label')}:</span> {text}
+      </p>
+      <div className="flex gap-2">
+        {place !== null && (
+          <Button data-testid="next-step-go" onClick={() => openTravel(place)}>
+            {t('hint.go', { hours: hours(trip?.hours ?? 0) })}
+          </Button>
+        )}
+        <Button data-testid="next-step-hide" onClick={() => update({ hints: false })}>
+          {t('hint.dismiss')}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function LocationPanel() {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
@@ -297,6 +477,7 @@ export function LocationPanel() {
   const requestEndTurn = useGame((s) => s.requestEndTurn);
   const cancelEndTurn = useGame((s) => s.cancelEndTurn);
   const [repeat, setRepeat] = useState(false);
+  const sceneUi = useFlags((f) => f.flags.sceneUi);
   if (!state || !pack) return null;
   const player = state.players[state.activeSeat];
   if (!player) return null;
@@ -306,6 +487,14 @@ export function LocationPanel() {
   const closed = enterRow?.code === 'ERR_LOCATION_CLOSED';
   const sections = groupRows(rows);
   const halfHoursLeft = player.hoursLeft;
+  const needs = weekNeeds(state, pack);
+  const needText = (need: (typeof needs)[number]): string =>
+    need.id === 'food'
+      ? t('panel.needs.food', {
+          hours: hours(need.halfHours),
+          happiness: Math.abs(pack.rules.happiness.starvation),
+        })
+      : t('panel.needs.rent', { amount: need.amount });
 
   return (
     <section
@@ -317,11 +506,26 @@ export function LocationPanel() {
         <h2 className="text-lg font-bold" data-testid="panel-location">
           {locationName(player.location)}
         </h2>
-        <p className="text-xs italic text-ink-muted">{locationQuip(player.location, state.week)}</p>
+        {/* Inside the scene the host's speech bubble already says this line. */}
+        {!(sceneUi && player.inside) && (
+          <p className="text-xs italic text-ink-muted">
+            {locationQuip(player.location, state.week)}
+          </p>
+        )}
         <p className="text-xs" data-testid="panel-state">
           {closed ? t('panel.closed') : player.inside ? t('panel.open') : t('panel.outside')}
         </p>
       </header>
+
+      {!confirmEnd && <NextStepHint />}
+
+      {needs.length > 0 && !confirmEnd && (
+        <p className="text-xs text-warn" data-testid="needs-banner">
+          {t('panel.needs.banner', {
+            list: needs.map((n) => t(`panel.needs.short.${n.id}`)).join(', '),
+          })}
+        </p>
+      )}
 
       {player.inside ? (
         <Button onClick={() => dispatch({ type: 'Exit' })} data-testid="exit">
@@ -334,7 +538,7 @@ export function LocationPanel() {
           onClick={() => dispatch({ type: 'Enter' })}
           data-testid="enter"
         >
-          {t('panel.enter')}
+          {t('panel.enter', { hours: hours(pack.rules.time.enterHours) })}
         </Button>
       )}
 
@@ -350,7 +554,7 @@ export function LocationPanel() {
         </label>
       )}
 
-      <div className="flex max-h-[26rem] flex-col gap-3 overflow-y-auto">
+      <div className="scroll-shadow flex max-h-[26rem] flex-col gap-3 overflow-y-auto">
         {sections.length === 0 && <p className="text-sm text-ink-muted">{t('panel.noActions')}</p>}
         {sections.map(({ section, rows: list }) => (
           <div key={section} data-testid={`section-${section}`}>
@@ -363,11 +567,11 @@ export function LocationPanel() {
               </p>
             )}
             <ModernDetails section={section} />
-            <ul>
-              {list.map((row) => (
-                <ActionRow key={commandKey(row.cmd)} row={row} repeat={repeat} />
-              ))}
-            </ul>
+            {section === 'apply' ? (
+              <ApplyList rows={list} repeat={repeat} />
+            ) : (
+              <SectionRows rows={list} repeat={repeat} section={section} />
+            )}
           </div>
         ))}
       </div>
@@ -381,7 +585,17 @@ export function LocationPanel() {
           className="flex flex-col gap-2"
           data-testid="end-turn-dialog"
         >
-          <p className="text-sm">{t('panel.endTurnConfirm', { hours: hours(halfHoursLeft) })}</p>
+          {halfHoursLeft > END_TURN_CONFIRM_HOURS && (
+            <p className="text-sm">{t('panel.endTurnConfirm', { hours: hours(halfHoursLeft) })}</p>
+          )}
+          {needs.length > 0 && (
+            <ul className="list-disc pl-4 text-sm text-warn" data-testid="needs-list">
+              {needs.map((n) => (
+                <li key={n.id}>{needText(n)}</li>
+              ))}
+            </ul>
+          )}
+          <p className="text-xs text-ink-muted">{t('panel.needs.weekend')}</p>
           <div className="flex gap-2">
             <Button
               variant="danger"
