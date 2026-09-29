@@ -1,5 +1,5 @@
 import type { PaletteId } from '@hustle-ring/shared';
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import type { ArtRegistry } from '../../assets/art/artRegistry';
 import { useArtUrl } from '../../assets/art/useArtUrl';
 
@@ -23,12 +23,21 @@ export function ArtImage({
   testId?: string;
 }) {
   const src = useArtUrl(registry, artKey, tint);
+  // A soft shimmer shows behind the picture until it has loaded (M12.7).
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const loaded = loadedSrc === src;
   return (
     <img
       src={src}
       alt=""
       draggable={false}
-      className={`pointer-events-none select-none ${className ?? ''}`}
+      onLoad={() => {
+        setLoadedSrc(src);
+      }}
+      onError={() => {
+        setLoadedSrc(src);
+      }}
+      className={`pointer-events-none select-none ${loaded ? '' : 'skeleton'} ${className ?? ''}`}
       style={style}
       data-art-key={artKey}
       data-testid={testId}

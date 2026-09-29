@@ -10,7 +10,11 @@ import { useDebugBoot } from '../../debug/useDebugBoot';
 import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
+import { GLYPH } from '../common/glyphs';
 import { AiTicker } from '../game/AiTicker';
+import { CommandPalette } from '../game/CommandPalette';
+import { HoursStrip } from '../game/HoursStrip';
+import { UndoButton } from '../game/UndoButton';
 import { DeltaToast } from '../game/DeltaToast';
 import { Board } from '../game/Board';
 import { DebugPanel } from '../game/DebugPanel';
@@ -25,6 +29,7 @@ import { TravelSheet } from '../game/TravelSheet';
 import { hours, turnOwner } from '../game/labels';
 import { useIsPhone } from '../game/useIsPhone';
 import { useKeyboard } from '../game/useKeyboard';
+import { useSwipe } from '../game/useSwipe';
 import { InteriorHeader } from '../scene/InteriorScene';
 import { Newspaper, NewspaperButton } from '../scene/Newspaper';
 import { PhoneScene } from '../scene/PhoneScene';
@@ -55,6 +60,7 @@ function PhoneStatusBar() {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
   const toggleMenu = useGame((s) => s.toggleMenu);
+  const togglePalette = useGame((s) => s.togglePalette);
   const player = state?.players[state.activeSeat];
   if (!state || !player) return null;
   return (
@@ -63,7 +69,7 @@ function PhoneStatusBar() {
       data-testid="phone-status"
     >
       <h1 className="sr-only">{t('app.title')}</h1>
-      <p className="grow text-sm font-semibold">
+      <p className="min-w-0 grow text-sm font-semibold">
         {t('phone.status', {
           name: player.name,
           week: t('hud.week', { n: state.week }),
@@ -71,19 +77,34 @@ function PhoneStatusBar() {
           cash: player.cash,
         })}
       </p>
-      <Button onClick={toggleMenu} data-testid="menu-btn">
+      <UndoButton icon />
+      <Button
+        className="w-11 shrink-0 px-0"
+        onClick={() => togglePalette()}
+        aria-label={t('palette.heading')}
+        data-testid="palette-btn"
+      >
+        {GLYPH.search}
+      </Button>
+      <Button className="shrink-0" onClick={toggleMenu} data-testid="menu-btn">
         {t('hud.menu')}
       </Button>
       <DeltaToast className="absolute right-3 top-full z-20 mt-1" />
+      <div className="absolute inset-x-3 bottom-0.5">
+        <HoursStrip compact />
+      </div>
     </div>
   );
 }
 
 /** Phone bottom sheet: keeps the map visible and tappable above it. */
 function PhoneSheet({ children }: { children: ReactNode }) {
+  const closeTravel = useGame((s) => s.closeTravel);
+  const swipe = useSwipe({ down: closeTravel });
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-30 max-h-[60vh] overflow-y-auto rounded-t-xl border-t border-line bg-surface p-3 shadow-2xl"
+      {...swipe}
+      className="sheet-enter fixed inset-x-0 bottom-0 z-30 max-h-[60vh] overflow-y-auto rounded-t-xl border-t border-line bg-surface p-3 shadow-2xl"
       data-testid="phone-sheet"
     >
       {children}
@@ -121,6 +142,7 @@ export function GameScreen() {
       <>
         <LiveRegion />
         <EventCards />
+        <CommandPalette />
         <SceneGameScreen debug={debug} />
       </>
     );
@@ -155,11 +177,13 @@ export function GameScreen() {
     <div className="mx-auto flex max-w-6xl flex-col gap-3 p-3">
       <LiveRegion />
       <EventCards />
+      <CommandPalette />
       {phone ? (
         <PhoneStatusBar />
       ) : (
         <div className="flex items-center gap-2">
           <h1 className="grow text-xl font-bold">{t('app.title')}</h1>
+          <UndoButton />
           <Button onClick={toggleMenu} data-testid="menu-btn">
             {t('hud.menu')}
           </Button>

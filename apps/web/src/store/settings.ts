@@ -21,6 +21,14 @@ export interface Settings {
   tutorialSeen: boolean;
   /** Show the next-step hint in the location panel (M11.5). */
   hints: boolean;
+  /** Coach marks for systems the tutorial does not cover (M12.4). */
+  coach: boolean;
+  /** Feature tips already shown, by id (M12.4). */
+  coachSeen: string[];
+  /** Turns off undo for a stricter game (M12.2). */
+  strictMode: boolean;
+  /** Short vibration on success or failure on devices that support it (M12.8). */
+  haptics: boolean;
   /** Active art set (ART_SPEC 17.6): `default` or an imported pack's id. */
   artSet: string;
 }
@@ -44,6 +52,10 @@ export const DEFAULT_SETTINGS: Settings = {
   language: 'en',
   tutorialSeen: false,
   hints: true,
+  coach: true,
+  coachSeen: [],
+  strictMode: false,
+  haptics: true,
   artSet: 'default',
 };
 

@@ -15,11 +15,21 @@ import {
 } from '@hustle-ring/engine';
 import type { CityPack } from '@hustle-ring/content';
 import type { GoalId } from '@hustle-ring/shared';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PALETTE_HEX } from '../../assets/AssetRegistry';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
-import { hours, jobTitle, type Translate } from './labels';
+import { goalLevers } from '../../store/goalLevers';
+import {
+  commandKey,
+  commandLabel,
+  hours,
+  jobTitle,
+  locationName,
+  previewParts,
+  type Translate,
+} from './labels';
 
 export const GOAL_IDS: GoalId[] = ['wealth', 'happiness', 'education', 'career'];
 
@@ -56,6 +66,65 @@ function HoursRing({ left, total }: { left: number; total: number }) {
   );
 }
 
+/** The actions that would move one goal, under its bar (M12.5). */
+function GoalLevers({ goal }: { goal: GoalId }) {
+  const { t } = useTranslation();
+  const state = useGame((s) => s.state);
+  const pack = useGame((s) => s.pack);
+  const candidates = useGame((s) => s.candidates);
+  const preview = useGame((s) => s.preview);
+  const dispatch = useGame((s) => s.dispatch);
+  const openTravel = useGame((s) => s.openTravel);
+  if (!state || !pack) return null;
+  const levers = goalLevers(goal, state, pack, candidates(), preview);
+  const opaque = state.config.classicOpacity;
+  return (
+    <div
+      className="ml-2 flex flex-col gap-1 rounded-md border border-line bg-surface-3 p-2 text-xs"
+      data-testid={`levers-${goal}`}
+    >
+      <p className="font-semibold">{t('levers.heading', { goal: t(`hud.goal.${goal}`) })}</p>
+      {levers.here.map(({ cmd, preview: p }) => (
+        <div key={commandKey(cmd)} className="flex items-center justify-between gap-2">
+          <span>
+            {commandLabel(cmd, t)}
+            {p && (
+              <span className="text-ink-muted">
+                {' '}
+                · {previewParts(p, t, { opaque }).join(' · ')}
+              </span>
+            )}
+          </span>
+          <Button
+            data-testid={`lever-do-${cmd.type}`}
+            onClick={() => {
+              dispatch(cmd);
+            }}
+          >
+            {t('levers.do')}
+          </Button>
+        </div>
+      ))}
+      {levers.here.length === 0 && levers.place !== null && (
+        <div className="flex items-center justify-between gap-2">
+          <span>{t('levers.goTo', { place: locationName(levers.place) })}</span>
+          <Button
+            data-testid="lever-go"
+            onClick={() => {
+              openTravel(levers.place ?? '');
+            }}
+          >
+            {t('hint.go', {
+              hours: hours(preview({ type: 'Move', to: levers.place, mode: 'walk' })?.hours ?? 0),
+            })}
+          </Button>
+        </div>
+      )}
+      {levers.here.length === 0 && levers.place === null && <p>{t('levers.none')}</p>}
+    </div>
+  );
+}
+
 export function GoalBars({
   state,
   pack,
@@ -68,9 +137,12 @@ export function GoalBars({
   opaque: boolean;
 }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState<GoalId | null>(null);
   const player = state.players[seat];
   if (!player) return null;
   const current = computeGoals(player, state, pack, 0);
+  // Levers act on the active seat, so only its own bars are interactive.
+  const interactive = seat === state.activeSeat && player.controller === 'human-local';
   return (
     <ul className="flex flex-col gap-1" data-testid={`goals-${seat}`}>
       {GOAL_IDS.map((goal) => {
@@ -79,25 +151,42 @@ export function GoalBars({
         const met = value >= target;
         const pct = fillPct(value, target, opaque);
         return (
-          <li key={goal} className="flex items-center gap-2 text-sm">
-            <span className="w-20 shrink-0">{t(`hud.goal.${goal}`)}</span>
-            <span
-              className="h-3 grow overflow-hidden rounded-full bg-surface-3"
-              role="img"
-              aria-label={
-                opaque
-                  ? `${t(`hud.goal.${goal}`)} ${String(pct)}%`
-                  : t('hud.goalValue', { goal: t(`hud.goal.${goal}`), current: value, target })
-              }
-            >
+          <li key={goal} className="flex flex-col gap-1 text-sm">
+            <div className="flex items-center gap-2">
+              {interactive && !met ? (
+                <button
+                  type="button"
+                  className="w-20 shrink-0 rounded text-left underline decoration-dotted underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus"
+                  aria-expanded={open === goal}
+                  data-testid={`goal-btn-${goal}`}
+                  onClick={() => {
+                    setOpen(open === goal ? null : goal);
+                  }}
+                >
+                  {t(`hud.goal.${goal}`)}
+                </button>
+              ) : (
+                <span className="w-20 shrink-0">{t(`hud.goal.${goal}`)}</span>
+              )}
               <span
-                className="block h-3 rounded-full"
-                style={{ width: `${pct}%`, background: met ? 'var(--c-ok)' : 'var(--c-accent)' }}
-              />
-            </span>
-            <span className="w-16 shrink-0 text-right tabular-nums" data-testid={`goal-${goal}`}>
-              {met ? `✓ ${t('hud.goalMet')}` : opaque ? `${pct}%` : `${value}/${target}`}
-            </span>
+                className="h-3 grow overflow-hidden rounded-full bg-surface-3"
+                role="img"
+                aria-label={
+                  opaque
+                    ? `${t(`hud.goal.${goal}`)} ${String(pct)}%`
+                    : t('hud.goalValue', { goal: t(`hud.goal.${goal}`), current: value, target })
+                }
+              >
+                <span
+                  className="block h-3 rounded-full"
+                  style={{ width: `${pct}%`, background: met ? 'var(--c-ok)' : 'var(--c-accent)' }}
+                />
+              </span>
+              <span className="w-16 shrink-0 text-right tabular-nums" data-testid={`goal-${goal}`}>
+                {met ? `✓ ${t('hud.goalMet')}` : opaque ? `${pct}%` : `${value}/${target}`}
+              </span>
+            </div>
+            {interactive && open === goal && !met && <GoalLevers goal={goal} />}
           </li>
         );
       })}

@@ -9,6 +9,8 @@ import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { GoalBars } from '../game/Hud';
 import { hours } from '../game/labels';
+import { HoursStrip } from '../game/HoursStrip';
+import { UndoButton } from '../game/UndoButton';
 import { NewspaperButton } from './Newspaper';
 
 /** Hours left as a draining clock face. */
@@ -66,6 +68,7 @@ export function SceneHudBar({
   const toggleStandings = useGame((s) => s.toggleStandings);
   const toggleLog = useGame((s) => s.toggleLog);
   const toggleMenu = useGame((s) => s.toggleMenu);
+  const togglePalette = useGame((s) => s.togglePalette);
   if (!state || !pack) return null;
   const player = state.players[state.activeSeat];
   if (!player) return null;
@@ -86,6 +89,7 @@ export function SceneHudBar({
         </span>
       </div>
       <SceneClock left={player.hoursLeft} total={total} />
+      <HoursStrip />
       <dl className="grid grid-cols-[auto_auto] gap-x-2 text-sm">
         <dt>{t('hud.cash')}</dt>
         <dd className="text-right font-semibold tabular-nums" data-testid="scene-cash">
@@ -105,6 +109,14 @@ export function SceneHudBar({
         />
       </div>
       <div className="flex flex-wrap gap-2">
+        <UndoButton />
+        <Button
+          onClick={() => togglePalette()}
+          aria-keyshortcuts="/ Control+K"
+          data-testid="palette-btn"
+        >
+          {t('palette.open')}
+        </Button>
         <NewspaperButton onClick={onNewspaper} />
         <Button onClick={onDetails} data-testid="hud-details-btn">
           {t('scene.details')}

@@ -13,11 +13,12 @@ import {
   type PaletteId,
   type TokenShape,
 } from '@hustle-ring/shared';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { artRegistryFor, baseArtRegistry, useArtSets } from '../../assets/art/artRegistry';
 import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
+import { useSeedLink } from '../../store/seedLink';
 import { useSettings } from '../../store/settings';
 import { Button } from '../common/Button';
 import { Field } from '../common/Field';
@@ -105,7 +106,12 @@ export function SetupScreen() {
   const startGame = useGame((s) => s.startGame);
   const settings = useSettings((s) => s.settings);
   const update = useSettings((s) => s.update);
-  const [packId, setPackId] = useState(PLAYABLE[0] ?? 'classic');
+  // A shared seed link fills the seed and city once, then is spent (M12.10).
+  const [shared] = useState(() => useSeedLink.getState().link);
+  useEffect(() => {
+    if (shared) useSeedLink.getState().set(null);
+  }, [shared]);
+  const [packId, setPackId] = useState(shared?.packId ?? PLAYABLE[0] ?? 'classic');
   const pack = useMemo(() => loadPack(packId), [packId]);
   const sceneUi = useFlags((f) => f.flags.sceneUi);
   useArtSets((s) => s.version);
@@ -113,7 +119,7 @@ export function SetupScreen() {
     defaultSeat(0, 'human-local', 'You'),
     defaultSeat(1, 'ai', 'Rival'),
   ]);
-  const [seed, setSeed] = useState(randomSeed);
+  const [seed, setSeed] = useState(() => shared?.seed ?? randomSeed());
   const [chaos, setChaos] = useState<Chaos>(pack.flags.modernEvents ? 'modern' : 'classic');
   const [classicOpacity, setClassicOpacity] = useState(settings.classicOpacityDefault);
   const [soloPractice, setSoloPractice] = useState(false);

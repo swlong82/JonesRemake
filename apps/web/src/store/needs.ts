@@ -34,3 +34,35 @@ export function weekNeeds(state: GameState, pack: CityPack, seat = state.activeS
     out.push({ id: 'rent', halfHours: 0, amount: p.home.debt + p.home.rentLocked });
   return out;
 }
+
+/**
+ * Whole weeks until rent is due (M12.9): 0 = due at the start of the next turn or already owing.
+ * Same reading as `weekNeeds`, so the HUD chip and the end-turn warning never disagree.
+ */
+export function rentDueIn(state: GameState, pack: CityPack, seat = state.activeSeat): number {
+  const p = state.players[seat];
+  if (!p) return 0;
+  const due = p.home.paidThroughWeek + pack.rules.housing.rentWeeks;
+  const dueWeek =
+    p.home.extensionUntilWeek !== null ? Math.max(due, p.home.extensionUntilWeek) : due;
+  if (p.home.debt > 0) return 0;
+  return Math.max(0, dueWeek - state.week);
+}
+
+export type HourCell = 'left' | 'planned' | 'spent';
+
+/**
+ * One cell per hour of the week for the HUD strip (M12.9): spent, planned (the trip being looked
+ * at) and still free. Inputs are half-hours; a partly used hour counts as still there.
+ */
+export function hourCells(total: number, left: number, planned: number): HourCell[] {
+  const hoursTotal = Math.max(0, Math.ceil(total / 2));
+  const keep = Math.max(0, Math.min(total, left - Math.max(0, planned)));
+  const held = Math.max(0, Math.min(total, left));
+  const cells: HourCell[] = [];
+  for (let i = 0; i < hoursTotal; i++) {
+    const from = i * 2;
+    cells.push(from < keep ? 'left' : from < held ? 'planned' : 'spent');
+  }
+  return cells;
+}
