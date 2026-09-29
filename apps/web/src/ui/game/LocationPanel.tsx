@@ -351,7 +351,7 @@ export function LocationPanel() {
           onClick={() => dispatch({ type: 'Enter' })}
           data-testid="enter"
         >
-          {t('panel.enter')}
+          {t('panel.enter', { hours: hours(pack.rules.time.enterHours) })}
         </Button>
       )}
 

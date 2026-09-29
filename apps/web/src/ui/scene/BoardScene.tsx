@@ -5,11 +5,11 @@
  */
 import { defaultBoardLayout, type BoardLayout, type Rect } from '@hustle-ring/art';
 import type { CityPack } from '@hustle-ring/content';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ArtRegistry } from '../../assets/art/artRegistry';
 import { useGame } from '../../store/gameStore';
-import { hours, locationName, ringKeyFor, stepsBetween } from '../game/labels';
+import { hours, locationName, ringKeyFor, stepsBetween, tripCost } from '../game/labels';
 import { ArtImage } from './ArtImage';
 import { pctX, pctY, rectStyle } from './geometry';
 
@@ -47,10 +47,14 @@ export function BoardScene({
   const preview = useGame((s) => s.preview);
   const selectLocation = useGame((s) => s.selectLocation);
   const selected = useGame((s) => s.selectedLocation);
+  const [hot, setHot] = useState<string | null>(null);
   if (!state || !pack) return null;
 
   const layout = layoutFor(registry, pack);
-  const here = state.players[state.activeSeat]?.location ?? '';
+  const active = state.players[state.activeSeat];
+  const here = active?.location ?? '';
+  const hoursLeft = active?.hoursLeft ?? 0;
+  const enterHours = pack.rules.time.enterHours;
 
   return (
     <div
@@ -69,14 +73,18 @@ export function BoardScene({
         if (locId === null || !slot) return null;
         const isHere = locId === here;
         const trip = preview({ type: 'Move', to: locId, mode: 'walk' });
+        const cost = tripCost(trip?.hours ?? 0, enterHours, hoursLeft);
         const label = isHere
           ? t('board.here', { name: locationName(locId) })
-          : t('board.location', {
+          : t('board.locationTotal', {
               name: locationName(locId),
               steps: stepsBetween(pack, here, locId),
-              hours: hours(trip?.hours ?? 0),
+              walk: hours(cost.walk),
+              enter: hours(cost.enter),
+              total: hours(cost.total),
               key: ringKeyFor(index),
             });
+        const unreachable = !isHere && (cost.partial || cost.cannotEnter);
         const ring =
           isHere || locId === selected ? 'outline outline-4 outline-offset-2 outline-focus' : '';
         return (
@@ -84,7 +92,7 @@ export function BoardScene({
             <ArtImage
               registry={registry}
               artKey={`building:${locId}`}
-              style={rectStyle(slot.rect)}
+              style={{ ...rectStyle(slot.rect), opacity: unreachable ? 0.55 : 1 }}
             />
             <button
               type="button"
@@ -93,6 +101,10 @@ export function BoardScene({
               data-testid={`square-${locId}`}
               className={`rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus ${ring}`}
               style={rectStyle(hitArea(slot.rect))}
+              onMouseEnter={() => setHot(locId)}
+              onMouseLeave={() => setHot((h) => (h === locId ? null : h))}
+              onFocus={() => setHot(locId)}
+              onBlur={() => setHot((h) => (h === locId ? null : h))}
               onClick={() => (isHere ? selectLocation(locId) : openTravel(locId))}
             />
           </div>
@@ -103,6 +115,12 @@ export function BoardScene({
       {pack.board.locationAt.map((locId, index) => {
         const slot = layout.slots[index];
         if (locId === null || !slot) return null;
+        const isHot = hot === locId && locId !== here;
+        const cost = tripCost(
+          preview({ type: 'Move', to: locId, mode: 'walk' })?.hours ?? 0,
+          enterHours,
+          hoursLeft,
+        );
         return (
           <span
             key={locId}
@@ -112,6 +130,23 @@ export function BoardScene({
           >
             <span className="mr-1 text-ink-muted">{ringKeyFor(index)}</span>
             {locationName(locId)}
+            {isHot && (
+              <span
+                className="absolute left-1/2 top-full z-10 mt-1 block -translate-x-1/2 rounded-md border border-line bg-surface-2 px-2 py-1 text-xs font-medium shadow-md"
+                data-testid={`trip-badge-${locId}`}
+              >
+                {t('board.tripBadge', {
+                  walk: hours(cost.walk),
+                  enter: hours(cost.enter),
+                  total: hours(cost.total),
+                })}
+                {(cost.partial || cost.cannotEnter) && (
+                  <span className="block text-warn">
+                    {t(cost.partial ? 'board.tripFar' : 'board.tripNoEnter')}
+                  </span>
+                )}
+              </span>
+            )}
           </span>
         );
       })}

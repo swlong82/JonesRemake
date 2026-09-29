@@ -1,3 +1,4 @@
+import type { DomainEvent } from '@hustle-ring/shared';
 import { describe, expect, it } from 'vitest';
 import { loadPack } from '@hustle-ring/content';
 import { createGame, type GameState } from '@hustle-ring/engine';
@@ -59,7 +60,7 @@ describe('starvation card', () => {
   it('shows the pack hours and happiness, not a hard-coded 10h', () => {
     const { pack } = fresh();
     const t = i18n.t.bind(i18n);
-    const ev = { type: 'Starved', seat: 0 } as const;
+    const ev: DomainEvent = { type: 'Starved', seat: 0, seq: 1, week: 2 };
     const chips = eventChips(ev, t, pack.rules);
     expect(chips[0]).toBe('20h');
     expect(eventCardText(ev, t, pack.rules).text).toContain('20 hours and 5 happiness');

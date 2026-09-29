@@ -217,7 +217,7 @@
   "panel.closed": "Closed this week",
   "panel.open": "Open",
   "panel.outside": "You are outside. Enter to use this location.",
-  "panel.enter": "Enter (2h)",
+  "panel.enter": "Enter ({{hours}}h)",
   "panel.exit": "Leave",
   "panel.endTurn": "End turn",
   "panel.endTurnConfirm": "You still have {{hours}}h. End the turn anyway?",
@@ -590,5 +590,12 @@
   "panel.needs.weekend": "Weekends bring events you do not choose, and some cost money. Keep a cash cushion.",
   "panel.needs.banner": "Needs: {{list}}",
   "panel.needs.short.food": "food",
-  "panel.needs.short.rent": "rent"
+  "panel.needs.short.rent": "rent",
+  "board.locationTotal": "{{name}}: {{steps}} steps, {{walk}}h walk plus {{enter}}h to enter, {{total}}h in all. Press {{key}} to travel.",
+  "board.tripBadge": "{{walk}}h walk + {{enter}}h enter = {{total}}h",
+  "board.tripFar": "Too far for the hours left",
+  "board.tripNoEnter": "Not enough hours left to enter",
+  "travel.total": "Walk {{walk}}h + enter {{enter}}h = {{total}}h",
+  "travel.after": "{{left}}h left after arriving and entering",
+  "travel.noEnter": "You would arrive with too few hours to enter."
 }

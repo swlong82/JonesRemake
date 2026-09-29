@@ -134,7 +134,7 @@ Owner interview 2026-09-24: ADR-0051…0053.
 Source: detailed desktop + phone playthrough after M9. One task per finding; each ships with tests.
 
 - [x] M11.1 Starvation/needs warning: End-turn confirm warns when no meal is planned, "weekend costs coming" note, fix Starving hour chip (10h vs 20h) — note: `store/needs.ts` `weekNeeds` (food, rent) drives a panel banner and a forced end-turn confirm; Starved card reads pack numbers.
-- [ ] M11.2 Total hour cost on hover/focus + travel sheet ("walk + enter"), hours-after, unreachable tint
+- [x] M11.2 Total hour cost on hover/focus + travel sheet ("walk + enter"), hours-after, unreachable tint — note: `tripCost` in labels; hover/focus badge + tint on the scene board, travel sheet total and hours-after, Enter label from pack rules.
 - [ ] M11.3 Employment Office: group by employer, available-only filter default, show requirements, sort by pay
 - [ ] M11.4 Job application risk copy ("57% chance you're turned down"), honest rejection modal, warn before apply
 - [ ] M11.5 Next-step objective hint after tutorial/skip

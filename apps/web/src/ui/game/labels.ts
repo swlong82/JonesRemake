@@ -470,3 +470,33 @@ export function stepsBetween(pack: CityPack, from: string, to: string): number {
   if (a === undefined || b === undefined) return 0;
   return pack.board.dist[a]?.[b] ?? 0;
 }
+
+/** Cost of walking to a location and entering it, in half-hours (M11.2). */
+export interface TripCost {
+  walk: number;
+  enter: number;
+  total: number;
+  /** Half-hours left after the whole trip (never below 0). */
+  left: number;
+  /** Walking alone uses every hour left: you would stop early and the turn ends. */
+  partial: boolean;
+  /** Walking fits but entering does not. */
+  cannotEnter: boolean;
+}
+
+export function tripCost(
+  walkHalfHours: number,
+  enterHalfHours: number,
+  hoursLeft: number,
+): TripCost {
+  const walk = Math.abs(walkHalfHours);
+  const total = walk + enterHalfHours;
+  return {
+    walk,
+    enter: enterHalfHours,
+    total,
+    left: Math.max(0, hoursLeft - total),
+    partial: walk > hoursLeft,
+    cannotEnter: walk <= hoursLeft && total > hoursLeft,
+  };
+}
