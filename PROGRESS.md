@@ -140,7 +140,7 @@ Source: detailed desktop + phone playthrough after M9. One task per finding; eac
 - [x] M11.5 Next-step objective hint after tutorial/skip — note: `store/nextStep.ts` + hint in LocationPanel with Go shortcut; `hints` setting (default on), hidden during the tutorial.
 - [x] M11.6 Phone: travel sheet as bottom sheet over map, scroll-to-top on change, slim sticky HUD, readable map labels — note: sticky `PhoneStatusBar`, travel as a fixed bottom sheet, scroll-to-top on location/turn change, short plates below 1.75× zoom, room under the block.
 - [x] M11.7 Modern text bugs: `Meal: NaN`, `Demand 600%`, wrong gig disabled reason — note: delivery preview note is a translation key, gig demand shown as percent, `disabledReason` gives GigShift a signup message.
-- [ ] M11.8 Copy polish: "Your turn", "1 step", ruleset names + descriptions, goal-slider and seed/chaos help text
+- [x] M11.8 Copy polish: "Your turn", "1 step", ruleset names + descriptions, goal-slider and seed/chaos help text — note: `turnOwner`, i18n plurals for steps, ruleset names + hints, goals/seed/chaos/opacity help text.
 - [ ] M11.9 Scene layout: no duplicate quip, bubble not clipped, unavailable rows collapsed, fill viewport height
 - [ ] M11.10 Feedback: end-of-week summary card, floating action deltas, rival status line during AI turns
 

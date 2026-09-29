@@ -42,7 +42,7 @@ export function TravelSheet() {
       data-testid="travel-sheet"
     >
       <h2 className="text-lg font-bold">{t('travel.heading', { name: locationName(target) })}</h2>
-      <p className="text-xs text-ink-muted">{t('travel.steps', { steps })}</p>
+      <p className="text-xs text-ink-muted">{t('travel.steps', { count: steps })}</p>
       <fieldset className="flex flex-col gap-1">
         <legend className="text-sm font-medium">{t('travel.mode')}</legend>
         {rows.map((row) => {

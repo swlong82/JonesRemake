@@ -21,7 +21,7 @@ import { MenuSheet } from '../game/MenuSheet';
 import { PhoneLocationList } from '../game/PhoneLocationList';
 import { Standings } from '../game/Standings';
 import { TravelSheet } from '../game/TravelSheet';
-import { hours } from '../game/labels';
+import { hours, turnOwner } from '../game/labels';
 import { useIsPhone } from '../game/useIsPhone';
 import { useKeyboard } from '../game/useKeyboard';
 import { InteriorHeader } from '../scene/InteriorScene';
@@ -36,9 +36,12 @@ function LiveRegion() {
   if (!state || !player) return null;
   return (
     <p className="sr-only" aria-live="polite" data-testid="live">
-      {`${t('live.turn', { name: player.name, week: state.week })} · ${t('live.hours', {
-        n: hours(player.hoursLeft),
-      })} · ${t('live.money', { cash: player.cash })}`}
+      {`${t('live.turn', { owner: turnOwner(player.name, t), week: state.week })} · ${t(
+        'live.hours',
+        {
+          n: hours(player.hoursLeft),
+        },
+      )} · ${t('live.money', { cash: player.cash })}`}
     </p>
   );
 }

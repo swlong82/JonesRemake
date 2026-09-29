@@ -206,6 +206,11 @@ export function commandLabel(cmd: Command, t: Translate): string {
   }
 }
 
+/** "Your" for the default human seat, else "Name's" (used in "Your turn, week 3"). */
+export function turnOwner(name: string, t: Translate): string {
+  return name === 'You' ? t('turn.owner.you') : t('turn.owner.name', { name });
+}
+
 /** Why a command is disabled; a command-specific line wins over the generic code text. */
 export function disabledReason(cmd: Command, code: string, t: Translate): string {
   return t(`error.${code}.${cmd.type}`, { defaultValue: t(`error.${code}`) });
@@ -228,7 +233,10 @@ export function noteLabel(note: string, t: Translate): string {
   const key = note.slice(0, i);
   const n = Number(note.slice(i + 1));
   // Gig demand travels as per-mille (1000 = normal); show whole percent.
-  return t(`note.${key}`, { n: key === 'gig-demand' ? Math.round(n / 10) : n });
+  return t(`note.${key}`, {
+    n: key === 'gig-demand' ? Math.round(n / 10) : n,
+    count: n,
+  });
 }
 
 /**

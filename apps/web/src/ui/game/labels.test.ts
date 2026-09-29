@@ -13,6 +13,7 @@ import {
   hours,
   logLine,
   disabledReason,
+  turnOwner,
   noteLabel,
   previewParts,
   ringKeyFor,
@@ -306,5 +307,21 @@ describe('disabledReason', () => {
       /Sign up for a gig/,
     );
     expect(disabledReason({ type: 'Work', hours: 12 }, 'ERR_NO_JOB', t)).toBe('You have no job');
+  });
+});
+
+describe('copy polish (M11.8)', () => {
+  it('says "Your turn" for the default seat and "Name\'s turn" otherwise', () => {
+    expect(turnOwner('You', t)).toBe('Your');
+    expect(turnOwner('Ann', t)).toBe("Ann's");
+    expect(t('live.turn', { owner: turnOwner('You', t), week: 2 })).toBe('Your turn, week 2');
+  });
+
+  it('pluralises steps', () => {
+    expect(t('travel.steps', { count: 1 })).toBe('1 step');
+    expect(t('travel.steps', { count: 8 })).toBe('8 steps');
+    expect(
+      t('board.locationTotal', { name: 'Park', count: 1, walk: 1, enter: 2, total: 3, key: 'Y' }),
+    ).toMatch(/Park: 1 step, /);
   });
 });

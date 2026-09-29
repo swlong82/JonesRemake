@@ -87,7 +87,7 @@ export function BoardScene({
           ? t('board.here', { name: locationName(locId) })
           : t('board.locationTotal', {
               name: locationName(locId),
-              steps: stepsBetween(pack, here, locId),
+              count: stepsBetween(pack, here, locId),
               walk: hours(cost.walk),
               enter: hours(cost.enter),
               total: hours(cost.total),
