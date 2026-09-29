@@ -445,8 +445,7 @@
   "note.weekly": "${{n}}/week",
   "note.apr": "{{n}}% APR",
   "note.transit-pass": "${{n}} for 4 weeks",
-  "note.gig-demand": "Demand {{n}}%",
-  "note.meal": "Meal: {{n}}",
+  "note.gig-demand": "Demand {{n}}% of normal",
   "error.ERR_NOT_YOUR_TURN": "It is not your turn",
   "error.ERR_GAME_OVER": "The game is over",
   "error.ERR_NOT_ENOUGH_HOURS": "Not enough hours left",
@@ -627,5 +626,6 @@
   "hint.dismiss": "Hide hints",
   "settings.hints": "Show next-step hints",
   "phone.status": "{{name}} · {{week}} · {{hours}} · ${{cash}}",
-  "phone.sheetClose": "Close travel"
+  "phone.sheetClose": "Close travel",
+  "error.ERR_NO_JOB.GigShift": "Sign up for a gig first (at the employment office)"
 }

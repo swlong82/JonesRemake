@@ -25,6 +25,7 @@ import {
   commandKey,
   commandLabel,
   degreeName,
+  disabledReason,
   hours,
   locationName,
   locationQuip,
@@ -126,7 +127,7 @@ function ActionRow({ row, repeat, extra }: { row: Row; repeat: boolean; extra?: 
       )}
       {disabled && (
         <p className="text-xs text-danger" data-testid="disabled-reason">
-          {t('panel.disabled', { reason: t(`error.${row.code ?? ''}`) })}
+          {t('panel.disabled', { reason: disabledReason(row.cmd, row.code ?? '', t) })}
         </p>
       )}
     </li>

@@ -12,6 +12,7 @@ import {
   eventChips,
   hours,
   logLine,
+  disabledReason,
   noteLabel,
   previewParts,
   ringKeyFor,
@@ -132,6 +133,9 @@ describe('noteLabel', () => {
     expect(noteLabel('bank.deposit', t)).toBe('to bank');
     expect(noteLabel('steps:4', t)).toBe('4 steps');
     expect(noteLabel('lessonsLeft:7', t)).toBe('7 lessons left');
+    // Gig demand is per-mille in the engine, percent on screen (M11.7).
+    expect(noteLabel('gig-demand:600', t)).toBe('Demand 60% of normal');
+    expect(noteLabel('gig-demand:1000', t)).toBe('Demand 100% of normal');
   });
 });
 
@@ -293,5 +297,14 @@ describe('ring keys and distances', () => {
     expect(stepsBetween(pack, 'low-housing', 'rent-office')).toBe(1);
     expect(stepsBetween(pack, 'low-housing', 'park')).toBe(1);
     expect(stepsBetween(pack, 'nowhere', 'park')).toBe(0);
+  });
+});
+
+describe('disabledReason', () => {
+  it('uses a gig-specific line for a missing signup and the generic text otherwise', () => {
+    expect(disabledReason({ type: 'GigShift', hours: 6 }, 'ERR_NO_JOB', t)).toMatch(
+      /Sign up for a gig/,
+    );
+    expect(disabledReason({ type: 'Work', hours: 12 }, 'ERR_NO_JOB', t)).toBe('You have no job');
   });
 });

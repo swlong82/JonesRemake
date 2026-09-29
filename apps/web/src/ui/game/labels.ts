@@ -206,6 +206,11 @@ export function commandLabel(cmd: Command, t: Translate): string {
   }
 }
 
+/** Why a command is disabled; a command-specific line wins over the generic code text. */
+export function disabledReason(cmd: Command, code: string, t: Translate): string {
+  return t(`error.${code}.${cmd.type}`, { defaultValue: t(`error.${code}`) });
+}
+
 /** A stable identity for a command, used as a React key and for repeat-action comparisons. */
 export function commandKey(cmd: Command): string {
   const parts: string[] = [cmd.type];
@@ -220,7 +225,10 @@ export function commandKey(cmd: Command): string {
 export function noteLabel(note: string, t: Translate): string {
   const i = note.indexOf(':');
   if (i < 0) return t(`note.${note}`);
-  return t(`note.${note.slice(0, i)}`, { n: Number(note.slice(i + 1)) });
+  const key = note.slice(0, i);
+  const n = Number(note.slice(i + 1));
+  // Gig demand travels as per-mille (1000 = normal); show whole percent.
+  return t(`note.${key}`, { n: key === 'gig-demand' ? Math.round(n / 10) : n });
 }
 
 /**
