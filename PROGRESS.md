@@ -142,7 +142,7 @@ Source: detailed desktop + phone playthrough after M9. One task per finding; eac
 - [x] M11.7 Modern text bugs: `Meal: NaN`, `Demand 600%`, wrong gig disabled reason — note: delivery preview note is a translation key, gig demand shown as percent, `disabledReason` gives GigShift a signup message.
 - [x] M11.8 Copy polish: "Your turn", "1 step", ruleset names + descriptions, goal-slider and seed/chaos help text — note: `turnOwner`, i18n plurals for steps, ruleset names + hints, goals/seed/chaos/opacity help text.
 - [x] M11.9 Scene layout: no duplicate quip, bubble not clipped, unavailable rows collapsed, fill viewport height — note: greeting only in the host bubble, bubble narrowed off the panel, locked rows folded (`SectionRows`), scroll shadows. Viewport fill left as is: dead space under the HUD bar is the 16:10 stage width-limit.
-- [ ] M11.10 Feedback: end-of-week summary card, floating action deltas, rival status line during AI turns
+- [x] M11.10 Feedback: end-of-week summary card, floating action deltas, rival status line during AI turns — note: `DeltaToast` (store `delta`, hours/money/stats, opacity-safe), several start-of-turn cards fold into one "This week" summary with a net line, `AiTicker` shows rival place, hours and current action.
 
 ## Gate log
 

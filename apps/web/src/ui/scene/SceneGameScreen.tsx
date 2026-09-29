@@ -12,6 +12,7 @@ import { artRegistryFor, useArtSets } from '../../assets/art/artRegistry';
 import { useScenePrefetch } from '../../assets/art/usePrefetch';
 import { useGame } from '../../store/gameStore';
 import { AiTicker } from '../game/AiTicker';
+import { DeltaToast } from '../game/DeltaToast';
 import { DebugPanel } from '../game/DebugPanel';
 import { Hud } from '../game/Hud';
 import { LocationPanel } from '../game/LocationPanel';
@@ -101,11 +102,14 @@ export function SceneGameScreen({ debug }: { debug: boolean }) {
         </div>
         {column}
       </div>
-      <SceneHudBar
-        avatar={<HudAvatar registry={registry} />}
-        onDetails={() => setDetails((d) => !d)}
-        onNewspaper={() => setPaper((p) => !p)}
-      />
+      <div className="relative">
+        <DeltaToast className="absolute -top-9 right-2 z-10" />
+        <SceneHudBar
+          avatar={<HudAvatar registry={registry} />}
+          onDetails={() => setDetails((d) => !d)}
+          onNewspaper={() => setPaper((p) => !p)}
+        />
+      </div>
     </div>
   );
 }

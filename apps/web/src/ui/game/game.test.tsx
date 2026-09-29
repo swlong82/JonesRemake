@@ -10,6 +10,7 @@ import { GameScreen } from '../screens/GameScreen';
 import { AiTicker } from './AiTicker';
 import { Board, nodePosition } from './Board';
 import { DebugPanel } from './DebugPanel';
+import { DeltaToast } from './DeltaToast';
 import { EventCards } from './EventCards';
 import { GoalBars, Hud, fillPct } from './Hud';
 import { LocationPanel, groupRows, runRepeat } from './LocationPanel';
@@ -387,20 +388,65 @@ describe('event cards', () => {
     week: 1,
   };
 
-  it('shows the top card with chips and dismisses it', () => {
+  it('shows a single card with chips and dismisses it', () => {
     start();
-    useGame.setState({ cards: [card, { ...card, seq: 2 }] });
+    useGame.setState({ cards: [card] });
     render(<EventCards />);
     expect(screen.getByTestId('event-title').textContent).toBe('Found cash');
     expect(within(screen.getByTestId('event-chips')).getAllByRole('listitem')).toHaveLength(1);
     fireEvent.click(screen.getByTestId('event-dismiss'));
-    expect(useGame.getState().cards).toHaveLength(1);
+    expect(useGame.getState().cards).toHaveLength(0);
+  });
+
+  it('folds several cards into one "This week" summary with a net line (M11.10)', () => {
+    start();
+    const starved: DomainEvent = { type: 'Starved', seat: 0, seq: 3, week: 2 };
+    useGame.setState({ cards: [card, { ...card, seq: 2 }, starved] });
+    render(<EventCards />);
+    expect(screen.getByTestId('event-title').textContent).toBe('This week');
+    expect(
+      within(screen.getByTestId('week-summary')).getAllByRole('heading', { level: 3 }),
+    ).toHaveLength(3);
+    // +$40 twice, and starvation costs 20h.
+    expect(screen.getByTestId('week-net').textContent).toBe('Net: −20h · +$80');
+    fireEvent.click(screen.getByTestId('event-dismiss'));
+    expect(useGame.getState().cards).toHaveLength(0);
   });
 
   it('renders nothing without a card', () => {
     start();
     render(<EventCards />);
     expect(screen.queryByTestId('event-modal')).toBeNull();
+  });
+});
+
+describe('action deltas (M11.10)', () => {
+  it('records what a human action did and shows it as chips', () => {
+    start();
+    expect(useGame.getState().delta).toBeNull();
+    useGame.getState().dispatch({ type: 'Relax' });
+    const delta = useGame.getState().delta;
+    expect(delta?.seat).toBe(0);
+    render(<DeltaToast />);
+    const text = screen.getByTestId('delta-toast').textContent;
+    expect(text).toContain('−6h');
+    expect(text).toContain('Happiness +');
+    useGame.getState().clearDelta();
+  });
+
+  it('keeps hidden stats out of the toast under classic opacity', () => {
+    start(true);
+    useGame.getState().dispatch({ type: 'Relax' });
+    render(<DeltaToast />);
+    const text = screen.getByTestId('delta-toast').textContent;
+    expect(text).toContain('−6h');
+    expect(text).not.toContain('Happiness');
+  });
+
+  it('does not toast a turn change', () => {
+    start();
+    useGame.getState().dispatch({ type: 'EndTurn' });
+    expect(useGame.getState().delta).toBeNull();
   });
 });
 
@@ -432,6 +478,8 @@ describe('ai ticker', () => {
     });
     render(<AiTicker />);
     expect(screen.getByTestId('ai-ticker').textContent).toContain('Relax');
+    expect(screen.getByTestId('ai-status').textContent).toMatch(/is at .+ · \d+(\.\d)?h left/);
+    expect(screen.getByTestId('ai-now').textContent).toContain('Now: ');
     fireEvent.click(screen.getByTestId('ai-skip'));
     expect(useGame.getState().aiSkip).toBe(true);
   });

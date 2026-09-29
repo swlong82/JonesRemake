@@ -11,6 +11,7 @@ import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { AiTicker } from '../game/AiTicker';
+import { DeltaToast } from '../game/DeltaToast';
 import { Board } from '../game/Board';
 import { DebugPanel } from '../game/DebugPanel';
 import { EventCards } from '../game/EventCards';
@@ -73,6 +74,7 @@ function PhoneStatusBar() {
       <Button onClick={toggleMenu} data-testid="menu-btn">
         {t('hud.menu')}
       </Button>
+      <DeltaToast className="absolute right-3 top-full z-20 mt-1" />
     </div>
   );
 }

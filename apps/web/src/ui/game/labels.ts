@@ -539,3 +539,54 @@ export function tripCost(
     cannotEnter: walk <= hoursLeft && total > hoursLeft,
   };
 }
+
+/** What a batch of modal cards costs or pays in total: cash and half-hours (M11.10). */
+export function summarizeCards(
+  cards: readonly DomainEvent[],
+  rules?: EventRules,
+): { money: number; halfHours: number } {
+  let money = 0;
+  let halfHours = 0;
+  for (const card of cards) {
+    if (card.type === 'Starved') halfHours -= rules?.time.starvationHours ?? 40;
+    if (card.type === 'LotteryResolved') money += card.prize;
+    if (card.type !== 'EventFired') continue;
+    for (const effect of card.effects) {
+      const [op, a, b] = effect.split(':');
+      if (op === 'money' && a === 'cash') money += Number(b ?? 0);
+      if (op === 'hours') halfHours += Number(a ?? 0);
+    }
+  }
+  return { money, halfHours };
+}
+
+/** "−6h · +$96 · Experience +1": what one action did to the acting seat (M11.10). */
+export function deltaParts(
+  events: readonly DomainEvent[],
+  seat: number,
+  t: Translate,
+  opts: { opaque?: boolean } = {},
+): string[] {
+  let spent = 0;
+  let cash = 0;
+  let bank = 0;
+  const stats = new Map<string, number>();
+  for (const e of events) {
+    if (!('seat' in e) || e.seat !== seat) continue;
+    if (e.type === 'HoursSpent') spent += e.hours;
+    else if (e.type === 'MoneyChanged') {
+      if (e.account === 'bank') bank += e.delta;
+      else cash += e.delta;
+    } else if (e.type === 'StatChanged') stats.set(e.stat, (stats.get(e.stat) ?? 0) + e.delta);
+  }
+  const parts: string[] = [];
+  if (spent !== 0) parts.push(`−${t('panel.preview.hours', { n: hours(spent) })}`);
+  if (cash !== 0) parts.push(`${sign(cash)}${t('panel.preview.money', { n: Math.abs(cash) })}`);
+  if (bank !== 0)
+    parts.push(`${t('hud.bank')} ${sign(bank)}${t('panel.preview.money', { n: Math.abs(bank) })}`);
+  if (opts.opaque !== true)
+    for (const [stat, delta] of stats) {
+      if (delta !== 0) parts.push(`${t(`hud.${stat}`)} ${sign(delta)}${Math.abs(delta)}`);
+    }
+  return parts;
+}

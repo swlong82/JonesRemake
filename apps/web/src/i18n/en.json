@@ -647,5 +647,10 @@
   "setup.chaosHint.chaotic": "Frequent events of every kind.",
   "setup.classicOpacityHint": "Hides exact goal numbers; bars move in quarter steps.",
   "panel.locked_one": "Not available now ({{count}})",
-  "panel.locked_other": "Not available now ({{count}})"
+  "panel.locked_other": "Not available now ({{count}})",
+  "events.weekSummary": "This week",
+  "events.net": "Net: {{list}}",
+  "ticker.status": "{{name}} is at {{place}} · {{hours}}h left",
+  "ticker.now": "Now: {{action}}",
+  "delta.label": "Just now"
 }
