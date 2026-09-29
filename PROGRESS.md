@@ -129,6 +129,21 @@ Owner interview 2026-09-24: ADR-0051…0053.
 - [ ] M10.1 Port `game`, `matrix` and `regression` e2e to the scene; delete the ring board, the mini ring and the `sceneUi` flag
 - [ ] M10 gate: `pnpm verify` green in CI, tag `m10`
 
+## M11 — Playthrough UX pass (2026-09-29 checkpoint review)
+
+Source: detailed desktop + phone playthrough after M9. One task per finding; each ships with tests.
+
+- [ ] M11.1 Starvation/needs warning: End-turn confirm warns when no meal is planned, "weekend costs coming" note, fix Starving hour chip (10h vs 20h)
+- [ ] M11.2 Total hour cost on hover/focus + travel sheet ("walk + enter"), hours-after, unreachable tint
+- [ ] M11.3 Employment Office: group by employer, available-only filter default, show requirements, sort by pay
+- [ ] M11.4 Job application risk copy ("57% chance you're turned down"), honest rejection modal, warn before apply
+- [ ] M11.5 Next-step objective hint after tutorial/skip
+- [ ] M11.6 Phone: travel sheet as bottom sheet over map, scroll-to-top on change, slim sticky HUD, readable map labels
+- [ ] M11.7 Modern text bugs: `Meal: NaN`, `Demand 600%`, wrong gig disabled reason
+- [ ] M11.8 Copy polish: "Your turn", "1 step", ruleset names + descriptions, goal-slider and seed/chaos help text
+- [ ] M11.9 Scene layout: no duplicate quip, bubble not clipped, unavailable rows collapsed, fill viewport height
+- [ ] M11.10 Feedback: end-of-week summary card, floating action deltas, rival status line during AI turns
+
 ## Gate log
 
 | Milestone | Date       | Commit  | verify | CI    | Notes                                                                                                    |
