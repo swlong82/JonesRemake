@@ -14,6 +14,7 @@ import type { ErrorCode } from '@hustle-ring/shared';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { END_TURN_CONFIRM_HOURS, useGame } from '../../store/gameStore';
+import { useFlags } from '../../flags/appFlags';
 import { weekNeeds } from '../../store/needs';
 import { nextStep } from '../../store/nextStep';
 import { useSettings } from '../../store/settings';
@@ -219,6 +220,45 @@ export function ApplyList({ rows, repeat }: { rows: Row[]; repeat: boolean }) {
         </p>
       )}
     </div>
+  );
+}
+
+/**
+ * A section's rows: what you can do now, with the rest folded under "Not available now" once
+ * there is something to do (M11.9). A section with only locked rows stays open when short, so a
+ * jobless player still sees why "Work" is greyed out.
+ */
+function SectionRows({
+  rows,
+  repeat,
+  section,
+}: {
+  rows: Row[];
+  repeat: boolean;
+  section: SectionId;
+}) {
+  const { t } = useTranslation();
+  const ok = rows.filter((r) => r.code === null);
+  const locked = rows.filter((r) => r.code !== null);
+  const fold = locked.length > 0 && (ok.length > 0 || locked.length >= 3);
+  const list = (items: Row[]) => (
+    <ul>
+      {items.map((row) => (
+        <ActionRow key={commandKey(row.cmd)} row={row} repeat={repeat} />
+      ))}
+    </ul>
+  );
+  if (!fold) return list(rows);
+  return (
+    <>
+      {ok.length > 0 && list(ok)}
+      <details data-testid={`locked-${section}`}>
+        <summary className="cursor-pointer text-xs text-ink-muted">
+          {t('panel.locked', { count: locked.length })}
+        </summary>
+        {list(locked)}
+      </details>
+    </>
   );
 }
 
@@ -437,6 +477,7 @@ export function LocationPanel() {
   const requestEndTurn = useGame((s) => s.requestEndTurn);
   const cancelEndTurn = useGame((s) => s.cancelEndTurn);
   const [repeat, setRepeat] = useState(false);
+  const sceneUi = useFlags((f) => f.flags.sceneUi);
   if (!state || !pack) return null;
   const player = state.players[state.activeSeat];
   if (!player) return null;
@@ -465,7 +506,12 @@ export function LocationPanel() {
         <h2 className="text-lg font-bold" data-testid="panel-location">
           {locationName(player.location)}
         </h2>
-        <p className="text-xs italic text-ink-muted">{locationQuip(player.location, state.week)}</p>
+        {/* Inside the scene the host's speech bubble already says this line. */}
+        {!(sceneUi && player.inside) && (
+          <p className="text-xs italic text-ink-muted">
+            {locationQuip(player.location, state.week)}
+          </p>
+        )}
         <p className="text-xs" data-testid="panel-state">
           {closed ? t('panel.closed') : player.inside ? t('panel.open') : t('panel.outside')}
         </p>
@@ -508,7 +554,7 @@ export function LocationPanel() {
         </label>
       )}
 
-      <div className="flex max-h-[26rem] flex-col gap-3 overflow-y-auto">
+      <div className="scroll-shadow flex max-h-[26rem] flex-col gap-3 overflow-y-auto">
         {sections.length === 0 && <p className="text-sm text-ink-muted">{t('panel.noActions')}</p>}
         {sections.map(({ section, rows: list }) => (
           <div key={section} data-testid={`section-${section}`}>
@@ -524,11 +570,7 @@ export function LocationPanel() {
             {section === 'apply' ? (
               <ApplyList rows={list} repeat={repeat} />
             ) : (
-              <ul>
-                {list.map((row) => (
-                  <ActionRow key={commandKey(row.cmd)} row={row} repeat={repeat} />
-                ))}
-              </ul>
+              <SectionRows rows={list} repeat={repeat} section={section} />
             )}
           </div>
         ))}

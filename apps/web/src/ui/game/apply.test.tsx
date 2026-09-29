@@ -2,10 +2,11 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { DomainEvent } from '@hustle-ring/shared';
 import { beforeEach, describe, expect, it } from 'vitest';
 import i18n from '../../i18n';
+import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { useSettings } from '../../store/settings';
 import { buildConfig, defaultSeat } from '../screens/SetupScreen';
-import { eventCardText, eventChips, previewParts } from './labels';
+import { eventCardText, eventChips, locationQuip, previewParts } from './labels';
 import { LocationPanel } from './LocationPanel';
 
 beforeEach(() => {
@@ -101,5 +102,42 @@ describe('next-step hint (M11.5)', () => {
     fireEvent.click(screen.getByTestId('next-step-hide'));
     expect(screen.queryByTestId('next-step')).toBeNull();
     expect(useSettings.getState().settings.hints).toBe(false);
+  });
+});
+
+describe('panel decluttering (M11.9)', () => {
+  it('folds three or more locked rows and keeps a lone locked row inline', () => {
+    useGame.getState().debugPatch((s) => {
+      const p = s.players[0]!;
+      p.location = 'clothing-boutique';
+      p.inside = true;
+      p.cash = 0;
+    });
+    const { unmount } = render(<LocationPanel />);
+    const locked = screen.getByTestId('locked-shop');
+    expect(locked.tagName).toBe('DETAILS');
+    expect(locked.querySelector('summary')?.textContent).toMatch(/^Not available now \(\d+\)$/);
+    expect(locked.hasAttribute('open')).toBe(false);
+    unmount();
+    useGame.getState().debugPatch((s) => {
+      const p = s.players[0]!;
+      p.location = 'employment-office';
+    });
+    render(<LocationPanel />);
+    // "Work" alone is locked (no job): it stays visible with its reason.
+    expect(screen.queryByTestId('locked-work')).toBeNull();
+    expect(screen.getAllByTestId('disabled-reason').length).toBeGreaterThan(0);
+  });
+
+  it('leaves the greeting to the host bubble inside the scene', () => {
+    const quip = locationQuip('employment-office', useGame.getState().state!.week);
+    useFlags.getState().set('sceneUi', false);
+    const ring = render(<LocationPanel />);
+    expect(screen.getByText(quip)).toBeDefined();
+    ring.unmount();
+    useFlags.getState().set('sceneUi', true);
+    render(<LocationPanel />);
+    expect(screen.queryByText(quip)).toBeNull();
+    useFlags.getState().reset({ env: {}, search: '' });
   });
 });

@@ -645,5 +645,7 @@
   "setup.chaosHint.classic": "Events as in the original game.",
   "setup.chaosHint.modern": "Adds modern events: layoffs, going viral, phishing.",
   "setup.chaosHint.chaotic": "Frequent events of every kind.",
-  "setup.classicOpacityHint": "Hides exact goal numbers; bars move in quarter steps."
+  "setup.classicOpacityHint": "Hides exact goal numbers; bars move in quarter steps.",
+  "panel.locked_one": "Not available now ({{count}})",
+  "panel.locked_other": "Not available now ({{count}})"
 }
