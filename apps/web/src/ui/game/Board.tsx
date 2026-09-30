@@ -27,6 +27,7 @@ export function Board({ compact = false }: { compact?: boolean }) {
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
   const openTravel = useGame((s) => s.openTravel);
+  const quickTravel = useGame((s) => s.quickTravel);
   const preview = useGame((s) => s.preview);
   const selectLocation = useGame((s) => s.selectLocation);
   const selected = useGame((s) => s.selectedLocation);
@@ -95,6 +96,7 @@ export function Board({ compact = false }: { compact?: boolean }) {
             data-testid={`square-${locId}`}
             className="cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus"
             onClick={() => (isHere ? selectLocation(locId) : openTravel(locId))}
+            onDoubleClick={() => quickTravel(locId)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();

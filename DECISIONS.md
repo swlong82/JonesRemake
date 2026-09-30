@@ -639,3 +639,12 @@
 - Options: add engine commands (an `Undo` command, share events), or keep everything in `apps/web` over the existing public API.
 - Decision: web only. Undo keeps a per-turn stack of earlier `GameState` values (the engine never mutates its input, so restoring one is exact: same RNG, same command log, same hash) and clears it when the turn changes; `strictMode` turns it off. Re-running the same command after an undo draws the same random outcome, so undo cannot be used to re-roll a risky action. The palette, goal levers and coach marks read `candidateCommands`/`previewCommand` and the public state, and hide hidden-stat ranking under classic opacity. The seed link carries only `seed` and `pack` and is validated (`[A-Za-z0-9_-]{1,64}`, known pack) before it fills setup; the result card is drawn locally as SVG, rasterized on a canvas and saved as a file, so nothing leaves the device. The web manifest and icon live in `apps/web/public`; the install button appears only when the browser offers `beforeinstallprompt`. Haptics use `navigator.vibrate` when present and the setting is on.
 - Consequences: no state, golden or balance change. Undo does not mark a game as debug-touched, so an undone game still scores; strict mode is the opt-out for players who want no take-backs. Scene ↔ list swiping is list-to-scene only, because the scene itself pans on touch; the buttons stay. Theme follows the OS by default already (`theme: system`), so that part of the request needed no change.
+
+## ADR-0063: M13 playability pass — outcome pop-ups and info cards are presentation-only
+
+- Date: 2026-09-30
+- Status: Accepted
+- Context: playtesting after M12 found actions with important results (job hired/refused, course done, loan denied) only showed a toast or a log line; job, home and education state had no detail view; travel always took two clicks.
+- Options: new engine events and commands for pop-ups, or derive them in `apps/web` from the `DomainEvent`s already returned by `applyCommand`.
+- Decision: web only. A single `ModalHost` owns a priority queue of pop-ups (outcomes, stat drill-downs, info cards) so at most one is shown; `popups` setting (`important` default, `all`, `off`) filters outcomes, failures always show unless `off`. Info cards read public state and hide hidden stats under classic opacity. `quickTravel` dispatches the same `Move` a sheet confirm would, so replay and hashes are unchanged.
+- Consequences: no state, golden or balance change.

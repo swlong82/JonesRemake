@@ -39,7 +39,7 @@ export function buildPaletteEntries(store: GameStore, t: Translate): PaletteEntr
       commandLabel(cmd, t),
       preview ? previewParts(preview, t, { opaque }).join(' · ') : '',
       () => {
-        store.dispatch(cmd);
+        if (!store.requestConfirm(cmd)) store.dispatch(cmd);
       },
       `${cmd.type} ${sectionOf(cmd) ?? ''}`,
     );

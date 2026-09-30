@@ -19,6 +19,9 @@ import { DeltaToast } from '../game/DeltaToast';
 import { Board } from '../game/Board';
 import { DebugPanel } from '../game/DebugPanel';
 import { EventCards } from '../game/EventCards';
+import { ConfirmModal } from '../game/ConfirmModal';
+import { InfoModal } from '../game/InfoModal';
+import { OutcomeModal } from '../game/OutcomeModal';
 import { Hud } from '../game/Hud';
 import { LocationPanel } from '../game/LocationPanel';
 import { LogDrawer } from '../game/LogDrawer';
@@ -142,6 +145,9 @@ export function GameScreen() {
       <>
         <LiveRegion />
         <EventCards />
+        <OutcomeModal />
+        <InfoModal />
+        <ConfirmModal />
         <CommandPalette />
         <SceneGameScreen debug={debug} />
       </>
@@ -177,6 +183,9 @@ export function GameScreen() {
     <div className="mx-auto flex max-w-6xl flex-col gap-3 p-3">
       <LiveRegion />
       <EventCards />
+      <OutcomeModal />
+      <InfoModal />
+      <ConfirmModal />
       <CommandPalette />
       {phone ? (
         <PhoneStatusBar />

@@ -47,6 +47,13 @@ export function handleGameKey(e: KeyboardEvent): void {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
 
   // A retention offer is modal: only its own buttons and Escape may act while it is open.
+  if (store.confirmPending) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      store.cancelConfirm();
+    }
+    return;
+  }
   if (store.subscriptionCancelPending) {
     if (e.key === 'Escape') {
       e.preventDefault();
@@ -88,6 +95,8 @@ export function handleGameKey(e: KeyboardEvent): void {
     return;
   }
   if (store.cards.length > 0) return;
+  // A pop-up owns the keyboard until it is closed (M13.10).
+  if (store.info !== null || store.outcomes.length > 0) return;
 
   if (e.shiftKey && e.key.toLowerCase() === 'e') {
     if (yourTurn) store.requestEndTurn();
@@ -107,6 +116,15 @@ export function handleGameKey(e: KeyboardEvent): void {
       return;
     case 'h':
       store.go('help');
+      return;
+    case 'j':
+      store.openInfo({ kind: 'job' });
+      return;
+    case 'n':
+      store.openInfo({ kind: 'home' });
+      return;
+    case 's':
+      store.openInfo({ kind: 'education' });
       return;
     case '/':
       e.preventDefault();
