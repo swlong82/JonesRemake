@@ -23,6 +23,8 @@ import { createAiClient, type AiClient } from '../ai/aiClient';
 import { loadPackStrings } from '../i18n';
 import { haptic } from './haptics';
 import { weekNeeds } from './needs';
+import { useTutorial } from '../tutorial/useTutorial';
+import { isOutcome } from '../ui/game/outcomes';
 import { useSettings, type AiSpeed } from './settings';
 
 export type Screen =
@@ -85,6 +87,8 @@ export interface GameStore {
   cards: DomainEvent[];
   /** Cards held back until the hotseat pass screen is dismissed. */
   pendingCards: DomainEvent[];
+  /** Result pop-ups for the human's own actions, oldest first (M13.2). */
+  outcomes: DomainEvent[];
   ticker: TickerEntry[];
   /** What the last human action did to that seat (M11.10); cleared by the toast's timer. */
   delta: { id: number; seat: number; events: DomainEvent[] } | null;
@@ -143,6 +147,7 @@ export interface GameStore {
   toggleHelp: () => void;
   togglePalette: (open?: boolean) => void;
   dismissCard: () => void;
+  dismissOutcome: () => void;
   dismissAllCards: () => void;
   clearDelta: () => void;
   /** Rewind the human's last action this turn (M12.2); false when there is nothing to undo. */
@@ -194,6 +199,7 @@ export const useGame = create<GameStore>((set, get) => ({
   delta: null,
   undoStack: [],
   pendingCards: [],
+  outcomes: [],
   ticker: [],
   viewerSeat: 0,
   selectedLocation: null,
@@ -251,6 +257,7 @@ export const useGame = create<GameStore>((set, get) => ({
       log: [],
       cards: [],
       pendingCards: [],
+      outcomes: [],
       ticker: [],
       delta: null,
       undoStack: [],
@@ -308,6 +315,7 @@ export const useGame = create<GameStore>((set, get) => ({
       aiThinking: false,
       aiSkip: false,
       pendingCards: [],
+      outcomes: [],
       lastError: null,
       debug: opts.debug ?? false,
       autoplay: opts.autoplay ?? false,
@@ -345,6 +353,20 @@ export const useGame = create<GameStore>((set, get) => ({
       state: next,
       log: [...get().log, ...newLog].slice(-MAX_LOG),
       cards: [...get().cards, ...cards],
+      // The tutorial explains each result itself, and its overlay would sit over a pop-up.
+      outcomes:
+        isHuman && !useTutorial.getState().active
+          ? [
+              ...get().outcomes,
+              ...r.events.filter(
+                (e) =>
+                  'seat' in e &&
+                  e.seat === seat &&
+                  !CARD_EVENTS.has(e.type) &&
+                  isOutcome(e, useSettings.getState().settings.popups),
+              ),
+            ]
+          : get().outcomes,
       lastError: null,
       travelOpen: false,
       endTurnPending: false,
@@ -498,6 +520,9 @@ export const useGame = create<GameStore>((set, get) => ({
   dismissCard() {
     set({ cards: get().cards.slice(1) });
   },
+  dismissOutcome() {
+    set({ outcomes: get().outcomes.slice(1) });
+  },
   dismissAllCards() {
     set({ cards: [] });
   },
@@ -514,6 +539,7 @@ export const useGame = create<GameStore>((set, get) => ({
       state: snap.state,
       log: snap.log,
       cards: snap.cards,
+      outcomes: [],
       undoStack: undoStack.slice(0, -1),
       delta: null,
       lastError: null,
@@ -534,6 +560,7 @@ export const useGame = create<GameStore>((set, get) => ({
       viewerSeat: state.activeSeat,
       cards: get().pendingCards,
       pendingCards: [],
+      outcomes: [],
     });
   },
 
@@ -634,6 +661,7 @@ export const useGame = create<GameStore>((set, get) => ({
       pack: null,
       cards: [],
       pendingCards: [],
+      outcomes: [],
       ticker: [],
       delta: null,
       undoStack: [],

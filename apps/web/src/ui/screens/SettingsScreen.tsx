@@ -99,6 +99,19 @@ export function SettingsScreen() {
             <option value="normal">{t('settings.aiSpeed.normal')}</option>
           </select>
         </Field>
+        <Field label={t('settings.popups')} htmlFor="popups">
+          <select
+            id="popups"
+            className="input"
+            value={settings.popups}
+            onChange={(e) => update({ popups: e.target.value as typeof settings.popups })}
+            data-testid="popups-setting"
+          >
+            <option value="important">{t('settings.popups.important')}</option>
+            <option value="all">{t('settings.popups.all')}</option>
+            <option value="off">{t('settings.popups.off')}</option>
+          </select>
+        </Field>
         <label className="flex items-center gap-2">
           <input
             type="checkbox"

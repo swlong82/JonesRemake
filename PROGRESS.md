@@ -164,7 +164,7 @@ Source: review of `main` after M11. Web only; ADR-0062. Each task ships with uni
 Web only; ADR-0063. Each task ships with unit tests; UI flows get axe coverage.
 
 - [x] M13.1 Double-click / double-tap a place to travel with the current mode, no sheet (`quickTravel` setting, default on) — note: `quickTravel` in `gameStore`; falls back to the sheet when illegal.
-- [ ] M13.2 Outcome pop-ups (`OutcomeModal` + `ModalHost` queue) for job, course, loan, purchase results; `popups` setting (important | all | off), default important.
+- [x] M13.2 Outcome pop-ups (`OutcomeModal` + `ModalHost` queue) for job, course, loan, purchase results; `popups` setting (important | all | off), default important. — note: `ui/game/outcomes.ts`, `OutcomeModal`, `outcomes` queue in `gameStore`, `popups` setting.
 - [ ] M13.3 Stat drill-down pop-ups for the four goals (value vs target, breakdown, trend, levers).
 - [ ] M13.4 Job info card (employer, wage, hours, promotion needs, dress code, last pay).
 - [ ] M13.5 Home / housing card (tier, rent, due in, arrears, Go pay rent).
