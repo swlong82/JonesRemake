@@ -6,6 +6,9 @@ One entry per milestone (see `docs/MILESTONES.md`).
 
 ## [Unreleased]
 
+Graphics collaboration: `GRAPHICS_PLAN.md` gains roles, lanes, workflow and AI tool/MCP options; `art/` workspace
+(README, STYLE, ASSET_LOG), an **Art asset** issue form and `pnpm art:preview` (HTML contact sheet per art set).
+
 M14 — playtest fixes (ADR-0065)
 
 - Entering a building costs 0.5 h in Modern Western (Classic keeps the original 2 h).

@@ -99,15 +99,113 @@ An LLM can also write the SVG for simple icons and overlays directly; treat the 
 
 Settings → Art packs imports a zip (`manifest.json` + `files/*.svg`). Publish the P0 street as a sample pack and document it in `EXTENDING.md` so artists can reskin the game without touching the repo.
 
-## 5. Tooling to add first
+## 5. Working together
 
-1. `pnpm art:preview`: a Playwright script that renders every slot in a contact sheet (buildings on the board, each interior, avatars on a grid) as one PNG per group. Use it in PRs.
-2. Visual regression: screenshot the title, board, one interior and the phone map at three viewports; diff against approved images.
-3. `art:check --report` in CI as a summary comment (drawn versus placeholder per group).
-4. A palette module shared by the generator and the web theme so a colour change in one place rethemes both.
-5. Size budget guard already exists (`pnpm budget --max-art-kb 1536`); with richer files expect around 1.2–1.4 MB, so keep decorative detail in `<defs>` and `<use>` rather than repeated paths.
+The unit of work is the **slot** (a catalog key such as `building:bank`). Slots are independent files and the new `modern` set `extends` the default, so any number of people and AI agents can deliver different slots at the same time and the game keeps working with whatever is finished. The day-to-day guide is `art/README.md`; the look is `art/STYLE.md`; provenance is `art/ASSET_LOG.md`.
 
-## 6. Asset checklist (all counts from the current catalog)
+### Roles
+
+| Role         | Does                                                          | Accountable for                                      |
+| ------------ | ------------------------------------------------------------- | ---------------------------------------------------- |
+| Art director | owns `art/STYLE.md`, approves batches from the contact sheet  | the look being consistent                            |
+| Artists      | hand-drawn vector (lane B), concept work                      | their files meeting the checklist                    |
+| AI operator  | drives Claude or other tools to produce slots (lanes A and B) | reviewing everything the AI made before opening a PR |
+| Engineer     | generator, tooling, overlays and animation (lanes A and C)    | CI, budgets, performance                             |
+| Maintainer   | merges, owns CODEOWNERS and ADRs                              | scope and licences                                   |
+
+One person can hold several roles; an AI never approves its own work.
+
+### Lanes, so nobody collides
+
+- **A. Generated** (`tools/art-default/**` and the regenerated set): one owner at a time per generator file. Generated files carry a marker and are never hand-edited.
+- **B. Hand-drawn** (`sets/modern/files/*.svg`): one file per PR where possible; files do not conflict.
+- **C. Presentation** (`apps/web/src/ui/scene/**`): ordinary code review.
+- **The manifest is the one shared file.** Manifest entries are derived from file names and `viewBox`, so a proposed `pnpm art:sync` (section 7) writes them and contributors never hand-edit it. Until then, add your entry in alphabetical order and rebase before merging.
+
+### Workflow
+
+1. **Brief.** An **Art asset** issue (`.github/ISSUE_TEMPLATE/art_asset.yml`) per slot group, labelled `art`, `lane:a|b|c` and a status label. A GitHub Project board mirrors the statuses: `art:brief` → `art:claimed` → `art:wip` → `art:review` → `art:approved` → done.
+2. **Claim.** Assign yourself and comment. A human or an AI agent claims one group at a time.
+3. **Make.** Branch `art/<group>-<slot>`, draft PR early, titled `art(<group>): <slot>`.
+4. **Preview.** `pnpm art:preview` writes a contact sheet; attach a screenshot to the PR.
+5. **Check.** CI runs `art:check`, the banned-terms scan and the budget; the checklist in `art/README.md` is the definition of done.
+6. **Review.** The art director reviews the contact sheet in batches ("street pass", "people pass"); one style discussion settles many files.
+7. **Log.** Every file gets a row in `art/ASSET_LOG.md` (route, tool, prompt or reference, licence).
+
+### Cadence and control
+
+- **P0 ends with a style freeze.** The director signs off the benchmark street and `STYLE.md` v1; later changes are pull requests to that file.
+- Weekly contact-sheet review; the `modern` set carries a semver `version` bumped per batch.
+- Direction changes get an ADR. Disagreements about taste are decided by the art director, about licences and scope by the maintainer.
+- Parallel AI agents are fine when each takes a different group (separate branches or worktrees). Two agents never edit the same generator file.
+
+## 6. Tools and MCP servers an AI can use
+
+Findings come from searching the connector registry available to this account (all listed items were **not installed** here) plus what already runs in the repo. Nothing below has been run end to end for asset production yet, so treat each as something to trial in P0, not a commitment.
+
+### Connectors found in the registry
+
+| Need                         | Connector                            | What its tools offer (from the registry listing)                                                | Fit for this project                                                                                                                                                                                   |
+| ---------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Human design source of truth | **Figma**                            | `get_design_context`, `get_screenshot`, `get_variable_defs`, `get_metadata`, `generate_diagram` | Best fit for the artist lane: artists draw in Figma, an agent reads frames and design variables (palette tokens) and screenshots them for review. Export still has to be SVG that passes the sanitizer |
+| Design and export            | **Canva**                            | search, get, create, autofill and export designs                                                | Good for the title, masthead and story art if the team already uses it. Confirm SVG export is available on your plan before relying on it                                                              |
+| Pro vector and animation     | **Adobe**                            | large toolset incl. asset and animation tools                                                   | Possible for illustration and animation. Check which tools produce clean SVG and what the licence says about generated content                                                                         |
+| Quick AI vector              | **Goodnotes**                        | `draw_svg_image`                                                                                | Cheap way for an agent to sketch simple SVG icons or overlays. Quality varies; treat as a draft                                                                                                        |
+| Moodboards and planning      | **Miro**                             | boards, diagrams, docs                                                                          | Collaborative moodboards, the asset pipeline board, style references                                                                                                                                   |
+| Diagrams for docs            | **Mermaid Chart**                    | render and save Mermaid                                                                         | Pipeline and workflow diagrams in docs only                                                                                                                                                            |
+| Review notifications         | **Slack** (registered, disconnected) | post messages, read channels                                                                    | Ping reviewers when `art:review` lands                                                                                                                                                                 |
+
+No dedicated **image-generation** connector turned up in the registry. If the team wants raster concepts from an image model, pick one deliberately (licence, cost, terms on commercial use), run it outside the repo or through a server the team hosts, and treat its output as a reference only (route C). Do not name or depend on a product until it has passed a licence review.
+
+### Already available with no new connector
+
+| Tool                                                     | How an agent uses it                                                                                                                                                |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Repo generator** `tools/art-default` + `pnpm art:draw` | The main production line for buildings, roads, icons and overlays (route A)                                                                                         |
+| **`pnpm art:check --report`**                            | Validates schema, sizes, sanitizer, tint keys, contrast and budgets; reports drawn versus wireframe per group                                                       |
+| **`pnpm art:preview`** (added with this plan)            | Writes an HTML contact sheet per set so an agent or a human can see every slot, badged drawn, wireframe or inherited                                                |
+| **Playwright + Chromium** (installed)                    | Screenshots of the contact sheet and of the running game at three viewports, for review and future visual regression; an agent can read the image and self-critique |
+| **GitHub connector** (connected in this session)         | Create issues from the template, set labels, open draft PRs, request review, read review comments                                                                   |
+| **svgo**                                                 | `npx svgo --multipass` to shrink files (keep `removeViewBox` off)                                                                                                   |
+| **resvg** (`@resvg/resvg-js`) or **sharp**               | Rasterise SVG to PNG for contact sheets and diffs without a browser                                                                                                 |
+| **vtracer** or **potrace**                               | Trace an approved raster concept into vector for route C; clean by hand afterwards                                                                                  |
+| **Inkscape CLI** (optional)                              | Boolean operations, path simplification and text-to-path when hand-finishing                                                                                        |
+
+### Recommended: a small first-party MCP server for the art system
+
+The highest-leverage addition is a `hustle-art` MCP server that wraps code the repo already has (`packages/art`: schema, catalog, sanitizer, tint, contrast, validate). It lets any agent produce assets _inside the rules_ and get precise feedback before a human looks.
+
+| Tool                                         | Does                                                                                                               |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `list_slots(set, status)`                    | Catalog keys with size, tint flag and drawn/wireframe/inherited status                                             |
+| `get_slot_brief(key)`                        | Size, tint rules, notes from ART_SPEC 17.3, neighbouring slots, the style guide excerpt, the ASSET_LOG history     |
+| `validate_svg(key, svg)`                     | Sanitizer, `viewBox`, byte and element budgets, tint keys, banned terms: returns the same issues `art:check` would |
+| `render_preview(key or svg, tint?, context)` | PNG of the slot alone, on the board at phone size, or beside its label plate                                       |
+| `submit_slot(set, key, svg)`                 | Writes the file, updates the manifest, runs the checks; never overwrites a hand-drawn file without a flag          |
+| `palette_check(svg)`                         | Reports colours outside the style tokens and contrast problems                                                     |
+
+Estimated effort: 1–2 days on top of the existing packages. It also makes a human artist's life easier (the same validation from a chat), and keeps generated art from breaking the sanitizer or the budget. A `submit_slot` call still ends in a PR that a human reviews.
+
+### Agent workflows worth trialling in P0
+
+1. **Generator loop (route A).** Edit `tools/art-default`, run `pnpm art:draw`, `pnpm art:preview`, screenshot the sheet, compare with `STYLE.md`, iterate. Deterministic and cheap; best for the street.
+2. **Direct SVG loop (route B).** With the MCP server, the agent drafts an SVG, calls `validate_svg` and `render_preview`, revises, then submits. Best for icons, overlays and simple props; expect an artist to finish characters.
+3. **Concept then trace (route C).** Concept sheet from an approved image tool, human picks a direction, trace, clean, validate. Records the prompt in `ASSET_LOG.md`.
+4. **Review agent.** After each batch an agent reads the contact sheet against the `STYLE.md` checklist and lists deviations (outline weight, off-palette colours, unreadable at 44 px). It comments; a human decides.
+
+Human gates stay: director approves style, maintainer approves licences, an AI never approves its own asset.
+
+## 7. Tooling to add
+
+1. ~~`pnpm art:preview`~~ — done: an HTML contact sheet per set with drawn / wireframe / inherited badges. Next: a CI job that uploads it as an artifact on PRs that touch `packages/art/**` or `tools/art-default/**`, and a Playwright screenshot of it for the PR body.
+1. `pnpm art:sync`: derive manifest asset entries from file names and `viewBox` so nobody hand-edits `manifest.json` (removes the one shared-file conflict).
+1. The `hustle-art` MCP server from section 6.
+1. Visual regression: screenshot the title, board, one interior and the phone map at three viewports; diff against approved images.
+1. `art:check --report` in CI as a summary comment (drawn versus placeholder per group).
+1. A palette module shared by the generator and the web theme so a colour change in one place rethemes both.
+1. Size budget guard already exists (`pnpm budget --max-art-kb 1536`); with richer files expect around 1.2–1.4 MB, so keep decorative detail in `<defs>` and `<use>` rather than repeated paths.
+
+## 8. Asset checklist (all counts from the current catalog)
 
 | Group                 | Slots                                               | Notes                                                                           |
 | --------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------- |
@@ -120,14 +218,14 @@ Settings → Art packs imports a zip (`manifest.json` + `files/*.svg`). Publish 
 | UI                    | title, setup, masthead ×3 phases, frames, ~12 icons |                                                                                 |
 | Overlays              | ~20                                                 | closed, due, hiring, weather, rain, night lights                                |
 
-## 7. Risks and decisions
+## 9. Risks and decisions
 
 - **Budget**: gradients and shadows cost bytes. Mitigation: shared `<defs>`, `<use>`, and generator-only detail.
 - **Contrast**: art must not fight the text plates (17.1). Keep the label plate opaque; the contrast checks in `packages/art` already cover theme tokens.
 - **Performance**: a filter-heavy stage can drop frames on phones. Use one full-stage colour-matrix per time of day, no per-building filters, and turn parallax off under reduced motion or on low-end devices.
 - **Raster**: photographic or painterly hero art would need WebP support in the sanitizer, the budget and the user-pack rules. Not recommended for v1.x; revisit after P3 if the vector look plateaus.
-- **Licensing and provenance**: every committed file must be first-party or under a licence compatible with `LICENSE`; keep an `ASSET_LOG.md` (file, source route A/B/C, tool, date).
+- **Licensing and provenance**: every committed file must be first-party or under a licence compatible with `LICENSE`; `art/ASSET_LOG.md` records file, route A–D, tool, prompt or reference and licence.
 
-## 8. Suggested first step
+## 10. Suggested first step
 
-Approve P0. It is 2–3 days, touches only `tools/art-default/` and a new `sets/modern` manifest, and gives a before/after screenshot of the street to judge the direction with.
+Approve P0 and set up the collaboration scaffolding in this order: (1) create the labels and Project board from section 5; (2) ratify `art/STYLE.md` v0 with the art director; (3) add the `modern` set (`extends: default`) and `art:sync`; (4) build the `hustle-art` MCP server; (5) run the benchmark street (3 buildings, 1 interior) through both the generator loop and the direct SVG loop and compare. That is 3–5 days and ends with a before/after screenshot pair and a style freeze.

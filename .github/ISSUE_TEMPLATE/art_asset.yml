@@ -1,0 +1,42 @@
+name: Art asset
+description: Request, claim or track art (one slot group per issue). See art/README.md.
+labels: ['art', 'art:brief']
+body:
+  - type: input
+    id: group
+    attributes:
+      label: Slot group
+      description: For example "P1 buildings", "avatar player-3", "interior clinic".
+    validations:
+      required: true
+  - type: textarea
+    id: slots
+    attributes:
+      label: Slots
+      description: Catalog keys (ART_SPEC 17.3), one per line, for example `building:bank`.
+    validations:
+      required: true
+  - type: dropdown
+    id: lane
+    attributes:
+      label: Lane
+      options:
+        - A. Generated (tools/art-default)
+        - B. Hand-drawn vector
+        - C. Presentation (overlay or animation)
+    validations:
+      required: true
+  - type: textarea
+    id: brief
+    attributes:
+      label: Brief
+      description: What it should show, mood, references you may use (no original game art), what to avoid.
+  - type: checkboxes
+    id: done
+    attributes:
+      label: Definition of done
+      options:
+        - label: art:check passes, file size and viewBox correct, tint keys used only where intended
+        - label: Follows art/STYLE.md; contact sheet (pnpm art:preview) screenshot attached
+        - label: art/ASSET_LOG.md row added (route, tool, prompt or reference, licence)
+        - label: check:banned clean
