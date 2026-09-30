@@ -159,6 +159,21 @@ Source: review of `main` after M11. Web only; ADR-0062. Each task ships with uni
 - [x] M12.9 Hours strip: one cell per hour (spent/free/this trip) plus food and rent-due chips — note: `HoursStrip`, `hourCells`/`rentDueIn` in `store/needs.ts`.
 - [x] M12.10 Share results: result card as PNG and a "play this seed" link that pre-fills setup — note: `share/shareCard.ts`, `store/seedLink.ts`; local only.
 
+## M13 — Playability + information pass (2026-09-30)
+
+Web only; ADR-0063. Each task ships with unit tests; UI flows get axe coverage.
+
+- [x] M13.1 Double-click / double-tap a place to travel with the current mode, no sheet (`quickTravel` setting, default on) — note: `quickTravel` in `gameStore`; falls back to the sheet when illegal.
+- [x] M13.2 Outcome pop-ups (`OutcomeModal` + `ModalHost` queue) for job, course, loan, purchase results; `popups` setting (important | all | off), default important. — note: `ui/game/outcomes.ts`, `OutcomeModal`, `outcomes` queue in `gameStore`, `popups` setting.
+- [x] M13.3 Stat drill-down pop-ups for the four goals (value vs target, breakdown, trend, levers). — note: `InfoModal` goal card via `openInfo`; goal bars always open it, levers moved inside.
+- [x] M13.4 Job info card (employer, wage, hours, promotion needs, dress code, last pay). — note: job card (`jobInfo`), Go-to-work shortcut, dress-code check; hidden stats only when opacity is off.
+- [x] M13.5 Home / housing card (tier, rent, due in, arrears, Go pay rent). — note: home card (`homeInfo`): rent, due-in, arrears, eviction warning, Go shortcut.
+- [x] M13.6 Education tracker card (courses, degrees, what they unlock). — note: studies card (`educationInfo`): degrees, lessons left, what each opens.
+- [x] M13.7 Place tooltips and rich hover (offers, hours, here / recommended chips). — note: `placeInfo` + offers/tags lines in the scene hover badge.
+- [x] M13.8 Confirm + before → after preview for big actions (quit job, loan, car, drop course). — note: `confirmPending` + `ConfirmModal`; loan, car, move, enrol or spending ≥ half of cash; skipped in the tutorial.
+- [x] M13.9 Turn recap timeline replacing the flat log, with filters. — note: `logFilter.ts` categories + icons, filter chips in `LogDrawer`.
+- [x] M13.10 Keyboard/a11y parity: modal stack + focus trap, J/H/E shortcuts, "reduce pop-ups" setting. — note: J/N/S open the cards (H stays Help, E is a travel key); pop-ups own the keyboard; Escape cancels confirm; "reduce pop-ups" is the M13.2 `popups` setting.
+
 ## Gate log
 
 | Milestone | Date       | Commit  | verify | CI    | Notes                                                                                                    |

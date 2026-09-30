@@ -11,6 +11,7 @@ const KEYS = [
   'log',
   'standings',
   'help',
+  'info',
   'save',
   'end',
 ] as const;

@@ -188,6 +188,9 @@ test('modern actions, costs and unavailable reasons are exposed through the inte
     .getByTestId(/^action-BuyAsset/)
     .first()
     .click();
+  // M13.8: spending half the cash or more asks first.
+  const confirm = page.getByTestId('confirm-ok');
+  if (await confirm.isVisible()) await confirm.click();
   await expect(page.getByTestId('investment-summary')).not.toContainText('No investments yet.');
   await expectNoA11yViolations(page);
 });

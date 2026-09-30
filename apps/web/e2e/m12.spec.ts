@@ -65,9 +65,12 @@ test('a goal bar explains what moves it', async ({ page }) => {
   await quickStart(page);
   if (isPhone(page)) return; // The phone shows goals in the full HUD only.
   await page.getByTestId('goal-btn-happiness').click();
+  await expect(page.getByTestId('info-modal')).toBeVisible();
   await expect(page.getByTestId('levers-happiness')).toBeVisible();
   await expect(page.getByTestId('lever-do-Relax')).toBeVisible();
   await expectNoA11yViolations(page);
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('info-modal')).toHaveCount(0);
 });
 
 test('the result card and seed link are offered on the end screen', async ({ page }) => {

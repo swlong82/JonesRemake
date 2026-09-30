@@ -15,11 +15,11 @@ import {
 } from '@hustle-ring/engine';
 import type { CityPack } from '@hustle-ring/content';
 import type { GoalId } from '@hustle-ring/shared';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PALETTE_HEX } from '../../assets/AssetRegistry';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
+import { InfoButtons } from './InfoButtons';
 import { goalLevers } from '../../store/goalLevers';
 import {
   commandKey,
@@ -67,13 +67,14 @@ function HoursRing({ left, total }: { left: number; total: number }) {
 }
 
 /** The actions that would move one goal, under its bar (M12.5). */
-function GoalLevers({ goal }: { goal: GoalId }) {
+export function GoalLevers({ goal }: { goal: GoalId }) {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
   const candidates = useGame((s) => s.candidates);
   const preview = useGame((s) => s.preview);
   const dispatch = useGame((s) => s.dispatch);
+  const requestConfirm = useGame((s) => s.requestConfirm);
   const openTravel = useGame((s) => s.openTravel);
   if (!state || !pack) return null;
   const levers = goalLevers(goal, state, pack, candidates(), preview);
@@ -98,7 +99,7 @@ function GoalLevers({ goal }: { goal: GoalId }) {
           <Button
             data-testid={`lever-do-${cmd.type}`}
             onClick={() => {
-              dispatch(cmd);
+              if (!requestConfirm(cmd)) dispatch(cmd);
             }}
           >
             {t('levers.do')}
@@ -137,7 +138,7 @@ export function GoalBars({
   opaque: boolean;
 }) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState<GoalId | null>(null);
+  const openInfo = useGame((s) => s.openInfo);
   const player = state.players[seat];
   if (!player) return null;
   const current = computeGoals(player, state, pack, 0);
@@ -153,14 +154,14 @@ export function GoalBars({
         return (
           <li key={goal} className="flex flex-col gap-1 text-sm">
             <div className="flex items-center gap-2">
-              {interactive && !met ? (
+              {interactive ? (
                 <button
                   type="button"
                   className="w-20 shrink-0 rounded text-left underline decoration-dotted underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus"
-                  aria-expanded={open === goal}
+                  aria-haspopup="dialog"
                   data-testid={`goal-btn-${goal}`}
                   onClick={() => {
-                    setOpen(open === goal ? null : goal);
+                    openInfo({ kind: 'goal', goal });
                   }}
                 >
                   {t(`hud.goal.${goal}`)}
@@ -186,7 +187,6 @@ export function GoalBars({
                 {met ? `✓ ${t('hud.goalMet')}` : opaque ? `${pct}%` : `${value}/${target}`}
               </span>
             </div>
-            {interactive && open === goal && !met && <GoalLevers goal={goal} />}
           </li>
         );
       })}
@@ -278,6 +278,9 @@ export function Hud({ compact = false }: { compact?: boolean }) {
         </dl>
       </div>
       <GoalBars state={state} pack={pack} seat={state.activeSeat} opaque={opaque} />
+      <div className="flex flex-wrap gap-2">
+        <InfoButtons />
+      </div>
       {!compact && (
         <ul className="flex flex-col gap-0.5 text-xs text-ink-muted">
           <li>{t(`home.${player.home.tier}`)}</li>
