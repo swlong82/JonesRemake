@@ -675,3 +675,18 @@
 - Options: fewer games (widens the sampling noise the tolerances were already widened for); a bigger runner; splitting the configs across jobs; skipping by path.
 - Decision: `sim:gate --shard i/n` runs one cost-balanced share of the configs (`shardConfigs`: games × seats × goal level, greedy, deterministic) and writes each config's `summary.json`; `sim:gate --merge dir` judges all summaries together, so cross-config assertions (medians grow with goal level) still hold. Each config seeds its own games, so sharding changes no result. CI runs four shards in parallel, then the `sim:gate` job (still the required check name) merges and asserts. A `changes` job diffs against the base and sets `sim=false` unless `packages/{engine,ai,content,shared,sim}`, `sim/`, the manifests and lockfile, tsconfig, `.nvmrc` or `ci.yml` changed; skipped shards leave `sim:gate` passing trivially. Docs-only and web-only changes therefore skip the gate. Local `pnpm sim:gate` still runs everything in one process.
 - Consequences: gate wall time drops to roughly a quarter plus install overhead; no balance, state or golden change. A new package the sim depends on must be added to the `changes` path list.
+
+## ADR-0067: P0 soft-lit benchmark ships as a partial importable art set
+
+- Date: 2026-09-30
+- Status: Proposed for review
+- Context: the graphics proposal calls for `modern extends default`, but the browser registry
+  statically bundles only `default`. A set directory alone is not playable. P0 is limited to
+  three buildings and one interior, before art-director approval of a wider rollout.
+- Decision: generate four original SVGs into `sets/modern`, reuse only the existing geometry
+  helpers, and deliver a zip through Settings → Art packs. Keep defaults, rules, UI, theme,
+  board, tint pipeline and hosts unchanged. A separate deterministic generator prevents P0
+  from rewriting the 197 default slots; CI tests compare its output with the committed files.
+- Consequence: import is required on each browser/device. Missing slots inherit the default.
+  P0 deliberately shows a mixed old/new city so reviewers can judge the transition. Bundling
+  and selecting a modern set automatically is a later decision, after visual review.

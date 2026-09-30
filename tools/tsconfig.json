@@ -6,7 +6,7 @@
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
     "types": ["node"]
   },
-  "include": ["*.ts", "lib", "art-default"],
+  "include": ["*.ts", "lib", "art-default", "art-modern"],
   "exclude": ["__fixtures__", "dist"],
   "references": [
     {
