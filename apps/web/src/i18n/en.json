@@ -531,7 +531,7 @@
   "tutorial.welcome.title": "Four goals, sixty hours a week",
   "tutorial.welcome.body": "You win by meeting all four goals — wealth, happiness, education and career — before anyone else. Every week gives you 60 hours, and everything you do spends some of them.",
   "tutorial.travel.title": "Getting around costs time",
-  "tutorial.travel.body": "Head to the employment office. Each step around the ring costs hours, and later you can buy faster ways to travel.",
+  "tutorial.travel.body": "Head to the employment office. Every step along the street costs hours, and later you can buy faster ways to travel.",
   "tutorial.apply.title": "Apply for a job",
   "tutorial.apply.body": "Every job lists what it needs: a uniform, a degree, or enough dependability. The entry job here will always take you on.",
   "tutorial.work.title": "Work a shift",
@@ -981,5 +981,10 @@
   "event.chip.severance": "Severance +${{n}}",
   "event.chip.grant": "Bonus granted",
   "event.chip.grant.freeEnrollment": "Free course",
-  "reason.travel": "travel ({{mode}})"
+  "reason.travel": "travel ({{mode}})",
+  "tutorial.skipStep": "Skip this step",
+  "tutorial.hint.leave": "First, press Leave to step outside.",
+  "tutorial.hint.building": "Now click the highlighted building.",
+  "tutorial.hint.go": "Press Go to walk there.",
+  "tutorial.hint.enter": "You are outside. Press Enter to go in."
 }
