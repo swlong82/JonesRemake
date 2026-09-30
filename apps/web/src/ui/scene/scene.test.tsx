@@ -41,7 +41,6 @@ beforeEach(() => {
   useGame.getState().quit();
   globalThis.localStorage.clear();
   useSettings.getState().resetData();
-  useFlags.getState().set('sceneUi', true);
   stubMatchMedia(true);
   useGame.getState().startGame(soloConfig());
 });

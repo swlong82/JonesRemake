@@ -90,7 +90,7 @@ interface ArtRegistry {
 
 ## 17.7 Theme
 
-`theme` = `{ font, palette, frames? }`. `font` is an id from the bundled OFL font list (no CDN, CLAUDE.md 1.3): `system` or `nunito` (`@fontsource/nunito`, 400 and 700). `palette` provides `surface`, `surface2`, `ink`, `inkMuted`, `line`, `accent`, `onAccent`, `focus`, `danger`, `onDanger` as `#RRGGBB`, applied as the CSS tokens of `index.css`. Contrast MUST be ≥ 4.5:1 for `ink`/`surface`, `ink`/`surface2`, `inkMuted`/`surface`, `onAccent`/`accent` and `onDanger`/`danger`, and ≥ 3:1 for `focus`/`surface`. The default set ships a rounded, chunky cartoon kit. The art theme drives the tokens while `sceneUi` is on, except when the player chose Dark explicitly (ADR-0054); `.art-frame` elements get the 9-slice panel frame as a border image.
+`theme` = `{ font, palette, frames? }`. `font` is an id from the bundled OFL font list (no CDN, CLAUDE.md 1.3): `system` or `nunito` (`@fontsource/nunito`, 400 and 700). `palette` provides `surface`, `surface2`, `ink`, `inkMuted`, `line`, `accent`, `onAccent`, `focus`, `danger`, `onDanger` as `#RRGGBB`, applied as the CSS tokens of `index.css`. Contrast MUST be ≥ 4.5:1 for `ink`/`surface`, `ink`/`surface2`, `inkMuted`/`surface`, `onAccent`/`accent` and `onDanger`/`danger`, and ≥ 3:1 for `focus`/`surface`. The default set ships a rounded, chunky cartoon kit. The art theme drives the tokens except when the player chose Dark explicitly (ADR-0054); `.art-frame` elements get the 9-slice panel frame as a border image.
 
 ## 17.8 Budgets and `pnpm art:check`
 
@@ -107,7 +107,7 @@ interface ArtRegistry {
 - **Phone (< 768 px):** a Map/List toggle; the map shows the whole block in a 16:10 viewport at 1× (every square on screen, each square's button reaching 12 stage units past its building so it stays ≥ 44 px), zooms to 3× with pinch or ± buttons, pans by drag when zoomed, and a drag never counts as a tap. The list is the existing location list (the accessible equivalent). Interiors show a cropped header (host + bubble) above the action sheet.
 - **Other screens:** title key art behind an opaque menu panel; a setup banner and the avatar picker; a weekend event card shows `weekend:<eventId>` (else the picture for its tone) with the avatar cheering, slumping or standing by; the newspaper, bought with `ReadNews`, shows the masthead, the paper's name as text, the headline for the hinted phase and this week's economy stories — never whether the hint is accurate.
 - **Art packs:** Settings lists the default set and every imported pack, switches between them, imports a zip with a per-issue report, and deletes packs (17.6).
-- **Rollout:** app flag `sceneUi`, off while M9 was built and **on by default since the M9 gate** (ADR-0060); `?ff=-sceneUi` still shows the ring board until M10 removes it. While both exist, the scene runs the tutorial, saves, presentation (pseudo-locale, themes, 150 % text), scene, art-pack, offline and live-smoke specs; `game`, `matrix` and `regression` pin the ring until M10 ports them. The location list stays.
+- **Rollout:** the app flag `sceneUi` was off while M9 was built, on by default from the M9 gate (ADR-0060) and deleted in M10 (ADR-0064) together with the ring board; every e2e spec now runs on the scene. The location list stays.
 
 ## 17.10 Amendments (already applied in this file; listed for traceability)
 

@@ -14,7 +14,6 @@ import type { ErrorCode } from '@hustle-ring/shared';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { END_TURN_CONFIRM_HOURS, useGame } from '../../store/gameStore';
-import { useFlags } from '../../flags/appFlags';
 import { weekNeeds } from '../../store/needs';
 import { nextStep } from '../../store/nextStep';
 import { useSettings } from '../../store/settings';
@@ -479,7 +478,6 @@ export function LocationPanel() {
   const requestEndTurn = useGame((s) => s.requestEndTurn);
   const cancelEndTurn = useGame((s) => s.cancelEndTurn);
   const [repeat, setRepeat] = useState(false);
-  const sceneUi = useFlags((f) => f.flags.sceneUi);
   if (!state || !pack) return null;
   const player = state.players[state.activeSeat];
   if (!player) return null;
@@ -509,7 +507,7 @@ export function LocationPanel() {
           {locationName(player.location)}
         </h2>
         {/* Inside the scene the host's speech bubble already says this line. */}
-        {!(sceneUi && player.inside) && (
+        {!player.inside && (
           <p className="text-xs italic text-ink-muted">
             {locationQuip(player.location, state.week)}
           </p>

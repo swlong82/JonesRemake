@@ -11,8 +11,8 @@ device. `PROGRESS.md` has the task list, `HANDOFF.md` the resume point.
 
 **New in M9 — the scene UI (default):** an illustrated city block you walk around, an interior
 with a host for every location, avatars, weekend and newspaper scenes, offline play and your own art
-packs, all drawn as modern-cartoon SVG art sets (`docs/ART_SPEC.md`). The v1 ring board is still one
-query string away (`?ff=-sceneUi`) until M10 removes it.
+packs, all drawn as modern-cartoon SVG art sets (`docs/ART_SPEC.md`). M10 removed the v1 ring board
+and its `sceneUi` flag: the scene is the only UI.
 
 **New in M11–M13 — playability:** guidance and feedback (needs warnings, trip cost previews, a
 next-step hint, weekly summaries), a modern UX pass (Quick Start, undo, a command palette, coach
@@ -32,7 +32,7 @@ there, pop-ups for important results, and cards for your goals, job, home and st
 | M7        | Polish: audio, save/replay, tutorial, a11y     | done   |
 | M8        | Release: leaderboard, docs, regression, v1.0.0 | done   |
 | M9        | Scene UI and art sets (the default UI)         | done   |
-| M10       | Retire the ring board                          | next   |
+| M10       | Retire the ring board                          | done   |
 | M11       | Playthrough UX pass                            | done   |
 | M12       | Modern UX pass                                 | done   |
 | M13       | Playability and information pass               | done   |
@@ -95,14 +95,12 @@ command log), and a win against at least one rival posts a score to the device's
 Screens that are specified but not yet built are gated by app feature flags
 (`apps/web/src/flags/appFlags.ts`, ADR-0017) — separate from the CityPack feature flags that gate
 rules per ruleset. A flag is deleted when its milestone lands. Left: `tutorial` and `audio` (on by
-default), `sceneUi` (on since the M9 gate; `-sceneUi` shows the v1 ring board until M10 deletes
-it) and `debugTools` (UX 7.9). Override for local development with a build env var or a query
+default) and `debugTools` (UX 7.9). Override for local development with a build env var or a query
 string:
 
 ```bash
 VITE_FF_AUDIO=off pnpm dev    # build-time
 # http://localhost:5173/?ff=-tutorial   # per-visit; '-' turns one off
-# http://localhost:5173/?ff=-sceneUi     # the v1 ring board, until M10
 ```
 
 `debugTools` additionally requires `VITE_DEBUG_ALLOWED=true`, so debug surfaces cannot be switched
@@ -161,7 +159,7 @@ example under `examples/`. The v1 non-goals are typed stubs in `packages/platfor
 | `packages/engine`   | Pure, deterministic game rules (`applyCommand`), core + modern modules |
 | `packages/ai`       | Utility-planner rival, personalities, difficulty tiers                 |
 | `packages/sim`      | Headless balance harness + CI gates                                    |
-| `apps/web`          | React + Vite SPA, ring board and scene UI, Zustand, Playwright e2e     |
+| `apps/web`          | React + Vite SPA, scene UI, Zustand, Playwright e2e                    |
 | `tools/`            | Banned-terms scan, budgets, scaffold check, art tools, type generator  |
 | `examples/`         | Tested examples for every recipe in `docs/EXTENDING.md`                |
 | `docs/`             | The spec pack (source of truth)                                        |

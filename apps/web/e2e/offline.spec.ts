@@ -6,7 +6,7 @@ import { expect, test } from '@playwright/test';
 
 test('an offline reload renders the scene board from the precache', async ({ page, context }) => {
   test.skip((page.viewportSize()?.width ?? 1440) < 1024, 'one viewport is enough for the cache');
-  await page.goto('/?ff=sceneUi,-tutorial');
+  await page.goto('/?ff=-tutorial');
   await page.evaluate(async () => {
     const reg = await navigator.serviceWorker.ready;
     return reg.active?.state;

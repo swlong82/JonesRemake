@@ -30,6 +30,9 @@ unchanged.
 
 ### Changed
 
+- M10 (ADR-0064): the v1 ring board, the phone mini ring and the `sceneUi` flag are removed; the
+  scene is the only UI and `?ff=-sceneUi` is ignored. e2e specs `game`, `matrix`, `regression` and
+  `presentation` run on the scene.
 - Goal bars always open a card (the inline expander from M12 moved inside it).
 - Outcome pop-ups and confirmations are off during the tutorial.
 

@@ -29,7 +29,7 @@ function pack(svg: string): Buffer {
 
 test('import an art pack, play with it, refuse a malicious one', async ({ page }) => {
   test.skip((page.viewportSize()?.width ?? 1440) < 1024, 'one wide viewport covers the flow');
-  await page.goto('/?ff=sceneUi,-tutorial');
+  await page.goto('/?ff=-tutorial');
   await page.getByTestId('settings').click();
   await expect(page.getByTestId('art-packs')).toBeVisible();
   await page

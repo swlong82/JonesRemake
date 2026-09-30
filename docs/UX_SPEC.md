@@ -20,7 +20,7 @@ flowchart LR
 | --- | --- |
 | Title | Continue (if autosave), New Game, Load, Settings, Stats, How to Play, version + seed display |
 | New Game Setup | GDD 4.1 fields; presets (Quick: goals 30, Standard: 50, Marathon: 80); Start disabled until valid |
-| Game Board | Ring board center; HUD; location panel; event log drawer; menu (save, load, settings, quit) |
+| Game Board | City-block scene center (the ring board was removed in M10); HUD bar; location panel; event log drawer; menu (save, load, settings, quit) |
 | Pass-device | Hotseat only, shown before each human turn when >1 human: "Pass to &lt;name&gt;" + Ready button; hides previous player's private info |
 | End | GDD 4.16 |
 | Settings | Music/SFX volume + mute, reduced motion, text scale 100/125/150%, theme, AI speed, Classic opacity default, language (EN only), reset data |
@@ -28,8 +28,8 @@ flowchart LR
 
 ## 7.2 Game board layout
 
-- **Desktop/tablet (≥ 768px):** board SVG left/center (max square), right column 360px: HUD top, location panel below. Event log bottom drawer.
-- **Phone (< 768px):** top compact HUD bar (week, hours ring, cash, 4 goal mini-bars, wellbeing); middle mini-ring (tap to expand full-screen board) + scrollable location list sorted by travel time; actions in bottom sheet.
+- **Desktop/tablet (≥ 768px):** the city-block scene (17.9) with the HUD bar under it and the location panel beside or below. Event log bottom drawer. (The v1 ring board was removed in M10.)
+- **Phone (< 768px):** top compact HUD bar (week, hours ring, cash, 4 goal mini-bars, wellbeing); middle pannable scene with a Map/List toggle (the list is sorted by travel time and is the accessible equivalent of the map); actions in bottom sheet.
 - Travel: tap/click location → travel sheet with mode options (hours, cost, availability reason) → confirm → token animates → location panel opens.
 
 ## 7.3 HUD
@@ -91,7 +91,7 @@ Each step highlights one UI element (spotlight), blocks unrelated input, and adv
 - Target size ≥ 24×24 CSS px (44×44 on touch layouts).
 - `prefers-reduced-motion` and setting disable token path animation (instant move) and modal transitions.
 - No information conveyed by color alone (shape + initial on tokens, icons + text on status).
-- Playwright runs axe on Title, Setup, Board (desktop + phone), Event modal, End screen; 0 serious/critical violations required.
+- Playwright runs axe on Title, Setup, the scene board (desktop + phone), Event modal, End screen; 0 serious/critical violations required.
 
 ## 7.9 Debug switches (dev + e2e only, `?debug=1`)
 

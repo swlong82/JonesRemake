@@ -1,17 +1,15 @@
 # Handoff
 
-State of the build after M13 (playability and information pass). v1.0.0 is `main` @ 03caf07; M9,
-M11 and M12 are merged to `main`; M13 is PR #31 on `claude/quirky-wright-d6pdmc`. Read `CLAUDE.md`
+State of the build after M13 and M10. v1.0.0 is `main` @ 03caf07; M9, M11, M12 and M13 are merged
+to `main`; M10 is the ring-board removal PR. Read `CLAUDE.md`
 first, then this file; `PROGRESS.md` has the task notes and the gate log, `docs/ART_SPEC.md` the M9
 contract and `docs/UX_SPEC.md` §7.10 the M11–M13 behaviour.
 
-## Resume point: M10
+## Resume point
 
-The scene UI is the default (ADR-0060). M10 retires the ring board and is still open:
-
-1. Port the e2e specs still pinned to `?ff=-sceneUi` — `game`, `matrix`, `regression` — to the scene (the `hud()` locator helper in `tutorial.spec.ts` is the pattern).
-2. Delete `ui/game/Board.tsx`, the phone mini ring and the `sceneUi` flag; the location list stays.
-3. `pnpm verify` green in CI; tag `m9`, `m10` (and later `m11`–`m13`) — tags still need the owner (KI-001).
+M0–M13 are built. M10 (ADR-0064) removed the ring board and the `sceneUi` flag; the scene is the only
+UI. What is left is owner work: tags `m9`–`m13` still need pushing (KI-001), and any new milestone
+starts from `docs/MILESTONES.md`.
 
 ## M11–M13 at a glance
 

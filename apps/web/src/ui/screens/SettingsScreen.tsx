@@ -2,13 +2,11 @@ import { useTranslation } from 'react-i18next';
 import { useGame } from '../../store/gameStore';
 import { useSettings, type TextScale, type Theme } from '../../store/settings';
 import { Button } from '../common/Button';
-import { useFlags } from '../../flags/appFlags';
 import { ArtPacksSection } from './ArtPacksSection';
 import { Field } from '../common/Field';
 
 export function SettingsScreen() {
   const { t } = useTranslation();
-  const sceneUi = useFlags((f) => f.flags.sceneUi);
   const go = useGame((s) => s.go);
   const hasGame = useGame((s) => s.state !== null);
   const settings = useSettings((s) => s.settings);
@@ -177,7 +175,7 @@ export function SettingsScreen() {
             <option value="pseudo">{t('settings.language.pseudo')}</option>
           </select>
         </Field>
-        {sceneUi && <ArtPacksSection />}
+        <ArtPacksSection />
         <Button
           variant="danger"
           onClick={() => {

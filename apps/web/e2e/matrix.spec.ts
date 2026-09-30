@@ -1,11 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
+import { hud } from './hud';
 import { horizontalOverflow } from './layout';
-
-/**
- * Ring-board spec: it pins `-sceneUi` while the ring still exists (removed in M10); the scene UI,
- * on by default since the M9 gate, has its own specs (`scene`, `artpacks`, `offline`).
- */
 
 /**
  * M8.3 (ADR-0037): menu and setup options in combination. A full Cartesian product is thousands of
@@ -115,7 +111,7 @@ test.describe('setup and settings in combination (all-pairs)', () => {
       test.skip(info.project.name !== 'desktop' && i >= 5, 'tablet and phone run the first five');
       // A round with AI seats is real play: on a loaded CI runner it outlasts the default 30 s.
       test.setTimeout(90_000);
-      await page.goto('/?ff=-tutorial,-sceneUi');
+      await page.goto('/?ff=-tutorial');
       await applySettings(page, c);
       await configureSetup(page, c);
       expect(await horizontalOverflow(page)).toEqual([]);
@@ -123,7 +119,7 @@ test.describe('setup and settings in combination (all-pairs)', () => {
       // Hotseat games open on the pass-the-device screen for the first human.
       if (c.seats === 'two-humans' || c.seats === 'four-seats')
         await page.getByTestId('ready').click();
-      await expect(page.getByTestId('hud')).toBeVisible();
+      await expect(hud(page)).toBeVisible();
       await expect(page.locator('html')).toHaveAttribute(
         'lang',
         c.language === 'pseudo' ? 'en-XA' : 'en',
@@ -139,7 +135,7 @@ test.describe('setup and settings in combination (all-pairs)', () => {
             await page.getByTestId('ready').click({ timeout: 5_000 });
           if (await page.getByTestId('event-dismiss').isVisible())
             await page.getByTestId('event-dismiss').click({ timeout: 5_000 });
-          await expect(page.getByTestId('hud')).toBeVisible({ timeout: 1_000 });
+          await expect(hud(page)).toBeVisible({ timeout: 1_000 });
         }).toPass({ timeout: 60_000 });
       } catch (error) {
         // CI keeps no page to look at; the visible text says which screen the round stopped on.

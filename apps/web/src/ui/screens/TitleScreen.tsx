@@ -1,7 +1,6 @@
 import { ENGINE_VERSION, STATE_SCHEMA_VERSION } from '@hustle-ring/engine';
 import { useTranslation } from 'react-i18next';
 import { baseArtRegistry, useArtSets } from '../../assets/art/artRegistry';
-import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { useSaves } from '../../save/controller';
 import { useSettings } from '../../store/settings';
@@ -19,13 +18,8 @@ export function TitleScreen() {
   const startGame = useGame((s) => s.startGame);
   const classicOpacityDefault = useSettings((s) => s.settings.classicOpacityDefault);
   const state = useGame((s) => s.state);
-  const sceneUi = useFlags((f) => f.flags.sceneUi);
   const menu = (
-    <section
-      className={`mx-auto flex max-w-md flex-col justify-center gap-3 p-6 text-center ${
-        sceneUi ? 'art-frame relative w-full rounded-2xl bg-surface-2 shadow-xl' : 'min-h-screen'
-      }`}
-    >
+    <section className="art-frame relative mx-auto flex w-full max-w-md flex-col justify-center gap-3 rounded-2xl bg-surface-2 p-6 text-center shadow-xl">
       <h1 className="text-5xl font-black tracking-tight">{t('app.title')}</h1>
       <p className="mb-4 text-ink-muted">{t('app.tagline')}</p>
       {((state !== null && state.winner === null) || records.some((r) => r.id === 'autosave')) && (
@@ -71,7 +65,6 @@ export function TitleScreen() {
       </footer>
     </section>
   );
-  if (!sceneUi) return menu;
   // Title key art behind the menu (ART_SPEC 17.9); the menu sits on its own opaque panel so its
   // text contrast never depends on the picture.
   return (

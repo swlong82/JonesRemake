@@ -2,7 +2,6 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { DomainEvent } from '@hustle-ring/shared';
 import { beforeEach, describe, expect, it } from 'vitest';
 import i18n from '../../i18n';
-import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { useSettings } from '../../store/settings';
 import { buildConfig, defaultSeat } from '../screens/SetupScreen';
@@ -122,13 +121,7 @@ describe('panel decluttering (M11.9)', () => {
 
   it('leaves the greeting to the host bubble inside the scene', () => {
     const quip = locationQuip('employment-office', useGame.getState().state!.week);
-    useFlags.getState().set('sceneUi', false);
-    const ring = render(<LocationPanel />);
-    expect(screen.getByText(quip)).toBeDefined();
-    ring.unmount();
-    useFlags.getState().set('sceneUi', true);
     render(<LocationPanel />);
     expect(screen.queryByText(quip)).toBeNull();
-    useFlags.getState().reset({ env: {}, search: '' });
   });
 });

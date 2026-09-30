@@ -95,7 +95,7 @@ AC (e2e): start 2-seat classic game (human + AI) on all 3 viewports; human compl
 - [ ] M9.1 Spec amendments (17, 17.10) + ADRs; this task list in `PROGRESS.md`.
 - [ ] M9.2 `packages/art`: manifest schema, slot catalog, SVG sanitizer, key-colour tint, set validator (17.2–17.4, 17.6). AC: invalid-manifest fixtures fail with path-specific messages; sanitizer rejects every 17.6 attack fixture; tint replaces only key colours.
 - [ ] M9.3 `pnpm art:placeholders` + default set wireframes + `pnpm art:check` in `verify` (17.3, 17.8). AC: default set covers every slot of every playable pack; regenerating is byte-stable; real art (no placeholder marker) is never overwritten.
-- [ ] M9.4 Web `ArtRegistry`: static URLs, tint blobs, wireframe fallback per key; app flag `sceneUi` (default off) (17.5, 17.9). AC: unknown key and failed load fall back, never throw.
+- [ ] M9.4 Web `ArtRegistry`: static URLs, tint blobs, wireframe fallback per key; app flag `sceneUi` (default off; removed in M10) (17.5, 17.9). AC: unknown key and failed load fall back, never throw.
 - [ ] M9.5 Theme from art set: palette tokens, bundled OFL fonts, 9-slice frames (17.7). AC: contrast ≥ 4.5:1 checked for every set; failing user sets are rejected.
 - [ ] M9.6 Scene board + HUD bar + overlays (17.9, UX 7.2). AC: hotspot per square keeps the 7.7 keyboard map and 7.8 labels; axe 0 serious/critical on 3 viewports.
 - [ ] M9.7 Avatars: picker in setup, tint, path walking with frame swap, reduced-motion jump (17.3). AC: walk duration proportional to squares; reduced motion shows no intermediate frames.
@@ -109,8 +109,8 @@ AC (e2e): start 2-seat classic game (human + AI) on all 3 viewports; human compl
 
 ## M10 — Retire the ring board (17.9)
 
-- [ ] M10.1 Port the ring-only e2e specs (`game`, `matrix`, `regression`) to the scene, then delete the ring board (`ui/game/Board.tsx`, the mini ring) and the `sceneUi` flag. AC: no spec pins `-sceneUi`; the location list stays the accessible equivalent.
-- [ ] M10 gate: `pnpm verify` green in CI, tag `m10`.
+- [x] M10.1 Port the ring-only e2e specs (`game`, `matrix`, `regression`, `presentation`) to the scene, then delete the ring board (`ui/game/Board.tsx`, the mini ring) and the `sceneUi` flag. AC: no spec pins `-sceneUi`; the location list stays the accessible equivalent.
+- [x] M10 gate: `pnpm verify` green in CI, tag `m10` (the tag needs the owner, KI-001).
 
 ## M11 — Playthrough UX pass (ADR-0061)
 

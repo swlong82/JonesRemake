@@ -2,14 +2,8 @@ import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
 import { horizontalOverflow } from './layout';
 
-/**
- * Both UIs run every check: the scene (default since the M9 gate) and the ring board, which stays
- * behind `-sceneUi` until M10 removes it.
- */
-const UIS = [
-  { name: 'scene', ff: '-tutorial' },
-  { name: 'ring', ff: '-tutorial,-sceneUi' },
-] as const;
+/** One UI now (the ring board was removed in M10); the loop keeps each check's title stable. */
+const UIS = [{ name: 'scene', ff: '-tutorial' }] as const;
 
 function hud(page: Page) {
   return page.locator('[data-testid="scene-hud"], [data-testid="hud"]').first();

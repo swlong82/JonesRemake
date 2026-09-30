@@ -71,7 +71,6 @@ describe('phone scene', () => {
   beforeEach(() => {
     useGame.getState().quit();
     useSettings.getState().resetData();
-    useFlags.getState().set('sceneUi', true);
     phone();
     useGame
       .getState()
