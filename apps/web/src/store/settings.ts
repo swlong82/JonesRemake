@@ -7,6 +7,8 @@ import { create } from 'zustand';
 export type Theme = 'system' | 'light' | 'dark';
 export type TextScale = 100 | 125 | 150;
 export type AiSpeed = 'instant' | 'fast' | 'normal';
+/** How many action results get a pop-up of their own (M13.2). */
+export type Popups = 'important' | 'all' | 'off';
 
 export interface Settings {
   musicVolume: number;
@@ -21,6 +23,10 @@ export interface Settings {
   tutorialSeen: boolean;
   /** Show the next-step hint in the location panel (M11.5). */
   hints: boolean;
+  /** Double-click or double-tap a place to travel there without the sheet (M13.1). */
+  quickTravel: boolean;
+  /** Outcome pop-up density (M13.2). */
+  popups: Popups;
   /** Coach marks for systems the tutorial does not cover (M12.4). */
   coach: boolean;
   /** Feature tips already shown, by id (M12.4). */
@@ -52,6 +58,8 @@ export const DEFAULT_SETTINGS: Settings = {
   language: 'en',
   tutorialSeen: false,
   hints: true,
+  quickTravel: true,
+  popups: 'important',
   coach: true,
   coachSeen: [],
   strictMode: false,

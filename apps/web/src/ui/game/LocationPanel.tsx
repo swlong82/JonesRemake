@@ -97,6 +97,7 @@ function ActionRow({ row, repeat, extra }: { row: Row; repeat: boolean; extra?: 
   const { t } = useTranslation();
   const dispatch = useGame((s) => s.dispatch);
   const requestSubscriptionCancel = useGame((s) => s.requestSubscriptionCancel);
+  const requestConfirm = useGame((s) => s.requestConfirm);
   const preview = useGame((s) => s.preview);
   const opaque = useGame((s) => s.state?.config.classicOpacity ?? false);
   const p = preview(row.cmd);
@@ -112,7 +113,7 @@ function ActionRow({ row, repeat, extra }: { row: Row; repeat: boolean; extra?: 
         onClick={() => {
           if (repeat && REPEATABLE.has(row.cmd.type)) runRepeat(row.cmd);
           else if (row.cmd.type === 'Unsubscribe') requestSubscriptionCancel(row.cmd);
-          else dispatch(row.cmd);
+          else if (!requestConfirm(row.cmd)) dispatch(row.cmd);
         }}
       >
         {commandLabel(row.cmd, t)}

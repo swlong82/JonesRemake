@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { GoalBars } from '../game/Hud';
+import { InfoButtons } from '../game/InfoButtons';
 import { hours } from '../game/labels';
 import { HoursStrip } from '../game/HoursStrip';
 import { UndoButton } from '../game/UndoButton';
@@ -110,6 +111,7 @@ export function SceneHudBar({
       </div>
       <div className="flex flex-wrap gap-2">
         <UndoButton />
+        <InfoButtons />
         <Button
           onClick={() => togglePalette()}
           aria-keyshortcuts="/ Control+K"

@@ -8,6 +8,7 @@ export function PhoneLocationList() {
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
   const openTravel = useGame((s) => s.openTravel);
+  const quickTravel = useGame((s) => s.quickTravel);
   const selectLocation = useGame((s) => s.selectLocation);
   const preview = useGame((s) => s.preview);
   if (!state || !pack) return null;
@@ -34,6 +35,7 @@ export function PhoneLocationList() {
                 type="button"
                 className="flex min-h-11 w-full items-center gap-2 rounded-md border border-line bg-surface-2 px-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                 onClick={() => (isHere ? selectLocation(id) : openTravel(id))}
+                onDoubleClick={() => quickTravel(id)}
                 data-testid={`phone-loc-${id}`}
               >
                 <span className="grow">{locationName(id)}</span>
