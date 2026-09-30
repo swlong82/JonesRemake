@@ -18,6 +18,7 @@ import { Hud } from '../game/Hud';
 import { LocationPanel } from '../game/LocationPanel';
 import { LogDrawer } from '../game/LogDrawer';
 import { MenuSheet } from '../game/MenuSheet';
+import { NewsFlash } from '../game/NewsFlash';
 import { Standings } from '../game/Standings';
 import { TravelSheet } from '../game/TravelSheet';
 import { useIsWide } from '../game/useIsPhone';
@@ -109,6 +110,11 @@ export function SceneGameScreen({ debug }: { debug: boolean }) {
         </div>
         {column}
       </div>
+      <NewsFlash
+        onRead={() => {
+          setPaper(true);
+        }}
+      />
       <div className="relative">
         <DeltaToast className="absolute -top-9 right-2 z-10" />
         <SceneHudBar

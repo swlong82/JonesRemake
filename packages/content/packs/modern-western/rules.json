@@ -1,6 +1,9 @@
 {
+  "time": {
+    "enterHours": 0.5
+  },
   "goals": {
-    "educationPerDegree": 13,
+    "educationPerDegree": 11,
     "careerTenureBpPerWeek": 25000,
     "careerTenureDelayWeeks": 6,
     "careerLayoffGraceWeeks": 4,

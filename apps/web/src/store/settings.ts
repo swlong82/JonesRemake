@@ -23,6 +23,8 @@ export interface Settings {
   tutorialSeen: boolean;
   /** Show the next-step hint in the location panel (M11.5). */
   hints: boolean;
+  /** Slide in the weekly Daily Hustle headline at the start of each turn. */
+  newsFlash: boolean;
   /** Double-click or double-tap a place to travel there without the sheet (M13.1). */
   quickTravel: boolean;
   /** Outcome pop-up density (M13.2). */
@@ -58,6 +60,7 @@ export const DEFAULT_SETTINGS: Settings = {
   language: 'en',
   tutorialSeen: false,
   hints: true,
+  newsFlash: true,
   quickTravel: true,
   popups: 'important',
   coach: true,

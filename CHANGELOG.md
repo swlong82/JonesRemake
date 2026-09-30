@@ -6,6 +6,16 @@ One entry per milestone (see `docs/MILESTONES.md`).
 
 ## [Unreleased]
 
+M14 — playtest fixes (ADR-0065)
+
+- Entering a building costs 0.5 h in Modern Western (Classic keeps the original 2 h).
+- Clothing in the shop and the engine's own events (rent hikes, breakdowns, lost deliveries, transit
+  delays, burglary) have real names and text; every log line reads as a sentence.
+- The Daily Hustle is always available and writes weekly headlines from your game; a news flash shows
+  the lead story at the start of each turn (Settings to turn off).
+- The job card shows title and workplace first, with "More details".
+
+
 M11–M13 — playability (web only; ADR-0061…0063). No state, golden or balance change; `sim:gate`
 unchanged.
 

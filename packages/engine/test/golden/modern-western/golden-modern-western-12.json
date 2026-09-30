@@ -185,14 +185,6 @@
       "cmd": {
         "type": "Move",
         "to": "appliance-depot",
-        "mode": "walk"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "grocery",
         "mode": "transit"
       }
     },
@@ -200,7 +192,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "secure-apartments",
+        "to": "clothing-boutique",
         "mode": "transit"
       }
     },
@@ -209,6 +201,14 @@
       "cmd": {
         "type": "Move",
         "to": "burger-joint",
+        "mode": "transit"
+      }
+    },
+    {
+      "seat": 1,
+      "cmd": {
+        "type": "Move",
+        "to": "clothing-boutique",
         "mode": "walk"
       }
     },
@@ -368,31 +368,29 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "employment-office",
+        "to": "burger-joint",
+        "mode": "transit"
+      }
+    },
+    {
+      "seat": 1,
+      "cmd": {
+        "type": "Move",
+        "to": "clothing-boutique",
         "mode": "transit"
       }
     },
     {
       "seat": 0,
       "cmd": {
-        "type": "Move",
-        "to": "park",
-        "mode": "transit"
+        "type": "Relax"
       }
     },
     {
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "grocery",
-        "mode": "transit"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "discount-store",
+        "to": "burger-joint",
         "mode": "transit"
       }
     },
@@ -488,7 +486,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "pawn-shop",
+        "to": "appliance-depot",
         "mode": "walk"
       }
     },
@@ -593,10 +591,18 @@
       }
     },
     {
+      "seat": 1,
+      "cmd": {
+        "type": "Move",
+        "to": "low-housing",
+        "mode": "walk"
+      }
+    },
+    {
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "appliance-depot",
+        "to": "bank",
         "mode": "walk"
       }
     },
@@ -611,14 +617,6 @@
     {
       "seat": 0,
       "cmd": {
-        "type": "Move",
-        "to": "clothing-boutique",
-        "mode": "transit"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
         "type": "Enter"
       }
     },
@@ -626,22 +624,16 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "bank",
+        "to": "rent-office",
         "mode": "transit"
       }
     },
     {
       "seat": 0,
       "cmd": {
-        "type": "Enter"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "TakeLoan",
-        "principal": 3000,
-        "termWeeks": 52
+        "type": "Move",
+        "to": "low-housing",
+        "mode": "transit"
       }
     },
     {
@@ -649,6 +641,14 @@
       "cmd": {
         "type": "Move",
         "to": "burger-joint",
+        "mode": "transit"
+      }
+    },
+    {
+      "seat": 0,
+      "cmd": {
+        "type": "Move",
+        "to": "bank",
         "mode": "walk"
       }
     },
@@ -733,18 +733,18 @@
       }
     },
     {
-      "seat": 1,
+      "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "pawn-shop",
-        "mode": "walk"
+        "to": "park",
+        "mode": "transit"
       }
     },
     {
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "clothing-boutique",
+        "to": "employment-office",
         "mode": "walk"
       }
     },
@@ -941,10 +941,10 @@
       }
     },
     {
-      "seat": 0,
+      "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "bank",
+        "to": "burger-joint",
         "mode": "walk"
       }
     },
@@ -952,7 +952,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "discount-store",
+        "to": "electronics-store",
         "mode": "walk"
       }
     },
@@ -1053,18 +1053,10 @@
       }
     },
     {
-      "seat": 1,
-      "cmd": {
-        "type": "Move",
-        "to": "secure-apartments",
-        "mode": "walk"
-      }
-    },
-    {
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "rent-office",
+        "to": "grocery",
         "mode": "transit"
       }
     },
@@ -1072,7 +1064,15 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "pawn-shop",
+        "to": "secure-apartments",
+        "mode": "transit"
+      }
+    },
+    {
+      "seat": 0,
+      "cmd": {
+        "type": "Move",
+        "to": "rent-office",
         "mode": "walk"
       }
     },
@@ -1163,10 +1163,10 @@
       }
     },
     {
-      "seat": 0,
+      "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "clinic",
+        "to": "factory",
         "mode": "walk"
       }
     },
@@ -1174,7 +1174,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "park",
+        "to": "discount-store",
         "mode": "walk"
       }
     },
@@ -1182,7 +1182,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "burger-joint",
+        "to": "clothing-boutique",
         "mode": "walk"
       }
     },
@@ -1195,6 +1195,6 @@
       }
     }
   ],
-  "finalHash": "1522da64ae2db5",
+  "finalHash": "098f89bc3fe2fb",
   "week": 5
 }

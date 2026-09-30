@@ -56,7 +56,7 @@ export interface Row {
   code: ErrorCode | null;
 }
 
-/** Group the engine's candidates into panel sections, legal rows first. */
+/** Group the engine's candidates into panel sections: usable sections first, legal rows first. */
 export function groupRows(rows: Row[]): { section: SectionId; rows: Row[] }[] {
   const bySection = new Map<SectionId, Row[]>();
   for (const row of rows) {
@@ -74,7 +74,10 @@ export function groupRows(rows: Row[]): { section: SectionId; rows: Row[] }[] {
     list.sort((a, b) => (a.code === null ? 0 : 1) - (b.code === null ? 0 : 1));
     out.push({ section, rows: list });
   }
-  return out;
+  // What you can do here comes before what you cannot (a clothes shop shows its stock before the
+  // greyed-out "work a shift"), each group keeping the panel order above.
+  const usable = (g: { rows: Row[] }): boolean => g.rows.some((r) => r.code === null);
+  return [...out.filter(usable), ...out.filter((g) => !usable(g))];
 }
 
 /** Repeat an action until it stops being legal, an event fires or the turn changes. */

@@ -177,17 +177,11 @@
       }
     },
     {
-      "seat": 1,
-      "cmd": {
-        "type": "Exit"
-      }
-    },
-    {
-      "seat": 1,
+      "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "factory",
-        "mode": "walk"
+        "to": "discount-store",
+        "mode": "transit"
       }
     },
     {
@@ -195,6 +189,14 @@
       "cmd": {
         "type": "Move",
         "to": "bank",
+        "mode": "transit"
+      }
+    },
+    {
+      "seat": 1,
+      "cmd": {
+        "type": "Move",
+        "to": "factory",
         "mode": "walk"
       }
     },
@@ -384,8 +386,8 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "appliance-depot",
-        "mode": "transit"
+        "to": "secure-apartments",
+        "mode": "walk"
       }
     },
     {
@@ -602,24 +604,24 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "burger-joint",
-        "mode": "walk"
+        "to": "rent-office",
+        "mode": "transit"
       }
     },
     {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "discount-store",
-        "mode": "walk"
-      }
-    },
-    {
-      "seat": 0,
+      "seat": 1,
       "cmd": {
         "type": "Move",
         "to": "university",
         "mode": "walk"
+      }
+    },
+    {
+      "seat": 0,
+      "cmd": {
+        "type": "Move",
+        "to": "electronics-store",
+        "mode": "transit"
       }
     },
     {
@@ -987,17 +989,19 @@
       }
     },
     {
-      "seat": 1,
+      "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "discount-store",
+        "to": "electronics-store",
         "mode": "walk"
       }
     },
     {
       "seat": 1,
       "cmd": {
-        "type": "Enter"
+        "type": "Move",
+        "to": "appliance-depot",
+        "mode": "walk"
       }
     },
     {
@@ -1076,7 +1080,15 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "employment-office",
+        "to": "clothing-boutique",
+        "mode": "walk"
+      }
+    },
+    {
+      "seat": 1,
+      "cmd": {
+        "type": "Move",
+        "to": "secure-apartments",
         "mode": "walk"
       }
     },
@@ -1084,16 +1096,8 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "clinic",
+        "to": "pawn-shop",
         "mode": "walk"
-      }
-    },
-    {
-      "seat": 0,
-      "cmd": {
-        "type": "Move",
-        "to": "low-housing",
-        "mode": "transit"
       }
     },
     {
@@ -1147,7 +1151,7 @@
       "cmd": {
         "type": "BuyAsset",
         "assetId": "gold-modern",
-        "amount": 1504
+        "amount": 1501
       }
     },
     {
@@ -1183,6 +1187,6 @@
       }
     }
   ],
-  "finalHash": "190c78910e1328",
+  "finalHash": "14d0c49c42e0c2",
   "week": 5
 }
