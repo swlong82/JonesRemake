@@ -17,7 +17,6 @@ function fired(eventId: string): DomainEvent {
 beforeEach(() => {
   useGame.getState().quit();
   useSettings.getState().resetData();
-  useFlags.getState().set('sceneUi', true);
   Object.defineProperty(globalThis, 'matchMedia', {
     configurable: true,
     writable: true,
@@ -62,13 +61,6 @@ describe('weekend recap (ART_SPEC 17.9, M9.10)', () => {
     expect(screen.getByTestId('weekend-avatar').dataset.artKey).toBe('avatar:player-1:slump:s');
     expect(screen.getByTestId('event-title').textContent).not.toBe('');
   });
-
-  it('keeps plain cards without the flag', () => {
-    useFlags.getState().set('sceneUi', false);
-    useGame.setState({ cards: [fired('night-out')] });
-    render(<EventCards />);
-    expect(screen.queryByTestId('weekend-recap')).toBeNull();
-  });
 });
 
 describe('newspaper (M9.10)', () => {
@@ -106,11 +98,5 @@ describe('title and setup art (M9.10)', () => {
     unmount();
     render(<SetupScreen />);
     expect(screen.getByTestId('setup-art').dataset.artKey).toBe('ui:setup');
-  });
-
-  it('leaves both screens plain without the flag', () => {
-    useFlags.getState().set('sceneUi', false);
-    render(<TitleScreen />);
-    expect(screen.queryByTestId('title-art')).toBeNull();
   });
 });

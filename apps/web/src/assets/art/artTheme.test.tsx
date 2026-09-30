@@ -40,11 +40,10 @@ describe('art theme (ART_SPEC 17.7)', () => {
     expect(artThemeVars(theme)['--art-frame-panel']).toBeUndefined();
   });
 
-  it('is active only with the scene UI and without an explicit dark theme', () => {
-    expect(artThemeActive(true, 'system')).toBe(true);
-    expect(artThemeActive(true, 'light')).toBe(true);
-    expect(artThemeActive(true, 'dark')).toBe(false);
-    expect(artThemeActive(false, 'light')).toBe(false);
+  it('is active unless the theme is an explicit dark one', () => {
+    expect(artThemeActive('system')).toBe(true);
+    expect(artThemeActive('light')).toBe(true);
+    expect(artThemeActive('dark')).toBe(false);
   });
 
   it('applies and clears exactly its own properties', () => {
@@ -59,13 +58,9 @@ describe('art theme (ART_SPEC 17.7)', () => {
     expect(el.style.getPropertyValue('--other')).toBe('x');
   });
 
-  it('follows the sceneUi flag and the theme setting', async () => {
+  it('follows the theme setting', async () => {
     const root = document.documentElement;
-    useFlags.getState().set('sceneUi', false);
     const { rerender } = renderHook(() => useArtTheme());
-    expect(root.dataset.artTheme).toBeUndefined();
-    useFlags.getState().set('sceneUi', true);
-    rerender();
     await waitFor(() => expect(root.style.getPropertyValue('--art-frame-panel')).toMatch(/^url\(/));
     expect(root.dataset.artTheme).toBe('on');
     useSettings.getState().update({ theme: 'dark' });

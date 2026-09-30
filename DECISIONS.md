@@ -648,3 +648,12 @@
 - Options: new engine events and commands for pop-ups, or derive them in `apps/web` from the `DomainEvent`s already returned by `applyCommand`.
 - Decision: web only. A single `ModalHost` owns a priority queue of pop-ups (outcomes, stat drill-downs, info cards) so at most one is shown; `popups` setting (`important` default, `all`, `off`) filters outcomes, failures always show unless `off`. Info cards read public state and hide hidden stats under classic opacity. `quickTravel` dispatches the same `Move` a sheet confirm would, so replay and hashes are unchanged.
 - Consequences: no state, golden or balance change.
+
+## ADR-0064: M10 — the ring board and the `sceneUi` flag are removed
+
+- Date: 2026-09-30
+- Status: Accepted
+- Context: the scene UI has been the default since the M9 gate (ADR-0060) and M11–M13 were built and tested on it. The ring board stayed one query string away, so every UX change had two UIs to keep working and `game`, `matrix` and `regression` e2e still pinned it.
+- Options: keep the ring as a fallback, or delete it and port the specs.
+- Decision: delete `ui/game/Board.tsx`, the phone mini ring and the flag. `GameScreen` renders `SceneGameScreen` on desktop and tablet and `PhoneScene` (Map/List toggle) on phones. The specs run on the scene, sharing its `square-*` test ids; ring-only unit tests were dropped because `scene.test`/`phone.test` cover the scene board. The art theme is active unless the player picks Dark. The `board.json` ring topology is unchanged (it is content, not UI).
+- Consequences: no state, golden or balance change. `?ff=-sceneUi` is now ignored. There is no fallback UI: a scene regression is fixed in the scene.

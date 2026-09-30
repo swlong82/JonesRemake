@@ -55,9 +55,9 @@ export function artThemeVars(theme: ArtTheme, frames: FrameUrls = {}): Record<st
   return vars;
 }
 
-/** Whether the art theme should drive the tokens: scene UI on, and not an explicit dark theme. */
-export function artThemeActive(sceneUi: boolean, theme: 'system' | 'light' | 'dark'): boolean {
-  return sceneUi && theme !== 'dark';
+/** Whether the art theme should drive the tokens: any theme but an explicit dark one. */
+export function artThemeActive(theme: 'system' | 'light' | 'dark'): boolean {
+  return theme !== 'dark';
 }
 
 /** Set (or, with `undefined`, clear) the art theme on an element, normally `<html>`. */

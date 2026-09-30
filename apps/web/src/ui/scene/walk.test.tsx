@@ -125,13 +125,8 @@ describe('avatar in setup and config (ART_SPEC 17.3)', () => {
     expect(plain.seats[0]!.avatar).toBeUndefined();
   });
 
-  it('offers the picker for human seats only while the scene UI is on', () => {
+  it('offers the picker for human seats', () => {
     useGame.setState({ screen: 'setup' });
-    useFlags.getState().set('sceneUi', false);
-    const { unmount } = render(<SetupScreen />);
-    expect(screen.queryByTestId('avatar-picker-0')).toBeNull();
-    unmount();
-    useFlags.getState().set('sceneUi', true);
     render(<SetupScreen />);
     const radio = screen.getByTestId<HTMLInputElement>('avatar-0-player-3');
     expect(screen.getByTestId<HTMLInputElement>('avatar-0-player-1').checked).toBe(true);

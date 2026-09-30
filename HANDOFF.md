@@ -1,20 +1,27 @@
 # Handoff
 
-State of the build after M9 (scene UI and art sets). v1.0.0 is `main` @ 03caf07; M9.1–M9.8 merged
-as PR #20; M9.9–M9.13, the KI-012 fix and the M9 gate are on `claude/stoic-goldberg-yr35m8`. Read
-`CLAUDE.md` first, then this file; `PROGRESS.md` has the task notes and the gate log,
-`docs/ART_SPEC.md` the M9 contract.
+State of the build after M13 and M10. v1.0.0 is `main` @ 03caf07; M9, M11, M12 and M13 are merged
+to `main`; M10 is the ring-board removal PR. Read `CLAUDE.md`
+first, then this file; `PROGRESS.md` has the task notes and the gate log, `docs/ART_SPEC.md` the M9
+contract and `docs/UX_SPEC.md` §7.10 the M11–M13 behaviour.
 
-## Resume point: M10
+## Resume point
 
-The scene UI is the default (ADR-0060). M10 retires the ring board:
+M0–M13 are built. M10 (ADR-0064) removed the ring board and the `sceneUi` flag; the scene is the only
+UI. What is left is owner work: tags `m9`–`m13` still need pushing (KI-001), and any new milestone
+starts from `docs/MILESTONES.md`.
 
-1. Port the e2e specs still pinned to `?ff=-sceneUi` — `game`, `matrix`, `regression` — to the
-   scene (the `hud()` locator helper in `tutorial.spec.ts` is the pattern).
-2. Delete `ui/game/Board.tsx`, the phone mini ring and the `sceneUi` flag; the location list stays.
-3. `pnpm verify` green in CI; tag `m9` (and later `m10`) — tags still need the owner (KI-001).
+## M11–M13 at a glance
 
-KI-012 is fixed (ADR-0059). No issue is open against M9.
+| Area          | Where                                                                                        |
+| ------------- | -------------------------------------------------------------------------------------------- |
+| Contract      | `docs/UX_SPEC.md` §7.10, ADR-0061 (M11), ADR-0062 (M12), ADR-0063 (M13)                      |
+| Pop-ups       | `ui/game/outcomes.ts` + `OutcomeModal`, `outcomes` queue and `popups` setting in `gameStore` |
+| Info cards    | `ui/game/info.ts` (pure readers) + `InfoModal`, `InfoButtons`; `openInfo` in `gameStore`     |
+| Confirmations | `confirmPending`, `CONFIRM_COMMANDS` and `ConfirmModal`; skipped while the tutorial runs     |
+| Quick travel  | `quickTravel` in `gameStore`, `onDoubleClick` on the scene board, ring board and phone list  |
+| Log           | `ui/game/logFilter.ts` (categories, icons) + `LogDrawer` filters                             |
+| Tests         | `store/m13.test.ts`, `ui/game/m13.test.tsx`, `e2e/m13.spec.ts` (three viewports, axe)        |
 
 ## M9 at a glance
 
@@ -36,7 +43,7 @@ KI-012 is fixed (ADR-0059). No issue is open against M9.
 | Classic balance | Stage 1: every 9.3 target met but sim speed (`BASELINE_REPORT.md`)                       |
 | Modern balance  | Stage 2: every locked 9.5 target met but sim speed; targets locked by ADR-0048           |
 | CI gates        | `sim/gates.json` has no `pending` assertion; `pnpm sim:gate --strict` passes             |
-| Web             | Both rulesets playable; leaderboard, tutorial, audio, saves, themes, a11y                |
+| Web             | Both rulesets playable; scene UI, offline, art packs; M11–M13 UX (pop-ups, cards, undo)  |
 | Deploy          | `deploy.yml` deploys after CI on `main`, smoke-tests the live URL, rolls back on failure |
 | Open issues     | KI-010 (sim speed, out of scope) and KI-011 (Easy AI stalls at high goals), both minor   |
 

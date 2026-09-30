@@ -126,8 +126,8 @@ Owner interview 2026-09-24: ADR-0051…0053.
 
 ## M10 — Retire the ring board (ART_SPEC 17.9)
 
-- [ ] M10.1 Port `game`, `matrix` and `regression` e2e to the scene; delete the ring board, the mini ring and the `sceneUi` flag
-- [ ] M10 gate: `pnpm verify` green in CI, tag `m10`
+- [x] M10.1 Port `game`, `matrix` and `regression` e2e to the scene; delete the ring board, the mini ring and the `sceneUi` flag — note: `Board.tsx` and the mini ring deleted, `GameScreen` is scene-only (desktop `SceneGameScreen`, phone `PhoneScene`), `sceneUi` flag removed with its branches and ring-only unit tests; `presentation.spec` runs the scene only
+- [x] M10 gate: `pnpm verify` green in CI, tag `m10` — note: tag needs the owner (KI-001)
 
 ## M11 — Playthrough UX pass (2026-09-29 checkpoint review)
 

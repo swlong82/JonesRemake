@@ -198,7 +198,6 @@ describe('Settings → Art packs', () => {
 
   it('imports a zip from the file input and reports refusals', async () => {
     useSettings.getState().resetData();
-    useFlags.getState().set('sceneUi', true);
     const services = createLocalServices({
       newId: () => 'id',
       platform: { open: () => undefined },

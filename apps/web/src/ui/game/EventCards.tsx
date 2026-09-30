@@ -4,7 +4,6 @@
  * translation keys.
  */
 import { useTranslation } from 'react-i18next';
-import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { WeekendPicture } from '../scene/WeekendRecap';
@@ -89,7 +88,6 @@ export function EventCards() {
   const dismissAll = useGame((s) => s.dismissAllCards);
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
-  const sceneUi = useFlags((f) => f.flags.sceneUi);
   const card = cards[0];
   if (!card) return null;
   if (cards.length > 1) return <WeekSummary onDismiss={dismissAll} />;
@@ -110,7 +108,7 @@ export function EventCards() {
         className="flex w-full max-w-sm flex-col gap-3 rounded-lg border border-line bg-surface-2 p-4"
         onClick={(e) => e.stopPropagation()}
       >
-        {sceneUi && state && pack && card.type === 'EventFired' && (
+        {state && pack && card.type === 'EventFired' && (
           <WeekendPicture card={card} state={state} pack={pack} />
         )}
         <h2 className="text-xl font-bold" data-testid="event-title">

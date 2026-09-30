@@ -157,7 +157,7 @@ export function GoalBars({
               {interactive ? (
                 <button
                   type="button"
-                  className="w-20 shrink-0 rounded text-left underline decoration-dotted underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus"
+                  className="min-h-6 w-20 shrink-0 rounded text-left underline decoration-dotted underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus"
                   aria-haspopup="dialog"
                   data-testid={`goal-btn-${goal}`}
                   onClick={() => {

@@ -1,10 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
-
-/**
- * Ring-board spec: it pins `-sceneUi` while the ring still exists (removed in M10); the scene UI,
- * on by default since the M9 gate, has its own specs (`scene`, `artpacks`, `offline`).
- */
+import { hud, weekText } from './hud';
 
 /**
  * M8.3 full regression (MILESTONES M8): a four-seat hotseat modern game to week 10 with a save and
@@ -33,7 +29,7 @@ async function advance(page: Page): Promise<void> {
 
 /** The HUD week, or 0 while the HUD is not showing (the pass screen, a card). Never waits. */
 async function weekOf(page: Page): Promise<number> {
-  const week = page.getByTestId('week');
+  const week = weekText(page);
   if (!(await week.isVisible())) return 0;
   const text = (await week.textContent()) ?? '';
   return Number(/\d+/.exec(text)?.[0] ?? 0);
@@ -51,7 +47,7 @@ test('four-seat hotseat modern game to week 10, with a save and load at week 5',
 }, info) => {
   test.skip(info.project.name !== 'desktop', 'one long game, on desktop');
   test.setTimeout(420_000);
-  await page.goto('/?ff=-tutorial,-sceneUi');
+  await page.goto('/?ff=-tutorial');
   await page.getByTestId('new-game').click();
   await page.locator('#ruleset').selectOption('modern-western');
   await page.getByTestId('add-seat').click();
@@ -64,21 +60,21 @@ test('four-seat hotseat modern game to week 10, with a save and load at week 5',
   await page.getByTestId('start-game').click();
   // A hotseat game opens on the pass-the-device screen.
   await page.getByTestId('ready').click({ timeout: 5_000 });
-  await expect(page.getByTestId('hud')).toBeVisible();
+  await expect(hud(page)).toBeVisible();
 
   await playToWeek(page, 5);
   // Save at the start of a human turn, then note what the HUD shows.
   await expect(async () => {
     await advance(page);
-    await expect(page.getByTestId('hud')).toBeVisible({ timeout: 500 });
+    await expect(hud(page)).toBeVisible({ timeout: 500 });
     await expect(page.getByTestId('ready')).toBeHidden({ timeout: 500 });
   }).toPass({ timeout: 30_000 });
-  const saved = await page.getByTestId('hud').innerText();
+  const saved = await hud(page).innerText();
   await page.keyboard.press('ControlOrMeta+s');
   await page.getByRole('button', { name: 'Save to Slot 1', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Game saved.');
   await page.getByRole('button', { name: 'Back', exact: true }).click();
-  await expect(page.getByTestId('hud')).toBeVisible();
+  await expect(hud(page)).toBeVisible();
 
   await playToWeek(page, 10);
   expect(await weekOf(page)).toBeGreaterThanOrEqual(10);
@@ -90,21 +86,21 @@ test('four-seat hotseat modern game to week 10, with a save and load at week 5',
   await page.getByRole('button', { name: 'Load Slot 1', exact: true }).click();
   // The loaded hotseat game hands the device to the seat whose turn it is.
   await page.getByTestId('ready').click({ timeout: 5_000 });
-  await expect(page.getByTestId('hud')).toBeVisible();
-  expect(await page.getByTestId('hud').innerText()).toBe(saved);
+  await expect(hud(page)).toBeVisible();
+  expect(await hud(page).innerText()).toBe(saved);
 });
 
 test('a phone game plays to a winner on autoplay', async ({ page }, info) => {
   test.skip(info.project.name !== 'phone', 'the M8 regression names the phone');
   test.setTimeout(420_000);
-  await page.goto('/?ff=-tutorial,-sceneUi,debugTools&debug=1');
+  await page.goto('/?ff=-tutorial,debugTools&debug=1');
   await page.getByTestId('new-game').click();
   await page.getByTestId('preset-quick').click();
   await page.locator('#diff-1').selectOption('easy');
   await page.locator('#aispeed').selectOption('instant');
   await page.getByTestId('seed').fill('regression-autoplay');
   await page.getByTestId('start-game').click();
-  await expect(page.getByTestId('hud')).toBeVisible();
+  await expect(hud(page)).toBeVisible();
   await page.getByTestId('debug-autoplay').click();
   await expect(page.getByTestId('end-heading')).toBeVisible({ timeout: 400_000 });
   await expect(page.getByTestId('end-heading')).toContainText('wins in week');

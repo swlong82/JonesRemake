@@ -16,7 +16,6 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { artRegistryFor, baseArtRegistry, useArtSets } from '../../assets/art/artRegistry';
-import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { useSeedLink } from '../../store/seedLink';
 import { useSettings } from '../../store/settings';
@@ -113,7 +112,6 @@ export function SetupScreen() {
   }, [shared]);
   const [packId, setPackId] = useState(shared?.packId ?? PLAYABLE[0] ?? 'classic');
   const pack = useMemo(() => loadPack(packId), [packId]);
-  const sceneUi = useFlags((f) => f.flags.sceneUi);
   useArtSets((s) => s.version);
   const [seats, setSeats] = useState<SeatDraft[]>([
     defaultSeat(0, 'human-local', 'You'),
@@ -137,14 +135,12 @@ export function SetupScreen() {
 
   return (
     <section className="mx-auto max-w-3xl p-4 sm:p-6">
-      {sceneUi && (
-        <ArtImage
-          registry={baseArtRegistry()}
-          artKey="ui:setup"
-          className="mb-4 aspect-[16/5] w-full rounded-xl border border-line object-cover"
-          testId="setup-art"
-        />
-      )}
+      <ArtImage
+        registry={baseArtRegistry()}
+        artKey="ui:setup"
+        className="mb-4 aspect-[16/5] w-full rounded-xl border border-line object-cover"
+        testId="setup-art"
+      />
       <h1 className="mb-4 text-3xl font-bold">{t('setup.heading')}</h1>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
@@ -238,7 +234,7 @@ export function SetupScreen() {
                   ))}
                 </select>
               </Field>
-              {sceneUi && s.controller === 'human-local' && (
+              {s.controller === 'human-local' && (
                 <AvatarPicker
                   registry={artRegistryFor(pack)}
                   seat={i}

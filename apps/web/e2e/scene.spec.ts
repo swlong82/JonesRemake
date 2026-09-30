@@ -1,5 +1,5 @@
 /**
- * Scene UI (ART_SPEC 17.9, M9.6–M9.8) behind the `sceneUi` flag: the city block, the HUD bar,
+ * Scene UI (ART_SPEC 17.9, M9.6–M9.8): the city block, the HUD bar,
  * interiors, travel from a building, the avatar picker and the axe gate on every viewport.
  * Phones get the pannable map with a list toggle (M9.9) and the cropped room header (M9.8).
  */
@@ -11,7 +11,7 @@ function isPhone(page: Page): boolean {
 }
 
 async function startScene(page: Page): Promise<void> {
-  await page.goto('/?ff=sceneUi,-tutorial');
+  await page.goto('/?ff=-tutorial');
   await page.getByTestId('new-game').click();
   await page.getByTestId('seed').fill('e2e-scene');
   await page.getByTestId('start-game').click();
@@ -71,7 +71,7 @@ test('the scene board travels by building and passes axe', async ({ page }) => {
 });
 
 test('the avatar picker records the chosen avatar', async ({ page }) => {
-  await page.goto('/?ff=sceneUi,-tutorial');
+  await page.goto('/?ff=-tutorial');
   await page.getByTestId('new-game').click();
   await page.getByTestId('avatar-picker-0').getByText('Avatar 4').click();
   await expect(page.getByTestId('avatar-0-player-4')).toBeChecked();
@@ -87,7 +87,7 @@ test('the avatar picker records the chosen avatar', async ({ page }) => {
 
 test('title art, newspaper and weekend recap', async ({ page }) => {
   test.skip(isPhone(page), 'the desktop scene covers these; the phone shares the components');
-  await page.goto('/?ff=sceneUi,-tutorial');
+  await page.goto('/?ff=-tutorial');
   await expect(page.getByTestId('title-art')).toBeVisible();
   await expectNoA11yViolations(page);
   await page.getByTestId('new-game').click();

@@ -1,10 +1,14 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoA11yViolations } from './axe';
-
-/**
- * Ring-board spec: it pins `-sceneUi` while the ring still exists (removed in M10); the scene UI,
- * on by default since the M9 gate, has its own specs (`scene`, `artpacks`, `offline`).
- */
+import {
+  cashText,
+  clickPlace,
+  closeDetails,
+  hud,
+  openDetails,
+  standingsBtn,
+  weekText,
+} from './hud';
 
 /**
  * Board acceptance criteria (M4 gate): a classic game is playable on all three viewports, the board
@@ -19,29 +23,32 @@ function isPhone(page: Page): boolean {
 async function startGame(page: Page, query = ''): Promise<void> {
   // `-tutorial` keeps the M7.3 spotlight out of specs that are testing the board itself; the
   // tutorial has its own spec.
-  await page.goto(`/${query === '' ? '?ff=-tutorial,-sceneUi' : `${query}&ff=-tutorial,-sceneUi`}`);
+  await page.goto(`/${query === '' ? '?ff=-tutorial' : `${query}&ff=-tutorial`}`);
   await page.getByTestId('new-game').click();
   await page.getByTestId('seed').fill('e2e-board');
   await page.getByTestId('start-game').click();
-  await expect(page.getByTestId('hud')).toBeVisible();
+  await expect(hud(page)).toBeVisible();
 }
 
 async function startModernGame(page: Page): Promise<void> {
-  await page.goto('/?debug=1&ff=debugTools,-tutorial,-sceneUi');
+  await page.goto('/?debug=1&ff=debugTools,-tutorial');
   await page.getByTestId('new-game').click();
   await page.locator('#ruleset').selectOption('modern-western');
   await page.getByTestId('seed').fill('e2e-modern');
   await page.getByTestId('start-game').click();
-  await expect(page.getByTestId('hud')).toBeVisible();
+  await expect(hud(page)).toBeVisible();
 }
 
 test('plays a classic turn on the board and passes axe', async ({ page }) => {
   await startGame(page);
 
-  await expect(page.getByTestId('week')).toContainText('1');
-  await expect(page.getByTestId('cash')).toContainText('$');
-  await expect(page.getByTestId(isPhone(page) ? 'board-mini' : 'board')).toBeVisible();
-  if (isPhone(page)) await expect(page.getByTestId('phone-locations')).toBeVisible();
+  await expect(weekText(page)).toContainText('1');
+  await expect(cashText(page)).toContainText('$');
+  await expect(page.getByTestId(isPhone(page) ? 'phone-scene' : 'scene-stage')).toBeVisible();
+  if (isPhone(page)) {
+    await page.getByTestId('phone-view-list').click();
+    await expect(page.getByTestId('phone-locations')).toBeVisible();
+  }
   await expectNoA11yViolations(page);
 
   // You start inside your home (GDD 4.1.6): relax, then travel to the bank and enter it.
@@ -50,7 +57,7 @@ test('plays a classic turn on the board and passes axe', async ({ page }) => {
   await expect(page.getByTestId('action-Relax')).toBeDisabled();
 
   await page.getByTestId('exit').click();
-  await page.getByTestId(isPhone(page) ? 'phone-loc-bank' : 'square-bank').click();
+  await clickPlace(page, 'bank');
   await expect(page.getByTestId('travel-sheet')).toBeVisible();
   await expect(page.getByTestId('mode-walk')).toBeVisible();
   await page.getByTestId('travel-go').click();
@@ -63,13 +70,13 @@ test('plays a classic turn on the board and passes axe', async ({ page }) => {
   // Ending the turn with hours left asks first (UX 7.7).
   await page.getByTestId('end-turn').click();
   await page.getByTestId('end-turn-confirm').click();
-  await expect(page.getByTestId('week')).toContainText('2');
+  await expect(weekText(page)).toContainText('2');
 });
 
 test('standings, log and the keyboard map', async ({ page }) => {
   await startGame(page);
 
-  await page.getByTestId('standings-btn').click();
+  await standingsBtn(page).click();
   await expect(page.getByTestId('standings')).toBeVisible();
   await expectNoA11yViolations(page);
   await page.getByTestId('standings-close').click();
@@ -150,6 +157,7 @@ test('modern actions, costs and unavailable reasons are exposed through the inte
   page,
 }) => {
   await startModernGame(page);
+  await openDetails(page);
 
   await expect(page.getByTestId('wellbeing')).toBeVisible();
   await expect(page.getByTestId('subscription-total')).toBeVisible();
@@ -158,12 +166,11 @@ test('modern actions, costs and unavailable reasons are exposed through the inte
   await expect(
     page.getByTestId('section-delivery').getByTestId('disabled-reason').first(),
   ).toBeVisible();
+  await closeDetails(page);
 
   // Gig signup is scoped to the employment office and keeps its requirement visible when locked.
   await page.getByTestId('exit').click();
-  await page
-    .getByTestId(isPhone(page) ? 'phone-loc-employment-office' : 'square-employment-office')
-    .click();
+  await clickPlace(page, 'employment-office');
   await page.getByTestId('travel-go').click();
   await page.getByTestId('enter').click();
   await expect(page.getByTestId('section-gig')).toBeVisible();
@@ -173,7 +180,7 @@ test('modern actions, costs and unavailable reasons are exposed through the inte
   await page.getByTestId('exit').click();
 
   // Modern travel exposes the available modes and gives a human-readable reason for locked ones.
-  await page.getByTestId(isPhone(page) ? 'phone-loc-bank' : 'square-bank').click();
+  await clickPlace(page, 'bank');
   await expect(page.getByTestId('mode-transit')).toBeVisible();
   await expect(page.getByTestId('mode-ride-hail')).toBeDisabled();
 
@@ -198,11 +205,10 @@ test('modern actions, costs and unavailable reasons are exposed through the inte
 test('subscription cancellation requires the retention confirmation', async ({ page }) => {
   await startModernGame(page);
   await page.getByTestId('exit').click();
-  await page
-    .getByTestId(isPhone(page) ? 'phone-loc-electronics-store' : 'square-electronics-store')
-    .click();
+  await clickPlace(page, 'electronics-store');
   await page.getByTestId('travel-go').click();
   await page.getByTestId('enter').click();
+  await openDetails(page);
 
   await page.getByTestId('action-Subscribe:subId=home-internet').click();
   await expect(page.getByTestId('subscription-total')).toContainText('$15/week');
@@ -234,12 +240,12 @@ test('subscription cancellation requires the retention confirmation', async ({ p
  * CSS — so this reads the served markup rather than what is painted.
  */
 test('classic opacity keeps the numbers out of the served markup', async ({ page }) => {
-  await page.goto('/?ff=-tutorial,-sceneUi');
+  await page.goto('/?ff=-tutorial');
   await page.getByTestId('new-game').click();
   await page.getByTestId('seed').fill('e2e-opaque');
   await page.getByTestId('classic-opacity').check();
   await page.getByTestId('start-game').click();
-  await expect(page.getByTestId('hud')).toBeVisible();
+  await expect(hud(page)).toBeVisible();
 
   // Goal readouts are quarter steps or the met marker, never `value/target`.
   for (const goal of ['wealth', 'happiness', 'education', 'career']) {

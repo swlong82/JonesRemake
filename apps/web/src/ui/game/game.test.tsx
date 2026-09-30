@@ -8,7 +8,6 @@ import { useSettings } from '../../store/settings';
 import { buildConfig, defaultSeat } from '../screens/SetupScreen';
 import { GameScreen } from '../screens/GameScreen';
 import { AiTicker } from './AiTicker';
-import { Board, nodePosition } from './Board';
 import { DebugPanel } from './DebugPanel';
 import { DeltaToast } from './DeltaToast';
 import { EventCards } from './EventCards';
@@ -86,69 +85,11 @@ beforeEach(() => {
   useGame.getState().quit();
   globalThis.localStorage.clear();
   useSettings.getState().resetData();
-  // These specs cover the ring board, which stays behind `-sceneUi` until M10 removes it.
-  useFlags.getState().set('sceneUi', false);
 });
 
 afterEach(() => {
   vi.unstubAllGlobals();
   useFlags.getState().reset({ env: {}, search: '' });
-});
-
-describe('board', () => {
-  it('draws every ring square with a keyboard badge, and a token per player', () => {
-    start();
-    render(<Board />);
-    const pack = useGame.getState().pack!;
-    for (const loc of pack.locations) expect(screen.getByTestId(`square-${loc.id}`)).toBeDefined();
-    expect(screen.getByTestId('token-0')).toBeDefined();
-    expect(screen.getByTestId('board')).toBeDefined();
-  });
-
-  it('labels the current square as "you are here" and others with distance and hours', () => {
-    start();
-    render(<Board />);
-    const here = useGame.getState().state!.players[0]!.location;
-    expect(screen.getByTestId(`square-${here}`).getAttribute('aria-label')).toContain(
-      'you are here',
-    );
-    const label = screen.getByTestId('square-bank').getAttribute('aria-label') ?? '';
-    expect(label).toMatch(/Bank: \d+ steps, [\d.]+h walk/);
-    expect(label).toContain('Press');
-  });
-
-  it('opens the travel sheet for another location and selects the current one', () => {
-    start();
-    render(<Board />);
-    fireEvent.click(screen.getByTestId('square-bank'));
-    expect(useGame.getState().travelOpen).toBe(true);
-    expect(useGame.getState().selectedLocation).toBe('bank');
-    const here = useGame.getState().state!.players[0]!.location;
-    fireEvent.click(screen.getByTestId(`square-${here}`));
-    expect(useGame.getState().travelOpen).toBe(false);
-    expect(useGame.getState().selectedLocation).toBe(here);
-  });
-
-  it('is keyboard operable on a square', () => {
-    start();
-    render(<Board />);
-    fireEvent.keyDown(screen.getByTestId('square-bank'), { key: 'Enter' });
-    expect(useGame.getState().travelOpen).toBe(true);
-  });
-
-  it('places nodes on a circle', () => {
-    const top = nodePosition(0, 16);
-    const bottom = nodePosition(8, 16);
-    expect(Math.round(top.x)).toBe(Math.round(bottom.x));
-    expect(top.y).toBeLessThan(bottom.y);
-  });
-
-  it('honours reduced motion by dropping the token transition', () => {
-    start();
-    useSettings.getState().update({ reducedMotion: true });
-    render(<Board />);
-    expect(screen.getByTestId('token-0').getAttribute('style')).not.toContain('transition');
-  });
 });
 
 describe('hud', () => {
@@ -616,27 +557,27 @@ describe('phone layout (UX 7.2)', () => {
 });
 
 describe('game screen', () => {
-  it('renders the wide layout with board, HUD and panel', () => {
+  it('renders the wide layout with the scene, HUD bar and panel', () => {
     stubMatchMedia(false);
     start();
     render(<GameScreen />);
-    expect(screen.getByTestId('board')).toBeDefined();
-    expect(screen.getByTestId('hud')).toBeDefined();
+    expect(screen.getByTestId('scene-stage')).toBeDefined();
+    expect(screen.getByTestId('scene-hud')).toBeDefined();
     expect(screen.getByTestId('location-panel')).toBeDefined();
     expect(screen.getByTestId('live').textContent).toContain('You');
     expect(screen.queryByTestId('phone-locations')).toBeNull();
   });
 
-  it('renders the phone layout with a mini ring, location list and expand toggle', () => {
+  it('renders the phone layout with the pannable scene, list toggle and panel', () => {
     stubMatchMedia(true);
     start();
     render(<GameScreen />);
-    expect(screen.getByTestId('board-mini')).toBeDefined();
+    expect(screen.getByTestId('phone-scene')).toBeDefined();
+    expect(screen.getByTestId('phone-status')).toBeDefined();
+    fireEvent.click(screen.getByTestId('phone-view-list'));
     expect(screen.getByTestId('phone-locations')).toBeDefined();
-    fireEvent.click(screen.getByTestId('board-expand'));
-    expect(screen.getByTestId('board')).toBeDefined();
-    fireEvent.click(screen.getByTestId('board-collapse'));
-    expect(screen.getByTestId('board-mini')).toBeDefined();
+    fireEvent.click(screen.getByTestId('phone-view-scene'));
+    expect(screen.queryByTestId('phone-locations')).toBeNull();
   });
 
   it('hides the panel and ignores action keys while a rival is playing', () => {

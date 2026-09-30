@@ -1,13 +1,12 @@
 /**
- * Game screen (UX 7.2, M4.3–M4.6). Two layouts over one component tree: board + right column on
- * desktop and tablet, compact HUD + mini ring + location list + bottom sheet on phones. The
- * keyboard map (7.7) and the live region (7.8) are attached here.
+ * Game screen (UX 7.2, ART_SPEC 17.9). Two layouts over one component tree: the scene screen on
+ * desktop and tablet, the pannable phone scene with a compact HUD and a bottom sheet on phones.
+ * The keyboard map (7.7) and the live region (7.8) are attached here.
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { artRegistryFor, useArtSets } from '../../assets/art/artRegistry';
 import { useDebugBoot } from '../../debug/useDebugBoot';
-import { useFlags } from '../../flags/appFlags';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { GLYPH } from '../common/glyphs';
@@ -16,7 +15,6 @@ import { CommandPalette } from '../game/CommandPalette';
 import { HoursStrip } from '../game/HoursStrip';
 import { UndoButton } from '../game/UndoButton';
 import { DeltaToast } from '../game/DeltaToast';
-import { Board } from '../game/Board';
 import { DebugPanel } from '../game/DebugPanel';
 import { EventCards } from '../game/EventCards';
 import { ConfirmModal } from '../game/ConfirmModal';
@@ -26,7 +24,6 @@ import { Hud } from '../game/Hud';
 import { LocationPanel } from '../game/LocationPanel';
 import { LogDrawer } from '../game/LogDrawer';
 import { MenuSheet } from '../game/MenuSheet';
-import { PhoneLocationList } from '../game/PhoneLocationList';
 import { Standings } from '../game/Standings';
 import { TravelSheet } from '../game/TravelSheet';
 import { hours, turnOwner } from '../game/labels';
@@ -62,8 +59,8 @@ function LiveRegion() {
 function PhoneStatusBar() {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
-  const toggleMenu = useGame((s) => s.toggleMenu);
   const togglePalette = useGame((s) => s.togglePalette);
+  const toggleMenu = useGame((s) => s.toggleMenu);
   const player = state?.players[state.activeSeat];
   if (!state || !player) return null;
   return (
@@ -125,12 +122,9 @@ export function GameScreen() {
   const logOpen = useGame((s) => s.logOpen);
   const standingsOpen = useGame((s) => s.standingsOpen);
   const menuOpen = useGame((s) => s.menuOpen);
-  const toggleMenu = useGame((s) => s.toggleMenu);
   const phone = useIsPhone();
   const debug = useDebugBoot();
-  const [expanded, setExpanded] = useState(false);
   const [paper, setPaper] = useState(false);
-  const sceneUi = useFlags((f) => f.flags.sceneUi);
   useKeyboard();
   const active = state?.players[state.activeSeat];
   // Entering, leaving or a new turn changes what the page is about: start at the top of it (M11.6).
@@ -138,9 +132,9 @@ export function GameScreen() {
     if (phone) window.scrollTo(0, 0);
   }, [phone, active?.location, active?.inside, state?.activeSeat, state?.week]);
   if (!state) return null;
-  // The illustrated scene (ART_SPEC 17.9) replaces the ring on desktop and tablet; phones get
-  // the pannable scene with a list toggle (M9.9).
-  if (sceneUi && !phone) {
+  // The illustrated scene (ART_SPEC 17.9) on desktop and tablet; phones get the pannable scene
+  // with a list toggle (M9.9).
+  if (!phone) {
     return (
       <>
         <LiveRegion />
@@ -159,20 +153,16 @@ export function GameScreen() {
 
   const side = (
     <div className="flex flex-col gap-3">
-      <Hud compact={phone} />
-      {yourTurn &&
-        travelOpen &&
-        (phone ? (
-          <PhoneSheet>
-            <TravelSheet />
-          </PhoneSheet>
-        ) : (
+      <Hud compact />
+      {yourTurn && travelOpen && (
+        <PhoneSheet>
           <TravelSheet />
-        ))}
+        </PhoneSheet>
+      )}
       {standingsOpen && <Standings />}
       {menuOpen && <MenuSheet />}
       <AiTicker />
-      {sceneUi && yourTurn && pack && <InteriorHeader registry={artRegistryFor(pack)} />}
+      {yourTurn && pack && <InteriorHeader registry={artRegistryFor(pack)} />}
       {yourTurn && <LocationPanel />}
       {debug && <DebugPanel />}
       {logOpen && <LogDrawer />}
@@ -187,54 +177,14 @@ export function GameScreen() {
       <InfoModal />
       <ConfirmModal />
       <CommandPalette />
-      {phone ? (
-        <PhoneStatusBar />
-      ) : (
-        <div className="flex items-center gap-2">
-          <h1 className="grow text-xl font-bold">{t('app.title')}</h1>
-          <UndoButton />
-          <Button onClick={toggleMenu} data-testid="menu-btn">
-            {t('hud.menu')}
-          </Button>
-        </div>
-      )}
-      {phone && sceneUi ? (
-        <div className="flex flex-col gap-3">
-          <PhoneScene />
-          <NewspaperButton onClick={() => setPaper((p) => !p)} />
-          {paper && <Newspaper onClose={() => setPaper(false)} />}
-          <h2 className="text-sm font-semibold text-ink-muted">{t('phone.actions')}</h2>
-          {side}
-        </div>
-      ) : phone ? (
-        <div className="flex flex-col gap-3">
-          {expanded ? (
-            <div className="flex flex-col items-center gap-2">
-              <Board />
-              <Button onClick={() => setExpanded(false)} data-testid="board-collapse">
-                {t('board.collapse')}
-              </Button>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-2">
-              <Board compact />
-              <Button onClick={() => setExpanded(true)} data-testid="board-expand">
-                {t('board.expand')}
-              </Button>
-            </div>
-          )}
-          <PhoneLocationList />
-          <h2 className="text-sm font-semibold text-ink-muted">{t('phone.actions')}</h2>
-          {side}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="flex justify-center">
-            <Board />
-          </div>
-          {side}
-        </div>
-      )}
+      <PhoneStatusBar />
+      <div className="flex flex-col gap-3">
+        <PhoneScene />
+        <NewspaperButton onClick={() => setPaper((p) => !p)} />
+        {paper && <Newspaper onClose={() => setPaper(false)} />}
+        <h2 className="text-sm font-semibold text-ink-muted">{t('phone.actions')}</h2>
+        {side}
+      </div>
     </div>
   );
 }

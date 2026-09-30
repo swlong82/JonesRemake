@@ -17,7 +17,7 @@
  */
 import { create } from 'zustand';
 
-export const APP_FLAG_IDS = ['debugTools', 'tutorial', 'audio', 'sceneUi'] as const;
+export const APP_FLAG_IDS = ['debugTools', 'tutorial', 'audio'] as const;
 
 export type AppFlagId = (typeof APP_FLAG_IDS)[number];
 export type AppFlags = Record<AppFlagId, boolean>;
@@ -48,7 +48,6 @@ export const APP_FLAGS: Record<AppFlagId, AppFlagSpec> = {
   audio: { id: 'audio', default: true, milestone: 'M7.1', labelKey: 'flag.audio' },
   // M9 landed the city-block scene, interiors, avatars and art packs, so it is on by default; the
   // milestone after M9 deletes the ring board and this flag (ART_SPEC 17.9, ADR-0053).
-  sceneUi: { id: 'sceneUi', default: true, milestone: 'M10', labelKey: 'flag.sceneUi' },
 };
 
 export const DEFAULT_APP_FLAGS: AppFlags = Object.fromEntries(
