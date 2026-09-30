@@ -93,10 +93,11 @@ jobs:
 
   sim-gate:
     # BALANCE 9.7: classic sanity gates plus the modern stage-2 gates added at M6.4.
-    # 17 configs / 42 assertions, ~3 min on six workers locally; the budget is 8 min of sim.
+    # 17 configs / 42 assertions, ~3 min on six workers locally; on the 2-core hosted runner it takes
+    # ~18 min (main run 110), so the timeout leaves headroom instead of cancelling a passing gate.
     name: sim:gate
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     needs: [static]
     steps:
       - uses: actions/checkout@v7
