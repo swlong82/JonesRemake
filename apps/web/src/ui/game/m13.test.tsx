@@ -5,6 +5,7 @@ import { useSettings } from '../../store/settings';
 import { buildConfig, defaultSeat } from '../screens/SetupScreen';
 import { ConfirmModal } from './ConfirmModal';
 import { InfoModal } from './InfoModal';
+import { handleGameKey } from './useKeyboard';
 import { LogDrawer } from './LogDrawer';
 import { matchesFilter } from './logFilter';
 import { OutcomeModal } from './OutcomeModal';
@@ -182,5 +183,43 @@ describe('log filters (M13.9)', () => {
     fireEvent.click(screen.getByTestId('log-filter-work'));
     expect(screen.queryAllByRole('listitem').length).toBeLessThan(all);
     expect(screen.getByTestId('log-filter-work').getAttribute('aria-pressed')).toBe('true');
+  });
+});
+
+describe('keyboard parity (M13.10)', () => {
+  const press = (key: string): void => {
+    act(() => {
+      handleGameKey(new KeyboardEvent('keydown', { key }));
+    });
+  };
+
+  it('J, N and S open the job, home and studies cards', () => {
+    solo();
+    press('j');
+    expect(useGame.getState().info).toEqual({ kind: 'job' });
+    useGame.getState().closeInfo();
+    press('n');
+    expect(useGame.getState().info).toEqual({ kind: 'home' });
+    useGame.getState().closeInfo();
+    press('s');
+    expect(useGame.getState().info).toEqual({ kind: 'education' });
+  });
+
+  it('shortcuts wait while a pop-up is open', () => {
+    solo();
+    press('j');
+    press('n');
+    expect(useGame.getState().info).toEqual({ kind: 'job' });
+    useGame.getState().closeInfo();
+    useGame.setState({ outcomes: [{ type: 'Raised', seat: 0, wage: 9, seq: 1, week: 1 }] });
+    press('n');
+    expect(useGame.getState().info).toBeNull();
+  });
+
+  it('Escape cancels a pending confirmation', () => {
+    solo();
+    useGame.setState({ confirmPending: { cmd: { type: 'Relax' }, stateHash: 'x' } });
+    press('Escape');
+    expect(useGame.getState().confirmPending).toBeNull();
   });
 });

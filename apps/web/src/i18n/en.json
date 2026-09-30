@@ -809,5 +809,7 @@
   "log.filter.all": "All",
   "log.filter.money": "Money",
   "log.filter.work": "Work",
-  "log.filter.life": "Life"
+  "log.filter.life": "Life",
+  "help.key.info": "J / N / S",
+  "help.key.info.desc": "Job, home (nest) and studies cards"
 }
