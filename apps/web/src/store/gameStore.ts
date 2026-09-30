@@ -126,6 +126,8 @@ export interface GameStore {
   dispatch: (cmd: Command) => boolean;
   selectLocation: (id: LocationId | null) => void;
   openTravel: (id: LocationId) => void;
+  /** Travel now with the chosen mode (or the first legal one); false when it cannot (M13.1). */
+  quickTravel: (id: LocationId) => boolean;
   closeTravel: () => void;
   setTravelMode: (mode: string) => void;
   cycleTravelMode: () => void;
@@ -415,6 +417,20 @@ export const useGame = create<GameStore>((set, get) => ({
   },
   openTravel(id) {
     set({ selectedLocation: id, travelOpen: true });
+  },
+  quickTravel(id) {
+    const { state, pack, travelMode } = get();
+    if (!state || !pack || !useSettings.getState().settings.quickTravel) return false;
+    if (state.players[state.activeSeat]?.location === id) return false;
+    const rows = get()
+      .candidates()
+      .filter((r) => r.cmd.type === 'Move' && r.cmd.to === id && r.code === null);
+    const row = rows.find((r) => r.cmd.type === 'Move' && r.cmd.mode === travelMode) ?? rows[0];
+    if (!row) {
+      set({ selectedLocation: id, travelOpen: true });
+      return false;
+    }
+    return get().dispatch(row.cmd);
   },
   closeTravel() {
     set({ travelOpen: false });

@@ -629,6 +629,7 @@
   "hint.go": "Go ({{hours}}h)",
   "hint.dismiss": "Hide hints",
   "settings.hints": "Show next-step hints",
+  "settings.quickTravel": "Double-click a place to travel there at once",
   "phone.status": "{{name}} · {{week}} · {{hours}} · ${{cash}}",
   "phone.sheetClose": "Close travel",
   "error.ERR_NO_JOB.GigShift": "Sign up for a gig first (at the employment office)",
