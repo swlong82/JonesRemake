@@ -35,7 +35,7 @@ flowchart TD
 ## 4.3 Board and movement
 
 - Ring of 16 squares; location IDs and order from `board.json`. Distance = min(clockwise, counter-clockwise) steps; player picks direction automatically by shortest path.
-- Entering a location costs `enterHours` = 2.
+- Entering a location costs `enterHours` = 2 (classic). A pack may override it in `rules.json` `time.enterHours`; `modern-western` uses 0.5 (ADR-0065).
 - Travel cost per mode (modern). Classic has walk only.
 
 | Mode | Hours per step | Money | Unlock | Wellbeing | Events |
