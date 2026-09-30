@@ -19,6 +19,7 @@ import { DeltaToast } from '../game/DeltaToast';
 import { Board } from '../game/Board';
 import { DebugPanel } from '../game/DebugPanel';
 import { EventCards } from '../game/EventCards';
+import { InfoModal } from '../game/InfoModal';
 import { OutcomeModal } from '../game/OutcomeModal';
 import { Hud } from '../game/Hud';
 import { LocationPanel } from '../game/LocationPanel';
@@ -144,6 +145,7 @@ export function GameScreen() {
         <LiveRegion />
         <EventCards />
         <OutcomeModal />
+        <InfoModal />
         <CommandPalette />
         <SceneGameScreen debug={debug} />
       </>
@@ -180,6 +182,7 @@ export function GameScreen() {
       <LiveRegion />
       <EventCards />
       <OutcomeModal />
+      <InfoModal />
       <CommandPalette />
       {phone ? (
         <PhoneStatusBar />

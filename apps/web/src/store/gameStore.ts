@@ -24,6 +24,7 @@ import { loadPackStrings } from '../i18n';
 import { haptic } from './haptics';
 import { weekNeeds } from './needs';
 import { useTutorial } from '../tutorial/useTutorial';
+import type { InfoTopic } from '../ui/game/info';
 import { isOutcome } from '../ui/game/outcomes';
 import { useSettings, type AiSpeed } from './settings';
 
@@ -89,6 +90,8 @@ export interface GameStore {
   pendingCards: DomainEvent[];
   /** Result pop-ups for the human's own actions, oldest first (M13.2). */
   outcomes: DomainEvent[];
+  /** Open detail card for a goal, the job, the home or studies (M13.3–13.6). */
+  info: InfoTopic | null;
   ticker: TickerEntry[];
   /** What the last human action did to that seat (M11.10); cleared by the toast's timer. */
   delta: { id: number; seat: number; events: DomainEvent[] } | null;
@@ -148,6 +151,8 @@ export interface GameStore {
   togglePalette: (open?: boolean) => void;
   dismissCard: () => void;
   dismissOutcome: () => void;
+  openInfo: (topic: InfoTopic) => void;
+  closeInfo: () => void;
   dismissAllCards: () => void;
   clearDelta: () => void;
   /** Rewind the human's last action this turn (M12.2); false when there is nothing to undo. */
@@ -200,6 +205,7 @@ export const useGame = create<GameStore>((set, get) => ({
   undoStack: [],
   pendingCards: [],
   outcomes: [],
+  info: null,
   ticker: [],
   viewerSeat: 0,
   selectedLocation: null,
@@ -258,6 +264,7 @@ export const useGame = create<GameStore>((set, get) => ({
       cards: [],
       pendingCards: [],
       outcomes: [],
+      info: null,
       ticker: [],
       delta: null,
       undoStack: [],
@@ -316,6 +323,7 @@ export const useGame = create<GameStore>((set, get) => ({
       aiSkip: false,
       pendingCards: [],
       outcomes: [],
+      info: null,
       lastError: null,
       debug: opts.debug ?? false,
       autoplay: opts.autoplay ?? false,
@@ -520,6 +528,12 @@ export const useGame = create<GameStore>((set, get) => ({
   dismissCard() {
     set({ cards: get().cards.slice(1) });
   },
+  openInfo(topic) {
+    set({ info: topic, travelOpen: false });
+  },
+  closeInfo() {
+    set({ info: null });
+  },
   dismissOutcome() {
     set({ outcomes: get().outcomes.slice(1) });
   },
@@ -540,6 +554,7 @@ export const useGame = create<GameStore>((set, get) => ({
       log: snap.log,
       cards: snap.cards,
       outcomes: [],
+      info: null,
       undoStack: undoStack.slice(0, -1),
       delta: null,
       lastError: null,
@@ -561,6 +576,7 @@ export const useGame = create<GameStore>((set, get) => ({
       cards: get().pendingCards,
       pendingCards: [],
       outcomes: [],
+      info: null,
     });
   },
 
@@ -662,6 +678,7 @@ export const useGame = create<GameStore>((set, get) => ({
       cards: [],
       pendingCards: [],
       outcomes: [],
+      info: null,
       ticker: [],
       delta: null,
       undoStack: [],

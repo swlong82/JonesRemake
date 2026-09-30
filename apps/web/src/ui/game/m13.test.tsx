@@ -1,0 +1,101 @@
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { useGame } from '../../store/gameStore';
+import { useSettings } from '../../store/settings';
+import { buildConfig, defaultSeat } from '../screens/SetupScreen';
+import { InfoModal } from './InfoModal';
+import { OutcomeModal } from './OutcomeModal';
+import { educationInfo, goalInfo, homeInfo, jobInfo } from './info';
+
+function solo(opaque = false): void {
+  useGame
+    .getState()
+    .startGame(
+      buildConfig(
+        'classic',
+        [defaultSeat(0, 'human-local', 'You')],
+        'm13ui',
+        'classic',
+        opaque,
+        true,
+      ),
+    );
+}
+
+beforeEach(() => {
+  useGame.getState().quit();
+  globalThis.localStorage.clear();
+  useSettings.getState().resetData();
+});
+
+describe('info readers (M13.3–13.6)', () => {
+  it('reads goal, home, job and education state from public data', () => {
+    solo();
+    const { state, pack } = useGame.getState();
+    if (!state || !pack) throw new Error('no game');
+    const g = goalInfo(state, pack, 0, 'wealth');
+    expect(g?.target).toBeGreaterThan(0);
+    expect(g?.cash).toBe(state.players[0]?.cash);
+    const h = homeInfo(state, pack, 0);
+    expect(h?.rent).toBe(state.players[0]?.home.rentLocked);
+    expect(jobInfo(state, pack, 0)).toBeNull();
+    const e = educationInfo(state, pack, 0);
+    expect(e?.held).toEqual([]);
+    expect(e?.available.length).toBeGreaterThan(0);
+  });
+
+  it('quantizes progress under classic opacity', () => {
+    solo(true);
+    const { state, pack } = useGame.getState();
+    if (!state || !pack) throw new Error('no game');
+    expect(state.config.classicOpacity).toBe(true);
+    const goal = goalInfo(state, pack, 0, 'career');
+    expect((goal?.pct ?? 1) % 25).toBe(0);
+  });
+});
+
+describe('info modal (M13.3–13.6)', () => {
+  it.each(['goal', 'job', 'home', 'education'] as const)(
+    'opens the %s card and closes on Escape',
+    (kind) => {
+      solo();
+      render(<InfoModal />);
+      expect(screen.queryByTestId('info-modal')).toBeNull();
+      act(() => {
+        useGame.getState().openInfo(kind === 'goal' ? { kind, goal: 'wealth' } : { kind });
+      });
+      expect(screen.getByTestId('info-modal')).toBeTruthy();
+      fireEvent.keyDown(window, { key: 'Escape' });
+      expect(screen.queryByTestId('info-modal')).toBeNull();
+    },
+  );
+
+  it('shows the no-job message and the rent line', () => {
+    solo();
+    render(<InfoModal />);
+    act(() => {
+      useGame.getState().openInfo({ kind: 'job' });
+    });
+    expect(screen.getByTestId('info-job-none')).toBeTruthy();
+    act(() => {
+      useGame.getState().openInfo({ kind: 'home' });
+    });
+    expect(screen.getByTestId('info-home-rent')).toBeTruthy();
+  });
+});
+
+describe('outcome modal (M13.2)', () => {
+  it('shows a queued outcome and dismisses it', () => {
+    solo();
+    render(<OutcomeModal />);
+    expect(screen.queryByTestId('outcome-modal')).toBeNull();
+    act(() => {
+      useGame.setState({
+        outcomes: [{ type: 'GoalMet', seat: 0, goal: 'wealth', seq: 1, week: 1 }],
+      });
+    });
+    expect(screen.getByTestId('outcome-title').textContent).toContain('Goal reached');
+    fireEvent.click(screen.getByTestId('outcome-dismiss'));
+    expect(screen.queryByTestId('outcome-modal')).toBeNull();
+  });
+});
