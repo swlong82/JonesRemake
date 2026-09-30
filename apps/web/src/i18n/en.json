@@ -804,5 +804,10 @@
   "confirm.title": "{{action}}?",
   "confirm.change": "{{from}} → {{to}}",
   "confirm.ok": "Do it",
-  "confirm.cancel": "Cancel"
+  "confirm.cancel": "Cancel",
+  "log.filter": "Filter the log",
+  "log.filter.all": "All",
+  "log.filter.money": "Money",
+  "log.filter.work": "Work",
+  "log.filter.life": "Life"
 }

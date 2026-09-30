@@ -5,6 +5,8 @@ import { useSettings } from '../../store/settings';
 import { buildConfig, defaultSeat } from '../screens/SetupScreen';
 import { ConfirmModal } from './ConfirmModal';
 import { InfoModal } from './InfoModal';
+import { LogDrawer } from './LogDrawer';
+import { matchesFilter } from './logFilter';
 import { OutcomeModal } from './OutcomeModal';
 import { educationInfo, goalInfo, homeInfo, jobInfo, placeInfo } from './info';
 
@@ -146,5 +148,39 @@ describe('confirm modal (M13.8)', () => {
     fireEvent.click(screen.getByTestId('confirm-ok'));
     expect(screen.queryByTestId('confirm-modal')).toBeNull();
     expect(Object.keys(useGame.getState().state?.players[0]?.enrolled ?? {}).length).toBe(1);
+  });
+});
+
+describe('log filters (M13.9)', () => {
+  it('sorts events into money, work and life', () => {
+    const money = {
+      type: 'MoneyChanged',
+      seat: 0,
+      account: 'cash',
+      delta: 5,
+      reason: 'x',
+      seq: 1,
+      week: 1,
+    } as const;
+    const hired = { type: 'Hired', seat: 0, jobId: 'x', seq: 2, week: 1 } as const;
+    const rent = { type: 'RentPaid', seat: 0, months: 1, seq: 3, week: 1 } as const;
+    expect(matchesFilter(money, 'money')).toBe(true);
+    expect(matchesFilter(money, 'work')).toBe(false);
+    expect(matchesFilter(hired, 'work')).toBe(true);
+    expect(matchesFilter(rent, 'life')).toBe(true);
+    expect(matchesFilter(rent, 'all')).toBe(true);
+  });
+
+  it('the drawer hides entries the filter excludes', () => {
+    solo();
+    act(() => {
+      useGame.getState().dispatch({ type: 'Relax' });
+    });
+    render(<LogDrawer />);
+    const all = screen.getAllByRole('listitem').length;
+    expect(all).toBeGreaterThan(0);
+    fireEvent.click(screen.getByTestId('log-filter-work'));
+    expect(screen.queryAllByRole('listitem').length).toBeLessThan(all);
+    expect(screen.getByTestId('log-filter-work').getAttribute('aria-pressed')).toBe('true');
   });
 });

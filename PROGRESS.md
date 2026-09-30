@@ -171,7 +171,7 @@ Web only; ADR-0063. Each task ships with unit tests; UI flows get axe coverage.
 - [x] M13.6 Education tracker card (courses, degrees, what they unlock). — note: studies card (`educationInfo`): degrees, lessons left, what each opens.
 - [x] M13.7 Place tooltips and rich hover (offers, hours, here / recommended chips). — note: `placeInfo` + offers/tags lines in the scene hover badge.
 - [x] M13.8 Confirm + before → after preview for big actions (quit job, loan, car, drop course). — note: `confirmPending` + `ConfirmModal`; loan, car, move, enrol or spending ≥ half of cash; skipped in the tutorial.
-- [ ] M13.9 Turn recap timeline replacing the flat log, with filters.
+- [x] M13.9 Turn recap timeline replacing the flat log, with filters. — note: `logFilter.ts` categories + icons, filter chips in `LogDrawer`.
 - [ ] M13.10 Keyboard/a11y parity: modal stack + focus trap, J/H/E shortcuts, "reduce pop-ups" setting.
 
 ## Gate log
