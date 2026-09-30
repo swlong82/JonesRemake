@@ -164,3 +164,32 @@ export function educationInfo(
     unlocks,
   };
 }
+
+export interface PlaceInfo {
+  /** Service ids the place offers, shop categories folded into one `shop`. */
+  services: string[];
+  isWork: boolean;
+  isHome: boolean;
+  /** The next-step hint points here (M11.5). */
+  recommended: boolean;
+}
+
+/** What a place offers and why it might matter right now (M13.7). Public data only. */
+export function placeInfo(
+  state: GameState,
+  pack: CityPack,
+  locId: string,
+  next: string | null,
+): PlaceInfo {
+  const p = state.players[state.activeSeat];
+  const loc = pack.locationById[locId];
+  const services = [
+    ...new Set((loc?.services ?? []).map((s) => (s.startsWith('shop:') ? 'shop' : s))),
+  ];
+  return {
+    services,
+    isWork: p?.job ? pack.jobById[p.job.jobId]?.workplaceId === locId : false,
+    isHome: pack.homeLocation[p?.home.tier ?? 'low'] === locId,
+    recommended: next === locId,
+  };
+}

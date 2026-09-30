@@ -9,6 +9,9 @@ import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ArtRegistry } from '../../assets/art/artRegistry';
 import { useGame } from '../../store/gameStore';
+import { nextStep } from '../../store/nextStep';
+import { placeInfo } from '../game/info';
+import { serviceLabel } from '../game/labels';
 import { hours, locationName, ringKeyFor, stepsBetween, tripCost } from '../game/labels';
 import { ArtImage } from './ArtImage';
 import { pctX, pctY, rectStyle } from './geometry';
@@ -127,6 +130,9 @@ export function BoardScene({
         const slot = layout.slots[index];
         if (locId === null || !slot) return null;
         const isHot = hot === locId && locId !== here;
+        const place = isHot
+          ? placeInfo(state, pack, locId, nextStep(state, pack)?.place ?? null)
+          : null;
         const cost = tripCost(
           preview({ type: 'Move', to: locId, mode: 'walk' })?.hours ?? 0,
           enterHours,
@@ -155,6 +161,24 @@ export function BoardScene({
                   enter: hours(cost.enter),
                   total: hours(cost.total),
                 })}
+                {place && place.services.length > 0 && (
+                  <span className="block text-ink-muted" data-testid={`place-offers-${locId}`}>
+                    {t('board.offers', {
+                      list: place.services.map((s) => serviceLabel(s, t)).join(', '),
+                    })}
+                  </span>
+                )}
+                {place && (place.isWork || place.isHome || place.recommended) && (
+                  <span className="block font-semibold" data-testid={`place-tags-${locId}`}>
+                    {[
+                      place.recommended ? t('board.tagNext') : null,
+                      place.isWork ? t('board.tagWork') : null,
+                      place.isHome ? t('board.tagHome') : null,
+                    ]
+                      .filter((x): x is string => x !== null)
+                      .join(' · ')}
+                  </span>
+                )}
                 {(cost.partial || cost.cannotEnter) && (
                   <span className="block text-warn">
                     {t(cost.partial ? 'board.tripFar' : 'board.tripNoEnter')}

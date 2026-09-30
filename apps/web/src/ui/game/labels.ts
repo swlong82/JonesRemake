@@ -132,6 +132,12 @@ export function subscriptionName(id: string): string {
 export function mealName(id: string): string {
   return tp(`meal.${id}.name`);
 }
+/** A service id as a short player-facing word: the panel's section title, else the id itself. */
+export function serviceLabel(service: string, t: Translate): string {
+  const key = `panel.section.${service}`;
+  return i18n.exists(key) ? t(key) : service;
+}
+
 export function locationName(id: string): string {
   return tp(`location.${id}.name`);
 }

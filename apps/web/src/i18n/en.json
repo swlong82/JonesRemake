@@ -796,5 +796,9 @@
   "info.open.job": "Job",
   "info.open.home": "Home",
   "info.open.edu": "Studies",
-  "info.edu.tick": "✓ {{name}}"
+  "info.edu.tick": "✓ {{name}}",
+  "board.offers": "Offers: {{list}}",
+  "board.tagNext": "★ Suggested next",
+  "board.tagWork": "Your workplace",
+  "board.tagHome": "Your home"
 }

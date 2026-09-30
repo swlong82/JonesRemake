@@ -5,7 +5,7 @@ import { useSettings } from '../../store/settings';
 import { buildConfig, defaultSeat } from '../screens/SetupScreen';
 import { InfoModal } from './InfoModal';
 import { OutcomeModal } from './OutcomeModal';
-import { educationInfo, goalInfo, homeInfo, jobInfo } from './info';
+import { educationInfo, goalInfo, homeInfo, jobInfo, placeInfo } from './info';
 
 function solo(opaque = false): void {
   useGame
@@ -97,5 +97,22 @@ describe('outcome modal (M13.2)', () => {
     expect(screen.getByTestId('outcome-title').textContent).toContain('Goal reached');
     fireEvent.click(screen.getByTestId('outcome-dismiss'));
     expect(screen.queryByTestId('outcome-modal')).toBeNull();
+  });
+});
+
+describe('place info (M13.7)', () => {
+  it('lists services, tags the home and the suggested place', () => {
+    solo();
+    const { state, pack } = useGame.getState();
+    if (!state || !pack) throw new Error('no game');
+    const office = pack.locations.find((l) => l.services.includes('apply'));
+    if (!office) throw new Error('no employment office');
+    const info = placeInfo(state, pack, office.id, office.id);
+    expect(info.services).toContain('apply');
+    expect(info.recommended).toBe(true);
+    expect(info.isWork).toBe(false);
+    const home = placeInfo(state, pack, pack.homeLocation.low, null);
+    expect(home.isHome).toBe(true);
+    expect(home.recommended).toBe(false);
   });
 });
