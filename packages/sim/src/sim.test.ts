@@ -1,4 +1,5 @@
 /** M3.1/M3.2: runner determinism, metrics, gates, reports, bots, worker pool. */
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { loadPack } from '@hustle-ring/content';
 import {
@@ -14,6 +15,7 @@ import {
   histogram,
   metric,
   parseGatesFile,
+  shardConfigs,
   parseSeats,
   quantiles,
   registerBot,
@@ -267,6 +269,23 @@ describe('gates (9.7)', () => {
     ],
     compare: [{ id: 'ab', left: 'a.length.median', right: 'b.length.median', op: '<' }],
   });
+  it('shards every config into exactly one balanced shard', () => {
+    const real = parseGatesFile(
+      JSON.parse(
+        readFileSync(new URL('../../../sim/gates.json', import.meta.url), 'utf8'),
+      ) as unknown,
+    );
+    for (const n of [1, 3, 4]) {
+      const shards = Array.from({ length: n }, (_, i) =>
+        shardConfigs(real.configs, real.gamesPerConfig, i + 1, n).map((c) => c.id),
+      );
+      expect(shards.flat().sort()).toEqual(real.configs.map((c) => c.id).sort());
+      expect(shards.every((ids) => ids.length > 0)).toBe(true);
+    }
+    expect(shardConfigs(file.configs, 10, 1, 2).map((c) => c.id)).toEqual(['a']);
+    expect(() => shardConfigs(file.configs, 10, 3, 2)).toThrow(/invalid shard/);
+  });
+
   it('parses and builds run specs', () => {
     expect(file.configs[0]!.chaos).toBe('classic');
     const run = gateRunSpec(file.configs[1]!, file.gamesPerConfig, personalities);

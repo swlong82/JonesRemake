@@ -4,11 +4,13 @@
  *
  *   pnpm sim -- --pack classic --games 10000 --seats 2 --ai normal,normal --goals 50 --seed-base baseline --out reports/classic-50
  *   pnpm sim -- --config sim/gates.json [--games 500] [--assert] [--strict] [--out reports/gates]
+ *   pnpm sim -- --config sim/gates.json --shard 2/4 --out reports/gates   (run one shard, write summaries)
+ *   pnpm sim -- --config sim/gates.json --merge reports/gates --assert     (evaluate shards' summaries)
  *   pnpm sim:smoke  (200 games, 2 seats Normal, goals 50)
  *
  * Writes `summary.json` (deterministic), `perf.json`, `games.csv`, `report.md` per run.
  */
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { loadPack } from '@hustle-ring/content';
 import {
@@ -20,6 +22,7 @@ import {
   blockingFailures,
   parseGatesFile,
   parseSeats,
+  shardConfigs,
   reportMd,
   runAll,
   summarize,
@@ -84,15 +87,32 @@ async function main(): Promise<number> {
     const file = parseGatesFile(JSON.parse(readFileSync(resolve(configPath), 'utf8')) as unknown);
     const gamesOverride = flag('games') ? Number(flag('games')) : undefined;
     const summaries: Record<string, Summary> = {};
-    for (const cfg of file.configs) {
-      const pack = loadPack(cfg.pack);
-      const run = gateRunSpec(
-        cfg,
-        gamesOverride ?? file.gamesPerConfig,
-        pack.personalities.map((p) => p.id),
-      );
-      if (gamesOverride !== undefined) run.games = gamesOverride;
-      summaries[cfg.id] = await runOne(run, outDir ? join(outDir, cfg.id) : undefined);
+    const mergeDir = flag('merge');
+    const shard = flag('shard');
+    if (mergeDir !== undefined) {
+      // Evaluate what the shards wrote: a missing summary fails its assertions loudly.
+      for (const cfg of file.configs) {
+        const path = join(resolve(mergeDir), cfg.id, 'summary.json');
+        if (existsSync(path)) summaries[cfg.id] = JSON.parse(readFileSync(path, 'utf8')) as Summary;
+      }
+    } else {
+      const [i, n] = (shard ?? '1/1').split('/').map(Number);
+      const mine = shardConfigs(file.configs, gamesOverride ?? file.gamesPerConfig, i ?? 1, n ?? 1);
+      for (const cfg of mine) {
+        const pack = loadPack(cfg.pack);
+        const run = gateRunSpec(
+          cfg,
+          gamesOverride ?? file.gamesPerConfig,
+          pack.personalities.map((p) => p.id),
+        );
+        if (gamesOverride !== undefined) run.games = gamesOverride;
+        summaries[cfg.id] = await runOne(run, outDir ? join(outDir, cfg.id) : undefined);
+      }
+      if (shard !== undefined) {
+        // A shard only produces summaries; `--merge` judges them once every shard has finished.
+        console.log(`sim:gate shard ${shard} — ${mine.length} config(s) run`);
+        return 0;
+      }
     }
     const outcomes = evaluateGates(file, summaries);
     const blocking = blockingFailures(outcomes);
