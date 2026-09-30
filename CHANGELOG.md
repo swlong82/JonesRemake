@@ -6,6 +6,33 @@ One entry per milestone (see `docs/MILESTONES.md`).
 
 ## [Unreleased]
 
+M11–M13 — playability (web only; ADR-0061…0063). No state, golden or balance change; `sim:gate`
+unchanged.
+
+### Added
+
+- M11 Playthrough pass: an end-turn warning for unmet food or rent, total hour cost on hover and in
+  the travel sheet, Employment Office grouped by employer with requirements and named risk copy, a
+  next-step hint, a phone bottom sheet, an end-of-week summary card, floating action deltas and a
+  rival status line during AI turns.
+- M12 Modern UX pass: Quick Start, per-turn undo (`strictMode` opt-out), a command palette, coach
+  marks, goal levers, a web manifest and install button, motion polish, phone swipe and haptics, an
+  hours strip and a local result card with a seed link.
+- M13.1 Double-click or double-tap a place to travel there without the sheet (`quickTravel` setting).
+- M13.2 Outcome pop-ups for hired, raise, enrolled, loan, car, home move and goal met or lost
+  (`popups` setting: important, all, off).
+- M13.3–13.6 Goal, job, home and studies cards with go-to-place shortcuts.
+- M13.7 Hover badge lists what a place offers and tags suggested-next, workplace and home.
+- M13.8 Confirmation with cash and hours before → after for loans, cars, moving, enrolling and
+  spending half your cash.
+- M13.9 Event log filters (All, Money, Work, Life) and icons.
+- M13.10 `J`, `N`, `S` open the cards; pop-ups own the keyboard; `Esc` cancels a confirmation.
+
+### Changed
+
+- Goal bars always open a card (the inline expander from M12 moved inside it).
+- Outcome pop-ups and confirmations are off during the tutorial.
+
 M9 — scene UI and art sets (`docs/ART_SPEC.md`, ADR-0051…0060). The scene UI is the default since the
 M9 gate; `?ff=-sceneUi` shows the v1 ring board until M10 removes it.
 

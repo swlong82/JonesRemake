@@ -14,6 +14,12 @@ with a host for every location, avatars, weekend and newspaper scenes, offline p
 packs, all drawn as modern-cartoon SVG art sets (`docs/ART_SPEC.md`). The v1 ring board is still one
 query string away (`?ff=-sceneUi`) until M10 removes it.
 
+**New in M11–M13 — playability:** guidance and feedback (needs warnings, trip cost previews, a
+next-step hint, weekly summaries), a modern UX pass (Quick Start, undo, a command palette, coach
+marks, install as an app, share your result), and an information pass: double-click a place to go
+there, pop-ups for important results, and cards for your goals, job, home and studies
+(`docs/UX_SPEC.md` §7.10).
+
 | Milestone | Scope                                          | Status |
 | --------- | ---------------------------------------------- | ------ |
 | M0        | Scaffold, CI, Pages deploy, spec pack          | done   |
@@ -27,6 +33,9 @@ query string away (`?ff=-sceneUi`) until M10 removes it.
 | M8        | Release: leaderboard, docs, regression, v1.0.0 | done   |
 | M9        | Scene UI and art sets (the default UI)         | done   |
 | M10       | Retire the ring board                          | next   |
+| M11       | Playthrough UX pass                            | done   |
+| M12       | Modern UX pass                                 | done   |
+| M13       | Playability and information pass               | done   |
 
 ## Play
 
@@ -64,6 +73,17 @@ also works offline.
 | `Shift+E`                             | End the turn                         |
 | `Ctrl/⌘+S`                            | Save and load                        |
 | `L` / `G` / `H`                       | Event log / standings / help         |
+| `/` or `Ctrl/⌘+K`                     | Command palette                      |
+| `Z` or `Ctrl/⌘+Z`                     | Undo the last action this turn       |
+| `J` / `N` / `S`                       | Job / home / studies card            |
+| `Esc`                                 | Close the open pop-up or sheet       |
+
+Double-click (or double-tap) a place to travel there at once; single-click still opens the travel
+sheet with every mode and its cost. Click a goal bar, or the **Job**, **Home** and **Studies**
+buttons, for a card that explains it and offers a shortcut. Big actions (loans, cars, moving,
+enrolling, spending half your cash) ask first with a before → after preview, and important results
+get a pop-up. Settings has toggles for quick travel, pop-up density (important, all, off), hints,
+coach marks and strict mode (no undo).
 
 The game autosaves at the start of a game, at every turn's end and every ten actions; three manual
 slots and JSON export/import sit behind **Save and load**. The end screen exports a replay (seed +

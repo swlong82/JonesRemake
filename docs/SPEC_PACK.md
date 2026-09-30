@@ -743,6 +743,20 @@ Each step highlights one UI element (spotlight), blocks unrelated input, and adv
 
 Autoplay all seats with AI, set seed, jump to week, grant money, show hidden stats, export state hash. Stripped from production unless `?debug=1` and build flag `VITE_DEBUG_ALLOWED=true` (true in e2e build, false in deploy).
 
+### 7.10 Playability and information (M11–M13, ADR-0061…0063)
+
+Presentation-only rules: every item reads public `GameState`, `DomainEvent`s and the pack, never changes rules, and hides hidden stats under classic opacity (7.3). None needs an engine change.
+
+- **Guidance (M11):** an end-turn confirm when a weekly need (food, rent) is unmet; total hour cost (walk + enter) on hover, focus and in the travel sheet; the Employment Office groups jobs by employer with requirements and named risk copy; a next-step hint (`hints` setting); end-of-week summary card, floating action deltas and a rival status line during AI turns.
+- **Modern UX (M12):** Quick Start; undo of the last action this turn (button, `Z`, `Ctrl/Cmd+Z`; `strictMode` turns it off); command palette (`/`, `Ctrl/Cmd+K`); one-time coach marks (`coach` setting); goal levers; install button and manifest; hours strip; phone swipe and haptics; local result card and seed link.
+- **Quick travel (M13.1):** double-click or double-tap a place to `Move` there with the current transport mode, no sheet. `quickTravel` setting, default on. It does not enter the place; an illegal trip opens the travel sheet instead. `Enter`/`Space` on a focused place still opens the sheet.
+- **Outcome pop-ups (M13.2):** one modal per important result of the player's own action: hired, raise, enrolled, loan taken/missed/defaulted, car bought, moved home, goal met or lost. `popups` setting: `important` (default), `all` (adds purchases, subscriptions, rent, investments) or `off`. Refusals, firing and graduation stay start-of-action cards (7.5). Pop-ups queue one at a time after any cards, and are not shown during the tutorial.
+- **Info cards (M13.3–13.6):** goal bars open a goal card (progress, breakdown, weekly trend, levers); Job, Home and Studies buttons open cards for the job (workplace, wage, tenure, dress code vs outfit, requirements), the home (rent, next payment, arrears, eviction warning) and studies (degrees, lessons left, what each opens). Each offers a go-to-place shortcut. Under classic opacity progress is quantised to 25 % and experience and dependability are not rendered.
+- **Place hover (M13.7):** the hover/focus badge lists the services offered and tags the place as suggested next, your workplace or your home.
+- **Confirmations (M13.8):** `TakeLoan`, `BuyCar`, `SellCar`, `MoveHome`, `Enroll`, or any action that spends at least half of cash asks first, showing cash and hours before → after. A stale confirmation (state hash changed) never dispatches. Skipped in the tutorial.
+- **Log (M13.9):** the log filters by All, Money, Work and Life, with an icon per entry.
+- **Keyboard (M13.10):** `J`, `N`, `S` open the job, home (nest) and studies cards (`H` stays Help; `E` is a travel key). While a pop-up, card or confirmation is open the other shortcuts pause; `Esc` closes it.
+
 ## 8. docs/AUDIO_SPEC.md
 
 All audio is synthesized at runtime; no audio files shipped.
@@ -869,7 +883,7 @@ Before tuning, CC writes `reports/modern-targets.json` derived from baseline and
 
 `sim/gates.json` lists 8 configs × 500 games (Normal AI only) covering all stage-2 gates with tolerances widened by ±3 percentage points for sampling noise. Runtime budget in CI ≤ 8 minutes.
 
-## 10. docs/MILESTONES.md — M0 to M10
+## 10. docs/MILESTONES.md — M0 to M13
 
 Each milestone ends with `pnpm verify` green, CI green, `PROGRESS.md` updated, tag `m<N>`. Tasks are ordered; AC = acceptance criteria (each becomes at least one automated test unless marked *manual-free check*, which CC verifies by script output).
 
@@ -982,6 +996,24 @@ AC (e2e): start 2-seat classic game (human + AI) on all 3 viewports; human compl
 
 - [ ] M10.1 Port the ring-only e2e specs (`game`, `matrix`, `regression`) to the scene, then delete the ring board (`ui/game/Board.tsx`, the mini ring) and the `sceneUi` flag. AC: no spec pins `-sceneUi`; the location list stays the accessible equivalent.
 - [ ] M10 gate: `pnpm verify` green in CI, tag `m10`.
+
+### M11 — Playthrough UX pass (ADR-0061)
+
+- [x] M11.1–M11.10 Needs warning, trip cost preview, Employment Office grouping, honest risk copy, next-step hint, phone bottom sheet, modern text bugs, copy polish, scene layout, feedback (7.10). AC: `apps/web` unit tests per task; no state, golden or balance change.
+
+### M12 — Modern UX pass (ADR-0062)
+
+- [x] M12.1–M12.10 Quick Start, undo, command palette, coach marks, goal levers, install path, motion polish, phone gestures and haptics, hours strip, share results (7.10). AC: `m12.spec.ts` on three viewports with axe.
+
+### M13 — Playability and information pass (ADR-0063)
+
+- [x] M13.1 Quick travel on double-click or double-tap (7.10).
+- [x] M13.2 Outcome pop-ups with the `popups` setting (7.10).
+- [x] M13.3–M13.6 Goal, job, home and studies info cards (7.10).
+- [x] M13.7 Place hover services and tags.
+- [x] M13.8 Confirmation with before → after for big actions.
+- [x] M13.9 Filterable event log.
+- [x] M13.10 Card shortcuts, pop-ups own the keyboard. AC: `m13.spec.ts` on three viewports with axe; unit tests for each reader, queue and shortcut; `sim:gate` unchanged.
 
 ## 11. Templates
 

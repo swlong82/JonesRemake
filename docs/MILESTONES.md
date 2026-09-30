@@ -1,4 +1,4 @@
-# 10. docs/MILESTONES.md — M0 to M10
+# 10. docs/MILESTONES.md — M0 to M13
 
 Each milestone ends with `pnpm verify` green, CI green, `PROGRESS.md` updated, tag `m<N>`. Tasks are ordered; AC = acceptance criteria (each becomes at least one automated test unless marked *manual-free check*, which CC verifies by script output).
 
@@ -111,3 +111,21 @@ AC (e2e): start 2-seat classic game (human + AI) on all 3 viewports; human compl
 
 - [ ] M10.1 Port the ring-only e2e specs (`game`, `matrix`, `regression`) to the scene, then delete the ring board (`ui/game/Board.tsx`, the mini ring) and the `sceneUi` flag. AC: no spec pins `-sceneUi`; the location list stays the accessible equivalent.
 - [ ] M10 gate: `pnpm verify` green in CI, tag `m10`.
+
+## M11 — Playthrough UX pass (ADR-0061)
+
+- [x] M11.1–M11.10 Needs warning, trip cost preview, Employment Office grouping, honest risk copy, next-step hint, phone bottom sheet, modern text bugs, copy polish, scene layout, feedback (7.10). AC: `apps/web` unit tests per task; no state, golden or balance change.
+
+## M12 — Modern UX pass (ADR-0062)
+
+- [x] M12.1–M12.10 Quick Start, undo, command palette, coach marks, goal levers, install path, motion polish, phone gestures and haptics, hours strip, share results (7.10). AC: `m12.spec.ts` on three viewports with axe.
+
+## M13 — Playability and information pass (ADR-0063)
+
+- [x] M13.1 Quick travel on double-click or double-tap (7.10).
+- [x] M13.2 Outcome pop-ups with the `popups` setting (7.10).
+- [x] M13.3–M13.6 Goal, job, home and studies info cards (7.10).
+- [x] M13.7 Place hover services and tags.
+- [x] M13.8 Confirmation with before → after for big actions.
+- [x] M13.9 Filterable event log.
+- [x] M13.10 Card shortcuts, pop-ups own the keyboard. AC: `m13.spec.ts` on three viewports with axe; unit tests for each reader, queue and shortcut; `sim:gate` unchanged.
