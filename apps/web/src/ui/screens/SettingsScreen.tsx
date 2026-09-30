@@ -122,6 +122,15 @@ export function SettingsScreen() {
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
+            checked={settings.newsFlash}
+            onChange={(e) => update({ newsFlash: e.target.checked })}
+            data-testid="news-flash-setting"
+          />
+          {t('settings.newsFlash')}
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
             checked={settings.quickTravel}
             onChange={(e) => update({ quickTravel: e.target.checked })}
             data-testid="quick-travel-setting"

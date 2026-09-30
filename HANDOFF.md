@@ -11,6 +11,13 @@ M0–M13 are built. M10 (ADR-0064) removed the ring board and the `sceneUi` flag
 UI. What is left is owner work: tags `m9`–`m13` still need pushing (KI-001), and any new milestone
 starts from `docs/MILESTONES.md`.
 
+## M14 playtest pass (ADR-0065)
+
+Modern Western entry cost 0.5 h; `core:*` engine events have text (`event.core.*` keys, pack overrides
+allowed); news digest (`apps/web/src/news/digest.ts`, `NewsFlash`, `Newspaper`); job card
+summary + "More details"; usable panel sections first. Proposals and findings: `GRAPHICS_PLAN.md`,
+`PLAYTEST_NOTES.md`. Modern goldens were regenerated; `sim:gate` green.
+
 ## M11–M13 at a glance
 
 | Area          | Where                                                                                        |

@@ -91,13 +91,49 @@ jobs:
           path: playwright-report
           retention-days: 7
 
-  sim-gate:
-    # BALANCE 9.7: classic sanity gates plus the modern stage-2 gates added at M6.4.
-    # 17 configs / 42 assertions, ~3 min on six workers locally; the budget is 8 min of sim.
-    name: sim:gate
+  changes:
+    # The balance gate only depends on the rules, content, AI and sim code. Docs-only and web-only
+    # changes skip it (its jobs are skipped, which counts as passing for required checks).
+    name: changes
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [static]
+    timeout-minutes: 3
+    outputs:
+      sim: ${{ steps.diff.outputs.sim }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          base="${PR_BASE:-$PUSH_BEFORE}"
+          if [ "$EVENT" = workflow_dispatch ] || [ -z "$base" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            echo "sim=true" >> "$GITHUB_OUTPUT"; echo "no usable base: running the gate"; exit 0
+          fi
+          files="$(git diff --name-only "$base" HEAD)"
+          echo "$files"
+          if echo "$files" | grep -Eq '^(packages/(engine|ai|content|shared|sim)/|sim/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|tsconfig[^/]*\.json$|\.nvmrc$|\.github/workflows/ci\.yml$)'; then
+            echo "sim=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "sim=false" >> "$GITHUB_OUTPUT"; echo "nothing the balance gate depends on changed: skipping it"
+          fi
+
+  sim-shard:
+    # BALANCE 9.7: classic sanity gates plus the modern stage-2 gates added at M6.4. The 18 configs
+    # take ~18 min on the hosted runner in one job, so they run as four cost-balanced shards
+    # (`shardConfigs`) in parallel; each shard writes summaries and `sim:gate` judges them together.
+    name: sim:gate shard ${{ matrix.shard }}/4
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [static, changes]
+    if: needs.changes.outputs.sim == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -106,9 +142,50 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm sim:gate --out reports/gates
+      - run: pnpm sim:gate:shard ${{ matrix.shard }}/4
       - uses: actions/upload-artifact@v7
-        if: always()
+        with:
+          name: sim-shard-${{ matrix.shard }}
+          path: reports/gates
+          retention-days: 7
+
+  sim-gate:
+    # The required check: judges every shard's summaries together (medians across configs need them
+    # all). It passes trivially when the gate was skipped as irrelevant to the change.
+    name: sim:gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [changes, sim-shard]
+    if: always()
+    steps:
+      - name: Skipped or failed shards
+        env:
+          RELEVANT: ${{ needs.changes.outputs.sim }}
+          SHARDS: ${{ needs.sim-shard.result }}
+        run: |
+          if [ "$RELEVANT" != "true" ]; then echo "sim:gate skipped: nothing it depends on changed"; exit 0; fi
+          if [ "$SHARDS" != "success" ]; then echo "a sim:gate shard did not succeed ($SHARDS)"; exit 1; fi
+      - if: needs.changes.outputs.sim == 'true' && needs.sim-shard.result == 'success'
+        uses: actions/checkout@v7
+      - if: needs.changes.outputs.sim == 'true' && needs.sim-shard.result == 'success'
+        uses: pnpm/action-setup@v6
+      - if: needs.changes.outputs.sim == 'true' && needs.sim-shard.result == 'success'
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - if: needs.changes.outputs.sim == 'true' && needs.sim-shard.result == 'success'
+        run: pnpm install --frozen-lockfile
+      - if: needs.changes.outputs.sim == 'true' && needs.sim-shard.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          pattern: sim-shard-*
+          path: reports/gates
+          merge-multiple: true
+      - if: needs.changes.outputs.sim == 'true' && needs.sim-shard.result == 'success'
+        run: pnpm sim:gate:merge
+      - uses: actions/upload-artifact@v7
+        if: always() && needs.changes.outputs.sim == 'true'
         with:
           name: sim-reports
           path: reports

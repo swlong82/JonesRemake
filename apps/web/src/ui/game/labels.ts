@@ -114,8 +114,10 @@ function sign(n: number): string {
   return n < 0 ? '−' : '+';
 }
 
+/** Shop stock is items and clothing tiers: clothing ids have no `item.*` key, so fall back to theirs. */
 export function itemName(id: string): string {
-  return tp(`item.${id}.name`);
+  const key = `item.${id}.name`;
+  return i18n.exists(`pack:${key}`) ? tp(key) : tp(`clothing.${id}.name`);
 }
 export function degreeName(id: string): string {
   return tp(`degree.${id}.name`);
@@ -140,6 +142,31 @@ export function serviceLabel(service: string, t: Translate): string {
 
 export function locationName(id: string): string {
   return tp(`location.${id}.name`);
+}
+
+/** An engine `reason` tag ("work", "transit-pass") as words; unknown tags fall back to themselves. */
+export function reasonLabel(reason: string, t: Translate): string {
+  if (reason.startsWith('travel:'))
+    return t('reason.travel', { mode: tp(`transport.${reason.slice(7)}.name`, reason.slice(7)) });
+  return t(`reason.${reason}`, { defaultValue: reason });
+}
+
+/** Engine-authored event ids look like `core:rent-hike`; their keys use a dot (the colon splits namespaces). */
+function coreKey(id: string): string | null {
+  return id.startsWith('core:') ? `event.core.${id.slice(5)}` : null;
+}
+
+/** Numbers an engine event's text needs, read back from its effect strings. */
+function effectParams(effects: readonly string[]): Record<string, number> {
+  const out: Record<string, number> = { amount: 0, pct: 0, n: 0 };
+  for (const e of effects) {
+    const [op, a, b] = e.split(':');
+    if (op === 'money') out.amount = Math.abs(Number(b ?? 0));
+    else if (op === 'rent') out.amount = Math.abs(Number(a ?? 0));
+    else if (op === 'rentBp') out.pct = Math.round(Number(a ?? 0) / 100);
+    else if (op === 'items' || op === 'food') out.n = Math.abs(Number(a ?? 0));
+  }
+  return out;
 }
 
 /** A location's rotating quip; deterministic in the week so it does not flicker on re-render. */
@@ -294,7 +321,8 @@ function starvationOf(rules?: EventRules): { hours: string; happiness: number } 
 export function eventChips(event: DomainEvent, t: Translate, rules?: EventRules): string[] {
   switch (event.type) {
     case 'EventFired':
-      return event.effects.map((e) => effectChip(e, t));
+      // A bare `hours` tag (a delay whose length is in the text) has no number to show.
+      return event.effects.map((e) => effectChip(e, t)).filter((chip) => chip !== '');
     case 'Starved': {
       const r = starvationOf(rules);
       return [
@@ -322,7 +350,7 @@ export function eventChips(event: DomainEvent, t: Translate, rules?: EventRules)
     case 'ItemBroke':
       return [t('event.chip.broken', { item: t('hud.clothing') })];
     case 'RentDebt':
-      return [t('event.chip.debt', { n: 0 })];
+      return [t('event.chip.rentDebt')];
     case 'Fired':
       return [t('event.chip.fired')];
     case 'LotteryResolved':
@@ -332,9 +360,11 @@ export function eventChips(event: DomainEvent, t: Translate, rules?: EventRules)
   }
 }
 
-/** Effect DSL strings (`money:cash:-40`, `stat:happiness:-3`, `hours:-4`) → chips. */
+/** Effect DSL strings (`money:cash:-40`, `stat:happiness:-3`, `hours:-4`) → chips; '' = hidden. */
 export function effectChip(effect: string, t: Translate): string {
   const [op, a, b] = effect.split(':');
+  // Bookkeeping tags (a follow-up event queued, a delay whose length is in the text): no chip.
+  if (op === 'schedule' || (op === 'hours' && a === undefined)) return '';
   const n = Number(b ?? a ?? 0);
   switch (op) {
     case 'money':
@@ -351,6 +381,26 @@ export function effectChip(effect: string, t: Translate): string {
       return t('event.chip.fired');
     case 'items':
       return t('event.chip.items', { n });
+    case 'debt':
+      return t('event.chip.debt', { n: Math.abs(n) });
+    case 'severance':
+      return t('event.chip.severance', { n: Math.abs(n) });
+    case 'fired':
+      return t('event.chip.fired');
+    case 'broken':
+      return t('event.chip.broken', { item: itemName(a ?? '') });
+    case 'asset':
+      return t('event.chip.asset');
+    case 'grant':
+      return t(`event.chip.grant.${a ?? ''}`, { defaultValue: t('event.chip.grant') });
+    case 'rent':
+      return t('event.chip.rent', { n: Math.abs(n) });
+    case 'rentBp':
+      return t('event.chip.rentBp', { n: Math.round(n / 100) });
+    case 'food':
+      return t('event.chip.food', { sign: sign(n), n: Math.abs(n) });
+    case 'car':
+      return t('event.chip.car');
     default:
       return t('event.chip.other', { text: effect });
   }
@@ -371,6 +421,17 @@ export function eventCardText(
   }
   if (event.type === 'EventFired') {
     const id = event.eventId;
+    const core = coreKey(id);
+    if (core !== null) {
+      const params = effectParams(event.effects);
+      // A city pack may reskin an engine event with its own words; the web bundle has the defaults.
+      const own = (part: 'title' | 'text'): string | null =>
+        i18n.exists(`pack:${core}.${part}`) ? i18n.t(`pack:${core}.${part}`, params) : null;
+      return {
+        title: own('title') ?? t(`${core}.title`, params),
+        text: own('text') ?? t(`${core}.text`, params),
+      };
+    }
     const packTitle = tp(`event.${id}.title`, '');
     if (packTitle !== '' && packTitle !== `event.${id}.title`)
       return { title: packTitle, text: tp(`event.${id}.text.1`, '') };
@@ -419,7 +480,7 @@ export function logLine(
         account: t(event.account === 'bank' ? 'hud.bank' : 'hud.cash'),
         sign: sign(event.delta),
         n: amount(Math.abs(event.delta)),
-        reason: event.reason,
+        reason: reasonLabel(event.reason, t),
       });
     case 'StatChanged':
       return t('log.StatChanged', {
@@ -429,7 +490,11 @@ export function logLine(
         n: Math.abs(event.delta),
       });
     case 'HoursSpent':
-      return t('log.HoursSpent', { name, n: hours(event.hours), reason: event.reason });
+      return t('log.HoursSpent', {
+        name,
+        n: hours(event.hours),
+        reason: reasonLabel(event.reason, t),
+      });
     case 'Moved':
       return t('log.Moved', { name, to: locationName(event.to) });
     case 'Entered':
@@ -468,7 +533,44 @@ export function logLine(
       return t('log.EconomyTicked', { phase: t(`phase.${event.phase}`) });
     case 'Won':
       return t('log.Won', { name });
+    case 'Exited':
+      return t('log.Exited', { name, loc: locationName(event.loc) });
+    case 'GigStarted':
+      return t('log.GigStarted', { name, job: jobTitle(event.gigId) });
+    case 'GigWorked':
+      return t('log.GigWorked', { name, hours: hours(event.hours), pay: amount(event.pay) });
+    case 'ItemsStolen':
+      return t('log.ItemsStolen', { name, n: event.uids.length });
+    case 'Subscribed':
+    case 'Unsubscribed':
+      return t(`log.${event.type}`, { name, sub: subscriptionName(event.subId) });
+    case 'SubBilled':
+      return t('log.SubBilled', { name, total: amount(event.total) });
+    case 'LotteryResolved':
+      return t(event.prize > 0 ? 'log.LotteryWon' : 'log.LotteryLost', {
+        name,
+        prize: amount(event.prize),
+      });
+    case 'WellbeingBand':
+      return t('log.WellbeingBand', { name, band: t(`wellbeing.band.${event.band}`, event.band) });
+    case 'GoalMet':
+    case 'GoalLost':
+      return t(`log.${event.type}`, { name, goal: t(`hud.goal.${event.goal}`) });
     case 'TurnEnded':
+    case 'ItemBroke':
+    case 'ItemRepaired':
+    case 'Starved':
+    case 'Spoiled':
+    case 'RentDue':
+    case 'ExtensionDenied':
+    case 'RentDebt':
+    case 'Evicted':
+    case 'LoanTaken':
+    case 'LoanPaid':
+    case 'LoanMissed':
+    case 'LoanDefaulted':
+    case 'CarBought':
+    case 'CarSold':
     case 'Fired':
     case 'Refused':
     case 'Raised':

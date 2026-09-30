@@ -159,3 +159,34 @@ export function evaluateGates(file: GatesFile, summaries: Record<string, Summary
   }
   return out;
 }
+
+/**
+ * Split a gates file into `count` shards of similar cost so CI can run them in parallel. Cost is
+ * games × seats × goal level (longer games cost more); the split is greedy and deterministic, so a
+ * shard's configs never depend on which shard asks. Every config lands in exactly one shard. Each
+ * config seeds its own games, so a sharded run gives the same summaries as a single run.
+ */
+export function shardConfigs(
+  configs: readonly GateConfig[],
+  gamesPerConfig: number,
+  index: number,
+  count: number,
+): GateConfig[] {
+  if (
+    !Number.isInteger(count) ||
+    count < 1 ||
+    !Number.isInteger(index) ||
+    index < 1 ||
+    index > count
+  )
+    throw new Error(`invalid shard ${index}/${count}`);
+  const cost = (c: GateConfig): number => (c.games ?? gamesPerConfig) * c.seats * c.goals;
+  const bins = Array.from({ length: count }, () => ({ load: 0, ids: new Set<string>() }));
+  for (const c of [...configs].sort((a, b) => cost(b) - cost(a) || a.id.localeCompare(b.id))) {
+    const bin = bins.reduce((m, b) => (b.load < m.load ? b : m));
+    bin.load += cost(c);
+    bin.ids.add(c.id);
+  }
+  const mine = bins[index - 1]!.ids;
+  return configs.filter((c) => mine.has(c.id));
+}

@@ -19,6 +19,7 @@ import { DebugPanel } from '../game/DebugPanel';
 import { EventCards } from '../game/EventCards';
 import { ConfirmModal } from '../game/ConfirmModal';
 import { InfoModal } from '../game/InfoModal';
+import { NewsFlash } from '../game/NewsFlash';
 import { OutcomeModal } from '../game/OutcomeModal';
 import { Hud } from '../game/Hud';
 import { LocationPanel } from '../game/LocationPanel';
@@ -180,6 +181,11 @@ export function GameScreen() {
       <PhoneStatusBar />
       <div className="flex flex-col gap-3">
         <PhoneScene />
+        <NewsFlash
+          onRead={() => {
+            setPaper(true);
+          }}
+        />
         <NewspaperButton onClick={() => setPaper((p) => !p)} />
         {paper && <Newspaper onClose={() => setPaper(false)} />}
         <h2 className="text-sm font-semibold text-ink-muted">{t('phone.actions')}</h2>

@@ -174,6 +174,14 @@ Web only; ADR-0063. Each task ships with unit tests; UI flows get axe coverage.
 - [x] M13.9 Turn recap timeline replacing the flat log, with filters. — note: `logFilter.ts` categories + icons, filter chips in `LogDrawer`.
 - [x] M13.10 Keyboard/a11y parity: modal stack + focus trap, J/H/E shortcuts, "reduce pop-ups" setting. — note: J/N/S open the cards (H stays Help, E is a travel key); pop-ups own the keyboard; Escape cancels confirm; "reduce pop-ups" is the M13.2 `popups` setting.
 
+## M14 — Playtest fixes (2026-09-30, ADR-0065)
+
+- [x] M14.1 Entering a building costs 0.5 h in `modern-western` (classic keeps 2 h); modern education goal per degree 13 → 11 to keep the last-goal split inside the locked bands. — note: modern goldens regenerated, classic untouched.
+- [x] M14.2 No raw keys or generic text: clothing shop names, the `core:*` engine events (rent hike and notice, roommate, delivery lost, transit, ride, car), a log sentence for every domain event, worded `reason` tags, chips for rent/food/car effects. — note: `labels.ts`, `event.core.*` keys, pack overrides for `modern-western`.
+- [x] M14.3 Daily Hustle news: always-available paper with a state-built digest (economy, markets, work, rent, city events, rivals, watch list) plus a non-modal news flash each turn. — note: `news/digest.ts`, `NewsFlash.tsx`, Settings toggle.
+- [x] M14.4 Job card opens on title + workplace, numbers behind "More details". — note: `InfoModal` `JobBody`.
+- [x] M14.5 Graphics proposal and asset pipeline written up. — note: `GRAPHICS_PLAN.md`; playtest findings in `PLAYTEST_NOTES.md`.
+
 ## Gate log
 
 | Milestone | Date       | Commit  | verify | CI    | Notes                                                                                                    |

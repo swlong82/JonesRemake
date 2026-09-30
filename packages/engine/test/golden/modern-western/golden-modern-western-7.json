@@ -326,8 +326,8 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "park",
-        "mode": "transit"
+        "to": "low-housing",
+        "mode": "walk"
       }
     },
     {
@@ -454,8 +454,8 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "rent-office",
-        "mode": "walk"
+        "to": "clothing-boutique",
+        "mode": "transit"
       }
     },
     {
@@ -662,8 +662,8 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "low-housing",
-        "mode": "transit"
+        "to": "clothing-boutique",
+        "mode": "walk"
       }
     },
     {
@@ -885,15 +885,15 @@
       }
     },
     {
-      "seat": 1,
+      "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "discount-store",
+        "to": "low-housing",
         "mode": "walk"
       }
     },
     {
-      "seat": 1,
+      "seat": 0,
       "cmd": {
         "type": "Move",
         "to": "appliance-depot",
@@ -904,7 +904,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "pawn-shop",
+        "to": "rent-office",
         "mode": "walk"
       }
     },
@@ -981,21 +981,21 @@
       }
     },
     {
-      "seat": 0,
+      "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "rent-office",
+        "to": "discount-store",
         "mode": "walk"
       }
     },
     {
-      "seat": 0,
+      "seat": 1,
       "cmd": {
         "type": "Enter"
       }
     },
     {
-      "seat": 0,
+      "seat": 1,
       "cmd": {
         "type": "Move",
         "to": "university",
@@ -1006,7 +1006,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "clinic",
+        "to": "appliance-depot",
         "mode": "walk"
       }
     },
@@ -1118,12 +1118,12 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "low-housing",
+        "to": "discount-store",
         "mode": "walk"
       }
     },
     {
-      "seat": 1,
+      "seat": 0,
       "cmd": {
         "type": "Move",
         "to": "employment-office",
@@ -1131,7 +1131,7 @@
       }
     },
     {
-      "seat": 1,
+      "seat": 0,
       "cmd": {
         "type": "Move",
         "to": "low-housing",
@@ -1142,7 +1142,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "appliance-depot",
+        "to": "factory",
         "mode": "walk"
       }
     },
@@ -1193,6 +1193,6 @@
       }
     }
   ],
-  "finalHash": "16e76da9d54e7e",
+  "finalHash": "17be85c95ac0cf",
   "week": 5
 }

@@ -64,10 +64,15 @@ describe('weekend recap (ART_SPEC 17.9, M9.10)', () => {
 });
 
 describe('newspaper (M9.10)', () => {
-  it('opens only once this week’s paper is bought, with the hinted headline', () => {
+  it('is always on the shelf with a written front page; buying the paper adds the forecast', () => {
     useGame.getState().dispatch({ type: 'Exit' });
     render(<GameScreen />);
-    expect(screen.queryByTestId('newspaper-btn')).toBeNull();
+    fireEvent.click(screen.getByTestId('newspaper-btn'));
+    expect(screen.getByTestId('newspaper')).toBeDefined();
+    expect(screen.getByTestId('news-lead-headline').textContent).not.toBe('');
+    expect(screen.queryByTestId('news-headline')).toBeNull();
+    expect(screen.getByTestId('news-forecast-locked')).toBeDefined();
+    fireEvent.click(screen.getByTestId('newspaper-close'));
     act(() => {
       useGame.getState().debugPatch((s) => {
         s.players[0]!.newsHintWeek = s.week;
@@ -75,7 +80,6 @@ describe('newspaper (M9.10)', () => {
     });
     fireEvent.click(screen.getByTestId('newspaper-btn'));
     const phase = useGame.getState().state!.news.phaseHint;
-    expect(screen.getByTestId('newspaper')).toBeDefined();
     expect(screen.getByTestId('news-headline').textContent).toBe(
       {
         boom: 'Boom times: hiring signs everywhere',
@@ -85,6 +89,14 @@ describe('newspaper (M9.10)', () => {
     );
     fireEvent.click(screen.getByTestId('newspaper-close'));
     expect(screen.queryByTestId('newspaper')).toBeNull();
+  });
+
+  it('slides a news flash in at the start of the turn and opens the paper from it', () => {
+    render(<GameScreen />);
+    expect(screen.getByTestId('news-flash-headline').textContent).not.toBe('');
+    fireEvent.click(screen.getByTestId('news-flash-read'));
+    expect(screen.queryByTestId('news-flash')).toBeNull();
+    expect(screen.getByTestId('newspaper')).toBeDefined();
   });
 });
 

@@ -160,8 +160,8 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "pawn-shop",
-        "mode": "walk"
+        "to": "burger-joint",
+        "mode": "transit"
       }
     },
     {
@@ -628,7 +628,7 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "grocery",
+        "to": "clothing-boutique",
         "mode": "transit"
       }
     },
@@ -738,7 +738,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "bank",
+        "to": "appliance-depot",
         "mode": "transit"
       }
     },
@@ -874,8 +874,8 @@
       "seat": 0,
       "cmd": {
         "type": "Move",
-        "to": "appliance-depot",
-        "mode": "walk"
+        "to": "pawn-shop",
+        "mode": "transit"
       }
     },
     {
@@ -1000,7 +1000,7 @@
       "seat": 1,
       "cmd": {
         "type": "Move",
-        "to": "burger-joint",
+        "to": "grocery",
         "mode": "walk"
       }
     },
@@ -1195,6 +1195,6 @@
       }
     }
   ],
-  "finalHash": "1801c9ceb86bee",
+  "finalHash": "0b29324ee881fc",
   "week": 5
 }

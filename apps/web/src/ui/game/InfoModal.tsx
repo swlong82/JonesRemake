@@ -3,13 +3,13 @@
  * breakdown, a trend where there is one, and a shortcut to the place that changes it. One modal,
  * four bodies, all reading `info.ts`. Escape or a click outside closes it.
  */
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { goalLevers } from '../../store/goalLevers';
 import { useGame } from '../../store/gameStore';
 import { Button } from '../common/Button';
 import { GoalLevers } from './Hud';
-import { educationInfo, goalInfo, homeInfo, jobInfo } from './info';
+import { educationInfo, goalInfo, homeInfo, jobInfo, type JobInfo } from './info';
 import { degreeName, hours, jobTitle, locationName } from './labels';
 
 function Row({ label, value, testId }: { label: string; value: ReactNode; testId?: string }) {
@@ -63,6 +63,72 @@ function GoBtn({ place, onClose }: { place: string; onClose: () => void }) {
       })}{' '}
       · {locationName(place)}
     </Button>
+  );
+}
+
+/**
+ * The job card opens on what a layman wants first: the title and where you work. Wage, dress code
+ * and requirements sit behind "More details" (M13.4 wording, collapsed by default).
+ */
+function JobBody({ j, onClose }: { j: JobInfo; onClose: () => void }) {
+  const { t } = useTranslation();
+  const [more, setMore] = useState(false);
+  return (
+    <>
+      <div data-testid="info-job-summary">
+        <h3 className="text-lg font-semibold" data-testid="info-job-title">
+          {jobTitle(j.jobId)}
+        </h3>
+        <p className="text-sm text-ink-muted" data-testid="info-job-place">
+          {t('info.job.at', { place: locationName(j.workplaceId) })}
+        </p>
+      </div>
+      {!j.dressOk && <p className="text-sm text-warn">{t('info.job.dressWarn')}</p>}
+      <Button
+        aria-expanded={more}
+        aria-controls="info-job-details"
+        onClick={() => {
+          setMore((m) => !m);
+        }}
+        data-testid="info-job-more"
+      >
+        {t(more ? 'info.job.less' : 'info.job.more')}
+      </Button>
+      {more && (
+        <dl
+          id="info-job-details"
+          className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 text-sm"
+          data-testid="info-job-details"
+        >
+          <Row
+            label={t('info.job.wage')}
+            value={t('info.job.perHour', { n: j.wage })}
+            testId="info-job-wage"
+          />
+          <Row label={t('info.job.raises')} value={j.raises} />
+          <Row label={t('info.job.tenure')} value={t('info.job.weeks', { count: j.weeksHeld })} />
+          <Row
+            label={t('info.job.dress')}
+            value={`${t(`uniform.${j.uniform}`)} ${j.dressOk ? '✓' : `✗ ${t('info.job.dressBad')}`}`}
+          />
+          <Row
+            label={t('info.job.needs')}
+            value={[
+              t('info.job.needsExp', { n: j.reqExperience }),
+              t('info.job.needsDep', { n: j.reqDependability }),
+              ...j.reqDegrees.map(degreeName),
+            ].join(' · ')}
+          />
+          {j.experience !== null && j.dependability !== null && (
+            <Row
+              label={t('info.job.yours')}
+              value={t('info.job.yoursValue', { exp: j.experience, dep: j.dependability })}
+            />
+          )}
+        </dl>
+      )}
+      <GoBtn place={j.workplaceId} onClose={onClose} />
+    </>
   );
 }
 
@@ -135,39 +201,7 @@ export function InfoModal() {
         {t('info.job.none')}
       </p>
     ) : (
-      <>
-        <h3 className="font-semibold">{jobTitle(j.jobId)}</h3>
-        <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 text-sm">
-          <Row label={t('info.job.employer')} value={locationName(j.workplaceId)} />
-          <Row
-            label={t('info.job.wage')}
-            value={t('info.job.perHour', { n: j.wage })}
-            testId="info-job-wage"
-          />
-          <Row label={t('info.job.raises')} value={j.raises} />
-          <Row label={t('info.job.tenure')} value={t('info.job.weeks', { count: j.weeksHeld })} />
-          <Row
-            label={t('info.job.dress')}
-            value={`${t(`uniform.${j.uniform}`)} ${j.dressOk ? '✓' : `✗ ${t('info.job.dressBad')}`}`}
-          />
-          <Row
-            label={t('info.job.needs')}
-            value={[
-              t('info.job.needsExp', { n: j.reqExperience }),
-              t('info.job.needsDep', { n: j.reqDependability }),
-              ...j.reqDegrees.map(degreeName),
-            ].join(' · ')}
-          />
-          {j.experience !== null && j.dependability !== null && (
-            <Row
-              label={t('info.job.yours')}
-              value={t('info.job.yoursValue', { exp: j.experience, dep: j.dependability })}
-            />
-          )}
-        </dl>
-        {!j.dressOk && <p className="text-sm text-warn">{t('info.job.dressWarn')}</p>}
-        <GoBtn place={j.workplaceId} onClose={close} />
-      </>
+      <JobBody j={j} onClose={close} />
     );
   } else if (topic.kind === 'home') {
     const h = homeInfo(state, pack, seat);

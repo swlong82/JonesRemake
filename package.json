@@ -22,6 +22,8 @@
     "sim": "tsx packages/sim/cli.ts",
     "sim:smoke": "tsx packages/sim/cli.ts --games 200 --seats 2 --ai normal,normal --goals 50",
     "sim:gate": "tsx packages/sim/cli.ts --config sim/gates.json --assert",
+    "sim:gate:shard": "tsx packages/sim/cli.ts --config sim/gates.json --out reports/gates --shard",
+    "sim:gate:merge": "tsx packages/sim/cli.ts --config sim/gates.json --merge reports/gates --out reports/gates --assert",
     "baseline": "tsx tools/baseline-report.ts && prettier --write --log-level warn BASELINE_REPORT.md reports/baseline.json",
     "check:banned": "tsx tools/check-banned.ts",
     "art:check": "tsx tools/art-check.ts",

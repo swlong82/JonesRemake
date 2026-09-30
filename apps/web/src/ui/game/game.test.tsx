@@ -221,15 +221,16 @@ describe('location panel', () => {
     expect(useGame.getState().state?.week).toBe(2);
   });
 
-  it('groups candidate rows by section, legal first, dropping wrong-place actions', () => {
+  it('groups candidate rows by section, usable sections and legal rows first, dropping wrong-place actions', () => {
     const groups = groupRows([
       { cmd: { type: 'Work', hours: 16 }, code: 'ERR_NO_JOB' },
       { cmd: { type: 'Relax' }, code: null },
       { cmd: { type: 'Deposit', amount: 5 }, code: 'ERR_NOT_AT_LOCATION' },
       { cmd: { type: 'EndTurn' }, code: null },
     ]);
-    expect(groups.map((g) => g.section)).toEqual(['work', 'relax']);
-    expect(groups[1]?.rows).toHaveLength(1);
+    // Relax is usable, work is not: the usable section comes first.
+    expect(groups.map((g) => g.section)).toEqual(['relax', 'work']);
+    expect(groups[0]?.rows).toHaveLength(1);
   });
 
   it('repeats an action until it is no longer legal', () => {

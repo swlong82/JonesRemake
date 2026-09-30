@@ -11,6 +11,7 @@ import {
   eventCardText,
   eventChips,
   hours,
+  itemName,
   logLine,
   disabledReason,
   turnOwner,
@@ -204,7 +205,7 @@ describe('logLine', () => {
         state,
         t,
       ),
-    ).toBe('You: Cash −$40 (meal)');
+    ).toBe('You: Cash −$40 (a meal)');
     expect(
       logLine(
         {
@@ -280,8 +281,126 @@ describe('logLine', () => {
     expect(logLine({ type: 'WeekAdvanced', week: 3, seq: 10 }, state, t)).toContain('Week 3');
     expect(logLine({ type: 'Relaxed', seat: 0, seq: 11, week: 3 }, state, t)).toContain('relaxed');
     expect(logLine({ type: 'GoalMet', seat: 0, goal: 'wealth', seq: 12, week: 3 }, state, t)).toBe(
-      'GoalMet',
+      'You reached the Wealth goal',
     );
+    expect(
+      logLine(
+        { type: 'CommandRejected', seat: 0, cmdType: 'Work', code: 'ERR_NO_JOB', seq: 13, week: 3 },
+        state,
+        t,
+      ),
+    ).toBe('CommandRejected');
+  });
+
+  it('has a sentence for every event a player can see in the log', () => {
+    const seat = { seat: 0, seq: 1, week: 1 };
+    const events: DomainEvent[] = [
+      { type: 'Exited', loc: 'bank', ...seat },
+      { type: 'GigStarted', gigId: 'factory-packer', ...seat },
+      { type: 'GigWorked', hours: 6, pay: 40, ...seat },
+      { type: 'ItemBroke', uid: 'x', ...seat },
+      { type: 'ItemsStolen', uids: ['a', 'b'], ...seat },
+      { type: 'Starved', ...seat },
+      { type: 'RentDebt', ...seat },
+      { type: 'LoanTaken', ...seat },
+      { type: 'Subscribed', subId: 'streaming', ...seat },
+      { type: 'SubBilled', total: 12, ...seat },
+      { type: 'CarBought', ...seat },
+      { type: 'LotteryResolved', prize: 0, ...seat },
+      { type: 'WellbeingBand', band: 'burnout', ...seat },
+    ];
+    for (const e of events) {
+      const line = logLine(e, state, t);
+      expect(line, e.type).not.toBe(e.type);
+      expect(line, e.type).not.toContain('{{');
+    }
+  });
+});
+
+describe('engine events (core:*)', () => {
+  const fired = (eventId: string, effects: string[]): DomainEvent => ({
+    type: 'EventFired',
+    seat: 0,
+    eventId,
+    effects,
+    seq: 1,
+    week: 1,
+  });
+
+  it('never shows a raw key: every engine event has a title and text', () => {
+    for (const id of [
+      'street-theft',
+      'burglary',
+      'doctor',
+      'spoiled',
+      'rent-hike',
+      'rent-hike-notice',
+      'roommate-food',
+      'delivery-lost',
+      'car-breakdown',
+      'transit-delay',
+      'ride-no-show',
+    ]) {
+      const { title, text } = eventCardText(fired(`core:${id}`, []), t);
+      expect(title, id).not.toMatch(/\.title$|^event\./);
+      expect(text, id).not.toMatch(/\.text$|^event\./);
+      expect(text, id).not.toContain('{{');
+    }
+  });
+
+  it('fills the numbers from the event effects', () => {
+    expect(eventCardText(fired('core:rent-hike', ['rent:+48']), t).text).toContain('$48');
+    expect(eventCardText(fired('core:rent-hike-notice', ['rentBp:1200']), t).text).toContain('12%');
+    expect(eventChips(fired('core:rent-hike-notice', ['rentBp:1200']), t)).toEqual([
+      'Rent +12% at renewal',
+    ]);
+    expect(eventChips(fired('core:transit-delay', ['hours']), t)).toEqual([]);
+    expect(eventChips(fired('core:car-breakdown', ['car']), t)).toEqual(['Car broken']);
+  });
+
+  it('words every effect tag an event can carry', () => {
+    const chips = eventChips(
+      fired('job-automated', [
+        'severance:300',
+        'fired',
+        'grant:freeEnrollment:1',
+        'schedule:viral-backlash',
+        'debt:80',
+        'broken:refrigerator',
+      ]),
+      t,
+    );
+    expect(chips).toEqual([
+      'Severance +$300',
+      'Job lost',
+      'Free course',
+      'Debt +$80',
+      'Refrigerator broken',
+    ]);
+  });
+
+  it('never blames a $0 debt on a rent card', () => {
+    expect(eventChips({ type: 'RentDebt', seat: 0, seq: 1, week: 1 }, t).join(' ')).not.toContain(
+      '$0',
+    );
+  });
+
+  it('lets a city pack reskin them', () => {
+    const modern = loadPack('modern-western');
+    loadPackStrings(modern);
+    expect(eventCardText(fired('core:rent-hike-notice', ['rentBp:500']), t).title).toBe(
+      'Notice of Rent Adjustment',
+    );
+    loadPackStrings(pack);
+  });
+});
+
+describe('shop stock names', () => {
+  it('names clothing tiers, not raw keys', () => {
+    expect(commandLabel({ type: 'BuyItem', itemId: 'casual', qty: 1 }, t)).toBe(
+      'Buy Casual Outfit',
+    );
+    expect(itemName('business-discount')).not.toContain('.');
   });
 });
 
