@@ -94,3 +94,35 @@ describe('outcome pop-ups (M13.2)', () => {
     expect(useGame.getState().outcomes).toHaveLength(0);
   });
 });
+
+describe('confirm big actions (M13.8)', () => {
+  it('asks first for listed commands and cancels cleanly', () => {
+    solo();
+    const study = useGame.getState().pack?.locations.find((l) => l.services.includes('study'));
+    if (!study) throw new Error('no school');
+    expect(useGame.getState().quickTravel(study.id)).toBe(true);
+    expect(useGame.getState().dispatch({ type: 'Enter' })).toBe(true);
+    const enroll = useGame
+      .getState()
+      .candidates()
+      .find((r) => r.cmd.type === 'Enroll' && r.code === null);
+    if (!enroll) throw new Error('no enrol row');
+    expect(useGame.getState().requestConfirm(enroll.cmd)).toBe(true);
+    expect(useGame.getState().confirmPending?.cmd).toEqual(enroll.cmd);
+    useGame.getState().cancelConfirm();
+    expect(useGame.getState().confirmPending).toBeNull();
+    expect(useGame.getState().requestConfirm(enroll.cmd)).toBe(true);
+    const before = useGame.getState().hash();
+    expect(useGame.getState().confirmAction()).toBe(true);
+    expect(useGame.getState().hash()).not.toBe(before);
+  });
+
+  it('does not ask for small actions and drops a stale confirmation', () => {
+    solo();
+    expect(useGame.getState().requestConfirm({ type: 'Relax' })).toBe(false);
+    useGame.setState({ confirmPending: { cmd: { type: 'Relax' }, stateHash: 'stale' } });
+    const before = useGame.getState().hash();
+    expect(useGame.getState().confirmAction()).toBe(false);
+    expect(useGame.getState().hash()).toBe(before);
+  });
+});

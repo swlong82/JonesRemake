@@ -800,5 +800,9 @@
   "board.offers": "Offers: {{list}}",
   "board.tagNext": "★ Suggested next",
   "board.tagWork": "Your workplace",
-  "board.tagHome": "Your home"
+  "board.tagHome": "Your home",
+  "confirm.title": "{{action}}?",
+  "confirm.change": "{{from}} → {{to}}",
+  "confirm.ok": "Do it",
+  "confirm.cancel": "Cancel"
 }

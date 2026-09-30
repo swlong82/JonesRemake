@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { useGame } from '../../store/gameStore';
 import { useSettings } from '../../store/settings';
 import { buildConfig, defaultSeat } from '../screens/SetupScreen';
+import { ConfirmModal } from './ConfirmModal';
 import { InfoModal } from './InfoModal';
 import { OutcomeModal } from './OutcomeModal';
 import { educationInfo, goalInfo, homeInfo, jobInfo, placeInfo } from './info';
@@ -114,5 +115,36 @@ describe('place info (M13.7)', () => {
     const home = placeInfo(state, pack, pack.homeLocation.low, null);
     expect(home.isHome).toBe(true);
     expect(home.recommended).toBe(false);
+  });
+});
+
+describe('confirm modal (M13.8)', () => {
+  it('shows cash before → after, confirms with OK and cancels with Escape', () => {
+    solo();
+    render(<ConfirmModal />);
+    expect(screen.queryByTestId('confirm-modal')).toBeNull();
+    const study = useGame.getState().pack?.locations.find((l) => l.services.includes('study'));
+    if (!study) throw new Error('no school');
+    act(() => {
+      useGame.getState().quickTravel(study.id);
+      useGame.getState().dispatch({ type: 'Enter' });
+    });
+    const enroll = useGame
+      .getState()
+      .candidates()
+      .find((r) => r.cmd.type === 'Enroll' && r.code === null);
+    if (!enroll) throw new Error('no enrol row');
+    act(() => {
+      useGame.getState().requestConfirm(enroll.cmd);
+    });
+    expect(screen.getByTestId('confirm-diff').textContent).toContain('→');
+    fireEvent.keyDown(screen.getByTestId('confirm-modal'), { key: 'Escape' });
+    expect(screen.queryByTestId('confirm-modal')).toBeNull();
+    act(() => {
+      useGame.getState().requestConfirm(enroll.cmd);
+    });
+    fireEvent.click(screen.getByTestId('confirm-ok'));
+    expect(screen.queryByTestId('confirm-modal')).toBeNull();
+    expect(Object.keys(useGame.getState().state?.players[0]?.enrolled ?? {}).length).toBe(1);
   });
 });

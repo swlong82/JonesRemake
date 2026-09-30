@@ -62,6 +62,24 @@ export interface TickerEntry {
 
 export type UnsubscribeCommand = Extract<Command, { type: 'Unsubscribe' }>;
 
+/** A big action waiting for the player's OK (M13.8). */
+export interface ConfirmPending {
+  cmd: Command;
+  stateHash: string;
+}
+
+/** Commands that always ask first: they commit a lot of money or change how the player lives. */
+export const CONFIRM_COMMANDS: ReadonlySet<string> = new Set([
+  'TakeLoan',
+  'BuyCar',
+  'SellCar',
+  'MoveHome',
+  'Enroll',
+]);
+
+/** Spending at least this share (percent) of cash also asks first. */
+export const CONFIRM_CASH_PERCENT = 50;
+
 export interface SubscriptionCancelPending {
   cmd: UnsubscribeCommand;
   /** Engine-state snapshot that owned the offer; stale dialogs must never dispatch. */
@@ -117,6 +135,8 @@ export interface GameStore {
   endTurnPending: boolean;
   /** The deliberately inconvenient second step in the subscription cancellation flow. */
   subscriptionCancelPending: SubscriptionCancelPending | null;
+  /** Big action awaiting confirmation, with its before → after preview (M13.8). */
+  confirmPending: ConfirmPending | null;
   aiThinking: boolean;
   loading: boolean;
   aiSkip: boolean;
@@ -147,6 +167,10 @@ export interface GameStore {
   requestSubscriptionCancel: (cmd: UnsubscribeCommand) => boolean;
   confirmSubscriptionCancel: () => boolean;
   cancelSubscriptionCancel: () => void;
+  /** Ask first when the command is big; false means it needs no confirmation (M13.8). */
+  requestConfirm: (cmd: Command) => boolean;
+  confirmAction: () => boolean;
+  cancelConfirm: () => void;
   toggleHelp: () => void;
   togglePalette: (open?: boolean) => void;
   dismissCard: () => void;
@@ -218,6 +242,7 @@ export const useGame = create<GameStore>((set, get) => ({
   paletteOpen: false,
   endTurnPending: false,
   subscriptionCancelPending: null,
+  confirmPending: null,
   loading: false,
   aiThinking: false,
   aiSkip: false,
@@ -278,6 +303,7 @@ export const useGame = create<GameStore>((set, get) => ({
       helpOpen: false,
       endTurnPending: false,
       subscriptionCancelPending: null,
+      confirmPending: null,
       lastError: null,
       debug: state.debugTouched,
       autoplay: false,
@@ -318,6 +344,7 @@ export const useGame = create<GameStore>((set, get) => ({
       helpOpen: false,
       endTurnPending: false,
       subscriptionCancelPending: null,
+      confirmPending: null,
       loading: false,
       aiThinking: false,
       aiSkip: false,
@@ -379,6 +406,7 @@ export const useGame = create<GameStore>((set, get) => ({
       travelOpen: false,
       endTurnPending: false,
       subscriptionCancelPending: null,
+      confirmPending: null,
     };
     // Undo (M12.2): each human action pushes the state it started from; a turn change or a
     // setting that turns undo off starts the stack over.
@@ -519,6 +547,31 @@ export const useGame = create<GameStore>((set, get) => ({
   cancelSubscriptionCancel() {
     set({ subscriptionCancelPending: null });
   },
+  requestConfirm(cmd) {
+    const { state, pack, loading } = get();
+    if (!state || !pack || loading || useTutorial.getState().active) return false;
+    const p = get().preview(cmd);
+    const cash = state.players[state.activeSeat]?.cash ?? 0;
+    const big =
+      CONFIRM_COMMANDS.has(cmd.type) ||
+      (p !== null && p.money < 0 && cash > 0 && (-p.money * 100) / cash >= CONFIRM_CASH_PERCENT);
+    if (!big) return false;
+    const legal = legalCommands(state, state.activeSeat, pack).some(
+      (c) => JSON.stringify(c) === JSON.stringify(cmd),
+    );
+    if (!legal) return false;
+    set({ confirmPending: { cmd, stateHash: stateHash(state) } });
+    return true;
+  },
+  confirmAction() {
+    const { state, confirmPending: pending } = get();
+    set({ confirmPending: null });
+    if (!state || stateHash(state) !== pending?.stateHash) return false;
+    return get().dispatch(pending.cmd);
+  },
+  cancelConfirm() {
+    set({ confirmPending: null });
+  },
   toggleHelp() {
     set({ helpOpen: !get().helpOpen });
   },
@@ -561,6 +614,7 @@ export const useGame = create<GameStore>((set, get) => ({
       travelOpen: false,
       endTurnPending: false,
       subscriptionCancelPending: null,
+      confirmPending: null,
     });
     return true;
   },
@@ -687,6 +741,7 @@ export const useGame = create<GameStore>((set, get) => ({
       aiThinking: false,
       aiSkip: false,
       subscriptionCancelPending: null,
+      confirmPending: null,
     });
   },
   rematch() {
@@ -705,7 +760,7 @@ export const useGame = create<GameStore>((set, get) => ({
     const next = structuredClone(state);
     next.debugTouched = true;
     fn(next);
-    set({ state: next, undoStack: [], subscriptionCancelPending: null });
+    set({ state: next, undoStack: [], subscriptionCancelPending: null, confirmPending: null });
   },
 }));
 

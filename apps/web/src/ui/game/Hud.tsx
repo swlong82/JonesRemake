@@ -74,6 +74,7 @@ export function GoalLevers({ goal }: { goal: GoalId }) {
   const candidates = useGame((s) => s.candidates);
   const preview = useGame((s) => s.preview);
   const dispatch = useGame((s) => s.dispatch);
+  const requestConfirm = useGame((s) => s.requestConfirm);
   const openTravel = useGame((s) => s.openTravel);
   if (!state || !pack) return null;
   const levers = goalLevers(goal, state, pack, candidates(), preview);
@@ -98,7 +99,7 @@ export function GoalLevers({ goal }: { goal: GoalId }) {
           <Button
             data-testid={`lever-do-${cmd.type}`}
             onClick={() => {
-              dispatch(cmd);
+              if (!requestConfirm(cmd)) dispatch(cmd);
             }}
           >
             {t('levers.do')}
