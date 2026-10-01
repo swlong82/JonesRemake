@@ -74,6 +74,9 @@ const SIZES: Record<Kind, { genW: number; out: [number, number] }> = {
   host: { genW: 768, out: [400, 600] },
 };
 
+/** Rough CLIP token count (words and punctuation); the real tokenizer is checked at generation time. */
+export const roughTokens = (text: string): number => (text.match(/\w+|[^\w\s]/g) ?? []).length;
+
 export const slugOf = (key: string): string => key.replaceAll(':', '.');
 
 export function promptFor(key: string): { kind: Kind; prompt: string } | null {
@@ -81,19 +84,19 @@ export function promptFor(key: string): { kind: Kind; prompt: string } | null {
   const s = style;
   if (kind === 'building') {
     const what = subjects.building[id];
-    return what ? { kind, prompt: `${s.preamble}, ${what}, ${s.objectSuffix}` } : null;
+    return what ? { kind, prompt: `${what}, ${s.preamble}, ${s.objectSuffix}` } : null;
   }
   if (kind === 'interior') {
     const what = subjects.interior[id];
-    return what ? { kind, prompt: `${s.preamble}, interior of ${what}, ${s.sceneSuffix}` } : null;
+    return what ? { kind, prompt: `interior of ${what}, ${s.preamble}, ${s.sceneSuffix}` } : null;
   }
   if (kind === 'host') {
     const what = subjects.host.default;
-    return what ? { kind, prompt: `${s.preamble}, ${what}, ${s.personSuffix}` } : null;
+    return what ? { kind, prompt: `${what}, ${s.preamble}, ${s.personSuffix}` } : null;
   }
   const who = subjects.avatar[id];
   const how = subjects.pose[pose ?? 'idle'];
-  return who && how ? { kind, prompt: `${s.preamble}, ${who}, ${how}, ${s.personSuffix}` } : null;
+  return who && how ? { kind, prompt: `${who}, ${how}, ${s.preamble}, ${s.personSuffix}` } : null;
 }
 
 function main(): void {
@@ -127,6 +130,11 @@ function main(): void {
       process.exitCode = 1;
       continue;
     }
+    const tokens = roughTokens(p.prompt);
+    if (tokens > 70)
+      console.warn(
+        `! ${key}: prompt is about ${tokens} tokens; CLIP keeps 77. Shorten style.json or subjects.json`,
+      );
     const size = SIZES[p.kind];
     const svg = set.files.get(entry.file);
     if (svg === undefined) {

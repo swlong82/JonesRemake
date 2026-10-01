@@ -177,6 +177,13 @@ def cmd_run(args: argparse.Namespace) -> int:
         elif device == "cuda":
             torch.cuda.empty_cache()
 
+    # CLIP reads at most 77 tokens; anything after is silently ignored (here: the pose, "no text").
+    for j in {(j["slug"], j["prompt"], j["negative"]): j for j, _, _ in todo}.values():
+        for label in ("prompt", "negative"):
+            n = len(pipe.tokenizer(j[label]).input_ids)
+            if n > 77:
+                print(f"  ! {j['slug']}: {label} is {n} tokens; CLIP keeps 77. Shorten it in style.json/subjects.json")
+
     embeds: dict[tuple[str, str], tuple] = {}
     if lowmem:
         # The two text encoders are ~1.7 GB. Encode every prompt once, keep the small embeddings on
@@ -203,8 +210,13 @@ def cmd_run(args: argparse.Namespace) -> int:
         pipe.controlnet.to(device)
     else:
         pipe.to(device)
-    pipe.enable_attention_slicing()  # keeps activations small
-    pipe.enable_vae_tiling()  # keeps the final decode small
+    # Memory savers; the method names moved between diffusers versions, so use whichever exists.
+    if hasattr(pipe, "enable_attention_slicing"):
+        pipe.enable_attention_slicing()  # keeps activations small
+    if hasattr(pipe.vae, "enable_tiling"):
+        pipe.vae.enable_tiling()  # keeps the final decode small
+    elif hasattr(pipe, "enable_vae_tiling"):
+        pipe.enable_vae_tiling()
     pipe.set_progress_bar_config(disable=True)
     free()
 
