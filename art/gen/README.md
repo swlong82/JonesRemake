@@ -11,7 +11,7 @@ The existing SVG supplies the layout, camera and silhouette, so the picture stay
 
 ## What you need
 
-- Apple Silicon Mac (this guide), 16 GB RAM or more recommended, and about 15 GB of free disk for the models and candidates.
+- Apple Silicon Mac (this guide) and 15 GB or more of free disk. **Memory decides the model:** with 16 GB or more it uses SDXL (best quality, about 9.5 GB of weights); with 8 GB (for example an M1 MacBook Air) it automatically uses the lighter Stable Diffusion 1.5 family (about 3 GB) because SDXL does not fit and swaps for tens of minutes per image. Override with `--family sdxl|sd15`.
 - Homebrew, Python 3.10+, Node 22+ and pnpm. If missing: `brew install python@3.11 node pnpm`.
 - This repository checked out on the `art/realistic-pipeline` branch (or `main` once merged).
 
@@ -43,6 +43,15 @@ The bundle lands in `art/bundles/realistic/`. Send me that folder (or `python pr
 ## Judging the pilot
 
 The pilot passes if (1) the art director rates it clearly better than today's art side by side, (2) every file is within its byte budget (`promote.py check` says so), (3) the slice regenerates in style from `provenance.json` (same seeds and settings), and (4) it plays in the real scene on desktop and phone. Item 4 needs the game to load the bundle, which is the next step after this one.
+
+## Model families
+
+| Family                             | Memory    | Look                                                                                            | Notes                                                     |
+| ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `sdxl` (SDXL + Canny ControlNet)   | 16 GB+    | Better detail and realism, images up to about 800×800                                           | Default when the Mac has more than 12 GB                  |
+| `sd15` (SD 1.5 + Canny ControlNet) | 8 GB fine | Lower detail; native size is 512×512, so images are capped near that and upscaled when packaged | Default on 8 GB Macs and CPU. Check both models' licences |
+
+`--family sd15` also works on bigger Macs when you want fast drafts.
 
 ## If it is too slow
 

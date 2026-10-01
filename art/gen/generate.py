@@ -32,6 +32,9 @@ STYLE = json.loads((HERE / "style.json").read_text())
 BASE_MODEL = "stabilityai/stable-diffusion-xl-base-1.0"
 CONTROLNET = "diffusers/controlnet-canny-sdxl-1.0"
 VAE = "madebyollin/sdxl-vae-fp16-fix"
+# A lighter family for Macs with 8 GB of memory: about 3 GB of weights instead of 9.5 GB.
+SD15_BASE = "stable-diffusion-v1-5/stable-diffusion-v1-5"
+SD15_CONTROLNET = "lllyasviel/sd-controlnet-canny"
 
 
 def load_jobs(args: argparse.Namespace) -> list[dict]:
@@ -119,7 +122,7 @@ def cmd_doctor(_: argparse.Namespace) -> int:
     else:
         print("· work/jobs.json not made yet (normal before the first run: pnpm art:gen:guides --pilot)")
     print("Reminder: check the licences of the models below before shipping their output:")
-    for m in (BASE_MODEL, CONTROLNET, VAE):
+    for m in (BASE_MODEL, CONTROLNET, VAE, SD15_BASE, SD15_CONTROLNET):
         print(f"  - https://huggingface.co/{m}")
     print("doctor — " + ("OK" if ok else "FIX THE ITEMS ABOVE"))
     return 0 if ok else 1
@@ -156,24 +159,51 @@ def cmd_run(args: argparse.Namespace) -> int:
         os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
 
     import gc
+    import os
 
     import numpy as np
     import torch
     import diffusers
-    from diffusers import AutoencoderKL, ControlNetModel, StableDiffusionXLControlNetPipeline
+    from diffusers import (
+        AutoencoderKL,
+        ControlNetModel,
+        StableDiffusionControlNetPipeline,
+        StableDiffusionXLControlNetPipeline,
+    )
 
     device = pick_device(torch)
     dtype = torch.float32 if (args.dtype == "float32" or device == "cpu") else torch.float16
-    lowmem = args.lowmem if args.lowmem is not None else device == "mps"
-    max_pixels = args.max_pixels if args.max_pixels is not None else (640_000 if device == "mps" else None)
-    print(f"device {device}, dtype {str(dtype).split('.')[-1]}, low-memory mode {'on' if lowmem else 'off'}"
+    try:
+        ram_gb = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 1e9
+    except (ValueError, OSError, AttributeError):
+        ram_gb = 0.0
+    family = args.family
+    if family == "auto":
+        # SDXL + ControlNet needs ~9.5 GB of weights: only worth trying with plenty of memory.
+        family = "sd15" if (device == "mps" and 0 < ram_gb <= 12) or device == "cpu" else "sdxl"
+    xl = family == "sdxl"
+    base = args.base or (BASE_MODEL if xl else SD15_BASE)
+    cn_id = args.controlnet or (CONTROLNET if xl else SD15_CONTROLNET)
+    lowmem = (args.lowmem if args.lowmem is not None else device == "mps") and xl
+    default_px = (640_000 if xl else 262_144) if device in ("mps", "cpu") else None
+    max_pixels = args.max_pixels if args.max_pixels is not None else default_px
+    print(f"{ram_gb:.0f} GB memory, device {device}, model family {family} ({base}), "
+          f"dtype {str(dtype).split('.')[-1]}, low-memory mode {'on' if lowmem else 'off'}"
           f"{f', max {max_pixels} pixels' if max_pixels else ''}; loading models (first run downloads them)…")
-    controlnet = ControlNetModel.from_pretrained(args.controlnet, torch_dtype=dtype)
-    vae = AutoencoderKL.from_pretrained(VAE, torch_dtype=dtype)
-    kwargs = {"variant": "fp16"} if dtype == torch.float16 else {}
-    pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
-        args.base, controlnet=controlnet, vae=vae, torch_dtype=dtype, use_safetensors=True, **kwargs
-    )
+    controlnet = ControlNetModel.from_pretrained(cn_id, torch_dtype=dtype)
+    if xl:
+        vae = AutoencoderKL.from_pretrained(VAE, torch_dtype=dtype)
+        kwargs = {"variant": "fp16"} if dtype == torch.float16 else {}
+        pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
+            base, controlnet=controlnet, vae=vae, torch_dtype=dtype, use_safetensors=True, **kwargs
+        )
+    else:
+        # The safety checker is a separate 1 GB model that only blocks pictures; there is nothing
+        # unsafe to filter in building and character sprites, and 8 GB Macs cannot spare it.
+        pipe = StableDiffusionControlNetPipeline.from_pretrained(
+            base, controlnet=controlnet, torch_dtype=dtype, safety_checker=None,
+            requires_safety_checker=False, use_safetensors=True,
+        )
 
     def free() -> None:
         gc.collect()
@@ -269,9 +299,10 @@ def cmd_run(args: argparse.Namespace) -> int:
             "steps": args.steps or STYLE["steps"],
             "guidance": STYLE["guidance"],
             "controlnetScale": args.control or STYLE["controlnetScale"],
-            "baseModel": args.base,
-            "controlnet": args.controlnet,
-            "vae": VAE,
+            "family": family,
+            "baseModel": base,
+            "controlnet": cn_id,
+            "vae": VAE if xl else "bundled with the base model",
             "guideSha256": sha256(guide),
             "styleVersion": STYLE["version"],
             "device": device,
@@ -310,8 +341,10 @@ def main() -> int:
     r.add_argument("--no-slicing", action="store_true", help="skip attention slicing (faster, uses more memory)")
     r.add_argument("--no-mps-limit", action="store_true",
                    help="let the Apple GPU exceed macOS's recommended memory (may slow or stall the Mac)")
-    r.add_argument("--base", default=BASE_MODEL)
-    r.add_argument("--controlnet", default=CONTROLNET)
+    r.add_argument("--family", choices=["auto", "sdxl", "sd15"], default="auto",
+                   help="sdxl: best quality, needs 16 GB+; sd15: light, fits 8 GB Macs (auto picks by memory)")
+    r.add_argument("--base", help="override the base model id")
+    r.add_argument("--controlnet", help="override the ControlNet id")
     r.add_argument("--force", action="store_true")
     r.add_argument("--dry-run", action="store_true")
     r.set_defaults(fn=cmd_run)
