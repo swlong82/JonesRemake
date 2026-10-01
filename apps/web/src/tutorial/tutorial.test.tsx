@@ -149,6 +149,28 @@ describe('spotlight', () => {
     expect(screen.queryByTestId('tutorial-next')).toBeNull();
     expect(screen.getByTestId('tutorial-skip')).toBeTruthy();
   });
+
+  it('never strands the player: a waiting step can be skipped on its own', () => {
+    useTutorial.setState({ active: true, index: 1, lastSeq: -1 });
+    render(<Spotlight />);
+    fireEvent.click(screen.getByTestId('tutorial-skip-step'));
+    expect(useTutorial.getState().index).toBe(2);
+    expect(useTutorial.getState().active).toBe(true);
+  });
+
+  it('tells the player what to press first when the step starts indoors', async () => {
+    useGame.getState().startGame(tutorialConfig());
+    useTutorial.setState({ active: true, index: 1, lastSeq: -1 });
+    render(
+      <>
+        <button data-testid="exit" aria-label="exit" />
+        <Spotlight />
+      </>,
+    );
+    // The anchor is measured on the next animation frame, once the button is in the page.
+    expect((await screen.findByTestId('tutorial-hint')).textContent).toMatch(/Leave/);
+    expect(screen.getByTestId('tutorial-card').textContent).not.toMatch(/ring/i);
+  });
 });
 
 describe('anchorFor (UX 7.6: the input a step needs includes getting there)', () => {

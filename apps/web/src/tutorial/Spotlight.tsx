@@ -13,6 +13,8 @@ import { anchorFor, stepKeys, TUTORIAL_STEPS } from './steps';
 import { useTutorial } from './useTutorial';
 
 interface Rect {
+  /** `data-testid` of the element actually measured (a step's anchor can fall back, e.g. to Leave). */
+  id: string;
   top: number;
   left: number;
   width: number;
@@ -30,12 +32,11 @@ function measureAnchor(testid: string | null): Rect | null {
       : testid.startsWith('square-')
         ? [testid, 'exit']
         : [testid];
-  const el = ids
-    .map((id) => globalThis.document.querySelector(`[data-testid="${id}"]`))
-    .find((e) => e !== null);
-  if (!el) return null;
+  const id = ids.find((i) => globalThis.document.querySelector(`[data-testid="${i}"]`) !== null);
+  const el = id === undefined ? null : globalThis.document.querySelector(`[data-testid="${id}"]`);
+  if (!el || id === undefined) return null;
   const r = el.getBoundingClientRect();
-  return { top: r.top, left: r.left, width: r.width, height: r.height };
+  return { id, top: r.top, left: r.left, width: r.width, height: r.height };
 }
 
 /**
@@ -68,16 +69,32 @@ function useAnchorRect(testid: string | null): Rect | null {
 
 function sameRect(a: Rect | null, b: Rect | null): boolean {
   if (a === null || b === null) return a === b;
-  return a.top === b.top && a.left === b.left && a.width === b.width && a.height === b.height;
+  return (
+    a.id === b.id &&
+    a.top === b.top &&
+    a.left === b.left &&
+    a.width === b.width &&
+    a.height === b.height
+  );
 }
 
 const DIM = 'fixed bg-black/60 z-40';
+
+/** The one thing to click right now, from what the spotlight is on (null: the step's text says it). */
+function hintFor(id: string | null, outside: boolean): string | null {
+  if (id === 'exit') return 'tutorial.hint.leave';
+  if (id?.startsWith('square-')) return 'tutorial.hint.building';
+  if (id === 'travel-sheet') return 'tutorial.hint.go';
+  if (id === 'location-panel' && outside) return 'tutorial.hint.enter';
+  return null;
+}
 
 export function Spotlight() {
   const { t } = useTranslation();
   const active = useTutorial((s) => s.active);
   const index = useTutorial((s) => s.index);
   const next = useTutorial((s) => s.next);
+  const skipStep = useTutorial((s) => s.skipStep);
   const skip = useTutorial((s) => s.skip);
   const observe = useTutorial((s) => s.observe);
   const log = useGame((s) => s.log);
@@ -110,6 +127,7 @@ export function Spotlight() {
   const viewportHeight = globalThis.innerHeight;
   const cardAtTop = rect !== null && rect.top + rect.height / 2 > viewportHeight / 2;
   const manual = step.advance.kind === 'manual';
+  const hint = hintFor(rect?.id ?? null, me !== undefined && !me.inside);
   const last = index === TUTORIAL_STEPS.length - 1;
 
   return (
@@ -162,10 +180,27 @@ export function Spotlight() {
           {t(keys.title)}
         </h2>
         <p className="text-sm">{t(keys.body)}</p>
-        <div className="flex gap-2">
+        {hint !== null && (
+          <p className="text-sm font-semibold" data-testid="tutorial-hint">
+            {t(hint)}
+          </p>
+        )}
+        <div className="flex flex-wrap gap-2">
           {manual && (
             <Button variant="primary" onClick={next} data-testid="tutorial-next" autoFocus>
               {last ? t('tutorial.finish') : t('tutorial.next')}
+            </Button>
+          )}
+          {!manual && (
+            // A step that waits for the player to do something always offers a way on, so nobody
+            // is stranded when the thing to do is not obvious or not possible.
+            <Button
+              onClick={() => {
+                skipStep(log.at(-1)?.seq);
+              }}
+              data-testid="tutorial-skip-step"
+            >
+              {t('tutorial.skipStep')}
             </Button>
           )}
           <Button onClick={skip} data-testid="tutorial-skip">

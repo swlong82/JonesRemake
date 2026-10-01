@@ -16,6 +16,8 @@ export interface TutorialStore {
   start: () => void;
   /** Advance a `manual` step; an `event` step ignores it. */
   next: () => void;
+  /** Move past the current step even though its event has not happened (never strands a player). */
+  skipStep: (seenSeq?: number) => void;
   /** Leave the tutorial; UX 7.6 allows it at any time. */
   skip: () => void;
   /** Feed the store's event log; advances at most one step per call. */
@@ -39,6 +41,16 @@ export const useTutorial = create<TutorialStore>((set, get) => ({
       return;
     }
     set({ index: index + 1 });
+  },
+  skipStep(seenSeq) {
+    const { active, index } = get();
+    if (!active) return;
+    if (index + 1 >= TUTORIAL_STEPS.length) {
+      get().skip();
+      return;
+    }
+    // Events up to now are spent: they must not satisfy the step that follows.
+    set({ index: index + 1, lastSeq: Math.max(get().lastSeq, seenSeq ?? -1) });
   },
   skip() {
     set({ active: false, index: 0, lastSeq: -1 });
