@@ -44,6 +44,16 @@ The bundle lands in `art/bundles/realistic/`. Send me that folder (or `python pr
 
 The pilot passes if (1) the art director rates it clearly better than today's art side by side, (2) every file is within its byte budget (`promote.py check` says so), (3) the slice regenerates in style from `provenance.json` (same seeds and settings), and (4) it plays in the real scene on desktop and phone. Item 4 needs the game to load the bundle, which is the next step after this one.
 
+## If it is too slow
+
+The first image includes one-time warm-up and can take many minutes. If later images still take more than about 5 to 10 minutes, the Mac is probably swapping memory. Stop with Ctrl+C (finished images are kept) and use drafts:
+
+```bash
+art/gen/.venv/bin/python art/gen/generate.py run --seeds 1 --fast
+```
+
+`--fast` uses 20 steps and images of about 640×640. Judge composition and look first; remake the ones you like at full quality with `--only <slug> --force`. Also close other apps, and keep the Mac plugged in.
+
 ## If it runs out of memory
 
 `MPS backend out of memory` means the Apple GPU's memory limit (macOS allows about 9 GB of a 16 GB Mac) was reached. On Apple GPUs the generator now starts in low-memory mode: it encodes the prompts first, drops the text models, and caps images at about 640,000 pixels (so about 800×800 for a building). If it still fails, in this order:

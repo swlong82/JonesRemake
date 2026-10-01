@@ -144,6 +144,11 @@ def cmd_run(args: argparse.Namespace) -> int:
         print("nothing to do (use --force to remake)")
         return 0
 
+    if args.fast:
+        # Quicker, softer drafts for judging composition before spending time on full quality.
+        args.steps = args.steps or 20
+        args.max_pixels = args.max_pixels or 409_600
+
     if args.no_mps_limit:
         import os
 
@@ -211,7 +216,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     else:
         pipe.to(device)
     # Memory savers; the method names moved between diffusers versions, so use whichever exists.
-    if hasattr(pipe, "enable_attention_slicing"):
+    if hasattr(pipe, "enable_attention_slicing") and not args.no_slicing:
         pipe.enable_attention_slicing()  # keeps activations small
     if hasattr(pipe.vae, "enable_tiling"):
         pipe.vae.enable_tiling()  # keeps the final decode small
@@ -301,6 +306,8 @@ def main() -> int:
     r.add_argument("--lowmem", action=argparse.BooleanOptionalAction, default=None,
                    help="encode prompts first and drop the text models (default: on for Apple GPUs)")
     r.add_argument("--max-pixels", type=int, help="cap the image size (default 640000 on Apple GPUs)")
+    r.add_argument("--fast", action="store_true", help="draft quality: 20 steps and about 640x640 images")
+    r.add_argument("--no-slicing", action="store_true", help="skip attention slicing (faster, uses more memory)")
     r.add_argument("--no-mps-limit", action="store_true",
                    help="let the Apple GPU exceed macOS's recommended memory (may slow or stall the Mac)")
     r.add_argument("--base", default=BASE_MODEL)
