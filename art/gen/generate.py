@@ -105,8 +105,10 @@ def cmd_doctor(_: argparse.Namespace) -> int:
     free = shutil.disk_usage(HERE).free / 1e9
     print(f"{'✓' if free > 20 else '✗'} free disk: {free:.0f} GB (first run needs roughly 15 GB for models and candidates)")
     ok = ok and free > 20
-    print(f"{'✓' if (WORK / 'jobs.json').exists() else '✗'} work/jobs.json" + ("" if (WORK / 'jobs.json').exists() else "  (run: pnpm art:gen:guides --pilot)"))
-    ok = ok and (WORK / "jobs.json").exists()
+    if (WORK / "jobs.json").exists():
+        print("✓ work/jobs.json")
+    else:
+        print("· work/jobs.json not made yet (normal before the first run: pnpm art:gen:guides --pilot)")
     print("Reminder: check the licences of the models below before shipping their output:")
     for m in (BASE_MODEL, CONTROLNET, VAE):
         print(f"  - https://huggingface.co/{m}")
