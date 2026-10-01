@@ -24,6 +24,7 @@ New drawn art goes in the `modern` set (`extends: default`) so unfinished slots 
 ```bash
 pnpm art:check --report     # schema, sizes, sanitizer, tint keys, budgets; drawn vs wireframe per group
 pnpm art:preview            # contact sheet: reports/art-preview/<set>/index.html (open in a browser)
+pnpm art:anim-check        # does CSS animation in an art SVG play as <img>? (--browser firefox|webkit)
 pnpm art:draw               # regenerate the default set from tools/art-default
 pnpm art:placeholders       # write a wireframe for any slot still missing a file
 pnpm check:banned           # banned-terms scan
@@ -70,3 +71,4 @@ on that browser/device. Select **Default** in Settings to compare or remove the 
 No deployment or loader edit is required; this pack also imports into the current live game.
 
 Review evidence and constraints: [P0 benchmark](review/p0/README.md).
+Anyone may use AI to draft, but the person who opens the PR is accountable for the file. Record the tool and prompt in `ASSET_LOG.md`, review the output against the checklist yourself, and never commit unreviewed generator output. See `GRAPHICS_PLAN.md` section 7 for tools and MCP servers, and section 3 for animation and 3D rules.
