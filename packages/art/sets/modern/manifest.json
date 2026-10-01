@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "modern",
+  "name": "Soft-lit city \u00b7 P0 benchmark",
+  "version": "0.1.0",
+  "author": "Hustle Ring contributors with Codex",
+  "license": "MIT",
+  "extends": "default",
+  "stage": {
+    "width": 1600,
+    "height": 1000
+  },
+  "tintKeys": {
+    "primary": "#FF00FF",
+    "secondary": "#00FFFF"
+  },
+  "assets": {
+    "building:bank": {
+      "file": "building.bank.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:burger-joint": {
+      "file": "building.burger-joint.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:low-housing": {
+      "file": "building.low-housing.svg",
+      "width": 240,
+      "height": 240
+    },
+    "interior:low-housing": {
+      "file": "interior.low-housing.svg",
+      "width": 1600,
+      "height": 1000
+    }
+  }
+}
