@@ -1,0 +1,11 @@
+{
+  "version": 0,
+  "preamble": "Realistic stylised illustration of a modern city, three-quarter view from slightly above, soft natural daylight from the top left, detailed believable materials (brick, glass, painted metal, wood), gentle shadows, clean sharp focus, cohesive muted-but-warm colour palette, high detail, polished game-art quality",
+  "objectSuffix": "isolated on a plain flat light grey background, no text, no letters, no logos, no signage lettering, no people",
+  "sceneSuffix": "empty room, no text, no letters, no logos, the right 40 percent of the frame is calm and uncluttered",
+  "personSuffix": "full body, standing, facing the viewer, isolated on a plain flat light grey background, no text, no logos",
+  "negative": "text, letters, words, logo, watermark, signature, blurry, low quality, deformed, extra limbs, cropped, cartoon, flat vector, pixel art, harsh shadows, oversaturated",
+  "controlnetScale": 0.75,
+  "steps": 30,
+  "guidance": 6.5
+}

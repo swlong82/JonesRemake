@@ -1,0 +1,11 @@
+# Realistic art pipeline (Apple Silicon, NVIDIA or CPU). Install into a venv: see README.md.
+# Pin exact versions after your first successful run (pip freeze > requirements.lock) so a rerun
+# months later makes the same pictures.
+torch>=2.3
+diffusers>=0.30
+transformers>=4.40
+accelerate>=0.30
+safetensors>=0.4
+numpy>=1.26
+pillow>=10.3
+opencv-python-headless>=4.9

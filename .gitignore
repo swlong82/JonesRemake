@@ -19,3 +19,8 @@ blob-report/
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+
+# Realistic art pipeline (art/gen): models, candidates and venvs stay local
+art/gen/work/
+art/gen/.venv/
+__pycache__/

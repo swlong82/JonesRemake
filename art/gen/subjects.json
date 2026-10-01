@@ -1,0 +1,56 @@
+{
+  "building": {
+    "low-housing": "a compact co-living apartment building with shared balconies, slightly worn brick and pastel panels",
+    "rent-office": "a municipal services office, low civic building with a glass front and a flagpole",
+    "pawn-shop": "a small resale kiosk shop with a striped awning and crowded window displays",
+    "discount-store": "a large discount marketplace store with a wide flat roof and big glazed entrance",
+    "burger-joint": "a casual burger restaurant with a bold awning, outdoor seating and warm lighting",
+    "clothing-boutique": "a small fashion boutique with large display windows, mannequins and a soft awning",
+    "electronics-store": "a modern electronics shop with a glass facade and a rooftop antenna",
+    "university": "a university building with a columned entrance, small dome and a flag",
+    "employment-office": "a plain mid-rise employment services office with rows of windows",
+    "factory": "a brick fulfilment warehouse and factory with a tall chimney and loading bay",
+    "bank": "a classical stone bank building with columns and wide steps",
+    "grocery": "a neighbourhood grocery store with a green awning, crates of fresh produce at the entrance",
+    "secure-apartments": "a tall glass residential tower with a secure lobby and a gatehouse",
+    "appliance-depot": "an appliance and electronics depot with a wide shopfront and a striped canopy",
+    "clinic": "a community health clinic, clean white building with a blue entrance canopy",
+    "park": "a small city park with a pond, mature trees and a pergola"
+  },
+  "interior": {
+    "low-housing": "a small shared apartment living area with a sofa, window and a television",
+    "rent-office": "a municipal services counter with ticket machine, queue rail and plain seating",
+    "pawn-shop": "a resale shop interior with glass display counters and shelves of used goods",
+    "discount-store": "a large discount store interior with aisles and stacked shelves",
+    "burger-joint": "a burger restaurant interior with a service counter, menu boards without text and booths",
+    "clothing-boutique": "a boutique interior with clothing racks, a fitting room curtain and soft lighting",
+    "electronics-store": "an electronics store interior with display tables of devices and wall screens",
+    "university": "a lecture hall with tiered seating and a lectern",
+    "employment-office": "an employment office with desks, partitions and a waiting area",
+    "factory": "a warehouse floor with conveyor belts, pallets and shelving",
+    "bank": "a bank interior with teller windows, marble floor and a vault door",
+    "grocery": "a grocery store interior with fresh produce, shelves and a checkout",
+    "secure-apartments": "a modern secure apartment lobby with a concierge desk and elevator",
+    "appliance-depot": "an appliance showroom with rows of fridges, washers and ovens",
+    "clinic": "a clinic reception and waiting room with chairs and a desk",
+    "park": "a leafy park clearing with a bench, path and fountain"
+  },
+  "host": {
+    "default": "a friendly adult shop worker in a simple work uniform, welcoming posture"
+  },
+  "avatar": {
+    "player-1": "a friendly young adult in casual clothes with short dark curly hair, blue jacket",
+    "player-2": "a friendly young adult woman with long dark hair, green top and jeans",
+    "player-3": "a friendly adult man with a beard, orange hoodie and dark trousers",
+    "player-4": "a friendly young adult with a ponytail, purple jacket and light jeans",
+    "player-5": "a friendly adult with a cap, yellow shirt and grey trousers",
+    "player-6": "a friendly adult with a hard hat and high-visibility vest"
+  },
+  "pose": {
+    "idle": "standing relaxed, facing the viewer",
+    "walk1": "walking, left foot forward, mid-stride",
+    "walk2": "walking, right foot forward, mid-stride",
+    "cheer": "cheering with both arms raised",
+    "slump": "slumping, shoulders down, looking tired"
+  }
+}
