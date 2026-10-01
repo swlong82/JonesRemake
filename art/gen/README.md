@@ -44,6 +44,17 @@ The bundle lands in `art/bundles/realistic/`. Send me that folder (or `python pr
 
 The pilot passes if (1) the art director rates it clearly better than today's art side by side, (2) every file is within its byte budget (`promote.py check` says so), (3) the slice regenerates in style from `provenance.json` (same seeds and settings), and (4) it plays in the real scene on desktop and phone. Item 4 needs the game to load the bundle, which is the next step after this one.
 
+## If it runs out of memory
+
+`MPS backend out of memory` means the Apple GPU's memory limit (macOS allows about 9 GB of a 16 GB Mac) was reached. On Apple GPUs the generator now starts in low-memory mode: it encodes the prompts first, drops the text models, and caps images at about 640,000 pixels (so about 800×800 for a building). If it still fails, in this order:
+
+1. Close other apps (browsers, Docker, the Simulator) and rerun; finished images are kept, so it resumes.
+2. `generate.py run --max-pixels 400000` for smaller images.
+3. `generate.py run --controlnet <a smaller canny SDXL ControlNet>`: the "small" variants on Hugging Face use far less memory (check the licence and that the name exists before relying on it).
+4. As a last resort `--no-mps-limit`: lets the GPU go past macOS's recommended share, which can slow or freeze the Mac.
+
+Images are made smaller than the final size and scaled up when packaged. Interiors (1280×800 final) will look a little soft; a separate upscaling step can fix that later.
+
 ## Tuning
 
 | Want                               | Do                                                                                                             |

@@ -55,6 +55,8 @@ def edge_map(guide: Path, size: tuple[int, int]):
     from PIL import Image
 
     img = Image.open(guide).convert("RGBA")
+    if img.size != size:
+        img = img.resize(size, Image.LANCZOS)
     flat = Image.new("RGBA", img.size, (255, 255, 255, 255))
     flat.alpha_composite(img)
     gray = np.array(flat.convert("L"))
@@ -68,8 +70,15 @@ def edge_map(guide: Path, size: tuple[int, int]):
 
         e = flat.convert("L").filter(ImageFilter.FIND_EDGES).point(lambda v: 255 if v > 24 else 0)
         edges = np.array(e.filter(ImageFilter.MaxFilter(3)))
-    out = Image.fromarray(edges).convert("RGB")
-    return out if out.size == size else out.resize(size, Image.NEAREST)
+    return Image.fromarray(edges).convert("RGB")
+
+
+def fit_size(width: int, height: int, max_pixels: int | None) -> tuple[int, int]:
+    """Scale (width, height) down to at most max_pixels, keeping the aspect, in multiples of 8."""
+    if not max_pixels or width * height <= max_pixels:
+        return width, height
+    k = (max_pixels / (width * height)) ** 0.5
+    return max(64, int(width * k) // 8 * 8), max(64, int(height * k) // 8 * 8)
 
 
 def sha256(path: Path) -> str:
@@ -135,6 +144,14 @@ def cmd_run(args: argparse.Namespace) -> int:
         print("nothing to do (use --force to remake)")
         return 0
 
+    if args.no_mps_limit:
+        import os
+
+        # Lets the GPU use more than macOS's recommended share (may swap and slow the whole Mac).
+        os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
+
+    import gc
+
     import numpy as np
     import torch
     import diffusers
@@ -142,27 +159,75 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     device = pick_device(torch)
     dtype = torch.float32 if (args.dtype == "float32" or device == "cpu") else torch.float16
-    print(f"device {device}, dtype {str(dtype).split('.')[-1]}; loading models (first run downloads them)…")
+    lowmem = args.lowmem if args.lowmem is not None else device == "mps"
+    max_pixels = args.max_pixels if args.max_pixels is not None else (640_000 if device == "mps" else None)
+    print(f"device {device}, dtype {str(dtype).split('.')[-1]}, low-memory mode {'on' if lowmem else 'off'}"
+          f"{f', max {max_pixels} pixels' if max_pixels else ''}; loading models (first run downloads them)…")
     controlnet = ControlNetModel.from_pretrained(args.controlnet, torch_dtype=dtype)
     vae = AutoencoderKL.from_pretrained(VAE, torch_dtype=dtype)
     kwargs = {"variant": "fp16"} if dtype == torch.float16 else {}
     pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
         args.base, controlnet=controlnet, vae=vae, torch_dtype=dtype, use_safetensors=True, **kwargs
-    ).to(device)
-    pipe.enable_attention_slicing()  # keeps memory down on 16 GB Macs
+    )
+
+    def free() -> None:
+        gc.collect()
+        if device == "mps":
+            torch.mps.empty_cache()
+        elif device == "cuda":
+            torch.cuda.empty_cache()
+
+    embeds: dict[tuple[str, str], tuple] = {}
+    if lowmem:
+        # The two text encoders are ~1.7 GB. Encode every prompt once, keep the small embeddings on
+        # the CPU, then drop the encoders, so only the image models sit in GPU memory.
+        pipe.text_encoder.to(device)
+        pipe.text_encoder_2.to(device)
+        for j, _, _ in todo:
+            k = (j["prompt"], j["negative"])
+            if k in embeds:
+                continue
+            with torch.no_grad():
+                out = pipe.encode_prompt(
+                    prompt=j["prompt"],
+                    negative_prompt=j["negative"],
+                    device=device,
+                    num_images_per_prompt=1,
+                    do_classifier_free_guidance=True,
+                )
+            embeds[k] = tuple(t.to("cpu") for t in out)
+        pipe.register_modules(text_encoder=None, text_encoder_2=None)
+        free()
+        pipe.unet.to(device)
+        pipe.vae.to(device)
+        pipe.controlnet.to(device)
+    else:
+        pipe.to(device)
+    pipe.enable_attention_slicing()  # keeps activations small
+    pipe.enable_vae_tiling()  # keeps the final decode small
     pipe.set_progress_bar_config(disable=True)
+    free()
 
     made = 0
     for n, (j, seed, out) in enumerate(todo, 1):
         guide = WORK / j["guide"]
-        size = (j["genWidth"], j["genHeight"])
+        size = fit_size(j["genWidth"], j["genHeight"], max_pixels)
         edges = edge_map(guide, size)
         t0 = time.time()
         # A CPU generator keeps seeds reproducible across devices.
         gen = torch.Generator("cpu").manual_seed(seed)
+        if lowmem:
+            pe, npe, ppe, nppe = (t.to(device) for t in embeds[(j["prompt"], j["negative"])])
+            text = {
+                "prompt_embeds": pe,
+                "negative_prompt_embeds": npe,
+                "pooled_prompt_embeds": ppe,
+                "negative_pooled_prompt_embeds": nppe,
+            }
+        else:
+            text = {"prompt": j["prompt"], "negative_prompt": j["negative"]}
         image = pipe(
-            prompt=j["prompt"],
-            negative_prompt=j["negative"],
+            **text,
             image=edges,
             controlnet_conditioning_scale=args.control or STYLE["controlnetScale"],
             num_inference_steps=args.steps or STYLE["steps"],
@@ -171,6 +236,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             height=size[1],
             generator=gen,
         ).images[0]
+        free()
         secs = time.time() - t0
         if np.array(image).max() < 8:
             print(f"  ! {j['slug']} seed{seed} came out black. Retry with --dtype float32")
@@ -193,6 +259,9 @@ def cmd_run(args: argparse.Namespace) -> int:
             "styleVersion": STYLE["version"],
             "device": device,
             "dtype": str(dtype).split(".")[-1],
+            "lowMemory": lowmem,
+            "width": size[0],
+            "height": size[1],
             "torch": torch.__version__,
             "diffusers": diffusers.__version__,
             "seconds": round(secs, 1),
@@ -217,6 +286,11 @@ def main() -> int:
     r.add_argument("--steps", type=int)
     r.add_argument("--control", type=float, help="ControlNet strength (higher follows the SVG more)")
     r.add_argument("--dtype", choices=["float16", "float32"], default="float16")
+    r.add_argument("--lowmem", action=argparse.BooleanOptionalAction, default=None,
+                   help="encode prompts first and drop the text models (default: on for Apple GPUs)")
+    r.add_argument("--max-pixels", type=int, help="cap the image size (default 640000 on Apple GPUs)")
+    r.add_argument("--no-mps-limit", action="store_true",
+                   help="let the Apple GPU exceed macOS's recommended memory (may slow or stall the Mac)")
     r.add_argument("--base", default=BASE_MODEL)
     r.add_argument("--controlnet", default=CONTROLNET)
     r.add_argument("--force", action="store_true")

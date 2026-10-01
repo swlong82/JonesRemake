@@ -97,6 +97,17 @@ class Pipeline(unittest.TestCase):
         self.assertTrue((promote.BUNDLE.parent / "realistic-bundle.zip").exists())
 
 
+class Sizes(unittest.TestCase):
+    def test_fit_size_caps_pixels_keeps_aspect_and_multiples_of_8(self) -> None:
+        for w, h in ((1024, 1024), (1280, 800), (768, 1152)):
+            fw, fh = generate.fit_size(w, h, 640_000)
+            self.assertLessEqual(fw * fh, 640_000)
+            self.assertEqual((fw % 8, fh % 8), (0, 0))
+            self.assertAlmostEqual(fw / fh, w / h, delta=0.03)
+        self.assertEqual(generate.fit_size(256, 256, None), (256, 256))
+        self.assertEqual(generate.fit_size(256, 256, 640_000), (256, 256))
+
+
 class EdgeMap(unittest.TestCase):
     def test_edges_follow_the_silhouette(self) -> None:
         with tempfile.TemporaryDirectory() as d:
