@@ -24,6 +24,7 @@ New drawn art goes in the `modern` set (`extends: default`) so unfinished slots 
 ```bash
 pnpm art:check --report     # schema, sizes, sanitizer, tint keys, budgets; drawn vs wireframe per group
 pnpm art:preview            # contact sheet: reports/art-preview/<set>/index.html (open in a browser)
+pnpm art:anim-check        # does CSS animation in an art SVG play as <img>? (--browser firefox|webkit)
 pnpm art:draw               # regenerate the default set from tools/art-default
 pnpm art:placeholders       # write a wireframe for any slot still missing a file
 pnpm check:banned           # banned-terms scan
