@@ -31,10 +31,12 @@
     "art:draw": "tsx tools/art-draw.ts",
     "art:preview": "tsx tools/art-preview.ts",
     "art:gen:guides": "tsx tools/art-gen-guides.ts",
+    "art:anim-check": "tsx tools/art-anim-check.ts",
     "scaffold:check": "tsx tools/scaffold-check.ts",
     "budget": "tsx tools/bundle-budget.ts --max-gzip-kb 350 --max-art-kb 1536",
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm gen:types --check && pnpm check:banned && pnpm art:check && pnpm scaffold:check && pnpm build && pnpm test:e2e && pnpm sim:gate",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks",
+    "art:modern": "tsx tools/art-modern.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.1",

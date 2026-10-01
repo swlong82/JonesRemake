@@ -196,3 +196,10 @@ Web only; ADR-0063. Each task ships with unit tests; UI flows get axe coverage.
 | M7        | 2026-09-23 | f8afb46 | green  | green | tag m7 → f8afb46 (#17), CI run 31; audio, tutorial, opacity, themes, pseudo-locale                       |
 | M8        | 2026-09-24 | 03caf07 | green  | green | tags m8 and v1.0.0 → 03caf07 (#18, squash), CI run 75; release — every 9.3/9.5 target but sim speed      |
 | M9        | 2026-09-24 | (PR)    | green  | on PR | scene UI default (ADR-0060); M9.1–M9.8 in #20, M9.9–M9.13 + gate in the follow-up PR; tag m9 after merge |
+
+## Graphics P0 — soft-lit benchmark (2026-09-30)
+
+- [x] Deliver three exterior slots and one matching interior as the importable `modern` pack,
+      deterministic generator, style candidate and desktop/phone comparison evidence — see
+      `art/review/p0/README.md`; rules and default assets unchanged.
+- [ ] Art director approves the benchmark and freezes the style before any whole-city rollout.

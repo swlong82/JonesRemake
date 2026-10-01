@@ -24,6 +24,7 @@ New drawn art goes in the `modern` set (`extends: default`) so unfinished slots 
 ```bash
 pnpm art:check --report     # schema, sizes, sanitizer, tint keys, budgets; drawn vs wireframe per group
 pnpm art:preview            # contact sheet: reports/art-preview/<set>/index.html (open in a browser)
+pnpm art:anim-check        # does CSS animation in an art SVG play as <img>? (--browser firefox|webkit)
 pnpm art:draw               # regenerate the default set from tools/art-default
 pnpm art:placeholders       # write a wireframe for any slot still missing a file
 pnpm check:banned           # banned-terms scan
@@ -46,3 +47,28 @@ Two gates. The art director reviews the contact sheet against `STYLE.md` (look).
 ## Working with AI tools
 
 Anyone may use AI to draft, but the person who opens the PR is accountable for the file. Record the tool and prompt in `ASSET_LOG.md`, review the output against the checklist yourself, and never commit unreviewed generator output. See `GRAPHICS_PLAN.md` section 6 for tools and MCP servers.
+
+## Try the P0 benchmark
+
+The `modern` set currently overrides three buildings and the Co-Living room; 193 slots
+inherit from `default`. It is delivered through the existing user-pack importer, because
+the web registry currently bundles only the default set. Merely adding a set folder does
+not make it selectable in the game.
+
+```bash
+pnpm art:modern                 # deterministic generation; leaves default untouched
+pnpm art:modern --check         # fail on committed-output drift
+pnpm art:check
+pnpm art:preview --set modern
+mkdir -p reports
+(cd packages/art/sets/modern && zip -X -r ../../../../reports/modern-benchmark.zip manifest.json files)
+```
+
+Open the game → Settings → Art packs → import `reports/modern-benchmark.zip`.
+Select **Modern Western** in New Game to see the Co-Living Pod, Burger Stack and
+NeoBank labels; the art also works with Classic's same location IDs. Imported art stays
+on that browser/device. Select **Default** in Settings to compare or remove the pack.
+No deployment or loader edit is required; this pack also imports into the current live game.
+
+Review evidence and constraints: [P0 benchmark](review/p0/README.md).
+Anyone may use AI to draft, but the person who opens the PR is accountable for the file. Record the tool and prompt in `ASSET_LOG.md`, review the output against the checklist yourself, and never commit unreviewed generator output. See `GRAPHICS_PLAN.md` section 7 for tools and MCP servers, and section 3 for animation and 3D rules.
