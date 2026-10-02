@@ -39,6 +39,7 @@ export function SceneGameScreen({ debug }: { debug: boolean }) {
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
   const travelOpen = useGame((s) => s.travelOpen);
+  const mapView = useGame((s) => s.mapView);
   const logOpen = useGame((s) => s.logOpen);
   const standingsOpen = useGame((s) => s.standingsOpen);
   const menuOpen = useGame((s) => s.menuOpen);
@@ -50,7 +51,7 @@ export function SceneGameScreen({ debug }: { debug: boolean }) {
   const registry = artRegistryFor(pack);
   const player = state.players[state.activeSeat];
   const yourTurn = player?.controller === 'human-local';
-  const showInterior = yourTurn && player.inside;
+  const showInterior = yourTurn && player.inside && !mapView;
 
   const sheets = [
     details && <Hud key="hud" />,

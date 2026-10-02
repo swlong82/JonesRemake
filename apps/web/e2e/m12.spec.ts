@@ -50,8 +50,7 @@ test('the command palette finds a place and an action', async ({ page }) => {
   await page.getByTestId('palette-input').fill('bank');
   await page.keyboard.press('Enter');
   await expect(page.getByTestId('palette')).toHaveCount(0);
-  await expect(page.getByTestId('travel-sheet')).toBeVisible();
-  await page.getByTestId('travel-cancel').click();
+  await expect(page.getByTestId('panel-location')).toContainText('Bank');
 
   if (!isPhone(page)) {
     await page.keyboard.press('/');

@@ -20,15 +20,9 @@ beforeEach(() => {
 describe('quick travel (M13.1)', () => {
   it('moves to a reachable place without opening the sheet', () => {
     solo();
-    const g = useGame.getState();
-    const here = g.state?.players[0]?.location;
-    const target = g
-      .candidates()
-      .find((r) => r.cmd.type === 'Move' && r.code === null && r.cmd.to !== here);
-    expect(target).toBeDefined();
-    if (target?.cmd.type !== 'Move') return;
-    expect(useGame.getState().quickTravel(target.cmd.to)).toBe(true);
-    expect(useGame.getState().state?.players[0]?.location).toBe(target.cmd.to);
+    expect(useGame.getState().quickTravel('employment-office')).toBe(true);
+    expect(useGame.getState().state?.players[0]?.location).toBe('employment-office');
+    expect(useGame.getState().state?.players[0]?.inside).toBe(true);
     expect(useGame.getState().travelOpen).toBe(false);
   });
 
@@ -45,11 +39,13 @@ describe('quick travel (M13.1)', () => {
     expect(useGame.getState().hash()).toBe(before);
   });
 
-  it('falls back to the sheet when the trip is illegal', () => {
+  it('opens the current location without changing game state', () => {
     solo();
     const g = useGame.getState();
     const here = g.state?.players[0]?.location;
-    expect(useGame.getState().quickTravel(here ?? '')).toBe(false);
+    const before = g.hash();
+    expect(useGame.getState().quickTravel(here ?? '')).toBe(true);
+    expect(useGame.getState().hash()).toBe(before);
   });
 });
 
@@ -101,7 +97,7 @@ describe('confirm big actions (M13.8)', () => {
     const study = useGame.getState().pack?.locations.find((l) => l.services.includes('study'));
     if (!study) throw new Error('no school');
     expect(useGame.getState().quickTravel(study.id)).toBe(true);
-    expect(useGame.getState().dispatch({ type: 'Enter' })).toBe(true);
+    expect(useGame.getState().state?.players[0]?.inside).toBe(true);
     const enroll = useGame
       .getState()
       .candidates()

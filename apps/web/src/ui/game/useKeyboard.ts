@@ -84,13 +84,7 @@ export function handleGameKey(e: KeyboardEvent): void {
     }
     if (store.travelOpen && store.selectedLocation !== null) {
       e.preventDefault();
-      const move = store
-        .legal()
-        .find(
-          (c) =>
-            c.type === 'Move' && c.to === store.selectedLocation && c.mode === store.travelMode,
-        );
-      if (move) store.dispatch(move);
+      store.visitLocation(store.selectedLocation, store.travelMode);
     }
     return;
   }
@@ -102,7 +96,15 @@ export function handleGameKey(e: KeyboardEvent): void {
     if (yourTurn) store.requestEndTurn();
     return;
   }
-  if (e.shiftKey) return;
+  if (e.shiftKey) {
+    const planKey = e.code.startsWith('Digit') ? e.code.slice(5) : e.key;
+    const plan = locationForKey(planKey, pack.board.locationAt);
+    if (yourTurn && plan !== null && plan !== state.players[state.activeSeat]?.location) {
+      e.preventDefault();
+      store.openTravel(plan);
+    }
+    return;
+  }
 
   switch (e.key.toLowerCase()) {
     case 'm':
@@ -139,9 +141,8 @@ export function handleGameKey(e: KeyboardEvent): void {
   if (!yourTurn) return;
   const loc = locationForKey(e.key, pack.board.locationAt);
   if (loc === null) return;
-  const active = state.players[state.activeSeat];
-  if (active?.location === loc) store.selectLocation(loc);
-  else store.openTravel(loc);
+  e.preventDefault();
+  store.visitLocation(loc);
 }
 
 export function useKeyboard(enabled = true): void {

@@ -14,9 +14,10 @@ function hud(page: Page) {
 
 const progress = (page: Page) => page.getByTestId('tutorial-progress');
 
-/** In the scene UI the block is only on screen outside; leave the current location first. */
+/** Open the map without changing the player's in-game location or spending time. */
 async function stepOut(page: Page): Promise<void> {
-  if (await page.getByTestId('scene-interior').isVisible()) await page.getByTestId('exit').click();
+  if (await page.getByTestId('scene-interior').isVisible())
+    await page.getByTestId('interior-map').click();
 }
 
 async function startFromHowToPlay(page: Page): Promise<void> {
@@ -36,8 +37,6 @@ async function travelTo(page: Page, locationId: string): Promise<void> {
   const key = /Press (\S+) to travel/.exec(label)?.[1];
   expect(key, label).toBeDefined();
   await page.keyboard.press(key!);
-  await page.getByTestId('travel-go').click();
-  await page.getByTestId('enter').click();
 }
 
 async function act(page: Page, prefix: string): Promise<void> {
@@ -104,7 +103,7 @@ test('Escape on the tutorial card skips it; Escape elsewhere is left to the game
   await reachStep(page, 2);
   // Escape while the travel sheet has focus closes the sheet, not the tutorial.
   await stepOut(page);
-  await page.getByTestId('square-employment-office').click();
+  await page.keyboard.press('Shift+9');
   await expect(page.getByTestId('travel-sheet')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('travel-sheet')).toBeHidden();

@@ -51,19 +51,16 @@ test('plays a classic turn on the board and passes axe', async ({ page }) => {
   }
   await expectNoA11yViolations(page);
 
-  // You start inside your home (GDD 4.1.6): relax, then travel to the bank and enter it.
+  // The map is shown first, while the player starts inside home.
+  if (!isPhone(page)) await expect(page.getByTestId('scene-board')).toBeVisible();
   await expect(page.getByTestId('panel-state')).toHaveText('Open');
   await page.getByTestId('action-Relax').click();
   await expect(page.getByTestId('action-Relax')).toBeDisabled();
 
   await page.getByTestId('exit').click();
   await clickPlace(page, 'bank');
-  await expect(page.getByTestId('travel-sheet')).toBeVisible();
-  await expect(page.getByTestId('mode-walk')).toBeVisible();
-  await page.getByTestId('travel-go').click();
+  await expect(page.getByTestId('travel-sheet')).toHaveCount(0);
   await expect(page.getByTestId('panel-location')).toHaveText('Bank');
-
-  await page.getByTestId('enter').click();
   await expect(page.getByTestId('section-bank')).toBeVisible();
   await expectNoA11yViolations(page);
 
@@ -169,24 +166,20 @@ test('modern actions, costs and unavailable reasons are exposed through the inte
   await closeDetails(page);
 
   // Gig signup is scoped to the employment office and keeps its requirement visible when locked.
-  await page.getByTestId('exit').click();
   await clickPlace(page, 'employment-office');
-  await page.getByTestId('travel-go').click();
-  await page.getByTestId('enter').click();
   await expect(page.getByTestId('section-gig')).toBeVisible();
   await expect(
     page.getByTestId('section-gig').getByTestId('disabled-reason').first(),
   ).toBeVisible();
-  await page.getByTestId('exit').click();
-
   // Modern travel exposes the available modes and gives a human-readable reason for locked ones.
-  await clickPlace(page, 'bank');
+  await page.getByTestId('palette-btn').click();
+  await page.getByTestId('palette-input').fill('Plan trip to bank');
+  await page.keyboard.press('Enter');
   await expect(page.getByTestId('mode-transit')).toBeVisible();
   await expect(page.getByTestId('mode-ride-hail')).toBeDisabled();
 
   // At the bank, investment and loan summaries accompany the actionable rows.
   await page.getByTestId('travel-go').click();
-  await page.getByTestId('enter').click();
   await expect(page.getByTestId('section-invest')).toBeVisible();
   await expect(page.getByTestId('investment-summary')).toBeVisible();
   await expect(page.getByTestId('section-loans')).toBeVisible();
@@ -204,10 +197,7 @@ test('modern actions, costs and unavailable reasons are exposed through the inte
 
 test('subscription cancellation requires the retention confirmation', async ({ page }) => {
   await startModernGame(page);
-  await page.getByTestId('exit').click();
   await clickPlace(page, 'electronics-store');
-  await page.getByTestId('travel-go').click();
-  await page.getByTestId('enter').click();
   await openDetails(page);
 
   await page.getByTestId('action-Subscribe:subId=home-internet').click();

@@ -99,7 +99,7 @@ describe('phone scene', () => {
     expect(screen.getByTestId('phone-scene')).toBeDefined();
   });
 
-  it('zooms with the buttons and opens travel from a tapped building', () => {
+  it('zooms with the buttons and visits a tapped building', () => {
     render(<GameScreen />);
     const stageEl = screen.getByTestId('phone-stage');
     expect(stageEl.dataset.scale).toBe('1.00');
@@ -108,7 +108,8 @@ describe('phone scene', () => {
     fireEvent.click(screen.getByTestId('zoom-out'));
     expect(stageEl.dataset.scale).toBe('1.00');
     fireEvent.click(within(stageEl).getByTestId('square-bank'));
-    expect(screen.getByTestId('travel-sheet')).toBeDefined();
+    expect(useGame.getState().state?.players[0]?.location).toBe('bank');
+    expect(useGame.getState().state?.players[0]?.inside).toBe(true);
   });
 
   it('pans on drag and does not treat the drag as a tap', () => {
@@ -126,7 +127,8 @@ describe('phone scene', () => {
     expect(screen.queryByTestId('travel-sheet')).toBeNull();
     // The next plain tap works again.
     fireEvent.click(within(stageEl).getByTestId('square-bank'));
-    expect(screen.getByTestId('travel-sheet')).toBeDefined();
+    expect(useGame.getState().state?.players[0]?.location).toBe('bank');
+    expect(useGame.getState().state?.players[0]?.inside).toBe(true);
   });
 
   it('zooms with a pinch', () => {
@@ -140,16 +142,17 @@ describe('phone scene', () => {
     expect(Number(screen.getByTestId('phone-stage').dataset.scale)).toBeGreaterThan(1.5);
   });
 
-  it('keeps a slim status strip on top and opens travel as a bottom sheet (M11.6)', () => {
+  it('keeps a slim status strip on top and visits with one tap (M11.6)', () => {
     render(<GameScreen />);
     expect(screen.getByTestId('phone-status').textContent).toMatch(
       /Ann · Week 1 · 60h left · \$200/,
     );
     expect(screen.queryByTestId('phone-sheet')).toBeNull();
     fireEvent.click(within(screen.getByTestId('phone-stage')).getByTestId('square-bank'));
-    const sheet = screen.getByTestId('phone-sheet');
-    expect(within(sheet).getByTestId('travel-sheet')).toBeDefined();
-    // The map stays on screen above the sheet.
+    expect(screen.queryByTestId('phone-sheet')).toBeNull();
+    expect(useGame.getState().state?.players[0]?.location).toBe('bank');
+    expect(useGame.getState().state?.players[0]?.inside).toBe(true);
+    // The map stays on screen after the visit.
     expect(screen.getByTestId('phone-scene')).toBeDefined();
   });
 
