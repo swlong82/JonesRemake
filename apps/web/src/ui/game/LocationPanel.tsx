@@ -102,6 +102,14 @@ function ActionRow({ row, repeat, extra }: { row: Row; repeat: boolean; extra?: 
   const requestConfirm = useGame((s) => s.requestConfirm);
   const preview = useGame((s) => s.preview);
   const opaque = useGame((s) => s.state?.config.classicOpacity ?? false);
+  const pack = useGame((s) => s.pack);
+  const postingId =
+    row.cmd.type === 'ApplyJob'
+      ? row.cmd.jobId
+      : row.cmd.type === 'GigSignup'
+        ? row.cmd.gigId
+        : null;
+  const workplaceId = postingId ? pack?.jobById[postingId]?.workplaceId : null;
   const p = preview(row.cmd);
   const parts = p ? previewParts(p, t, { opaque }) : [];
   const disabled = row.code !== null;
@@ -120,6 +128,11 @@ function ActionRow({ row, repeat, extra }: { row: Row; repeat: boolean; extra?: 
       >
         {commandLabel(row.cmd, t)}
       </Button>
+      {workplaceId && (
+        <p className="text-xs font-medium text-ink-muted" data-testid="job-location">
+          {t('panel.apply.employer', { name: locationName(workplaceId) })}
+        </p>
+      )}
       {parts.length > 0 && (
         <p className="text-xs text-ink-muted" data-testid="preview">
           {parts.join(' · ')}
@@ -477,6 +490,8 @@ export function LocationPanel() {
   const pack = useGame((s) => s.pack);
   const candidates = useGame((s) => s.candidates);
   const dispatch = useGame((s) => s.dispatch);
+  const lastError = useGame((s) => s.lastError);
+  const travelOpen = useGame((s) => s.travelOpen);
   const confirmEnd = useGame((s) => s.endTurnPending);
   const requestEndTurn = useGame((s) => s.requestEndTurn);
   const cancelEndTurn = useGame((s) => s.cancelEndTurn);
@@ -519,6 +534,12 @@ export function LocationPanel() {
           {closed ? t('panel.closed') : player.inside ? t('panel.open') : t('panel.outside')}
         </p>
       </header>
+
+      {lastError && !travelOpen && (
+        <p role="status" className="text-xs text-danger" data-testid="location-error">
+          {t(`error.${lastError}`)}
+        </p>
+      )}
 
       {!confirmEnd && <NextStepHint />}
       {!confirmEnd && (

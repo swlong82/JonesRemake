@@ -50,6 +50,7 @@ for (const modern of [false, true]) {
     await page.getByTestId('seed').fill('art-benchmark-p0');
     await page.getByTestId('start-game').click();
     await loaded(page);
+    if (info.project.name !== 'phone') await page.getByTestId('square-low-housing').click();
     const room = page.locator('img[data-art-key="interior:low-housing"]');
     await expect(room).toBeVisible();
     if (modern) {
@@ -112,8 +113,7 @@ for (const modern of [false, true]) {
       animations: 'disabled',
     });
     await page.getByTestId('square-bank').click();
-    await expect(page.getByTestId('travel-sheet')).toBeVisible();
-    await page.getByTestId('travel-go').click();
+    await expect(page.getByTestId('travel-sheet')).toHaveCount(0);
     await expect(page.getByTestId('panel-location')).toHaveText('NeoBank Branch');
   });
 }

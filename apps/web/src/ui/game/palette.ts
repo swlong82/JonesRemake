@@ -54,12 +54,17 @@ export function buildPaletteEntries(store: GameStore, t: Translate): PaletteEntr
       `go:${loc}`,
       t('palette.go', { place: locationName(loc) }),
       here ? t('palette.here') : trip ? t('palette.trip', { n: Math.abs(trip.hours) / 2 }) : '',
-      () => {
-        if (here) store.selectLocation(loc);
-        else store.openTravel(loc);
-      },
+      () => store.visitLocation(loc),
       loc,
     );
+    if (!here)
+      add(
+        `plan:${loc}`,
+        t('palette.plan', { place: locationName(loc) }),
+        t('travel.mode'),
+        () => store.openTravel(loc),
+        loc,
+      );
   }
 
   add('act:end', t('palette.endTurn'), t('palette.endTurnHint'), () => {

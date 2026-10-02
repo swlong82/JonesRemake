@@ -31,21 +31,17 @@ for (const [btn, extra] of [
   });
 }
 
-test('double-clicking a place travels there without the sheet', async ({ page }) => {
+test('one click visits a place without the sheet', async ({ page }) => {
   await quickStart(page);
-  if (isPhone(page)) return; // The phone map pans on touch; the list has its own double-tap.
-  if (await page.getByTestId('scene-interior').isVisible()) await page.getByTestId('exit').click();
-  const square = page.locator('[data-testid^="square-"]:not([aria-current="true"])').first();
-  const id = (await square.getAttribute('data-testid')) ?? '';
-  await square.dblclick();
+  if (isPhone(page)) return;
+  await page.getByTestId('square-bank').click();
   await expect(page.getByTestId('travel-sheet')).toHaveCount(0);
-  await expect(page.getByTestId(id)).toHaveAttribute('aria-current', 'true');
+  await expect(page.getByTestId('scene-interior')).toHaveAttribute('aria-label', /Inside .*Bank/);
 });
 
 test('hovering a place shows what it offers', async ({ page }) => {
   await quickStart(page);
   if (isPhone(page)) return;
-  if (await page.getByTestId('scene-interior').isVisible()) await page.getByTestId('exit').click();
   const square = page.locator('[data-testid^="square-"]:not([aria-current="true"])').first();
   const id = ((await square.getAttribute('data-testid')) ?? '').replace('square-', '');
   await square.hover();

@@ -158,17 +158,17 @@ describe('spotlight', () => {
     expect(useTutorial.getState().active).toBe(true);
   });
 
-  it('tells the player what to press first when the step starts indoors', async () => {
+  it('points to the map when the next step needs another place', async () => {
     useGame.getState().startGame(tutorialConfig());
     useTutorial.setState({ active: true, index: 1, lastSeq: -1 });
     render(
       <>
-        <button data-testid="exit" aria-label="exit" />
+        <button data-testid="interior-map" aria-label="Map" />
         <Spotlight />
       </>,
     );
     // The anchor is measured on the next animation frame, once the button is in the page.
-    expect((await screen.findByTestId('tutorial-hint')).textContent).toMatch(/Leave/);
+    expect((await screen.findByTestId('tutorial-hint')).textContent).toMatch(/map/);
     expect(screen.getByTestId('tutorial-card').textContent).not.toMatch(/ring/i);
   });
 });

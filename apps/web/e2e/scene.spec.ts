@@ -25,7 +25,6 @@ test('the scene board travels by building and passes axe', async ({ page }) => {
     await expect(page.getByTestId('host-speech')).not.toBeEmpty();
     await expect(page.getByTestId('phone-scene')).toBeVisible();
     await expectNoA11yViolations(page);
-    await page.getByTestId('exit').click();
     const box = await page.getByTestId('square-rent-office').boundingBox();
     expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
@@ -42,21 +41,23 @@ test('the scene board travels by building and passes axe', async ({ page }) => {
   await expect(page.getByTestId('scene-hud')).toBeVisible();
   await expect(page.getByTestId('scene-cash')).toHaveText('$200');
 
-  // Turns start inside the home: its room, host and greeting, with the panel in the room.
+  // Turns show the map first while the player remains inside home.
+  await expect(page.getByTestId('scene-board')).toBeVisible();
+  await page.getByTestId('square-low-housing').click();
   await expect(page.getByTestId('scene-interior')).toBeVisible();
   await expect(page.getByTestId('host-speech')).not.toBeEmpty();
   await expect(page.getByTestId('interior-panel').getByTestId('location-panel')).toBeVisible();
   await expectNoA11yViolations(page);
 
-  await page.getByTestId('exit').click();
+  await page.getByTestId('interior-map').click();
   await expect(page.getByTestId('scene-board')).toBeVisible();
   await expect(page.getByTestId('avatar-0')).toHaveAttribute('data-pose', 'idle');
   await expectNoA11yViolations(page);
 
   await page.getByTestId('square-bank').click();
-  await expect(page.getByTestId('travel-sheet')).toBeVisible();
-  await page.getByTestId('travel-go').click();
+  await expect(page.getByTestId('scene-interior')).toBeVisible();
   await expect(page.getByTestId('panel-location')).toHaveText('Bank');
+  await page.getByTestId('interior-map').click();
   await expect(page.getByTestId('square-bank')).toHaveAttribute('aria-current', 'true');
 
   // The ring keyboard map still works on the scene (UX 7.7): "2" is the rent office.
@@ -64,7 +65,7 @@ test('the scene board travels by building and passes axe', async ({ page }) => {
   await expect(page.getByTestId('travel-sheet')).toContainText('Rent Office');
   await page.getByTestId('travel-cancel').click();
 
-  await page.getByTestId('enter').click();
+  await page.getByTestId('square-bank').click();
   await expect(page.getByTestId('scene-interior')).toHaveAttribute('aria-label', 'Inside Bank');
   await expect(page.getByTestId('section-bank')).toBeVisible();
   await expectNoA11yViolations(page);
@@ -96,10 +97,9 @@ test('title art, newspaper and weekend recap', async ({ page }) => {
   await page.getByTestId('start-game').click();
 
   // Buy this week's paper at the grocery (ring key W) and read it.
-  await page.getByTestId('exit').click();
+  await page.getByTestId('square-low-housing').click();
+  await page.getByTestId('interior-map').click();
   await page.keyboard.press('w');
-  await page.getByTestId('travel-go').click();
-  await page.getByTestId('enter').click();
   await page.getByTestId('action-ReadNews').click();
   await page.getByTestId('newspaper-btn').click();
   await expect(page.getByTestId('news-headline')).not.toBeEmpty();

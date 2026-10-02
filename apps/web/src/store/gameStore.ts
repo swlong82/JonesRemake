@@ -91,6 +91,7 @@ export interface UndoSnapshot {
   state: GameState;
   log: LogEntry[];
   cards: DomainEvent[];
+  mapView: boolean;
 }
 
 /** Most steps one turn can be rewound; a turn holds far fewer actions than this. */
@@ -122,6 +123,8 @@ export interface GameStore {
   /** Human seat currently controlling the device (hotseat privacy). */
   viewerSeat: number;
   selectedLocation: LocationId | null;
+  /** Show the street at the start of a human turn, even when the player is inside. */
+  mapView: boolean;
   travelOpen: boolean;
   /** Transport mode chosen in the travel sheet (UX 7.2, cycled with M). */
   travelMode: string;
@@ -153,6 +156,9 @@ export interface GameStore {
   dispatch: (cmd: Command) => boolean;
   selectLocation: (id: LocationId | null) => void;
   openTravel: (id: LocationId) => void;
+  showMap: () => void;
+  /** Visit a place with the selected (or explicit) mode, then enter if the whole trip is legal. */
+  visitLocation: (id: LocationId, mode?: string) => boolean;
   /** Travel now with the chosen mode (or the first legal one); false when it cannot (M13.1). */
   quickTravel: (id: LocationId) => boolean;
   closeTravel: () => void;
@@ -233,6 +239,7 @@ export const useGame = create<GameStore>((set, get) => ({
   ticker: [],
   viewerSeat: 0,
   selectedLocation: null,
+  mapView: false,
   travelOpen: false,
   travelMode: 'walk',
   logOpen: false,
@@ -295,6 +302,8 @@ export const useGame = create<GameStore>((set, get) => ({
       undoStack: [],
       viewerSeat: humans.includes(state.activeSeat) ? state.activeSeat : (humans[0] ?? 0),
       selectedLocation: null,
+      // A saved game resumes its current view; a new turn will show the map.
+      mapView: false,
       travelOpen: false,
       travelMode: 'walk',
       logOpen: false,
@@ -337,6 +346,7 @@ export const useGame = create<GameStore>((set, get) => ({
       undoStack: [],
       viewerSeat: humans[0] ?? 0,
       selectedLocation: null,
+      mapView: true,
       travelOpen: false,
       logOpen: false,
       standingsOpen: false,
@@ -404,6 +414,12 @@ export const useGame = create<GameStore>((set, get) => ({
           : get().outcomes,
       lastError: null,
       travelOpen: false,
+      mapView:
+        cmd.type === 'Enter'
+          ? false
+          : cmd.type === 'Move' || cmd.type === 'Exit'
+            ? true
+            : get().mapView,
       endTurnPending: false,
       subscriptionCancelPending: null,
       confirmPending: null,
@@ -413,12 +429,16 @@ export const useGame = create<GameStore>((set, get) => ({
     const canUndo =
       isHuman && cmd.type !== 'EndTurn' && !useSettings.getState().settings.strictMode;
     patch.undoStack = canUndo
-      ? [...get().undoStack, { state, log: get().log, cards: get().cards }].slice(-MAX_UNDO)
+      ? [
+          ...get().undoStack,
+          { state, log: get().log, cards: get().cards, mapView: get().mapView },
+        ].slice(-MAX_UNDO)
       : [];
     // Turn changed: hotseat privacy screen, or AI turn.
     if (next.activeSeat !== seat || next.winner !== null) {
       patch.undoStack = [];
       patch.selectedLocation = null;
+      patch.mapView = true;
       const nextPlayer = next.players[next.activeSeat];
       if (next.winner !== null) {
         patch.screen = 'end';
@@ -471,24 +491,76 @@ export const useGame = create<GameStore>((set, get) => ({
   },
 
   selectLocation(id) {
-    set({ selectedLocation: id, travelOpen: false });
+    set({ selectedLocation: id, travelOpen: false, mapView: false });
   },
   openTravel(id) {
-    set({ selectedLocation: id, travelOpen: true });
+    set({ selectedLocation: id, travelOpen: true, mapView: true, lastError: null });
   },
-  quickTravel(id) {
-    const { state, pack, travelMode } = get();
-    if (!state || !pack || !useSettings.getState().settings.quickTravel) return false;
-    if (state.players[state.activeSeat]?.location === id) return false;
+  showMap() {
+    set({ mapView: true, travelOpen: false });
+  },
+  visitLocation(id, mode) {
+    const { state, pack } = get();
+    if (!state || !pack || get().loading || get().screen !== 'game') return false;
+    const seat = state.activeSeat;
+    const player = state.players[seat];
+    const before = get();
+    if (player?.controller !== 'human-local' || !pack.locationById[id]) return false;
+    if (player.location === id) {
+      if (player.inside) {
+        set({ selectedLocation: id, travelOpen: false, mapView: false, lastError: null });
+        return true;
+      }
+      set({ selectedLocation: id, travelOpen: false });
+      return get().dispatch({ type: 'Enter' });
+    }
     const rows = get()
       .candidates()
-      .filter((r) => r.cmd.type === 'Move' && r.cmd.to === id && r.code === null);
-    const row = rows.find((r) => r.cmd.type === 'Move' && r.cmd.mode === travelMode) ?? rows[0];
-    if (!row) {
-      set({ selectedLocation: id, travelOpen: true });
+      .filter((r) => r.cmd.type === 'Move' && r.cmd.to === id);
+    const selectedMode = mode ?? get().travelMode;
+    const preferred = rows.find((r) => r.cmd.type === 'Move' && r.cmd.mode === selectedMode);
+    const row =
+      mode === undefined
+        ? preferred?.code === null
+          ? preferred
+          : (rows.find((r) => r.code === null) ?? preferred)
+        : preferred;
+    if (row?.code !== null) {
+      set({ selectedLocation: id, travelOpen: true, lastError: row?.code ?? null });
       return false;
     }
-    return get().dispatch(row.cmd);
+    // Test the exact engine transitions on a clone before committing either action. Movement can
+    // stop partway and end the turn; entry can fail when the destination is closed or time is low.
+    const moved = applyCommand(state, seat, row.cmd, pack);
+    const arrival = moved.state.players[seat];
+    if (moved.state.activeSeat !== seat || arrival?.location !== id || arrival.inside) {
+      set({ selectedLocation: id, travelOpen: true, lastError: 'ERR_NOT_ENOUGH_HOURS' });
+      return false;
+    }
+    const entered = applyCommand(moved.state, seat, { type: 'Enter' }, pack);
+    const rejection = entered.events.find((event) => event.type === 'CommandRejected');
+    if (rejection?.type === 'CommandRejected') {
+      set({ selectedLocation: id, travelOpen: true, lastError: rejection.code });
+      return false;
+    }
+    if (!get().dispatch(row.cmd)) return false;
+    const current = get().state;
+    if (current?.activeSeat !== seat || current.players[seat]?.location !== id) return false;
+    const enteredOk = get().dispatch({ type: 'Enter' });
+    if (enteredOk && !useSettings.getState().settings.strictMode) {
+      // A map click is one player action even though the engine records Move and Enter separately.
+      set({
+        undoStack: [
+          ...before.undoStack,
+          { state, log: before.log, cards: before.cards, mapView: before.mapView },
+        ].slice(-MAX_UNDO),
+      });
+    }
+    return enteredOk;
+  },
+  quickTravel(id) {
+    if (!useSettings.getState().settings.quickTravel) return false;
+    return get().visitLocation(id);
   },
   closeTravel() {
     set({ travelOpen: false });
@@ -604,6 +676,7 @@ export const useGame = create<GameStore>((set, get) => ({
     if (snap.state.activeSeat !== state.activeSeat || snap.state.week !== state.week) return false;
     set({
       state: snap.state,
+      mapView: snap.mapView,
       log: snap.log,
       cards: snap.cards,
       outcomes: [],

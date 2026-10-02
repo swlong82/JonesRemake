@@ -44,6 +44,8 @@ export async function clickPlace(page: Page, id: string): Promise<void> {
     if (await list.isVisible()) await list.click();
     await page.getByTestId(`phone-loc-${id}`).click();
   } else {
+    const map = page.getByTestId('interior-map');
+    if (await map.isVisible()) await map.click();
     await page.getByTestId(`square-${id}`).click();
   }
 }

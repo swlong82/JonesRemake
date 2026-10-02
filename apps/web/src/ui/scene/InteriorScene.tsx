@@ -7,6 +7,7 @@
 import { useTranslation } from 'react-i18next';
 import type { ArtRegistry } from '../../assets/art/artRegistry';
 import { useGame } from '../../store/gameStore';
+import { Button } from '../common/Button';
 import { LocationPanel } from '../game/LocationPanel';
 import { locationName, locationQuip } from '../game/labels';
 import { ArtImage } from './ArtImage';
@@ -29,6 +30,7 @@ export function SpeechBubble({ text, testId }: { text: string; testId: string })
 export function InteriorScene({ registry }: { registry: ArtRegistry }) {
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
+  const showMap = useGame((s) => s.showMap);
   if (!state) return null;
   const player = state.players[state.activeSeat];
   if (!player) return null;
@@ -40,6 +42,9 @@ export function InteriorScene({ registry }: { registry: ArtRegistry }) {
       aria-label={t('scene.inside', { name: locationName(loc) })}
       data-testid="scene-interior"
     >
+      <Button className="absolute left-3 top-3 z-10" onClick={showMap} data-testid="interior-map">
+        {t('scene.map')}
+      </Button>
       <ArtImage
         registry={registry}
         artKey={`interior:${loc}`}

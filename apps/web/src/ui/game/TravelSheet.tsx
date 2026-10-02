@@ -16,7 +16,9 @@ export function TravelSheet() {
   const target = useGame((s) => s.selectedLocation);
   const candidates = useGame((s) => s.candidates);
   const preview = useGame((s) => s.preview);
+  const visitLocation = useGame((s) => s.visitLocation);
   const dispatch = useGame((s) => s.dispatch);
+  const lastError = useGame((s) => s.lastError);
   const close = useGame((s) => s.closeTravel);
   const mode = useGame((s) => s.travelMode);
   const setMode = useGame((s) => s.setTravelMode);
@@ -78,6 +80,11 @@ export function TravelSheet() {
           {t('travel.partial')}
         </p>
       )}
+      {lastError && (
+        <p role="status" className="text-xs text-danger" data-testid="travel-error">
+          {t(`error.${lastError}`)}
+        </p>
+      )}
       {selectedPreview && cost && (
         <div className="text-xs text-ink-muted" data-testid="travel-cost">
           <p>
@@ -103,7 +110,7 @@ export function TravelSheet() {
           className="grow"
           disabled={selected?.code !== null}
           onClick={() => {
-            if (selected) dispatch(selected.cmd);
+            if (selected?.cmd.type === 'Move') visitLocation(target, selected.cmd.mode);
           }}
           data-testid="travel-go"
         >
@@ -113,6 +120,11 @@ export function TravelSheet() {
           {t('travel.cancel')}
         </Button>
       </div>
+      {selected?.code === null && selected.cmd.type === 'Move' && (
+        <Button onClick={() => dispatch(selected.cmd)} data-testid="travel-only">
+          {t('travel.only')}
+        </Button>
+      )}
     </section>
   );
 }

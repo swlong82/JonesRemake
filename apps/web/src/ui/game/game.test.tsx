@@ -477,13 +477,14 @@ describe('keyboard map (UX 7.7)', () => {
     expect(locationForKey('Z', pack.board.locationAt)).toBeNull();
   });
 
-  it('opens travel with a ring key and selects the current square', () => {
+  it('visits a place with a ring key and opens the current square', () => {
     start();
-    key({ key: 'q' });
-    expect(useGame.getState().travelOpen).toBe(true);
-    expect(useGame.getState().selectedLocation).toBe('bank');
+    key({ key: '3' });
+    expect(useGame.getState().state?.players[0]?.location).toBe('pawn-shop');
+    expect(useGame.getState().state?.players[0]?.inside).toBe(true);
     key({ key: '1' });
-    expect(useGame.getState().selectedLocation).toBe('low-housing');
+    expect(useGame.getState().state?.players[0]?.location).toBe('low-housing');
+    expect(useGame.getState().state?.players[0]?.inside).toBe(true);
   });
 
   it('toggles the log, standings and help', () => {
@@ -553,7 +554,8 @@ describe('phone layout (UX 7.2)', () => {
     const here = useGame.getState().state!.players[0]!.location;
     expect(screen.getByTestId(`phone-loc-${here}`).textContent).toContain('here');
     fireEvent.click(screen.getByTestId('phone-loc-bank'));
-    expect(useGame.getState().travelOpen).toBe(true);
+    expect(useGame.getState().state?.players[0]?.location).toBe('bank');
+    expect(useGame.getState().state?.players[0]?.inside).toBe(true);
   });
 });
 

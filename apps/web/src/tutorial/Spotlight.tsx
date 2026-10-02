@@ -24,13 +24,12 @@ interface Rect {
 function measureAnchor(testid: string | null): Rect | null {
   if (testid === null || typeof globalThis.document === 'undefined') return null;
   // The scene UI's HUD is a bar (`scene-hud`); the full HUD only opens on demand. Its squares are
-  // only on screen outside a location, so until the player leaves, the way there is Leave
-  // (ART_SPEC 17.9).
+  // only on screen while the map view is open, so the map button is the way there from a room.
   const ids =
     testid === 'hud'
       ? ['hud', 'scene-hud']
       : testid.startsWith('square-')
-        ? [testid, 'exit']
+        ? [testid, 'interior-map']
         : [testid];
   const id = ids.find((i) => globalThis.document.querySelector(`[data-testid="${i}"]`) !== null);
   const el = id === undefined ? null : globalThis.document.querySelector(`[data-testid="${id}"]`);
@@ -82,7 +81,7 @@ const DIM = 'fixed bg-black/60 z-40';
 
 /** The one thing to click right now, from what the spotlight is on (null: the step's text says it). */
 function hintFor(id: string | null, outside: boolean): string | null {
-  if (id === 'exit') return 'tutorial.hint.leave';
+  if (id === 'interior-map') return 'tutorial.hint.map';
   if (id?.startsWith('square-')) return 'tutorial.hint.building';
   if (id === 'travel-sheet') return 'tutorial.hint.go';
   if (id === 'location-panel' && outside) return 'tutorial.hint.enter';

@@ -130,7 +130,6 @@ describe('confirm modal (M13.8)', () => {
     if (!study) throw new Error('no school');
     act(() => {
       useGame.getState().quickTravel(study.id);
-      useGame.getState().dispatch({ type: 'Enter' });
     });
     const enroll = useGame
       .getState()

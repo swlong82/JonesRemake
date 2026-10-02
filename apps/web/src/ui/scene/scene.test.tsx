@@ -1,5 +1,5 @@
 import { defaultBoardLayout } from '@hustle-ring/art';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import type { GameConfig } from '@hustle-ring/engine';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { artRegistryFor, DEFAULT_ART_SET } from '../../assets/art/artRegistry';
@@ -98,15 +98,15 @@ describe('scene board (ART_SPEC 17.9)', () => {
     expect(bank.getAttribute('aria-label')).toMatch(/Q/);
   });
 
-  it('opens travel from a square in the park, and the full HUD from the bar', () => {
+  it('visits a square in one click, and opens the full HUD from the bar', () => {
     stepOut();
     render(<GameScreen />);
-    fireEvent.click(screen.getByTestId('square-bank'));
-    const sheets = screen.getByTestId('scene-sheets');
-    expect(within(sheets).getByTestId('travel-sheet')).toBeDefined();
-    expect(within(sheets).getByTestId('location-panel')).toBeDefined();
+    fireEvent.click(screen.getByTestId('square-employment-office'));
+    expect(screen.getByTestId('scene-interior')).toBeDefined();
+    expect(useGame.getState().state?.players[0]?.location).toBe('employment-office');
     expect(screen.queryByTestId('hud')).toBeNull();
     fireEvent.click(screen.getByTestId('hud-details-btn'));
+    const sheets = screen.getByTestId('scene-sheets');
     expect(within(sheets).getByTestId('hud')).toBeDefined();
     expect(screen.getByTestId('scene-cash').textContent).toBe('$200');
   });
@@ -136,6 +136,8 @@ describe('scene board (ART_SPEC 17.9)', () => {
 describe('interiors (ART_SPEC 17.9, M9.8)', () => {
   it('shows the room, the host, the greeting and the panel while inside', () => {
     render(<GameScreen />);
+    expect(screen.getByTestId('scene-board')).toBeDefined();
+    fireEvent.click(screen.getByTestId('square-low-housing'));
     const room = screen.getByTestId('scene-interior');
     expect(room.getAttribute('aria-label')).toBe('Inside Low-Cost Housing');
     expect(room.querySelector('img[data-art-key="interior:low-housing"]')).not.toBeNull();
@@ -217,7 +219,7 @@ describe('trip cost (M11.2)', () => {
   it('travel sheet lists the total and the hours left afterwards', () => {
     stepOut();
     render(<GameScreen />);
-    fireEvent.click(screen.getByTestId('square-employment-office'));
+    act(() => useGame.getState().openTravel('employment-office'));
     expect(screen.getByTestId('travel-cost').textContent).toContain('Walk 5h + enter 2h = 7h');
     expect(screen.getByTestId('travel-after').textContent).toBe(
       '53h left after arriving and entering',

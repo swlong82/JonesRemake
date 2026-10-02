@@ -55,10 +55,8 @@ export function BoardScene({
   const { t } = useTranslation();
   const state = useGame((s) => s.state);
   const pack = useGame((s) => s.pack);
-  const openTravel = useGame((s) => s.openTravel);
-  const quickTravel = useGame((s) => s.quickTravel);
+  const visitLocation = useGame((s) => s.visitLocation);
   const preview = useGame((s) => s.preview);
-  const selectLocation = useGame((s) => s.selectLocation);
   const selected = useGame((s) => s.selectedLocation);
   const [hot, setHot] = useState<string | null>(null);
   if (!state || !pack) return null;
@@ -118,8 +116,7 @@ export function BoardScene({
               onMouseLeave={() => setHot((h) => (h === locId ? null : h))}
               onFocus={() => setHot(locId)}
               onBlur={() => setHot((h) => (h === locId ? null : h))}
-              onClick={() => (isHere ? selectLocation(locId) : openTravel(locId))}
-              onDoubleClick={() => quickTravel(locId)}
+              onClick={() => visitLocation(locId)}
             />
           </div>
         );

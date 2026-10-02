@@ -131,15 +131,6 @@ export function SettingsScreen() {
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
-            checked={settings.quickTravel}
-            onChange={(e) => update({ quickTravel: e.target.checked })}
-            data-testid="quick-travel-setting"
-          />
-          {t('settings.quickTravel')}
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
             checked={settings.coach}
             onChange={(e) => update({ coach: e.target.checked, coachSeen: [] })}
             data-testid="coach-setting"

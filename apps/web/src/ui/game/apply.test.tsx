@@ -42,6 +42,11 @@ describe('apply list (M11.3)', () => {
     expect(screen.getByTestId('apply-hidden').textContent).toMatch(/\d+ more jobs are hidden/);
     const burger = within(list).getByTestId('apply-employer-burger-joint');
     expect(within(burger).getByRole('heading').textContent).toBe('At Burger Joint');
+    expect(
+      within(burger)
+        .getAllByTestId('job-location')
+        .every((row) => row.textContent === 'At Burger Joint'),
+    ).toBe(true);
     const wages = within(list)
       .getAllByRole('button')
       .map((b) => b.textContent);
