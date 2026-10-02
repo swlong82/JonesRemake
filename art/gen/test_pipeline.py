@@ -57,7 +57,7 @@ class Pipeline(unittest.TestCase):
         self.dir.cleanup()
 
     def build(self) -> int:
-        promote.cmd_pick(SimpleNamespace(picks=["building.test=1", "interior.test=1"], all=None))
+        promote.cmd_pick(SimpleNamespace(picks=["building.test=1", "interior.test=1"], all=None, best=False))
         return promote.cmd_build(SimpleNamespace(grow=2, feather=1.0, saturation=1.15, brightness=1.05))
 
     def test_build_and_check_pass(self) -> None:
@@ -85,13 +85,22 @@ class Pipeline(unittest.TestCase):
             promote.FILE_BUDGET["building"] = 80_000
 
     def test_pick_all_approves_every_slot_with_that_seed(self) -> None:
-        promote.cmd_pick(SimpleNamespace(picks=[], all=1))
+        promote.cmd_pick(SimpleNamespace(picks=[], all=1, best=False))
         approved = json.loads((promote.WORK / "approved.json").read_text())
         self.assertEqual(sorted(approved), ["building.test", "interior.test"])
 
+    def test_rank_then_pick_best_chooses_the_top_seed(self) -> None:
+        # a second, worse candidate for the building: pure noise
+        d = promote.WORK / "out" / "building.test"
+        Image.effect_noise((256, 256), 80).convert("RGB").save(d / "seed2.png")
+        promote.cmd_rank(SimpleNamespace())
+        promote.cmd_pick(SimpleNamespace(picks=[], all=None, best=True))
+        approved = json.loads((promote.WORK / "approved.json").read_text())
+        self.assertEqual(approved["building.test"], 1)
+
     def test_bad_pick_is_rejected(self) -> None:
         with self.assertRaises(SystemExit):
-            promote.cmd_pick(SimpleNamespace(picks=["building.test=9"], all=None))
+            promote.cmd_pick(SimpleNamespace(picks=["building.test=9"], all=None, best=False))
 
     def test_contact_sheet_and_zip(self) -> None:
         self.build()
@@ -100,6 +109,24 @@ class Pipeline(unittest.TestCase):
         promote.cmd_zip(SimpleNamespace())
         self.assertTrue((promote.WORK / "contact.html").exists())
         self.assertTrue((promote.BUNDLE.parent / "realistic-bundle.zip").exists())
+
+
+class Ranking(unittest.TestCase):
+    def test_a_faithful_candidate_outscores_noise(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            guide = Image.new("RGBA", (200, 200), (0, 0, 0, 0))
+            guide.paste((60, 60, 60, 255), (50, 50, 150, 150))
+            guide.save(root / "g.png")
+            faithful = Image.new("RGB", (200, 200), (220, 220, 220))
+            faithful.paste((90, 40, 40), (50, 50, 150, 150))
+            faithful.save(root / "good.png")
+            Image.effect_noise((200, 200), 80).convert("RGB").save(root / "noise.png")
+            good = promote.fidelity(root / "good.png", root / "g.png")
+            bad = promote.fidelity(root / "noise.png", root / "g.png")
+            self.assertGreater(good["score"], bad["score"])
+            self.assertGreater(good["recall"], 0.8)
+            self.assertGreater(bad["clutter"], good["clutter"])
 
 
 class Sizes(unittest.TestCase):

@@ -1,11 +1,11 @@
 {
-  "version": 2,
-  "preamble": "realistic stylised city illustration, three-quarter view from above, bright sunny daylight from top left, vivid saturated colours, crisp detailed materials, polished game art",
-  "objectSuffix": "isolated on plain light grey background, no text, no logos",
-  "sceneSuffix": "empty room, right side calm and uncluttered, no text, no logos",
+  "version": 3,
+  "preamble": "realistic stylised city illustration, three-quarter view, bright sunny light, vivid colours, crisp detail",
+  "objectSuffix": "single building, centered, isolated on plain light grey background, no people, no text",
+  "sceneSuffix": "empty room, no people, no text, no logos, right side calm",
   "personSuffix": "full body, facing viewer, isolated on plain light grey background, no text",
-  "negative": "text, letters, logo, watermark, blurry, deformed, cropped, cartoon, flat vector, pixel art, dull, muted, desaturated, gloomy, dark, overcast",
-  "controlnetScale": 0.75,
+  "negative": "people, person, text, letters, sign, logo, watermark, blurry, deformed, melted, distorted, extra windows, multiple buildings, collage, frame, border, cartoon, dull, dark",
+  "controlnetScale": 0.9,
   "steps": 30,
   "guidance": 6.5
 }

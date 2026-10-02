@@ -44,6 +44,18 @@ The bundle lands in `art/bundles/realistic/`. Send me that folder (or `python pr
 
 The pilot passes if (1) the art director rates it clearly better than today's art side by side, (2) every file is within its byte budget (`promote.py check` says so), (3) the slice regenerates in style from `provenance.json` (same seeds and settings), and (4) it plays in the real scene on desktop and phone. Item 4 needs the game to load the bundle, which is the next step after this one.
 
+## Getting better shapes, fewer odd objects
+
+Candidates differ a lot by seed, so make several and let the scorer pick:
+
+```bash
+art/gen/run.sh scenery 3                       # 3 candidates per slot, then scores them
+.venv/bin/python promote.py pick --best        # (from art/gen) approve the top-scoring seed per slot
+.venv/bin/python promote.py pick building.bank=2   # override anything you prefer by eye
+```
+
+`promote.py rank` scores each candidate against its SVG layout: _layout kept_ (how many of the SVG's edges the picture follows) and _clutter_ (edges where the SVG has none: extra windows, objects, text-like marks). It is a heuristic for ordering, not a verdict, so still glance at the contact sheet (scores are shown under each image). For a stubborn slot make more seeds: `generate.py run --only building.bank --seeds 8`, and raise `--control` (default 0.9; 1.0 follows the SVG even more strictly).
+
 ## Model families
 
 | Family                             | Memory    | Look                                                                                            | Notes                                                     |
