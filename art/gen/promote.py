@@ -23,14 +23,14 @@ import time
 import zipfile
 from pathlib import Path
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageEnhance, ImageFilter
 
 HERE = Path(__file__).resolve().parent
 WORK = HERE / "work"
 BUNDLE = HERE.parent / "bundles" / "realistic"
 
 # Per-file byte budgets and the whole-bundle budget (GRAPHICS_PLAN: about 8 MB, lazy per scene).
-FILE_BUDGET = {"building": 80_000, "avatar": 40_000, "host": 80_000, "interior": 150_000}
+FILE_BUDGET = {"building": 80_000, "avatar": 40_000, "host": 80_000, "interior": 150_000, "board": 250_000}
 BUNDLE_BUDGET = 8_000_000
 QUALITIES = (84, 80, 76, 72, 68, 64, 60)
 
@@ -69,6 +69,11 @@ def cmd_pick(args: argparse.Namespace) -> int:
     jobs = load_jobs()
     path = WORK / "approved.json"
     approved = json.loads(path.read_text()) if path.exists() else {}
+    if args.all is not None:
+        # Approve one seed for every slot that has it; individual picks below still override.
+        for slug in jobs:
+            if (WORK / "out" / slug / f"seed{args.all}.png").exists():
+                approved[slug] = args.all
     for item in args.picks:
         slug, _, seed = item.partition("=")
         if slug not in jobs or not seed.isdigit():
@@ -118,6 +123,9 @@ def cmd_build(args: argparse.Namespace) -> int:
         src = WORK / "out" / slug / f"seed{seed}.png"
         meta_path = src.with_suffix(".json")
         image = Image.open(src).convert("RGB")
+        # A small, deterministic lift: brighter and more vivid than the model tends to paint.
+        image = ImageEnhance.Color(image).enhance(args.saturation)
+        image = ImageEnhance.Brightness(image).enhance(args.brightness)
         if job["alpha"]:
             image = cutout(image, Image.open(WORK / job["guide"]), args.grow, args.feather)
         image = image.resize((job["outWidth"], job["outHeight"]), Image.LANCZOS)
@@ -139,6 +147,7 @@ def cmd_build(args: argparse.Namespace) -> int:
         prov[job["key"]] = {
             **meta,
             "approvedSeed": seed,
+            "colour": {"saturation": args.saturation, "brightness": args.brightness},
             "sha256": hashlib.sha256(dest.read_bytes()).hexdigest(),
             "builtAt": time.strftime("%Y-%m-%dT%H:%M:%S"),
         }
@@ -230,10 +239,13 @@ def main() -> int:
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("contact").set_defaults(fn=cmd_contact)
     pk = sub.add_parser("pick")
-    pk.add_argument("picks", nargs="+", help="slug=seed, e.g. building.bank=2")
+    pk.add_argument("picks", nargs="*", help="slug=seed, e.g. building.bank=2")
+    pk.add_argument("--all", type=int, metavar="SEED", help="approve this seed for every slot that has it")
     pk.set_defaults(fn=cmd_pick)
     b = sub.add_parser("build")
     b.add_argument("--grow", type=int, default=6, help="pixels the SVG silhouette is grown before cutting out")
+    b.add_argument("--saturation", type=float, default=1.15, help="colour boost (1 = none)")
+    b.add_argument("--brightness", type=float, default=1.05, help="brightness boost (1 = none)")
     b.add_argument("--feather", type=float, default=2.0, help="edge softness in pixels")
     b.set_defaults(fn=cmd_build)
     sub.add_parser("check").set_defaults(fn=cmd_check)

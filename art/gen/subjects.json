@@ -52,5 +52,8 @@
     "walk2": "walking, right foot forward, mid-stride",
     "cheer": "cheering with both arms raised",
     "slump": "slumping, shoulders down, looking tired"
+  },
+  "board": {
+    "background": "top-down city ring road around a green park with trees and footpaths, empty roads, no buildings"
   }
 }

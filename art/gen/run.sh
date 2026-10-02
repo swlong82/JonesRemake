@@ -4,6 +4,7 @@
 #   art/gen/run.sh setup        # once: virtualenv + dependencies (about 2 GB; models download on first generate)
 #   art/gen/run.sh doctor       # check the machine
 #   art/gen/run.sh pilot [N]    # guides + N candidates (default 4) for the 7 pilot slots
+#   art/gen/run.sh scenery [N]  # buildings + interiors + street background (33 slots), N candidates each
 #   art/gen/run.sh all [N]      # every slot that has a description
 #   art/gen/run.sh contact      # open the candidate sheet
 #   art/gen/run.sh build        # after `python promote.py pick ...`: WebP bundle + checks + sheet
@@ -27,6 +28,12 @@ case "${1:-help}" in
     py generate.py run --seeds "${2:-4}"
     py promote.py contact
     echo "Open art/gen/work/contact.html, then:  $VENV/bin/python promote.py pick building.bank=2 …"
+    ;;
+  scenery)
+    (cd "$ROOT" && pnpm art:gen:guides --group building,interior,board)
+    py generate.py run --seeds "${2:-1}"
+    py promote.py contact
+    echo "Open art/gen/work/contact.html. Approve seed 1 everywhere with:  $VENV/bin/python promote.py pick --all 1  then override single slots, then run.sh build"
     ;;
   all)
     (cd "$ROOT" && pnpm art:gen:guides)

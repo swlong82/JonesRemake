@@ -57,8 +57,8 @@ class Pipeline(unittest.TestCase):
         self.dir.cleanup()
 
     def build(self) -> int:
-        promote.cmd_pick(SimpleNamespace(picks=["building.test=1", "interior.test=1"]))
-        return promote.cmd_build(SimpleNamespace(grow=2, feather=1.0))
+        promote.cmd_pick(SimpleNamespace(picks=["building.test=1", "interior.test=1"], all=None))
+        return promote.cmd_build(SimpleNamespace(grow=2, feather=1.0, saturation=1.15, brightness=1.05))
 
     def test_build_and_check_pass(self) -> None:
         self.assertEqual(self.build(), 0)
@@ -84,9 +84,14 @@ class Pipeline(unittest.TestCase):
         finally:
             promote.FILE_BUDGET["building"] = 80_000
 
+    def test_pick_all_approves_every_slot_with_that_seed(self) -> None:
+        promote.cmd_pick(SimpleNamespace(picks=[], all=1))
+        approved = json.loads((promote.WORK / "approved.json").read_text())
+        self.assertEqual(sorted(approved), ["building.test", "interior.test"])
+
     def test_bad_pick_is_rejected(self) -> None:
         with self.assertRaises(SystemExit):
-            promote.cmd_pick(SimpleNamespace(picks=["building.test=9"]))
+            promote.cmd_pick(SimpleNamespace(picks=["building.test=9"], all=None))
 
     def test_contact_sheet_and_zip(self) -> None:
         self.build()

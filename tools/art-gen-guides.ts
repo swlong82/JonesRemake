@@ -31,6 +31,7 @@ interface Subjects {
   building: Record<string, string>;
   interior: Record<string, string>;
   host: Record<string, string>;
+  board: Record<string, string>;
   avatar: Record<string, string>;
   pose: Record<string, string>;
 }
@@ -46,7 +47,7 @@ export const PILOT_SLOTS = [
   'avatar:player-1:walk2:e',
 ] as const;
 
-export type Kind = 'building' | 'interior' | 'avatar' | 'host';
+export type Kind = 'building' | 'interior' | 'avatar' | 'host' | 'board';
 
 export interface Job {
   key: string;
@@ -72,6 +73,7 @@ const SIZES: Record<Kind, { genW: number; out: [number, number] }> = {
   interior: { genW: 1280, out: [1280, 800] },
   avatar: { genW: 768, out: [128, 192] },
   host: { genW: 768, out: [400, 600] },
+  board: { genW: 1600, out: [1600, 1000] },
 };
 
 /** Rough CLIP token count (words and punctuation); the real tokenizer is checked at generation time. */
@@ -89,6 +91,10 @@ export function promptFor(key: string): { kind: Kind; prompt: string } | null {
   if (kind === 'interior') {
     const what = subjects.interior[id];
     return what ? { kind, prompt: `interior of ${what}, ${s.preamble}, ${s.sceneSuffix}` } : null;
+  }
+  if (kind === 'board') {
+    const what = subjects.board[id];
+    return what ? { kind, prompt: `${what}, ${s.preamble}, ${s.sceneSuffix}` } : null;
   }
   if (kind === 'host') {
     const what = subjects.host.default;
@@ -113,10 +119,15 @@ function main(): void {
   if (args.includes('--pilot')) keys = [...PILOT_SLOTS];
   else if (flag('slots')) keys = flag('slots')!.split(',');
   else {
-    const group = flag('group');
+    // `--group building,interior,board` (comma separated) or every slot that has a description.
+    const groups = flag('group')?.split(',');
     keys = catalog
       .map((c) => c.key)
-      .filter((k) => promptFor(k) !== null && (group === undefined || k.startsWith(`${group}:`)));
+      .filter(
+        (k) =>
+          promptFor(k) !== null &&
+          (groups === undefined || groups.some((g) => k.startsWith(`${g}:`))),
+      );
   }
 
   mkdirSync(join(workDir, 'guides'), { recursive: true });
@@ -149,7 +160,7 @@ function main(): void {
       key,
       slug,
       kind: p.kind,
-      alpha: p.kind !== 'interior',
+      alpha: p.kind !== 'interior' && p.kind !== 'board',
       guide: `guides/${slug}.png`,
       genWidth: png.width,
       genHeight: png.height,
