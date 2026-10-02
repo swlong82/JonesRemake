@@ -1,4 +1,4 @@
-# Style guide — soft-lit vector city (draft v0, to ratify in P0)
+# Style guide — soft-lit vector city (approved daytime direction)
 
 Owner: art director. Change it by pull request; a style change needs the director's approval and, if it alters the direction, an ADR.
 
@@ -22,7 +22,7 @@ Friendly modern cartoon in clean vector: rounded shapes, one soft light from the
 
 ## Palette tokens (day)
 
-Proposed values; the P0 pass may adjust them, then this table becomes the single source (the generator and the web theme read the same module).
+Approved daytime palette for the Modern art set. The existing web theme is separate.
 
 | Token    | Hex       | Use                           |
 | -------- | --------- | ----------------------------- |
@@ -53,10 +53,10 @@ Paste this first, then the slot brief:
 
 Concepts are references only. The shipped file is clean vector that passes `pnpm art:check`.
 
-## P0 benchmark — candidate v0.1 (awaiting art-director review)
+## P0 benchmark — approved October 1, 2026
 
-The four-slot `modern` pack makes the daytime direction concrete. It is a review candidate,
-not a style freeze. Source: `tools/art-modern/draw.ts`; compare `art/review/p0/README.md`.
+The four-slot P0 pack established the approved daytime direction on October 1, 2026.
+The P1 retail extension retains that direction. Source: `tools/art-modern/draw.ts`; compare `art/review/p0/README.md`.
 
 | Material            | Light / base / shade              | Tonal outline |
 | ------------------- | --------------------------------- | ------------- |
