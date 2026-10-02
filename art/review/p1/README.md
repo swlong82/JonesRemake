@@ -22,4 +22,4 @@ The P0 benchmark files, zip and screenshots are historical evidence and remain u
 
 ## Validation record
 
-The generator, art validator, banned-terms check, lint, typecheck, build and targeted archive/import browser tests are run for this batch. The archive test compares all nine file entries (manifest plus eight SVGs) byte for byte with source. Browser tests exercise reimport, reload persistence, the four retail keys, inherited fallback and avatar tint at desktop and phone sizes. Current-head CI status is recorded in the draft PR and handover after publication.
+The generator, art validator, banned-terms check, lint, typecheck, build and targeted archive/import browser tests are run for this batch. The archive test compares all nine file entries (manifest plus eight SVGs) byte for byte with source. Browser tests exercise reimport, reload persistence, the four retail keys, inherited fallback and avatar tint at desktop and phone sizes. Current-head CI must be checked on the published draft PR before completion.
