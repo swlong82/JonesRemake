@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "id": "modern",
-  "name": "Soft-lit city \u00b7 P0 benchmark",
-  "version": "0.1.0",
+  "name": "Soft-lit city · P1 retail exteriors",
+  "version": "0.2.0",
   "author": "Hustle Ring contributors with Codex",
   "license": "MIT",
   "extends": "default",
@@ -22,6 +22,26 @@
     },
     "building:burger-joint": {
       "file": "building.burger-joint.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:clothing-boutique": {
+      "file": "building.clothing-boutique.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:discount-store": {
+      "file": "building.discount-store.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:electronics-store": {
+      "file": "building.electronics-store.svg",
+      "width": 240,
+      "height": 240
+    },
+    "building:grocery": {
+      "file": "building.grocery.svg",
       "width": 240,
       "height": 240
     },

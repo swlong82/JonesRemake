@@ -202,4 +202,4 @@ Web only; ADR-0063. Each task ships with unit tests; UI flows get axe coverage.
 - [x] Deliver three exterior slots and one matching interior as the importable `modern` pack,
       deterministic generator, style candidate and desktop/phone comparison evidence — see
       `art/review/p0/README.md`; rules and default assets unchanged.
-- [ ] Art director approves the benchmark and freezes the style before any whole-city rollout.
+- [x] Art director approved the P0 daytime style on 2026-10-01; the subsequent retail batch follows it. This approval does not authorize a whole-city rollout or default-art switch.

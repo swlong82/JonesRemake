@@ -1,4 +1,4 @@
-# P0 soft-lit city benchmark — review candidate
+# P0 soft-lit city benchmark — historical review candidate
 
 Three exterior overrides (Co-Living Pod, Burger Stack, NeoBank Branch) and the Co-Living
 interior. `modern` v0.1.0 extends `default`; the other 193 slots, board, UI theme, labels,
@@ -91,7 +91,11 @@ controls separately, with no disabled rule or app workaround. It does not claim 
 entire outside page passes axe. A separate UI task should add keyboard access to that
 scrollable region; this PR does not broaden into that fix.
 
-## Review gate and next task
+## Review outcome
+
+The art director approved this daytime direction on 2026-10-01. This document preserves the original P0 review evidence and test record; the approved next batch is documented under `art/review/p1`.
+
+## Original review gate and next task
 
 Art director: review the three silhouettes, strength of the tonal outlines at phone size,
 the bank pictogram, and the room/host contrast. Approve or request changes to the

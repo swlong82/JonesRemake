@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-/** Generate only the four P0 slots; refuse to overwrite independently drawn art. */
+/** Generate the cumulative Modern pack; refuse to overwrite independently drawn art. */
 import { mkdirSync, readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { drawBenchmark, MARKER } from './art-modern/draw.js';
@@ -18,4 +18,4 @@ for (const [file, svg] of Object.entries(drawBenchmark())) {
     writeFileSync(target, svg);
   }
 }
-console.log(`modern: four assets ${check ? 'match generator' : 'written'}`);
+console.log(`modern: eight assets ${check ? 'match generator' : 'written'}`);

@@ -5,9 +5,9 @@ import { checkSvg } from '@hustle-ring/art';
 import { nodeParseXml } from '../lib/art.js';
 import { drawBenchmark } from './draw.js';
 
-it('the four committed benchmark slots are reproducible, sanitized vectors without text or tint keys', () => {
+it('the eight committed Modern slots are reproducible, sanitized vectors without text or tint keys', () => {
   const files = drawBenchmark();
-  expect(Object.keys(files)).toHaveLength(4);
+  expect(Object.keys(files)).toHaveLength(8);
   for (const [file, svg] of Object.entries(files)) {
     expect(
       readFileSync(

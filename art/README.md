@@ -42,15 +42,15 @@ pnpm check:banned           # banned-terms scan
 
 ## Review
 
-Two gates. The art director reviews the contact sheet against `STYLE.md` (look). CI reviews the mechanics (`art:check`, banned terms, budgets). Approve in batches ("street pass") so style questions are settled once.
+Two gates. The art director reviews the contact sheet against `STYLE.md` (look). Local validation reviews the mechanics (`art:check`, banned terms, budgets); CI does not currently run the full `art:check` command. Approve in batches ("street pass") so style questions are settled once.
 
 ## Working with AI tools
 
-Anyone may use AI to draft, but the person who opens the PR is accountable for the file. Record the tool and prompt in `ASSET_LOG.md`, review the output against the checklist yourself, and never commit unreviewed generator output. See `GRAPHICS_PLAN.md` section 6 for tools and MCP servers.
+Anyone may use AI to draft, but the person who opens the PR is accountable for the file. Record the tool and prompt in `ASSET_LOG.md`, review the output against the checklist yourself, and never commit unreviewed generator output. See `GRAPHICS_PLAN.md` section 7 for tools and MCP servers, and section 3 for animation and 3D rules.
 
-## Try the P0 benchmark
+## Import the Modern pack
 
-The `modern` set currently overrides three buildings and the Co-Living room; 193 slots
+The `modern` v0.2.0 set overrides seven buildings and the Co-Living room; 189 slots
 inherit from `default`. It is delivered through the existing user-pack importer, because
 the web registry currently bundles only the default set. Merely adding a set folder does
 not make it selectable in the game.
@@ -60,15 +60,14 @@ pnpm art:modern                 # deterministic generation; leaves default untou
 pnpm art:modern --check         # fail on committed-output drift
 pnpm art:check
 pnpm art:preview --set modern
-mkdir -p reports
-(cd packages/art/sets/modern && zip -X -r ../../../../reports/modern-benchmark.zip manifest.json files)
+mkdir -p art/review/p1
+(cd packages/art/sets/modern && zip -X -q ../../../../art/review/p1/modern-retail-v0.2.0.zip manifest.json files/*.svg)
 ```
 
-Open the game → Settings → Art packs → import `reports/modern-benchmark.zip`.
-Select **Modern Western** in New Game to see the Co-Living Pod, Burger Stack and
-NeoBank labels; the art also works with Classic's same location IDs. Imported art stays
+Open the game → Settings → Art packs → import `art/review/p1/modern-retail-v0.2.0.zip`.
+Select **Modern Western** in New Game to see the Co-Living Pod, Burger Stack,
+NeoBank, MegaMart Marketplace, Threadline, GadgetHub and FreshCart Grocery labels; the art also works with Classic's same location IDs. Imported art stays
 on that browser/device. Select **Default** in Settings to compare or remove the pack.
 No deployment or loader edit is required; this pack also imports into the current live game.
 
-Review evidence and constraints: [P0 benchmark](review/p0/README.md).
-Anyone may use AI to draft, but the person who opens the PR is accountable for the file. Record the tool and prompt in `ASSET_LOG.md`, review the output against the checklist yourself, and never commit unreviewed generator output. See `GRAPHICS_PLAN.md` section 7 for tools and MCP servers, and section 3 for animation and 3D rules.
+Review evidence: [P0 benchmark](review/p0/README.md) and [P1 retail batch](review/p1/README.md).
