@@ -15,7 +15,14 @@ import {
   useArtPackLibrary,
   usablePacks,
 } from './artPackLibrary';
-import { artRegistryFor, DEFAULT_ART_SET, installArtSets, useArtSets } from './artRegistry';
+import {
+  artRegistryFor,
+  DEFAULT_ART_SET,
+  IMPORTED_MODERN_ID,
+  installArtSets,
+  MODERN_ART_SET,
+  useArtSets,
+} from './artRegistry';
 import { MAX_ENTRIES, readArtPackZip } from './importPack';
 import { loadPack } from '@hustle-ring/content';
 
@@ -144,7 +151,7 @@ describe('installed art sets (ART_SPEC 17.5)', () => {
     );
     expect(revoked).toEqual([`blob:${BANK.length}`]);
     // An unknown active id falls back to the bundled set.
-    expect(useArtSets.getState().active).toBe('default');
+    expect(useArtSets.getState().active).toBe('modern');
     expect(artRegistryFor(pack)).not.toBe(r);
   });
 
@@ -175,7 +182,7 @@ describe('art-pack library (M9.12)', () => {
     expect(bad.ok).toBe(false);
     await deleteArtPack('mine', store);
     expect(await store.list()).toEqual([]);
-    expect(useSettings.getState().settings.artSet).toBe('default');
+    expect(useSettings.getState().settings.artSet).toBe('modern');
   });
 
   it('skips stored packs whose manifest no longer parses', async () => {
@@ -190,6 +197,35 @@ describe('art-pack library (M9.12)', () => {
     expect(usablePacks(await store.list())).toEqual([]);
     await refreshLibrary(store);
     expect(useArtPackLibrary.getState().loaded).toBe(true);
+  });
+
+  it('keeps an older imported Modern pack separate from bundled Modern through reload and delete', async () => {
+    const store = new MemoryArtPackStore();
+    const imported = zip({
+      'manifest.json': JSON.stringify(manifest({ id: 'modern', name: 'My older Modern' })),
+      'files/bank.svg': BANK,
+    });
+    expect((await importArtPack(imported, store)).ok).toBe(true);
+    expect(useSettings.getState().settings.artSet).toBe(IMPORTED_MODERN_ID);
+    expect(useArtPackLibrary.getState().packs[0]?.manifest.id).toBe(IMPORTED_MODERN_ID);
+    expect(useArtSets.getState().sets.get('modern')).toEqual(MODERN_ART_SET);
+    // Reinstall as on page load: the chosen imported file wins, while missing keys inherit original art.
+    installArtSets(
+      useArtPackLibrary.getState().packs,
+      IMPORTED_MODERN_ID,
+      () => 'blob:older',
+      () => undefined,
+    );
+    const registry = artRegistryFor(loadPack('classic'));
+    await expect(registry.url('building:bank')).resolves.toBe('blob:older');
+    await expect(registry.url('building:park')).resolves.not.toBe(
+      registry.wireframe('building:park'),
+    );
+    await refreshLibrary(store);
+    expect(useArtPackLibrary.getState().packs[0]?.manifest.id).toBe(IMPORTED_MODERN_ID);
+    await deleteArtPack(IMPORTED_MODERN_ID, store);
+    expect(await store.get('modern')).toBeNull();
+    expect(useSettings.getState().settings.artSet).toBe('modern');
   });
 });
 

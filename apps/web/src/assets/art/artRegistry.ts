@@ -23,6 +23,7 @@ import {
   type SlotSpec,
 } from '@hustle-ring/art';
 import defaultManifestJson from '@hustle-ring/art/sets/default/manifest.json';
+import modernManifestJson from '@hustle-ring/art/sets/modern/manifest.json';
 import type { PaletteId } from '@hustle-ring/shared';
 import { create } from 'zustand';
 import { PALETTE_HEX } from '../AssetRegistry';
@@ -39,16 +40,26 @@ const DEFAULT_FILES = import.meta.glob<string>(
     eager: true,
   },
 );
+const MODERN_FILES = import.meta.glob<string>(
+  '../../../../../packages/art/sets/modern/files/*.svg',
+  { query: '?url', import: 'default', eager: true },
+);
 
 function bundledUrls(): Map<string, string> {
   const out = new Map<string, string>();
   for (const [path, url] of Object.entries(DEFAULT_FILES)) {
     out.set(`default/${path.slice(path.lastIndexOf('/') + 1)}`, url);
   }
+  for (const [path, url] of Object.entries(MODERN_FILES)) {
+    out.set(`modern/${path.slice(path.lastIndexOf('/') + 1)}`, url);
+  }
   return out;
 }
 
 export const DEFAULT_ART_SET: ArtManifest = ArtManifestSchema.parse(defaultManifestJson);
+export const MODERN_ART_SET: ArtManifest = ArtManifestSchema.parse(modernManifestJson);
+/** Older imported packs may already use the now-bundled `modern` id. */
+export const IMPORTED_MODERN_ID = '@imported-modern';
 
 export interface ArtRegistryDeps {
   /** `setId/file` → URL. Bundled sets come from the glob; user sets from their stored blobs. */
@@ -165,9 +176,12 @@ interface ArtSetsState {
 }
 
 export const useArtSets = create<ArtSetsState>(() => ({
-  sets: new Map([['default', DEFAULT_ART_SET]]),
+  sets: new Map([
+    ['default', DEFAULT_ART_SET],
+    ['modern', MODERN_ART_SET],
+  ]),
   urls: new Map(),
-  active: 'default',
+  active: 'modern',
   version: 0,
 }));
 
@@ -188,19 +202,23 @@ export function installArtSets(
 ): void {
   const prev = useArtSets.getState();
   for (const url of prev.urls.values()) revoke(url);
-  const sets = new Map<string, ArtManifest>([['default', DEFAULT_ART_SET]]);
+  const sets = new Map<string, ArtManifest>([
+    ['default', DEFAULT_ART_SET],
+    ['modern', MODERN_ART_SET],
+  ]);
   const urls = new Map<string, string>();
   for (const pack of packs) {
     if (pack.manifest.id === 'default') continue;
-    sets.set(pack.manifest.id, pack.manifest);
+    const id = pack.manifest.id === 'modern' ? IMPORTED_MODERN_ID : pack.manifest.id;
+    sets.set(id, { ...pack.manifest, id });
     for (const [file, svg] of Object.entries(pack.files)) {
-      urls.set(`${pack.manifest.id}/${file}`, urlFor(svg));
+      urls.set(`${id}/${file}`, urlFor(svg));
     }
   }
   useArtSets.setState({
     sets,
     urls,
-    active: sets.has(active) ? active : 'default',
+    active: sets.has(active) ? active : 'modern',
     version: prev.version + 1,
   });
 }

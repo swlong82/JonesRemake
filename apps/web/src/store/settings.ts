@@ -37,8 +37,10 @@ export interface Settings {
   strictMode: boolean;
   /** Short vibration on success or failure on devices that support it (M12.8). */
   haptics: boolean;
-  /** Active art set (ART_SPEC 17.6): `default` or an imported pack's id. */
+  /** Active art set: bundled Modern, original art, or an imported pack's id. */
   artSet: string;
+  /** Distinguishes saved choices from before bundled Modern was introduced. */
+  artSelectionVersion: 1;
 }
 
 export interface LocalStats {
@@ -67,7 +69,8 @@ export const DEFAULT_SETTINGS: Settings = {
   coachSeen: [],
   strictMode: false,
   haptics: true,
-  artSet: 'default',
+  artSet: 'modern',
+  artSelectionVersion: 1,
 };
 
 export const DEFAULT_STATS: LocalStats = {
@@ -98,6 +101,38 @@ function write(key: string, value: unknown): void {
   }
 }
 
+export function readSettings(): Settings {
+  const saved = read(SETTINGS_KEY, DEFAULT_SETTINGS);
+  let current = false;
+  try {
+    const raw = globalThis.localStorage.getItem(SETTINGS_KEY);
+    current = raw !== null && (JSON.parse(raw) as Partial<Settings>).artSelectionVersion === 1;
+  } catch {
+    // Invalid or unavailable storage uses the bundled Modern defaults.
+  }
+  if (current) return saved;
+  // With no saved settings this is a fresh profile, already on Modern.
+  try {
+    if (globalThis.localStorage.getItem(SETTINGS_KEY) === null) return DEFAULT_SETTINGS;
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+  // The old app offered only original art by default. An explicit imported `modern` pack used
+  // the same id that is now bundled, so keep it under a separate choice.
+  const settings: Settings = {
+    ...saved,
+    artSet:
+      saved.artSet === 'default'
+        ? 'modern'
+        : saved.artSet === 'modern'
+          ? '@imported-modern'
+          : saved.artSet,
+    artSelectionVersion: 1,
+  };
+  write(SETTINGS_KEY, settings);
+  return settings;
+}
+
 export interface SettingsStore {
   settings: Settings;
   stats: LocalStats;
@@ -112,7 +147,7 @@ export interface SettingsStore {
 }
 
 export const useSettings = create<SettingsStore>((set, get) => ({
-  settings: read(SETTINGS_KEY, DEFAULT_SETTINGS),
+  settings: readSettings(),
   stats: read(STATS_KEY, DEFAULT_STATS),
   update(patch) {
     const settings = { ...get().settings, ...patch };
