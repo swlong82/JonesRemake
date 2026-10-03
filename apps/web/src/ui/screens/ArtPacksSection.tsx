@@ -37,8 +37,12 @@ export function ArtPacksSection() {
   };
 
   const options = [
+    { id: 'modern', name: t('artPacks.modern') },
     { id: 'default', name: t('artPacks.default') },
-    ...packs.map((p) => ({ id: p.manifest.id, name: p.manifest.name })),
+    ...packs.map((p) => ({
+      id: p.manifest.id,
+      name: t('artPacks.importedChoice', { name: p.manifest.name }),
+    })),
   ];
 
   return (
@@ -61,7 +65,7 @@ export function ArtPacksSection() {
             />
             {o.name}
           </label>
-          {o.id !== 'default' && (
+          {o.id !== 'default' && o.id !== 'modern' && (
             <Button
               variant="ghost"
               onClick={() => void deleteArtPack(o.id, artPacks)}

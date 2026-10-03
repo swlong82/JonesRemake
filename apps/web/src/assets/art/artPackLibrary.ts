@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { create } from 'zustand';
 import { useServices } from '../../platform/Services';
 import { useSettings } from '../../store/settings';
-import { installArtSets, type InstalledPack } from './artRegistry';
+import { IMPORTED_MODERN_ID, installArtSets, type InstalledPack } from './artRegistry';
 import { readArtPackZip, type ImportResult } from './importPack';
 
 interface LibraryState {
@@ -32,7 +32,12 @@ export function usablePacks(stored: readonly StoredArtPack[]): InstalledPack[] {
   const out: InstalledPack[] = [];
   for (const p of stored) {
     const parsed = ArtManifestSchema.safeParse(p.manifest);
-    if (parsed.success) out.push({ manifest: parsed.data, files: p.files });
+    if (parsed.success)
+      out.push({
+        manifest:
+          parsed.data.id === 'modern' ? { ...parsed.data, id: IMPORTED_MODERN_ID } : parsed.data,
+        files: p.files,
+      });
   }
   return out;
 }
@@ -40,6 +45,11 @@ export function usablePacks(stored: readonly StoredArtPack[]): InstalledPack[] {
 export async function refreshLibrary(store: ArtPackStore): Promise<void> {
   const packs = usablePacks(await store.list());
   useArtPackLibrary.getState().set(packs);
+  if (
+    useSettings.getState().settings.artSet === IMPORTED_MODERN_ID &&
+    !packs.some((p) => p.manifest.id === IMPORTED_MODERN_ID)
+  )
+    useSettings.getState().update({ artSet: 'modern' });
 }
 
 /** Validation context: every playable pack's locations and personalities, and its board size. */
@@ -64,15 +74,17 @@ export async function importArtPack(
   if (!result.ok || !result.pack) return result;
   await store.put({ ...result.pack, importedAt: now() });
   await refreshLibrary(store);
-  useSettings.getState().update({ artSet: result.pack.id });
+  useSettings.getState().update({
+    artSet: result.pack.id === 'modern' ? IMPORTED_MODERN_ID : result.pack.id,
+  });
   return result;
 }
 
 export async function deleteArtPack(id: string, store: ArtPackStore): Promise<void> {
-  await store.delete(id);
+  await store.delete(id === IMPORTED_MODERN_ID ? 'modern' : id);
   await refreshLibrary(store);
   if (useSettings.getState().settings.artSet === id)
-    useSettings.getState().update({ artSet: 'default' });
+    useSettings.getState().update({ artSet: 'modern' });
 }
 
 /** Load the library once and keep the registry in step with it and the active set. */

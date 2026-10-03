@@ -39,10 +39,14 @@ for (const modern of [false, true]) {
         .getByTestId('artpack-file')
         .setInputFiles({ name: 'modern.zip', mimeType: 'application/zip', buffer: zip });
       await expect(page.getByTestId('artpack-report')).toHaveAttribute('data-ok', 'true');
-      await expect(page.getByTestId('artset-modern')).toBeChecked();
+      await expect(page.getByTestId('artset-@imported-modern')).toBeChecked();
       await page.reload();
       await page.getByTestId('settings').click();
-      await expect(page.getByTestId('artset-modern')).toBeChecked();
+      await expect(page.getByTestId('artset-@imported-modern')).toBeChecked();
+      await page.getByTestId('back').click();
+    } else {
+      await page.getByTestId('settings').click();
+      await page.getByTestId('artset-default').check();
       await page.getByTestId('back').click();
     }
     await page.getByTestId('new-game').click();

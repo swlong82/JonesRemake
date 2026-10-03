@@ -48,12 +48,13 @@ Two gates. The art director reviews the contact sheet against `STYLE.md` (look).
 
 Anyone may use AI to draft, but the person who opens the PR is accountable for the file. Record the tool and prompt in `ASSET_LOG.md`, review the output against the checklist yourself, and never commit unreviewed generator output. See `GRAPHICS_PLAN.md` section 7 for tools and MCP servers, and section 3 for animation and 3D rules.
 
-## Import the Modern pack
+## Bundled Modern art
 
-The `modern` v0.2.0 set overrides seven buildings and the Co-Living room; 189 slots
-inherit from `default`. It is delivered through the existing user-pack importer, because
-the web registry currently bundles only the default set. Merely adding a set folder does
-not make it selectable in the game.
+The `modern` v0.2.0 set ships with the game and is selected automatically. It overrides seven
+buildings and the Co-Living room; 189 slots inherit from the original `default` set. Settings →
+Art packs offers **Modern art** and **Original art**, plus any imported packs. Existing players
+using the original built-in art move to Modern on update; an explicitly selected imported pack
+remains selected. Older imported packs named `modern` appear separately as an imported choice.
 
 ```bash
 pnpm art:modern                 # deterministic generation; leaves default untouched
@@ -64,10 +65,10 @@ mkdir -p art/review/p1
 (cd packages/art/sets/modern && zip -X -q ../../../../art/review/p1/modern-retail-v0.2.0.zip manifest.json files/*.svg)
 ```
 
-Open the game → Settings → Art packs → import `art/review/p1/modern-retail-v0.2.0.zip`.
-Select **Modern Western** in New Game to see the Co-Living Pod, Burger Stack,
-NeoBank, MegaMart Marketplace, Threadline, GadgetHub and FreshCart Grocery labels; the art also works with Classic's same location IDs. Imported art stays
-on that browser/device. Select **Default** in Settings to compare or remove the pack.
-No deployment or loader edit is required; this pack also imports into the current live game.
+Start a game with **Modern Western** to see the Co-Living Pod, Burger Stack, NeoBank, MegaMart
+Marketplace, Threadline, GadgetHub and FreshCart Grocery labels. The same location art also works
+with Classic. The P1 zip remains a historical, importable archive for review; importing it creates
+a separate imported choice. Select **Original art** in Settings to compare.
 
-Review evidence: [P0 benchmark](review/p0/README.md) and [P1 retail batch](review/p1/README.md).
+Review evidence: [P0 benchmark](review/p0/README.md), [P1 retail batch](review/p1/README.md),
+and [bundled release](review/release/README.md).

@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { applyDocumentSettings, DEFAULT_SETTINGS, DEFAULT_STATS, useSettings } from './settings';
+import {
+  applyDocumentSettings,
+  DEFAULT_SETTINGS,
+  DEFAULT_STATS,
+  readSettings,
+  useSettings,
+} from './settings';
 
 describe('settings store', () => {
   beforeEach(() => {
@@ -10,6 +16,17 @@ describe('settings store', () => {
   it('starts from the documented defaults', () => {
     expect(useSettings.getState().settings).toEqual(DEFAULT_SETTINGS);
     expect(useSettings.getState().stats).toEqual(DEFAULT_STATS);
+    expect(readSettings().artSet).toBe('modern');
+  });
+
+  it.each([
+    ['default', 'modern'],
+    ['modern', '@imported-modern'],
+    ['my-own-pack', 'my-own-pack'],
+  ])('migrates the old %s art choice to %s once', (before, after) => {
+    localStorage.setItem('hustle-ring:settings', JSON.stringify({ artSet: before, muted: true }));
+    expect(readSettings()).toMatchObject({ artSet: after, muted: true, artSelectionVersion: 1 });
+    expect(readSettings().artSet).toBe(after);
   });
 
   it('persists an updated setting to localStorage', () => {

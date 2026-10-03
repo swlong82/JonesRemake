@@ -3,7 +3,14 @@ import { loadPack } from '@hustle-ring/content';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { PALETTE_HEX } from '../AssetRegistry';
-import { ArtRegistry, artRegistryFor, DEFAULT_ART_SET, type ArtRegistryDeps } from './artRegistry';
+import {
+  ArtRegistry,
+  artRegistryFor,
+  DEFAULT_ART_SET,
+  installArtSets,
+  MODERN_ART_SET,
+  type ArtRegistryDeps,
+} from './artRegistry';
 import { useArtUrl } from './useArtUrl';
 
 const pack = loadPack('classic');
@@ -36,6 +43,22 @@ function setup(overrides: Partial<ArtRegistryDeps> = {}, user?: ArtManifest) {
 }
 
 describe('ArtRegistry (ART_SPEC 17.5)', () => {
+  it('bundles Modern for fresh profiles and inherits unpainted keys from original art', async () => {
+    installArtSets(
+      [],
+      'modern',
+      () => 'blob:unused',
+      () => undefined,
+    );
+    const registry = artRegistryFor(pack);
+    expect(MODERN_ART_SET.extends).toBe('default');
+    expect(Object.keys(MODERN_ART_SET.assets)).toHaveLength(8);
+    const bank = await registry.url('building:bank');
+    expect(bank).not.toBe(registry.wireframe('building:bank'));
+    expect(bank).not.toBe(await registry.url('building:park'));
+    expect(await registry.url('building:park')).not.toBe(registry.wireframe('building:park'));
+    expect(registry.has(AVATAR)).toBe(true);
+  });
   it('knows every catalog slot of the bundled default set, with board and theme', () => {
     const { registry } = setup();
     for (const slot of catalog) expect(registry.has(slot.key), slot.key).toBe(true);
