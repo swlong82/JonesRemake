@@ -19,7 +19,7 @@
     "fflate": "0.8.3",
     "framer-motion": "^11",
     "i18next": "^26.4.2",
-    "lucide-react": "^1.48.0",
+    "lucide-react": "^1.52.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^17.0.15",
@@ -32,7 +32,7 @@
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^5.2.0",
     "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
+    "postcss": "^8.5.29",
     "tailwindcss": "^3.4.19",
     "vite": "^6.4.3"
   }
