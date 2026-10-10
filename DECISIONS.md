@@ -690,3 +690,11 @@
 - Consequence: import is required on each browser/device. Missing slots inherit the default.
   P0 deliberately shows a mixed old/new city so reviewers can judge the transition. Bundling
   and selecting a modern set automatically is a later decision, after visual review.
+
+## ADR-0068: REA MCP + skill registered at project scope
+
+- Date: 2026-10-10
+- Status: Accepted
+- Context: owner asked for REA (github.com/morluto/rea, npm `rea-agents`) to be available for this and future projects. User-scope config lives in an ephemeral cloud container and is lost; project scope persists.
+- Decision: commit `.mcp.json` (stdio server, pinned `rea-agents@6.3.0`) and `.claude/skills/reverse-engineer-anything/` (skill from `rea setup`). Runtime/dev tooling only; not part of the game bundle, engine or CI gates. Use REA only for shipped-artifact analysis, not for ordinary source analysis.
+- Consequences: sessions on this repo get REA tools after approving the project MCP server. Native analysis still needs Ghidra/Hopper/IDA (not installed). Bump the pinned version deliberately.
