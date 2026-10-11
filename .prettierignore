@@ -8,3 +8,4 @@ reports
 *.tsbuildinfo
 CHANGELOG.md
 docs/
+.claude/skills/

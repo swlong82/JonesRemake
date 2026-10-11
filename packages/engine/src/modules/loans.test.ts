@@ -350,6 +350,7 @@ describe('loans module (GDD 4.12)', () => {
         p.location = 'burger-joint';
         p.inside = true;
         p.job = { jobId: 'burger-joint-cook', wage: 10, raises: 0, hiredWeek: 1 };
+        p.clothing = [{ tier: 'casual', weeksLeft: 4 }];
         p.home.debt = 0;
         p.home.debtSinceWeek = null;
       },

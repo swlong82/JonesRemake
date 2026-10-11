@@ -27,6 +27,10 @@ describe('classic pack anchors', () => {
     expect(pack.jobById['bank-broker']!.reqDegrees.sort()).toEqual(['academic', 'business-admin']);
     expect(pack.jobById['factory-engineer']!.reqDegrees).toHaveLength(2);
   });
+  it('every job needs an outfit: worn-out clothes block all work (original has no clothing-free job)', () => {
+    for (const j of pack.jobs)
+      expect(pack.uniformRank[j.uniformTier], j.id).toBeGreaterThanOrEqual(1);
+  });
   it('10 workplaces with 2–9 jobs each, 46 jobs, wages $4–$25', () => {
     const byWp = new Map<string, number>();
     for (const j of pack.jobs) byWp.set(j.workplaceId, (byWp.get(j.workplaceId) ?? 0) + 1);

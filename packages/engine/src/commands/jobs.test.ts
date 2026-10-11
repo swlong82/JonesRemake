@@ -130,6 +130,16 @@ describe('Work (GDD 4.6)', () => {
     const r2 = applyCommand(low, 0, { type: 'Work', hours: 12 }, pack);
     expect(r2.events.find((e) => e.type === 'Worked')).toMatchObject({ hours: 5, pay: 13 });
   });
+  it('rejects work in the entry job once every outfit has worn out', () => {
+    const s = employed('naked');
+    expect(
+      applyCommand(s, 0, { type: 'Work', hours: 6 }, pack).events.map((e) => e.type),
+    ).toContain('Worked');
+    const bare = patch(s, 0, (p) => (p.clothing = []));
+    expect(applyCommand(bare, 0, { type: 'Work', hours: 6 }, pack).events[0]).toMatchObject({
+      code: 'ERR_UNIFORM_REQUIRED',
+    });
+  });
   it('rejects: no job, wrong location, outside, uniform too low', () => {
     const s = goInside(newGame('work2'), 0, 'burger-joint');
     expect(applyCommand(s, 0, { type: 'Work', hours: 12 }, pack).events[0]).toMatchObject({

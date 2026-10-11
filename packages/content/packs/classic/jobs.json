@@ -7,7 +7,7 @@
     "reqExperience": 0,
     "reqDependability": 0,
     "reqDegrees": [],
-    "uniformTier": "none",
+    "uniformTier": "casual",
     "automationRisk": 0.45,
     "alwaysHire": true
   },
@@ -63,7 +63,7 @@
     "reqExperience": 10,
     "reqDependability": 10,
     "reqDegrees": [],
-    "uniformTier": "none",
+    "uniformTier": "casual",
     "automationRisk": 0.5
   },
   {
@@ -272,7 +272,7 @@
     "reqExperience": 10,
     "reqDependability": 12,
     "reqDegrees": [],
-    "uniformTier": "none",
+    "uniformTier": "casual",
     "automationRisk": 0.5
   },
   {
@@ -393,7 +393,7 @@
     "reqExperience": 12,
     "reqDependability": 15,
     "reqDegrees": [],
-    "uniformTier": "none",
+    "uniformTier": "casual",
     "automationRisk": 0.4
   },
   {
@@ -404,7 +404,7 @@
     "reqExperience": 20,
     "reqDependability": 28,
     "reqDegrees": [],
-    "uniformTier": "none",
+    "uniformTier": "casual",
     "automationRisk": 0.15
   },
   {
@@ -415,7 +415,7 @@
     "reqExperience": 30,
     "reqDependability": 40,
     "reqDegrees": ["junior-college"],
-    "uniformTier": "none",
+    "uniformTier": "casual",
     "automationRisk": 0.05
   },
   {
@@ -459,7 +459,7 @@
     "reqExperience": 8,
     "reqDependability": 8,
     "reqDegrees": [],
-    "uniformTier": "none",
+    "uniformTier": "casual",
     "automationRisk": 0.3
   },
   {
