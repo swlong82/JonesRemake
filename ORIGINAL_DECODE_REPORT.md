@@ -134,17 +134,17 @@ Distribution: wages 5-25; requirements 10-70 in steps of ten; 24 jobs need at le
 
 The workplace column is the ring location code (1 rent office, 3 grocery, 4 bank, 5 factory, 7 university, 8 electronics shop, 10 burger place, 11 discount shop, 12 pawn shop). The employment office and the clothing boutique offer no jobs. Each list is a ladder in listing order, written as wage / dependability / experience.
 
-| Workplace        | Jobs           | Ladder                                                                                                                                                                                                                                                                                 |
-| ---------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Rent office (1)  | 2              | 7/20/10, 9/30/30                                                                                                                                                                                                                                                                       |
-| Grocery          | +1, +2, +4, +2 | food packs of 1, 2 and 4 weeks: +1, +2, +4; lottery ticket +2                                                                                                                                                                                                                          |
-| Bank (4)         | 5              | 6/20/10, 10/40/40, 14/50/50, 19/60/60, 22/70/70                                                                                                                                                                                                                                        |
-| Factory (5)      | 9              | 7/20/10, 8/30/30, 9/40/40, 10/40/40, 18/50/50, 19/50/50, 22/60/60, 23/60/60, 25/70/70                                                                                                                                                                                                  |
-| University (7)   | 3              | 5/10/10, 11/50/40, 20/60/50                                                                                                                                                                                                                                                            |
-| Electronics shop | per item       | refrigerator +1, freezer +2, stove +1, colour television +2, video player +2, stereo +2, microwave +2, hot tub +3, computer +3                                                                                                                                                         |
-| Burger place     | per item       | the 124 item +2, the 102 item +2, the 89 item +1, the 69 item +1; the 79 and 65 items give nothing                                                                                                                                                                                     |
-| Discount shop    | per item       | refrigerator, stove, stereo, colour television, microwave and video player +1 each; baseball, theatre and concert tickets +2 each; encyclopedia, dictionary and atlas +1 each; the three junk goods (base 18, 75, 100) -1, -1, -2; black-and-white television and outfits give nothing |
-| Pawn shop (12)   | 4              | 6/20/10, 8/30/30, 9/40/40, 12/50/50                                                                                                                                                                                                                                                    |
+| Workplace            | Jobs | Ladder                                                                                |
+| -------------------- | ---- | ------------------------------------------------------------------------------------- |
+| Rent office (1)      | 2    | 7/20/10, 9/30/30                                                                      |
+| Grocery (3)          | 5    | 6/10/10, 8/20/20, 9/30/30, 15/40/40, 18/50/50                                         |
+| Bank (4)             | 5    | 6/20/10, 10/40/40, 14/50/50, 19/60/60, 22/70/70                                       |
+| Factory (5)          | 9    | 7/20/10, 8/30/30, 9/40/40, 10/40/40, 18/50/50, 19/50/50, 22/60/60, 23/60/60, 25/70/70 |
+| University (7)       | 3    | 5/10/10, 11/50/40, 20/60/50                                                           |
+| Electronics shop (8) | 4    | 6/20/10, 7/30/20, 11/40/40, 14/40/40                                                  |
+| Burger place (10)    | 3    | 6/20/10, 7/30/20, 8/40/30                                                             |
+| Discount shop (11)   | 3    | 5/10/10, 7/20/20, 8/30/30                                                             |
+| Pawn shop (12)       | 4    | 6/20/10, 8/30/30, 9/40/40, 12/50/50                                                   |
 
 Requirements for degrees follow the first table. The top job (25/70/70) is in the factory; the 20/60/50 job is in the university. `classic` has ten workplaces and 46 jobs, includes clothing-boutique and employment-office jobs, and starts its ladders lower (dependability and experience 0).
 
