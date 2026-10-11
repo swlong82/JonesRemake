@@ -66,6 +66,8 @@ Related: `docs/ORIGINAL_REFERENCE.md` (the researched baseline), ADR-0069 (audit
 | 48  | Appliance breakdown gate        | the breakdown check runs only while the player's cash is over 500, and only for appliances that are flagged breakable, owned in quantity above 1 and not pawned                                                                                                                                                                                                                                           | code             | no cash gate                                                                                                                   | **diverges**                            |
 | 49  | Destitution relief              | at the end of the turn-start checks: if the player has no clothing weeks left, net worth under 300, cash under 300 and the naked counter above 1, a benefactor scene gives `price(50, economy) + random(1,100)`                                                                                                                                                                                           | code, medium     | none                                                                                                                           | **gap**                                 |
 | 50  | Fresh food storage              | without a refrigerator, fresh food spoils; with a refrigerator but no freezer, stock above 6 spoils down to 6; with a freezer, stock above 12 spoils down to 12                                                                                                                                                                                                                                           | code             | fridge 6, freezer 12                                                                                                           | match                                   |
+| 51  | Door rules                      | a player can enter the apartment they live in but not the other one; the rent office is open to a player only in rent weeks (every 4th week), if they work there, or if an extension is in force; every other place is always open                                                                                                                                                                        | code, medium     | no opening hours                                                                                                               | **gap**                                 |
+| 52  | Firing                          | on a work attempt, if dependability is below the job's minimum minus 5 the player is fired: wage, workplace, occupation and job are cleared; no happiness change was found                                                                                                                                                                                                                                | code             | margin 10; happiness -5                                                                                                        | **diverges**                            |
 
 ## 3. Data tables
 
@@ -205,6 +207,7 @@ Each needs its own ADR and a `sim:gate` run before any change.
 11. Weekend events: replace the 12 weighted events with the original's structure (ticket event, then a uniform draw from 42 events in three cost tiers, no immediate repeats, a single positive-happiness event) if a faithful classic is wanted.
 12. Street thief: flat 1-in-51 (grocery) and 1-in-31 (bank) per entry from week 4, taking all cash on hand, instead of a rate that rises with cash carried.
 13. Experience cap: `jobExperienceRequirement + 10` (plus 10 for entry jobs) with +2 experience on hire, instead of `20 + requirement + 5 per degree`.
+14. Firing margin 5 with no happiness penalty, and rent-office opening weeks plus apartment access control.
 
 ## 5. Not decoded
 
@@ -280,3 +283,32 @@ Rules in priority order, most urgent first:
 14. Fallback: go home.
 
 What this gives a rebuild: the rival's behaviour is a survival-first planner (food, outfit, rent), then career, then study, then optional spending, with fixed cash thresholds of 400, 750, 800 and 1500 and a 1-in-2 coin for study. Exact conditions for the market rules and the action codes remain unmapped.
+
+## 9. Appendix: global state map
+
+Names are descriptive; they are inferred from how each value is used. Values marked * are only used inside the rival decision script.
+
+| Global                                           | Meaning                                                               |
+| ------------------------------------------------ | --------------------------------------------------------------------- |
+| current player                                   | the player whose turn it is                                           |
+| week                                             | week counter; rent and loan checks use `week mod 4`                   |
+| hours used                                       | 0..60 clock; 60 ends the week                                         |
+| tick counter, ticks per hour                     | walk-time counters (15 path points per hour)                          |
+| economy reading, economy trend                   | the economy row's reading (70..190) and trend (-3..3 widened to +-5)  |
+| price-index readings, trends                     | one reading and one trend for each of seven price rows                |
+| price scale                                      | the economy reading used to scale prices (base price x reading / 100) |
+| crash severity (1..3), boom flag                 | set at the weekly market check; cleared when the turn passes on       |
+| headline id                                      | which economy headline to show                                        |
+| number of players                                | 1..4; scales crash and boom odds                                      |
+| plan id, first/second/third action*              | the rival's current plan                                              |
+| food in stock*, outfit price*, food price*       | rival planner inputs                                                  |
+| sellable durables value*, pawn redemption value* | rival planner inputs                                                  |
+| food place*                                      | 3 (grocery) with a refrigerator, otherwise 10 (burger place)          |
+| may-spend flag*                                  | whether the rival can make optional purchases this turn               |
+| game-over flags                                  | set when a player wins                                                |
+
+Ring location codes used by the rival: 0 low-cost apartment, 1 rent office, 2 secure apartment, 3 grocery, 4 bank, 5 factory, 6 employment office, 7 university, 8 electronics shop, 9 clothing boutique, 10 burger place, 11 discount shop, 12 pawn shop.
+
+## 10. How the evidence was gathered
+
+All findings come from static analysis of a user-supplied copy: archive parsing, selector-name recovery, object property tables, local-variable data blocks, and a stack-based decompiler for method bytecode. Nothing was run. Confidence is stated per rule. The extraction tooling is not part of this repository.
