@@ -158,6 +158,27 @@ The weeks-of-wear reading is medium confidence. The original outfits last longer
 
 Six instruments. One is fixed at 100 per share. The other five start at realistic per-unit prices of about 413, 14, 20, 49 and 7. `classic` normalises all six to a starting index of 100 with per-instrument bounds. Movement is a shared trend model (rules 26-30), not per-instrument bounds: every price row follows the same clamp of 70-190 and the economy's trend.
 
+### 3.6 Happiness changes by place
+
+Every change goes through one clamp-to-0..100 helper. Values are the deltas passed in code order; the item or action each belongs to is given where it could be inferred, otherwise left unmapped. Confidence: high for the values, medium for the pairing.
+
+| Place                          | Deltas (code order)                                                    | Reading                                                                                                                         |
+| ------------------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Low-cost and secure apartments | +2 each                                                                | relaxing at home gives a base +2 (plus comfort bonuses computed in the turn loop)                                               |
+| Employment office              | -1, +3, +3                                                             | refused, hired, raise                                                                                                           |
+| University                     | +5                                                                     | graduation                                                                                                                      |
+| Grocery                        | +1, +2, +4, +2                                                         | the three food packs (1, 2, 4 units), then the lottery ticket                                                                   |
+| Burger place                   | +1, +2, +2, +1                                                         | four menu items                                                                                                                 |
+| Electronics shop               | +1, +2, +1, +2, +2, +2, +2, +3, +3                                     | nine durables in listing order: small appliances +1 to +2, hot tub and computer +3                                              |
+| Discount shop                  | +1 x 6, +2 x 3, +1 x 3, -1, -1, -2                                     | six durables +1; three tickets +2; three reference books +1; three junk goods -1, -1, -2                                        |
+| Clothing boutique              | +2, +1                                                                 | two outfit purchases                                                                                                            |
+| Bank                           | +5, -1, -1                                                             | loan granted, then two penalties (late or refused, unmapped)                                                                    |
+| Pawn shop                      | -1, -1                                                                 | selling and a second event                                                                                                      |
+| Turn loop                      | +1, +5, +3, -4, -2, -1, -1, -2, -4, -1, -1, -3, -5, -2, -2, -1, -1, +5 | includes the lottery win (+10 for the top prize, +5 otherwise), burglary and theft (-4), starvation (-5); the rest are unmapped |
+| Player end-of-turn             | -3 twice                                                               | unmapped                                                                                                                        |
+
+Compared with `classic`: purchase boosts here are smaller (best durable +3, ours up to +6; concert and theatre tickets +2 each, ours +3 and +2; books +1 equal; junk -1 and -2, equal), and the lottery grants happiness.
+
 ## 4. Differences to act on
 
 Each needs its own ADR and a `sim:gate` run before any change.
@@ -198,4 +219,4 @@ What it would take to rebuild the rules from this report alone, area by area.
 | Rival computer player           | missing                | decision logic not decoded                                              |
 | Doctor and sickness             | partial                | trigger inferred                                                        |
 
-Verdict: the economy, time and character systems can be rebuilt from this report. A faithful rebuild of the whole game cannot yet, mainly because of the happiness deltas, the rival player and the event tables.
+Verdict: the economy, time and character systems can be rebuilt from this report. A faithful rebuild of the whole game cannot yet, mainly because of the rival player, the event tables, and a few unmapped happiness and penalty rules.
