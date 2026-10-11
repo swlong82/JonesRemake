@@ -51,6 +51,7 @@ Related: `docs/ORIGINAL_REFERENCE.md` (the researched baseline), ADR-0069 (audit
 | 33  | Pawn window           | pawning sets a three-step countdown (24, 16, 8, 0) advanced each turn; at 0 the item is flagged available to others                                                                                                          | code             | `redeemRounds` 2                                                                                                               | match (approximately)                   |
 | 34  | Rent debt             | at the 4-week check an unpaid prepaid-rent item with no extension adds one month of rent to rent owed; an extension defers the check by one week; between checks the same test runs once if no debt exists                   | code             | rent debt and extension rules                                                                                                  | match                                   |
 | 35  | Loan cycle            | on the 4-week check a loan decrements a payment counter; if no payment was made that cycle a late-payment counter increases; borrowing needs the counter to be zero or above and the late count lowers the limit             | code, medium     | n/a                                                                                                                            | gap (see rule 18)                       |
+| 36  | Course fee            | one tuition object with a base price of 50 per enrolment; enrolment needs cash at or above the price and no other course in progress beyond the degrees already earned (reading of the guard is medium confidence)           | data, code       | `enrollFee` 50, up to 4 concurrent courses                                                                                     | match on price; concurrency differs     |
 
 ## 3. Data tables
 
@@ -169,4 +170,4 @@ Each needs its own ADR and a `sim:gate` run before any change.
 
 ## 5. Not decoded
 
-Doctor and starvation triggers, the mapping of the seven price rows to named instruments, the text tables for weekend events and headlines, rent-hike behaviour, course fees, and the exact loan terms. Two secondary columns of the job table are unmapped.
+Doctor and starvation triggers, the mapping of the seven price rows to named instruments, the text tables for weekend events and headlines, rent-hike behaviour, and the exact loan terms. Two secondary columns of the job table are unmapped.
