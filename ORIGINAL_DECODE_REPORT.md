@@ -219,4 +219,27 @@ What it would take to rebuild the rules from this report alone, area by area.
 | Rival computer player           | missing                | decision logic not decoded                                              |
 | Doctor and sickness             | partial                | trigger inferred                                                        |
 
-Verdict: the economy, time and character systems can be rebuilt from this report. A faithful rebuild of the whole game cannot yet, mainly because of the rival player, the event tables, and a few unmapped happiness and penalty rules.
+Verdict: the economy, time and character systems can be rebuilt from this report. A rebuild is now possible to a first approximation, including the rival's behaviour. What still blocks a faithful copy of the whole game is the event tables, the unmapped happiness and penalty rules, the food price scale, and the exact market-row mapping.
+
+## 7. Rival decision rules
+
+The computer opponent is a priority-ordered rule list, not a search. Each turn it resumes at a rule index (so it can fall through earlier rules), picks the first rule whose conditions hold, and returns a destination on the ring plus up to three actions to perform on arrival, a quantity, and a plan id. Every plan that involves earning, withdrawing or travelling first checks that route time plus work time fits in the hours left (`used + needed <= 60`). Route time is the sum of path-point distances between stops (capped at half the 172-point ring) at 15 points per hour, plus 2 hours per stop. Prices are base prices scaled by the economy reading. Confidence is medium: the action codes were not mapped one to one.
+
+Rules in priority order, most urgent first:
+
+1. Unemployed and not already refused this week: go to the employment office to apply.
+2. No food, outfit lasts more than a week, cash covers rent plus food: buy food (grocery if a refrigerator is owned, otherwise the burger place), then pay rent.
+3. No food, cash covers rent plus outfit plus food: buy food, buy an outfit, pay rent.
+4. Cash covers an outfit and the outfit is about to expire: buy an outfit.
+5. No food, cash under rent but covers food: buy food only.
+6. Cash covers rent: pay rent at the rent office.
+7. Employed and dressed, rent short: work `ceil((rent - cash) / (8 x wage))` sessions if the route and work time fit in the week.
+8. Cash plus bank covers rent and the bank is reachable in time: withdraw, then pay rent.
+9. Not yet asked this month and cash plus three weeks of wages covers rent: ask for an extension.
+10. Pawnable durables plus cash cover rent: pawn the items to raise the shortfall.
+11. The same chain repeats for an outfit shortfall (work, withdraw, pawn, buy) and for a food shortfall (work, withdraw, pawn, buy).
+12. Career: ask for a raise if raises are under 2, dependability is at least the job minimum plus 10 plus 5 per raise, and the current market wage exceeds the paid wage; look for a better job if experience has reached its cap (cap under 80), dependability is at least the job minimum plus 10, and the top wage exceeds the current wage; work extra sessions to close the gap to the experience cap or the dependability requirement.
+13. When employed, dressed and allowed to spend: redeem pawned items when cash covers the redemption price; go home to relax when relaxation is 10, or below 17; enrol in a course with a 1-in-2 chance when cash is over 400 and degrees are under 11; buy durables or reference books when cash is over 800 or 1500, skipping purchases once the happiness goal is met; buy and sell market holdings when the economy trend is up or down and cash or bank balances pass 750 and 1500.
+14. Fallback: go home.
+
+What this gives a rebuild: the rival's behaviour is a survival-first planner (food, outfit, rent), then career, then study, then optional spending, with fixed cash thresholds of 400, 750, 800 and 1500 and a 1-in-2 coin for study. Exact conditions for the market rules and the action codes remain unmapped.
