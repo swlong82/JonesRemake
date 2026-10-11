@@ -116,7 +116,25 @@ Order is the original's job index. "Dependability" and "experience" are requirem
 | 37  | 22   | 70            | 70         | business-admin  | academic    | business |
 | 38  | 25   | 70            | 70         | business-admin  | engineering | business |
 
-Distribution: wages 5-25; requirements 10-70 in steps of ten; 24 jobs need at least one degree and 5 need two; uniform tiers casual 17, dress 9, business 12. Two further columns (a workplace code and a ladder rank) exist but their mapping was not confirmed.
+Distribution: wages 5-25; requirements 10-70 in steps of ten; 24 jobs need at least one degree and 5 need two; uniform tiers casual 17, dress 9, business 12. The workplace column is decoded in section 3.1a; the last column is the listing order within each workplace.
+
+### 3.1a Jobs by workplace
+
+The workplace column is the ring location code (1 rent office, 3 grocery, 4 bank, 5 factory, 7 university, 8 electronics shop, 10 burger place, 11 discount shop, 12 pawn shop). The employment office and the clothing boutique offer no jobs. Each list is a ladder in listing order, written as wage / dependability / experience.
+
+| Workplace            | Jobs | Ladder                                                                                |
+| -------------------- | ---- | ------------------------------------------------------------------------------------- |
+| Rent office (1)      | 2    | 7/20/10, 9/30/30                                                                      |
+| Grocery (3)          | 5    | 6/10/10, 8/20/20, 9/30/30, 15/40/40, 18/50/50                                         |
+| Bank (4)             | 5    | 6/20/10, 10/40/40, 14/50/50, 19/60/60, 22/70/70                                       |
+| Factory (5)          | 9    | 7/20/10, 8/30/30, 9/40/40, 10/40/40, 18/50/50, 19/50/50, 22/60/60, 23/60/60, 25/70/70 |
+| University (7)       | 3    | 5/10/10, 11/50/40, 20/60/50                                                           |
+| Electronics shop (8) | 4    | 6/20/10, 7/30/20, 11/40/40, 14/40/40                                                  |
+| Burger place (10)    | 3    | 6/20/10, 7/30/20, 8/40/30                                                             |
+| Discount shop (11)   | 3    | 5/10/10, 7/20/20, 8/30/30                                                             |
+| Pawn shop (12)       | 4    | 6/20/10, 8/30/30, 9/40/40, 12/50/50                                                   |
+
+Requirements for degrees follow the first table. The top job (25/70/70) is in the factory; the 20/60/50 job is in the university. `classic` has ten workplaces and 46 jobs, includes clothing-boutique and employment-office jobs, and starts its ladders lower (dependability and experience 0).
 
 ### 3.2 Starting state
 
@@ -211,7 +229,7 @@ Each needs its own ADR and a `sim:gate` run before any change.
 
 ## 5. Not decoded
 
-Doctor and starvation triggers, the mapping of the seven price rows to named instruments, the text tables for weekend events and headlines, and the loan payment step (borrowing limit is confirmed). Two secondary columns of the job table are unmapped.
+Doctor and starvation triggers, the mapping of the seven price rows to named instruments, the text tables for weekend events and headlines, and the loan payment step (borrowing limit is confirmed).
 
 ## 8. Turn sequence (start of each player's turn)
 
@@ -242,22 +260,22 @@ Per-turn bookkeeping that is not a step: dependability decays by 3 at turn end (
 
 What it would take to rebuild the rules from this report alone, area by area.
 
-| Area                            | State                  | Gap                                                                     |
-| ------------------------------- | ---------------------- | ----------------------------------------------------------------------- |
-| Board, travel, time             | complete               | none                                                                    |
-| Goals, win check, stat formulas | complete               | experience cap formula                                                  |
-| Jobs                            | table complete         | firing rule and raise details only partly decoded; two columns unmapped |
-| Education                       | complete               | concurrency guard only medium confidence                                |
-| Housing and rent                | complete               | eviction rule not decoded                                               |
-| Clothing                        | complete               | none                                                                    |
-| Durables and prices             | complete for two shops | junk-goods stock lists summarised, not tabulated                        |
-| Food and starvation             | partial                | food price scale unresolved; starvation penalty not decoded             |
-| Bank, loans                     | partial                | payment step low confidence; deposit and withdrawal fees not checked    |
-| Market and economy              | model complete         | row-to-instrument mapping and per-row base prices uncertain             |
-| Events and news                 | partial                | weekend event effects, news text and street thief not decoded           |
-| Happiness effects               | missing                | the per-action deltas live in many scripts and were not collected       |
-| Rival computer player           | missing                | decision logic not decoded                                              |
-| Doctor and sickness             | partial                | trigger inferred                                                        |
+| Area                            | State                  | Gap                                                                  |
+| ------------------------------- | ---------------------- | -------------------------------------------------------------------- |
+| Board, travel, time             | complete               | none                                                                 |
+| Goals, win check, stat formulas | complete               | experience cap formula                                               |
+| Jobs                            | table complete         | firing rule and raise details only partly decoded                    |
+| Education                       | complete               | concurrency guard only medium confidence                             |
+| Housing and rent                | complete               | eviction rule not decoded                                            |
+| Clothing                        | complete               | none                                                                 |
+| Durables and prices             | complete for two shops | junk-goods stock lists summarised, not tabulated                     |
+| Food and starvation             | partial                | food price scale unresolved; starvation penalty not decoded          |
+| Bank, loans                     | partial                | payment step low confidence; deposit and withdrawal fees not checked |
+| Market and economy              | model complete         | row-to-instrument mapping and per-row base prices uncertain          |
+| Events and news                 | partial                | weekend event effects, news text and street thief not decoded        |
+| Happiness effects               | missing                | the per-action deltas live in many scripts and were not collected    |
+| Rival computer player           | missing                | decision logic not decoded                                           |
+| Doctor and sickness             | partial                | trigger inferred                                                     |
 
 Verdict: the economy, time and character systems can be rebuilt from this report. A rebuild is now possible to a first approximation, including the rival's behaviour. What still blocks a faithful copy of the whole game is the event tables, the unmapped happiness and penalty rules, the food price scale, and the exact market-row mapping.
 
